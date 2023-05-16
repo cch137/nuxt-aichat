@@ -29,10 +29,17 @@ export default defineEventHandler(async (event) => {
     sameSite: true,
     secure: true
   }))
-  const conversations = await message.aggregate([
-    { $match: { user } },
-    { $group: { _id: '$user', conv: { $addToSet: '$conv' } } },
-    { $project: { _id: 0, conv: 1 } }
-  ]).exec()
-  return conversations[0].conv as string[]
+  try {
+    const conversations = (await message.aggregate([
+      { $match: { user } },
+      { $group: { _id: '$user', conv: { $addToSet: '$conv' } } },
+      { $project: { _id: 0, conv: 1 } }
+    ]).exec())[0]?.conv
+    if (Array.isArray(conversations)) {
+      return conversations as string[]
+    }
+  } catch (err) {
+    console.error(err)
+  }
+  return []
 })

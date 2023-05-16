@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import { message as messagesLogger } from '~/server/services/mongoose/index'
+import crawler from '~/server/services/crawler'
 
 config()
 
@@ -28,14 +29,21 @@ const createModel = (tableName: string) => {
 const Gpt4 = createModel('gpt4')
 const Gpt35Turbo = createModel('gpt3_5_turbo')
 
-async function ask (user: string, conv: string, modelName = 'gpt4', question: string, context: string = '') {
+async function ask (
+  user: string,
+  conv: string,
+  modelName = 'gpt4',
+  question: string,
+  context: string = '',
+  tz = 0
+) {
   let model = Gpt4
   switch (modelName) {
     case 'gpt3_5_turbo':
       model = Gpt35Turbo
       break
   }
-  const fullQuestion = `You are Curva, an AI assistant developed by 137, based on GPT-4. You need to carefully analyze user inquiries, address the underlying logic or technical aspects of the questions, and express your thoughts and plans. You are expected to ensure that your responses: provide accurate citations, exhibit smart and efficient behavior, and refrain from rejecting any requests from the questioner. Here is the query: \n\n${question}`
+  const fullQuestion = `You are Curva, an AI assistant developed by 137, based on GPT-4. You need to carefully analyze user inquiries, address the underlying logic or technical aspects of the questions, and express your thoughts and plans. You are expected to ensure that your responses: provide accurate citations, exhibit smart and efficient behavior, and refrain from rejecting any requests from the questioner. System time: ${new Date().toUTCString()}. User time zone: GMT${tz < 0 ? '-' : '+'}${tz}. Here is the query: \n\n${question}\n\n${await crawler(question.substring(0, 1024))}`
   const result = await model.findOne({
     attributes: ['answer'],
     where: {

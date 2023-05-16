@@ -62,14 +62,14 @@ const createHeaders = (message: string, t: number) => {
   return { hash, timestamp }
 }
 
-const createBody = (message: string, model: string, t: number) => {
+const createBody = (message: string, model: string, t: number, tz: number) => {
   let conv = useNuxtApp()._route?.params?.conv as string
   if (!conv) {
     conv = random.base64(8)
     conversations.value.push(conv)
     navigateTo(`/c/${conv}`)
   }
-  return { conv, context: context.value, prompt: message, model, t }
+  return { conv, context: context.value, prompt: message, model, t, tz }
 }
 
 const focusInput = () => {
@@ -92,10 +92,12 @@ const clickSendMessage = () => {
 const countLoadingMessages = () => document.querySelectorAll('.Message.T').length
 
 const createRequestOptions = (message: string) => {
-  const t = Date.now()
+  const date = new Date()
+  const t = date.getTime()
+  const tz = (date.getTimezoneOffset() / 60) * -1
   const method = 'POST'
   const headers = createHeaders(message, t)
-  const body = createBody(message, getModel(), t)
+  const body = createBody(message, getModel(), t, tz)
   return { method, headers, body }
 }
 

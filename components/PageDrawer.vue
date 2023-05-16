@@ -52,6 +52,10 @@ const messages = useState('messages')
 const context = useState('context', () => '')
 const currentConv = ref('')
 
+const focusInput = () => {
+  document.querySelector('.InputBox textarea').focus()
+}
+
 const goToChat = (conv) => {
   const currentConv = useNuxtApp()._route?.params?.conv
   if (currentConv !== conv || conv === null) {
@@ -59,6 +63,7 @@ const goToChat = (conv) => {
     initPage(conv)
   }
   openDrawer.value = false
+  focusInput()
 }
 
 const {
@@ -74,7 +79,7 @@ const checkTokenAndGetConversations = () => {
   return new Promise((resolve, reject) => {
     $fetch('/api/token/check', { method: 'POST' })
       .then((_conversations) => {
-        conversations.value = _conversations
+        conversations.value = _conversations.sort()
         resolve()
       })
       .catch((err) => {

@@ -5,6 +5,7 @@ import { read as tokenReader } from '~/server/services/token'
 import chat from '~/server/services/chat'
 import getIp from '~/server/services/getIp'
 import troll from '~/utils/troll'
+import crawler from '~/server/services/crawler'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -12,7 +13,7 @@ export default defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 }
   }
-  const { conv, prompt, context = '', model, t } = body
+  const { conv, prompt, context = '', model, t, tz = 0 } = body
   // @ts-ignore
   if (!conv || !prompt ||!model || !t) {
     return { error: 2 }
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event) => {
   try {
     return {
       version,
-      answer: (await chat.ask(user, conv, model, prompt, context)).answer
+      answer: (await chat.ask(user, conv, model, prompt, context, tz)).answer
     }
   } catch (err) {
     console.error(err)
