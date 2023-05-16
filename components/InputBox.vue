@@ -3,14 +3,6 @@
     <el-form ref="inputForm" class="mx-auto mb-2 max-w-full" @submit.prevent>
       <el-form-item style="margin: 0;">
         <div class="flex gap-3 w-full">
-          <el-button
-            type="danger"
-            size="large"
-            class="DeleteButton"
-            :icon="Delete"
-            plain
-            @click="clearMessages"
-          />
           <el-input
             v-model="inputValue"
             :autosize="{ minRows: 2, maxRows: 16 }"
@@ -39,8 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { Delete } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import random from '~/utils/random'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
@@ -48,18 +39,12 @@ import str from '~/utils/str'
 const inputValue = ref('')
 const context = ref('')
 const messages = useState('messages', () => [] as Array<{ type: string, text: string, t: Date }>)
+const conversations = useState('conversations', () => [] as string[])
 
 const f = () => $fetch
 const { h: createHash } = troll
-const conv = random.base64(8)
 const model = useState('model')
-
-if (process.client) {
-  const loading = ElLoading.service()
-  f()('/api/token/check', { method: 'POST' })
-    .catch(() => ElMessage.error('Initialization Failed'))
-    .finally(() => loading.close())
-}
+const version = useState('version')
 
 const apiPath = '/api/chat'
 
@@ -78,6 +63,12 @@ const createHeaders = (message: string, t: number) => {
 }
 
 const createBody = (message: string, model: string, t: number) => {
+  let conv = useNuxtApp()._route?.params?.conv as string
+  if (!conv) {
+    conv = random.base64(8)
+    conversations.value.push(conv)
+    navigateTo(`/c/${conv}`)
+  }
   return { conv, context: context.value, prompt: message, model, t }
 }
 
@@ -96,27 +87,6 @@ const keyboardSendMessage = (e: KeyboardEvent) => {
 const clickSendMessage = () => {
   sendMessage()
   focusInput()
-}
-
-const clearMessages = () => {
-  ElMessageBox.confirm(
-    'Do you want to clear the current conversation?',
-    'Warning', {
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Cancel',
-      type: 'warning'
-    })
-    .then(() => {
-      context.value = ''
-      messages.value = []
-      ElMessage.success('Cleared current conversation')
-    })
-    .catch(() => {
-      ElMessage.info('Clear canceled')
-    })
-    .finally(() => {
-      focusInput()
-    })
 }
 
 const countLoadingMessages = () => document.querySelectorAll('.Message.T').length
@@ -154,9 +124,25 @@ const sendMessage = (): boolean => {
   createRequest(message)
     .then((res) => {
       const answer = (res as any).answer as string
+      const _version = (res as any).version as string
       // @ts-ignore
       if (!answer) {
         throw 'Please refresh the page.'
+      }
+      if (_version !== version.value) {
+        ElMessageBox.confirm(
+          'A new version has been released! Do you want to reload the page?',
+          'Notice', {
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          })
+          .then(() => {
+            location.reload()
+          })
+          .finally(() => {
+            focusInput()
+          })
       }
       answerMessage.text = answer
       context.value = answer

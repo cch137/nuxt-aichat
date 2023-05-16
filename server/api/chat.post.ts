@@ -1,8 +1,9 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
+import { version } from '~/package.json'
+import { read as tokenReader } from '~/server/services/token'
 import chat from '~/server/services/chat'
 import getIp from '~/server/services/getIp'
-import { read as tokenReader } from '~/server/services/token'
 import troll from '~/utils/troll'
 
 export default defineEventHandler(async (event) => {
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
   }
   try {
     return {
+      version,
       answer: (await chat.ask(user, conv, model, prompt, context)).answer
     }
   } catch (err) {

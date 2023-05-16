@@ -1,4 +1,5 @@
 {
+  "version": "0.1.0",
   "name": "curva",
   "private": true,
   "scripts": {
@@ -35,7 +36,6 @@
     "vue": "^3.3.2"
   },
   "description": "Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.",
-  "version": "0.0.0",
   "main": ".output/server/index.mjs",
   "repository": {
     "type": "git",

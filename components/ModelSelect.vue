@@ -1,6 +1,6 @@
 <template>
   <div class="flex-center gap-2">
-    <el-text size="large">Model:</el-text>
+    <el-text size="large" class="ModelSelectLabel">Model:</el-text>
     <el-select
       v-model="value"
       placeholder="Select model"
@@ -35,8 +35,11 @@ const options = [
   max-width: 10rem;
 }
 @media screen and (max-width: 500px) {
-.ModelSelect {
-  max-width: 8rem;
-}
+  .ModelSelect {
+    max-width: 8rem;
+  }
+  .ModelSelectLabel {
+    display: none;
+  }
 }
 </style>

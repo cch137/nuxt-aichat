@@ -1,10 +1,13 @@
 <template>
   <el-affix>
     <div class="PageHeader w-full px-4 gap-4 flex items-stretch">
+      <div>
+        <el-button style="padding: 8px;" @click="openDrawer = true">
+          <MenuIcon />
+        </el-button>
+      </div>
       <div class="text-2xl font-medium">
-        <NuxtLink to="/">
-          {{ appName }}
-        </NuxtLink>
+        {{ appName }}
       </div>
       <div class="flex-1"></div>
       <ModelSelect />
@@ -21,6 +24,7 @@
 </template>
 
 <script setup>
+const openDrawer = useState('openDrawer', () => false)
 const appName = useState('appName')
 </script>
 

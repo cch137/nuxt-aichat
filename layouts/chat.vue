@@ -5,5 +5,6 @@
   <slot />
   <ClientOnly>
     <InputBox />
+    <PageDrawer />
   </ClientOnly>
 </template>
