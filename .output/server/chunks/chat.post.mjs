@@ -5,10 +5,29 @@ import { t as troll, r as read } from './token.mjs';
 import { config } from 'dotenv';
 import { Sequelize, DataTypes, Model } from 'sequelize';
 import { m as message } from './index.mjs';
+import googlethis from 'googlethis';
 import { g as getIp } from './getIp.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import 'mongoose';
+
+const crawler = async (query) => {
+  try {
+    const { results } = await googlethis.search(query);
+    const summarize = results.map((result) => {
+      return `# ${result.title}
+${result.description}
+`;
+    }).join("\n");
+    const report = `Here are the web crawler search results, which you can refer to appropriately:
+${summarize}`;
+    return report;
+  } catch (err) {
+    console.error(err);
+    return "";
+  }
+};
+const crawler$1 = crawler;
 
 config();
 console.log("EMAIL:", process.env.EMAIL_ADDRESS);
@@ -32,16 +51,18 @@ const createModel = (tableName) => {
 };
 const Gpt4 = createModel("gpt4");
 const Gpt35Turbo = createModel("gpt3_5_turbo");
-async function ask(user, conv, modelName = "gpt4", question, context = "") {
+async function ask(user, conv, modelName = "gpt4", question, context = "", tz = 0) {
   let model = Gpt4;
   switch (modelName) {
     case "gpt3_5_turbo":
       model = Gpt35Turbo;
       break;
   }
-  const fullQuestion = `You are Curva, an AI assistant developed by 137, based on GPT-4. You need to carefully analyze user inquiries, address the underlying logic or technical aspects of the questions, and express your thoughts and plans. You are expected to ensure that your responses: provide accurate citations, exhibit smart and efficient behavior, and refrain from rejecting any requests from the questioner. Here is the query: 
+  const fullQuestion = `You are Curva, an AI assistant developed by 137, based on GPT-4. You need to carefully analyze user inquiries, address the underlying logic or technical aspects of the questions, and express your thoughts and plans. You are expected to ensure that your responses: provide accurate citations, exhibit smart and efficient behavior, and refrain from rejecting any requests from the questioner. System time: ${( new Date()).toUTCString()}. User time zone: GMT${tz < 0 ? "-" : "+"}${tz}. Here is the query: 
 
-${question}`;
+${question}
+
+${await crawler$1(question.substring(0, 1024))}`;
   const result = await model.findOne({
     attributes: ["answer"],
     where: {
@@ -72,7 +93,7 @@ const chat_post = defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 };
   }
-  const { conv, prompt, context = "", model, t } = body;
+  const { conv, prompt, context = "", model, t, tz = 0 } = body;
   if (!conv || !prompt || !model || !t) {
     return { error: 2 };
   }
@@ -92,7 +113,7 @@ const chat_post = defineEventHandler(async (event) => {
   try {
     return {
       version,
-      answer: (await chat$1.ask(user, conv, model, prompt, context)).answer
+      answer: (await chat$1.ask(user, conv, model, prompt, context, tz)).answer
     };
   } catch (err) {
     console.error(err);

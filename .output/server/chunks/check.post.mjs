@@ -9,6 +9,7 @@ import 'mongoose';
 import 'dotenv';
 
 const check_post = defineEventHandler(async (event) => {
+  var _a;
   const { req, res } = event.node;
   const ip = getIp(req);
   const rawCookie = req.headers.cookie;
@@ -29,12 +30,19 @@ const check_post = defineEventHandler(async (event) => {
     sameSite: true,
     secure: true
   }));
-  const conversations = await message.aggregate([
-    { $match: { user } },
-    { $group: { _id: "$user", conv: { $addToSet: "$conv" } } },
-    { $project: { _id: 0, conv: 1 } }
-  ]).exec();
-  return conversations[0].conv;
+  try {
+    const conversations = (_a = (await message.aggregate([
+      { $match: { user } },
+      { $group: { _id: "$user", conv: { $addToSet: "$conv" } } },
+      { $project: { _id: 0, conv: 1 } }
+    ]).exec())[0]) == null ? void 0 : _a.conv;
+    if (Array.isArray(conversations)) {
+      return conversations;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+  return [];
 });
 
 export { check_post as default };

@@ -5,7 +5,6 @@ import { read as tokenReader } from '~/server/services/token'
 import chat from '~/server/services/chat'
 import getIp from '~/server/services/getIp'
 import troll from '~/utils/troll'
-import crawler from '~/server/services/crawler'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
