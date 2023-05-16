@@ -1,7 +1,8 @@
-import { _ as __nuxt_component_0 } from './client-only-29ef7f45.mjs';
-import { ref, useSSRContext } from 'vue';
-import { u as useState, a as useHead } from '../server.mjs';
-import { ssrRenderComponent } from 'vue/server-renderer';
+import { _ as __nuxt_component_0 } from './ChatCore-14cdd898.mjs';
+import { useSSRContext } from 'vue';
+import { u as useHead, a as useState } from '../server.mjs';
+import { ssrRenderAttrs, ssrRenderComponent } from 'vue/server-renderer';
+import './client-only-29ef7f45.mjs';
 import 'ofetch';
 import 'hookable';
 import 'unctx';
@@ -28,33 +29,26 @@ import 'node:url';
 import 'pathe';
 
 const _sfc_main = {
-  __name: "index",
+  __name: "[conv]",
   __ssrInlineRender: true,
   setup(__props) {
-    const loadingDots = ref(".");
-    setInterval(() => {
-      if (loadingDots.value.length < 4) {
-        loadingDots.value += ".";
-      } else {
-        loadingDots.value = ".";
-      }
-    }, 500);
-    useState("messages", () => []);
     useHead({
       title: `Chat - ${useState("appName").value}`
     });
     return (_ctx, _push, _parent, _attrs) => {
-      const _component_ClientOnly = __nuxt_component_0;
-      _push(ssrRenderComponent(_component_ClientOnly, _attrs, {}, _parent));
+      const _component_ChatCore = __nuxt_component_0;
+      _push(`<div${ssrRenderAttrs(_attrs)}>`);
+      _push(ssrRenderComponent(_component_ChatCore, null, null, _parent));
+      _push(`</div>`);
     };
   }
 };
 const _sfc_setup = _sfc_main.setup;
 _sfc_main.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/index.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/c/[conv].vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-034654f7.mjs.map
+//# sourceMappingURL=_conv_-0bf8b0c5.mjs.map

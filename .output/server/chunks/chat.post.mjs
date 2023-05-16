@@ -1,12 +1,14 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
+import { v as version } from './package.mjs';
+import { t as troll, r as read } from './token.mjs';
 import { config } from 'dotenv';
 import { Sequelize, DataTypes, Model } from 'sequelize';
 import { m as message } from './index.mjs';
-import { t as troll, r as read, g as getIp } from './token.mjs';
-import 'mongoose';
+import { g as getIp } from './getIp.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
+import 'mongoose';
 
 config();
 console.log("EMAIL:", process.env.EMAIL_ADDRESS);
@@ -89,6 +91,7 @@ const chat_post = defineEventHandler(async (event) => {
   }
   try {
     return {
+      version,
       answer: (await chat$1.ask(user, conv, model, prompt, context)).answer
     };
   } catch (err) {

@@ -1,11 +1,6 @@
 import sha3 from 'crypto-js/sha3.js';
 import md5 from 'crypto-js/md5.js';
 
-const getIp = (req) => {
-  return (req == null ? void 0 : req.headers["x-forwarded-for"]) || (req == null ? void 0 : req.headers["x-real-ip"]) || (req == null ? void 0 : req.ip) || "";
-};
-const getIp$1 = getIp;
-
 const str = (obj) => {
   if ((obj == null ? void 0 : obj.toString) === void 0) {
     return "";
@@ -443,5 +438,5 @@ function read(token) {
   return null;
 }
 
-export { random$1 as a, generate as b, getIp$1 as g, pack as p, read as r, troll$1 as t };
+export { random$1 as a, generate as g, pack as p, read as r, troll$1 as t };
 //# sourceMappingURL=token.mjs.map

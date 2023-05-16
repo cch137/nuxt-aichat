@@ -1,6 +1,6 @@
 import { mergeProps, withCtx, createTextVNode, toDisplayString, useSSRContext, defineComponent, computed, ref, h, resolveComponent } from 'vue';
 import { hasProtocol, parseURL, parseQuery, withTrailingSlash, withoutTrailingSlash } from 'ufo';
-import { _ as _export_sfc, a as useHead, b as useRouter, n as navigateTo } from '../server.mjs';
+import { _ as _export_sfc, u as useHead, b as useRouter, n as navigateTo } from '../server.mjs';
 import { ssrRenderAttrs, ssrInterpolate, ssrRenderComponent } from 'vue/server-renderer';
 import 'ofetch';
 import 'hookable';
@@ -289,4 +289,4 @@ _sfc_main.setup = (props, ctx) => {
 const error404 = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-30d2164e"]]);
 
 export { error404 as default };
-//# sourceMappingURL=error-404-eb878305.mjs.map
+//# sourceMappingURL=error-404-85ce86fd.mjs.map

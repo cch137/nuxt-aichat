@@ -440,17 +440,28 @@ const createError = (err) => {
   _err.__nuxt_error = true;
   return _err;
 };
+const __nuxt_page_meta$1 = {
+  layout: "chat"
+};
 const __nuxt_page_meta = {
   layout: "chat"
 };
 const _routes = [
+  {
+    name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c-conv",
+    path: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.path) ?? "/c/:conv()",
+    meta: __nuxt_page_meta$1 || {},
+    alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
+    redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
+    component: () => import('./_nuxt/_conv_-0bf8b0c5.mjs').then((m) => m.default || m)
+  },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
     path: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.path) ?? "/",
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-034654f7.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-2f29a3cd.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -458,7 +469,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-484857b1.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-21075882.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -899,7 +910,7 @@ const _sfc_main = {
   __name: "nuxt-root",
   __ssrInlineRender: true,
   setup(__props) {
-    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-a53139f9.mjs').then((r) => r.default || r));
+    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-8f3c6ea6.mjs').then((r) => r.default || r));
     const IslandRenderer = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/island-renderer-de1cd5d1.mjs').then((r) => r.default || r));
     const nuxtApp = useNuxtApp();
     nuxtApp.deferHydration();
@@ -965,5 +976,5 @@ const plugins = normalizePlugins(_plugins);
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useHead as a, useRouter as b, createError as c, entry$1 as default, navigateTo as n, useState as u };
+export { _export_sfc as _, useState as a, useRouter as b, createError as c, entry$1 as default, navigateTo as n, useHead as u };
 //# sourceMappingURL=server.mjs.map
