@@ -1,0 +1,64 @@
+:root {
+  --grid-pattern-bg-color: rgba(159,219,252,.2);
+}
+
+html.dark {
+  --grid-pattern-bg-color: rgba(159,219,252,.05);
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+}
+
+.el-loading-mask.is-fullscreen {
+  backdrop-filter: blur(5px);
+}
+
+html.dark {
+  --el-fill-color-blank: var(--el-bg-color) !important;
+}
+
+* {
+  /* font-family: var(--font-family); */
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -webkit-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::-moz-selection {
+  background: #8af8;
+}
+
+::selection {
+  background: #8af8;
+}
+
+svg {
+  fill: currentColor;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-lock {
+  user-select: none;
+  pointer-events: none;
+}
+
+.grid-pattern-bg {
+  background-image:
+    linear-gradient(90deg, var(--grid-pattern-bg-color) 3%, transparent 0),
+    linear-gradient(1turn, var(--grid-pattern-bg-color) 3%, transparent 0);
+  background-size: 20px 20px;
+  background-position: 50%;
+}

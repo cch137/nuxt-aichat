@@ -1,0 +1,59 @@
+{
+  "name": "curva",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "nuxt dev",
+    "start": "node .output/server/index.mjs"
+  },
+  "devDependencies": {
+    "@element-plus/nuxt": "^1.0.5",
+    "@types/cookie": "^0.5.1",
+    "@types/crypto-js": "^4.1.1",
+    "@types/marked": "^4.3.0",
+    "@types/node": "^18.16.9",
+    "@types/qs": "^6.9.7",
+    "autoprefixer": "^10.4.14",
+    "cookie": "^0.5.0",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.3",
+    "element-plus": "^2.3.4",
+    "marked": "^5.0.2",
+    "mongoose": "^7.1.1",
+    "mysql2": "^3.3.1",
+    "nuxt": "^3.4.3",
+    "postcss": "^8.4.23",
+    "qs": "^6.11.1",
+    "sass": "^1.62.1",
+    "sequelize": "^6.31.1",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.0.4",
+    "vue": "^3.3.2"
+  },
+  "description": "Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.",
+  "version": "0.0.0",
+  "main": ".output/server/index.mjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cch137/curva.git"
+  },
+  "keywords": [
+    "curva",
+    "chat",
+    "ai",
+    "gpt"
+  ],
+  "engines": {
+    "node": ">=17 <20"
+  },
+  "author": "cch137",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/cch137/curva/issues"
+  },
+  "homepage": "https://github.com/cch137/curva#readme"
+}

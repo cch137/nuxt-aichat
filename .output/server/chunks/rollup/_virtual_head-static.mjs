@@ -1,0 +1,4 @@
+const _virtual__headStatic = {"headTags":"<meta charset=\"UTF-8\">\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,user-scalable=no\">\n<meta name=\"author\" content=\"Curva\">\n<meta name=\"keywords\" content=\"Curva\">\n<meta name=\"description\" content=\"Oh yeah! It's an AI chat robot!\">\n<meta property=\"og:description\" content=\"Oh yeah! It's an AI chat robot!\">\n<meta property=\"og:type\" content=\"website\">\n<meta property=\"og:site_name\" content=\"Curva\">\n<meta property=\"og:image\" content=\"https://voodex.netlify.app/bg/black-trianglify-3.png\">\n<noscript><strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript>","bodyTags":"","bodyTagsOpen":"","htmlAttrs":"","bodyAttrs":""};
+
+export { _virtual__headStatic as default };
+//# sourceMappingURL=_virtual_head-static.mjs.map
