@@ -2,25 +2,11 @@ import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { config } from 'dotenv';
 import { Sequelize, DataTypes, Model } from 'sequelize';
-import mongoose, { model, Schema } from 'mongoose';
+import { m as message } from './index.mjs';
 import { t as troll, r as read, g as getIp } from './token.mjs';
+import 'mongoose';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-
-const messagesLogger = model("Message", new Schema({
-  user: { type: String, required: true },
-  conv: { type: String, required: true },
-  model: { type: String, required: true },
-  Q: { type: String, required: true },
-  A: { type: String, required: true }
-}, {
-  versionKey: false
-}), "messages");
-
-var _a;
-config();
-console.log("MONGO:", (_a = process.env.MONGODB_KEY) == null ? void 0 : _a.slice(0, 11));
-void mongoose.connect(process.env.MONGODB_KEY);
 
 config();
 console.log("EMAIL:", process.env.EMAIL_ADDRESS);
@@ -62,7 +48,7 @@ ${question}`;
     }
   });
   if (result !== null) {
-    messagesLogger.create({
+    message.create({
       user,
       conv,
       model: modelName,

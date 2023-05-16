@@ -450,7 +450,15 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-fb698806.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-034654f7.mjs').then((m) => m.default || m)
+  },
+  {
+    name: "perspective",
+    path: "/perspective",
+    meta: {},
+    alias: [],
+    redirect: void 0,
+    component: () => import('./_nuxt/perspective-484857b1.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -707,7 +715,8 @@ const _wrapIf = (component, props, slots) => {
   return { default: () => props ? h(component, props === true ? {} : props, slots) : h(Fragment, {}, slots) };
 };
 const layouts = {
-  chat: () => import('./_nuxt/chat-856cf46b.mjs').then((m) => m.default || m)
+  chat: () => import('./_nuxt/chat-856cf46b.mjs').then((m) => m.default || m),
+  default: () => import('./_nuxt/default-92333941.mjs').then((m) => m.default || m)
 };
 const LayoutLoader = /* @__PURE__ */ defineComponent({
   name: "LayoutLoader",
