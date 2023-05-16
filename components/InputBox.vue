@@ -37,7 +37,7 @@ import troll from '~/utils/troll'
 import str from '~/utils/str'
 
 const inputValue = ref('')
-const context = ref('')
+const context = useState('context', () => '')
 const messages = useState('messages', () => [] as Array<{ type: string, text: string, t: Date }>)
 const conversations = useState('conversations', () => [] as string[])
 

@@ -49,6 +49,7 @@ const openDrawer = useState('openDrawer', () => false)
 const conversations = useState('conversations', () => [])
 const version = useState('version', () => '...')
 const messages = useState('messages')
+const context = useState('context', () => '')
 const currentConv = ref('')
 
 const goToChat = (conv) => {
@@ -87,6 +88,7 @@ const fetchHistory = (conv) => {
   return new Promise((resolve, reject) => {
     currentConv.value = baseConverter.convert(conv, '64w', 10)
     if (conv === undefined || conv === null) {
+      context.value = ''
       return resolve()
     }
     $fetch('/api/history', { method: 'POST', body: { id: conv } })
@@ -100,6 +102,7 @@ const fetchHistory = (conv) => {
           const t = new Date(_t)
           _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, t })
         })
+        context.value = _records.at(-1).text
         messages.value.unshift(..._records)
         resolve()
       })
