@@ -6,18 +6,20 @@ load()
 
 const crawler = async (query: string) => {
   try {
-    const englishQuery = (await translateZh2En(query.substring(0, 5000))).text
-    const extratedQuery = extract(englishQuery, 16).map(w => w.keyword).join(', ')
-    const [results1, results2] = await Promise.all([
-      googlethis.search(query.substring(0, 256)),
-      googlethis.search(extratedQuery)
-    ])
+    const queryInEnglish = (await translateZh2En(query.substring(0, 5000))).text
+    const searchQueries = [
+      extract(queryInEnglish, 16).map(w => w.keyword).join(', '),
+      query.substring(0, 256),
+    ]
+    const [results1, results2] = await Promise.all(searchQueries.map((query) => {
+      return googlethis.search(query)
+    }))
+    console.log('SEARCH:', searchQueries)
     const summarize = [...new Set([
-      ...results1.results.map((r) => `# ${r.title}\n${r.description}\n`),
-      ...results2.results.map((r) => `# ${r.title}\n${r.description}\n`)
-    ])].join('\n\n')
-    const report = `Here are references from the internet. Use only when necessary:\n${summarize}`
-    return report
+      ...results1.results,
+      ...results2.results
+    ].map((r) => `# ${r.title}\n${r.description}\n`))].join('\n\n')
+    return `Here are references from the internet. Use only when necessary:\n${summarize}`
   } catch (err) {
     console.error(err)
     return ''

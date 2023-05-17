@@ -19,7 +19,6 @@
     "@types/marked": "^4.3.0",
     "@types/node": "^20.1.7",
     "@types/qs": "^6.9.7",
-    "@types/tough-cookie": "^4.0.2",
     "autoprefixer": "^10.4.14",
     "axios": "^1.4.0",
     "cookie": "^0.5.0",
