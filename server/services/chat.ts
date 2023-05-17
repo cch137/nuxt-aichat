@@ -14,7 +14,8 @@ const sequelize = new Sequelize(
   process.env.PASSWORD as string,
   {
     host: 'cloud.mindsdb.com',
-    dialect: 'mysql'
+    dialect: 'mysql',
+    logging: false
   }
 )
 

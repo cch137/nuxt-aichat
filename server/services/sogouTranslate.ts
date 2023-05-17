@@ -117,7 +117,8 @@ init().catch(err => {
 const translateZh2En = async (text: string) => {
   try {
     return await translate(text, 'zh-CHS', 'en')
-  } catch {
+  } catch (err) {
+    console.error(err)
     return { text }
   }
 }
