@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3';
-import { parse } from 'cookie';
+import { serialize, parse } from 'cookie';
 import { v as version } from './package.mjs';
 import { s as str, t as troll, r as read } from './token.mjs';
 import { config } from 'dotenv';
@@ -30,11 +30,25 @@ const init = () => new Promise((resolve, reject) => {
       "Referer": "https://fanyi.sogou.com/"
     }
   });
+  const cookieJar = {};
   session.interceptors.request.use(async (config) => {
+    let serializedCookies = "";
+    for (const name in cookieJar) {
+      serializedCookies += serialize(name, cookieJar[name]);
+    }
+    config.headers.Cookie = serializedCookies;
     return config;
   });
   session.interceptors.response.use((response) => {
-    response.headers["set-cookie"];
+    const setCookieHeaders = response.headers["set-cookie"];
+    if (setCookieHeaders) {
+      const cookies = setCookieHeaders.map((c) => parse(c));
+      for (const cookie of cookies) {
+        for (const key in cookie) {
+          cookieJar[key] = cookie[key];
+        }
+      }
+    }
     return response;
   });
   session.get("https://fanyi.sogou.com/text").then((res) => {
