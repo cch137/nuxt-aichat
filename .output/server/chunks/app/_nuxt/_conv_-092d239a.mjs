@@ -1,12 +1,8 @@
-import { _ as __nuxt_component_0 } from './ChatCore-4fa52b3a.mjs';
+import { _ as __nuxt_component_0 } from './ChatCore-6d88c5f3.mjs';
 import { useSSRContext } from 'vue';
 import { u as useHead, a as useState } from '../server.mjs';
 import { ssrRenderAttrs, ssrRenderComponent } from 'vue/server-renderer';
 import './client-only-29ef7f45.mjs';
-import './el-message-defaaacd.mjs';
-import '@vueuse/core';
-import 'lodash-unified';
-import '@vue/shared';
 import 'marked';
 import 'ofetch';
 import 'hookable';
@@ -34,7 +30,7 @@ import 'node:url';
 import 'pathe';
 
 const _sfc_main = {
-  __name: "index",
+  __name: "[conv]",
   __ssrInlineRender: true,
   setup(__props) {
     useHead({
@@ -51,9 +47,9 @@ const _sfc_main = {
 const _sfc_setup = _sfc_main.setup;
 _sfc_main.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/index.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/c/[conv].vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-93d67e79.mjs.map
+//# sourceMappingURL=_conv_-092d239a.mjs.map

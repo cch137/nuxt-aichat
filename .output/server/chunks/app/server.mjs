@@ -478,7 +478,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-681a7309.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-092d239a.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -486,7 +486,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-93d67e79.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-5ed4a775.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -494,7 +494,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-f8e2636b.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-584a0d8f.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
