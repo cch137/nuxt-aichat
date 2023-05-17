@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
+import { parse as parseCookie, serialize as serializeCookie } from 'cookie'
 import { Cookie, CookieJar } from 'tough-cookie'
 import _md5 from 'crypto-js/md5.js'
 
@@ -27,17 +28,24 @@ const init = () => new Promise((resolve, reject) => {
       'Referer': 'https://fanyi.sogou.com/'
     }
   })
-  const cookieJar = new CookieJar()
+  const cookieJar: Record<string,string> = {}
   session.interceptors.request.use(async (config: any) => {
-    const cookieString = await cookieJar.getCookieString(config.url)
-    config.headers.Cookie = cookieString
+    let serializedCookies = ''
+    for (const name in cookieJar) {
+      serializedCookies += serializeCookie(name, cookieJar[name])
+    }
+    config.headers.Cookie = serializedCookies
     return config
   })
   session.interceptors.response.use((response) => {
     const setCookieHeaders = response.headers['set-cookie']
     if (setCookieHeaders) {
-      const cookies = setCookieHeaders.map((c) => Cookie.parse(c))
-      cookies.forEach((cookie: any) => cookieJar.setCookie(cookie, response?.config?.url || ''))
+      const cookies = setCookieHeaders.map((c) => parseCookie(c))
+      for (const cookie of cookies) {
+        for (const key in cookie) {
+          cookieJar[key] = cookie[key]
+        }
+      }
     }
     return response
   })
