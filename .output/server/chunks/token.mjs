@@ -438,5 +438,5 @@ function read(token) {
   return null;
 }
 
-export { random$1 as a, generate as g, pack as p, read as r, troll$1 as t };
+export { random$1 as a, generate as g, pack as p, read as r, str$1 as s, troll$1 as t };
 //# sourceMappingURL=token.mjs.map
