@@ -34,7 +34,7 @@ const init = () => new Promise((resolve, reject) => {
   session.interceptors.request.use(async (config) => {
     let serializedCookies = "";
     for (const name in cookieJar) {
-      serializedCookies += serialize(name, cookieJar[name]);
+      serializedCookies += serialize(name, cookieJar[name]) + "; ";
     }
     config.headers.Cookie = serializedCookies;
     return config;
@@ -42,10 +42,10 @@ const init = () => new Promise((resolve, reject) => {
   session.interceptors.response.use((response) => {
     const setCookieHeaders = response.headers["set-cookie"];
     if (setCookieHeaders) {
-      const cookies = setCookieHeaders.map((c) => parse(c));
+      const cookies = setCookieHeaders.map((c) => parse(c.split(";")[0]));
       for (const cookie of cookies) {
-        for (const key in cookie) {
-          cookieJar[key] = cookie[key];
+        for (const name in cookie) {
+          cookieJar[name] = cookie[name];
         }
       }
     }
@@ -116,23 +116,23 @@ const translateZh2En = async (text) => {
 load();
 const crawler = async (query) => {
   try {
-    const englishQuery = (await translateZh2En(query.substring(0, 5e3))).text;
-    const extratedQuery = extract(englishQuery, 16).map((w) => w.keyword).join(", ");
-    const [results1, results2] = await Promise.all([
-      googlethis.search(query.substring(0, 256)),
-      googlethis.search(extratedQuery)
-    ]);
-    const summarize = [.../* @__PURE__ */ new Set([
-      ...results1.results.map((r) => `# ${r.title}
+    const queryInEnglish = (await translateZh2En(query.substring(0, 5e3))).text;
+    const searchQueries = [
+      extract(queryInEnglish, 16).map((w) => w.keyword).join(", "),
+      query.substring(0, 256)
+    ];
+    const [results1, results2] = await Promise.all(searchQueries.map((query2) => {
+      return googlethis.search(query2);
+    }));
+    console.log("SEARCH:", searchQueries);
+    const summarize = [...new Set([
+      ...results1.results,
+      ...results2.results
+    ].map((r) => `# ${r.title}
 ${r.description}
-`),
-      ...results2.results.map((r) => `# ${r.title}
-${r.description}
-`)
-    ])].join("\n\n");
-    const report = `Here are references from the internet. Use only when necessary:
+`))].join("\n\n");
+    return `Here are references from the internet. Use only when necessary:
 ${summarize}`;
-    return report;
   } catch (err) {
     console.error(err);
     return "";
