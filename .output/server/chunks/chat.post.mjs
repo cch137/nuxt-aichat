@@ -113,7 +113,8 @@ const sequelize = new Sequelize(
   process.env.PASSWORD,
   {
     host: "cloud.mindsdb.com",
-    dialect: "mysql"
+    dialect: "mysql",
+    logging: false
   }
 );
 const createModel = (tableName) => {
