@@ -7,12 +7,16 @@ load()
 const crawler = async (query: string) => {
   try {
     const englishQuery = (await translateZh2En(query.substring(0, 5000))).text
-    const searchQuery = extract(englishQuery, 16).map(w => w.keyword).join(', ')
-    const { results } = await googlethis.search(searchQuery)
-    const summarize = results.map((result) => {
-      return `# ${result.title}\n${result.description}\n`
-    }).join('\n')
-    const report = `Here are references from the web that you can analyze and use (optional):\n${summarize}`
+    const extratedQuery = extract(englishQuery, 16).map(w => w.keyword).join(', ')
+    const [results1, results2] = await Promise.all([
+      googlethis.search(query.substring(0, 256)),
+      googlethis.search(extratedQuery)
+    ])
+    const summarize = [...new Set([
+      ...results1.results.map((r) => `# ${r.title}\n${r.description}`),
+      ...results2.results.map((r) => `# ${r.title}\n${r.description}`)
+    ])].join('\n\n')
+    const report = `Here are references from the internet. Use only when necessary:\n${summarize}`
     return report
   } catch (err) {
     console.error(err)
