@@ -4,6 +4,7 @@
   "private": true,
   "bundledDependencies": {
     "@babel/parser": "7.21.8",
+    "@ctrl/tinycolor": "3.6.0",
     "@node-rs/jieba-win32-x64-msvc": "1.7.0",
     "@unhead/dom": "1.1.26",
     "@unhead/shared": "1.1.26",
