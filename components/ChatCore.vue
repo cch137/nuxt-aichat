@@ -36,6 +36,8 @@
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 
+marked.setOptions({ headerIds: false, mangle: false })
+
 const loadingDots = ref('.')
 
 setInterval(() => {
@@ -67,8 +69,11 @@ const messages = useState('messages', () => [])
 .Message.T,.Message.A {
   justify-content: left;
 }
-.Message.T .InnerMessage,.Message.A .InnerMessage {
+.Message.T .InnerMessage, .Message.A .InnerMessage {
   background-color: #3E3E3E;
+}
+.Message.A .InnerMessage {
+  white-space: pre-wrap;
 }
 .Message pre {
   white-space: pre-wrap;
