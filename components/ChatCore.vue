@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <div class="mx-auto Messages pt-4 px-4 pb-20 mb-20">
+    <div class="mx-auto Messages pt-4 px-4 pb-10 mb-40">
       <div class="text-center my-4">
         <el-text type="info" size="large">Let's start!</el-text>
       </div>
@@ -33,7 +33,7 @@
                 size="small"
                 class="CopyAnswerButton"
                 plain
-                @click="copyTextContent(message.text)"
+                @click="useCopyToClipboard(message.text)"
               >Copy</el-button>
             </div>
           </div>
@@ -46,15 +46,7 @@
 <script setup>
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
-import { ElMessage } from 'element-plus'
-import { copyToClipboard } from '~/utils/client'
 import { DocumentCopy } from '@element-plus/icons-vue'
-
-const copyTextContent = (text) => {
-  copyToClipboard(text)
-    .then(() => ElMessage.success('Copied!'))
-    .catch(() => ElMessage.error('Copy failed.'))
-}
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -69,40 +61,6 @@ setInterval(() => {
 }, 500)
 
 const messages = useState('messages', () => [])
-watch(messages, () => {
-  setTimeout(() => {
-    const preElements = document.querySelectorAll('.InnerMessage pre')
-    for (const preElement of preElements) {
-      const codeElement = preElement.getElementsByTagName('code')[0]
-      let language = 'Plain text'
-      for (const className of codeElement.classList) {
-        if (className.startsWith('language-')) {
-          language = className.replace('language-', '')
-          break
-        }
-      }
-      const codeBlockWrapper = document.createElement('pre')
-      codeBlockWrapper.classList.add('CodeBlockWrapper')
-      const codeBlockHeader = document.createElement('div')
-      codeBlockHeader.classList.add('CodeBlockHeader', 'flex-center')
-      const copyCodeButton = document.createElement('div')
-      copyCodeButton.classList.add('CopyCodeButton')
-      copyCodeButton.innerText = 'copy'
-      const languageNameTag = document.createElement('span')
-      languageNameTag.classList.add('flex-1')
-      languageNameTag.innerText = language
-      preElement.parentElement.insertBefore(codeBlockWrapper, preElement)
-      codeBlockWrapper.appendChild(codeBlockHeader)
-      codeBlockWrapper.appendChild(preElement)
-      codeBlockHeader.appendChild(languageNameTag)
-      codeBlockHeader.appendChild(copyCodeButton)
-      copyCodeButton.addEventListener('click', () => {
-        copyTextContent(preElement.innerText)
-      })
-    }
-    useScrollToBottom()
-  }, 1000)
-})
 </script>
 
 <style>
@@ -148,27 +106,28 @@ watch(messages, () => {
   width: 100%;
   background: #4f4f4f;
   opacity: 0.75;
-  padding: .25rem .5rem;
-  border-radius: .5rem .5rem 0 0;
+  padding: .25rem .75rem;
+  border-radius: .75rem .75rem 0 0;
 }
 .CodeBlockWrapper pre {
   white-space: pre-wrap;
   background: #262626;
   color: lightgrey;
-  padding: .5rem;
-  border-radius: 0 0 .5rem .5rem;
+  padding: .75rem;
+  border-radius: 0 0 .75rem .75rem;
+  line-height: 1.25rem;
 }
 .CopyCodeButton {
   padding: 0 .5rem;
   border: 1px solid grey;
-  border-radius: .25rem;
-  background: #6f6f6f;
+  border-radius: .35rem;
+  background: #787878;
   transition: .3s;
   cursor: pointer;
   line-height: 1.35rem;
   user-select: none;
 }
 .CopyCodeButton:hover {
-  filter: brightness(1.25);
+  filter: brightness(1.125);
 }
 </style>

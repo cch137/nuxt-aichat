@@ -125,9 +125,44 @@ const initPage = (conv) => {
     fetchHistory(conv)
   ])
     .finally(() => {
-      loading.close()
-      useScrollToBottom()
+      setTimeout(() => {
+        renderCodeBlocks()
+        useScrollToBottom()
+        loading.close()
+      }, 500)
     })
+}
+
+const renderCodeBlocks = () => {
+  const preElements = document.querySelectorAll('.InnerMessage pre')
+  for (const preElement of preElements) {
+    const codeElement = preElement.getElementsByTagName('code')[0]
+    let language = 'plain text'
+    for (const className of codeElement.classList) {
+      if (className.startsWith('language-')) {
+        language = className.replace('language-', '')
+        break
+      }
+    }
+    const codeBlockWrapper = document.createElement('pre')
+    codeBlockWrapper.classList.add('CodeBlockWrapper')
+    const codeBlockHeader = document.createElement('div')
+    codeBlockHeader.classList.add('CodeBlockHeader', 'flex-center')
+    const copyCodeButton = document.createElement('div')
+    copyCodeButton.classList.add('CopyCodeButton')
+    copyCodeButton.innerText = 'copy'
+    const languageNameTag = document.createElement('span')
+    languageNameTag.classList.add('flex-1')
+    languageNameTag.innerText = language
+    preElement.parentElement.insertBefore(codeBlockWrapper, preElement)
+    codeBlockWrapper.appendChild(codeBlockHeader)
+    codeBlockWrapper.appendChild(preElement)
+    codeBlockHeader.appendChild(languageNameTag)
+    codeBlockHeader.appendChild(copyCodeButton)
+    copyCodeButton.addEventListener('click', () => {
+      useCopyToClipboard(preElement.innerText)
+    })
+  }
 }
 
 if (process.client) {
