@@ -12,7 +12,7 @@
       <el-text type="info" v-if="currentConv != 0">{{ $t('menu.currentChat') }}{{ currentConv }}</el-text>
     </div>
     <el-form class="py-4" @submit.prevent>
-      <h5>{{ $t('settings.title') }}</h5>
+      <h3>{{ $t('settings.title') }}</h3>
       <div class="flex flex-col gap-1">
         <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
