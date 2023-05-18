@@ -8,7 +8,7 @@
             :autosize="{ minRows: 2, maxRows: 16 }"
             type="textarea"
             size="large"
-            maxlength="3000"
+            :maxlength="model === 'gpt4' ? 4096 : 2048"
             :autofocus="true"
             @keydown="keyboardSendMessage"
           />
@@ -37,7 +37,7 @@ import troll from '~/utils/troll'
 import str from '~/utils/str'
 
 const inputValue = ref('')
-const context = useState('context', () => '')
+const context = useChatContext()
 const messages = useState('messages', () => [] as Array<{ type: string, text: string, t: Date }>)
 const conversations = useState('conversations', () => [] as string[])
 
@@ -46,13 +46,18 @@ const _t = useLocale().t
 
 const f = () => $fetch
 const { h: createHash } = troll
-const model = useState('model')
+const model = useState('model', () => 'gpt4')
+const webBrowsing = useState('web-browsing')
 const version = useState('version')
 
 const apiPath = '/api/chat'
 
 const getModel = () => {
   return model.value as string
+}
+
+const getWebBrowsing = () => {
+  return webBrowsing.value as string
 }
 
 const getHashType = () => {
@@ -65,14 +70,14 @@ const createHeaders = (message: string, t: number) => {
   return { hash, timestamp }
 }
 
-const createBody = (message: string, model: string, t: number, tz: number) => {
+const createBody = (message: string, model: string, web: string, t: number, tz: number) => {
   let conv = useNuxtApp()._route?.params?.conv as string
   if (!conv) {
     conv = random.base64(8)
     conversations.value.push(conv)
     navigateTo(`/c/${conv}`)
   }
-  return { conv, context: context.value, prompt: message, model, t, tz }
+  return { conv, context: context.get(), prompt: message, model, web, t, tz }
 }
 
 const focusInput = () => {
@@ -100,7 +105,7 @@ const createRequestOptions = (message: string) => {
   const tz = (date.getTimezoneOffset() / 60) * -1
   const method = 'POST'
   const headers = createHeaders(message, t)
-  const body = createBody(message, getModel(), t, tz)
+  const body = createBody(message, getModel(), getWebBrowsing(), t, tz)
   return { method, headers, body }
 }
 
@@ -129,14 +134,15 @@ const sendMessage = (): boolean => {
   createRequest(message)
     .then((res) => {
       const answer = (res as any).answer as string
+      const isQuestionComplete = (res as any).complete as boolean
       const _version = (res as any).version as string
       // @ts-ignore
       if (!answer) {
-        throw 'Please refresh the page.'
+        throw _t('error.plzRefresh')
       }
       if (_version !== version.value) {
         ElMessageBox.confirm(
-          _t('message.version'),
+          _t('action.newVersion'),
           _t('message.notice'), {
             confirmButtonText: _t('message.ok'),
             cancelButtonText: _t('message.cancel'),
@@ -150,7 +156,10 @@ const sendMessage = (): boolean => {
           })
       }
       answerMessage.text = answer
-      context.value = answer
+      context.add(answer)
+      if (!isQuestionComplete) {
+        ElMessage.warning(_t('error.qTooLong'))
+      }
     })
     .catch((err) => {
       ElMessage.error(err || 'Oops! Something went wrong!' as string)

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 }
   }
-  const { conv, prompt, context = '', model, t, tz = 0 } = body
+  const { conv, prompt, context = '', model, web, t, tz = 0 } = body
   // @ts-ignore
   if (!conv || !prompt ||!model || !t) {
     return { error: 2 }
@@ -32,10 +32,21 @@ export default defineEventHandler(async (event) => {
   if (token === null || typeof user !== 'string') {
     return { error: 4 }
   }
+  let webBrowsing: boolean
+  switch (web) {
+    case 'OFF':
+      webBrowsing = false
+      break
+    case 'ON':
+    default:
+      webBrowsing = true
+  }
   try {
+    const result = await chat.ask(user, conv, model, webBrowsing, prompt, context, tz)
     return {
       version,
-      answer: (await chat.ask(user, conv, model, prompt, context, tz)).answer
+      answer: result.answer,
+      complete: result.complete
     }
   } catch (err) {
     console.error(err)

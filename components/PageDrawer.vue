@@ -19,6 +19,12 @@
           <ModelSelect class="flex-1" />
         </div>
         <div class="flex gap-1">
+          <el-text class="flex-1">{{ $t('settings.webBrowsing') }}</el-text>
+          <div class="flex-1">
+            <WebBrowsingSelect />
+          </div>
+        </div>
+        <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>
           <div class="flex-1">
             <LanguageSelect />
@@ -64,7 +70,7 @@ const openDrawer = useState('openDrawer', () => false)
 const conversations = useState('conversations', () => [])
 const version = useState('version', () => '...')
 const messages = useState('messages')
-const context = useState('context', () => '')
+const context = useChatContext()
 const currentConv = ref('')
 
 const focusInput = () => {
@@ -108,7 +114,7 @@ const fetchHistory = (conv) => {
   return new Promise((resolve, reject) => {
     currentConv.value = baseConverter.convert(conv, '64w', 10)
     if (conv === undefined || conv === null) {
-      context.value = ''
+      context.clear()
       return resolve()
     }
     $fetch('/api/history', { method: 'POST', body: { id: conv } })
@@ -120,9 +126,9 @@ const fetchHistory = (conv) => {
         records.forEach((record) => {
           const { Q, A, t: _t } = record
           const t = new Date(_t)
+          context.add(A)
           _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, t })
         })
-        context.value = _records.at(-1).text
         messages.value.unshift(..._records)
         resolve()
       })

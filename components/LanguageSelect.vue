@@ -2,8 +2,6 @@
   <ClientOnly>
     <el-select
       v-model="i18n.locale"
-      size="small"
-      class="WidgetsLanguageSelect"
       placeholder="Select"
       @change="(value) => i18n.locale = value"
     >
@@ -35,9 +33,3 @@ const options = [
   }
 ]
 </script>
-
-<style>
-.WidgetsLanguageSelect {
-  width: 5.25rem;
-}
-</style>

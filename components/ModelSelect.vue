@@ -1,10 +1,9 @@
 <template>
   <div>
     <el-select
-      v-model="value"
+      v-model="model"
       placeholder="Select model"
       class="ModelSelect"
-      size="small"
     >
       <el-option
         v-for="item in options"
@@ -17,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-const value = useState('model', () => 'gpt4')
+const model = useState('model', () => 'gpt4')
 const options = [
   {
     label: 'GPT-4',
@@ -29,9 +28,3 @@ const options = [
   }
 ]
 </script>
-
-<style scoped>
-.ModelSelect {
-  max-width: 10rem;
-}
-</style>

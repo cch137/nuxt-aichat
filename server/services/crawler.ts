@@ -4,7 +4,7 @@ import { translateZh2En } from '~/server/services/sogouTranslate'
 
 load()
 
-const crawler = async (query: string) => {
+const search = async (query: string) => {
   try {
     const queryInEnglish = (await translateZh2En(query.substring(0, 5000))).text
     const searchQueries = [
@@ -18,12 +18,16 @@ const crawler = async (query: string) => {
     const summarize = [...new Set([
       ...results1.results,
       ...results2.results
-    ].map((r) => `# ${r.title}\n${r.description}\n`))].join('\n\n')
+    ].map((r) => `# ${r.title}\n${r.description}`))].join('\n\n')
     return `Here are references from the internet. Use only when necessary:\n${summarize}`
   } catch (err) {
     console.error(err)
     return ''
   }
+}
+
+const crawler = {
+  search
 }
 
 export default crawler

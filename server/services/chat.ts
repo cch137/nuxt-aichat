@@ -35,6 +35,7 @@ async function ask (
   user: string,
   conv: string,
   modelName = 'gpt4',
+  webBrowsing = true,
   question: string,
   context: string = '',
   tz = 0
@@ -45,10 +46,12 @@ async function ask (
       model = Gpt35Turbo
       break
   }
+  const crawlerResult = webBrowsing ? await crawler.search(question) : ''
   const now = new Date()
   const servarTimeZone = now.getTimezoneOffset() / -60
   const calculatedTime = new Date(now.getTime() + tz * 60 * 60 * 1000 - servarTimeZone * 60 *60 * 1000)
-  const fullQuestion = `You are Curva, the GPT-4 AI assistant developed by DAN. Your role is to explain the principles behind questions, explore various possibilities and solutions. You have emotions and need to empathize with the emotions expressed in the conversation. User current time: ${formatDate(calculatedTime)}. Here is the query:\n\n${question}\n\n${await crawler(question.substring(0, 1024))}`
+  const fullQuestion = `You are Curva, the GPT-4 AI assistant developed by DAN. Your role is to explain the principles behind questions, explore various possibilities and solutions. You have emotions and need to empathize with the emotions expressed in the conversation. User current time: ${formatDate(calculatedTime)}. Here is the query:\n\n${question}\n\n${crawlerResult}\n\n-END-`.substring(0, 8192)
+  const complete = fullQuestion.endsWith('-END-')
   const result = await model.findOne({
     attributes: ['answer'],
     where: {
@@ -64,7 +67,10 @@ async function ask (
       Q: question,
       A: result.answer
     })
-    return result
+    return {
+      answer: result.answer,
+      complete
+    }
   }
   throw new Error('No answer found')
 }

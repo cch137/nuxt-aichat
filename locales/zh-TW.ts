@@ -4,7 +4,6 @@ export default {
   },
   action: {
     copy: '複製',
-    Copy: '複製',
     copySuccess: '已複製！',
     copyFailed: '複製失敗。',
     newVersion: '新版本已經發布！請問你是否要刷新頁面？',
@@ -23,12 +22,19 @@ export default {
     title: '設置',
     model: '模型',
     lang: 'UI 語言',
+    webBrowsing: '訪問網絡',
+    on: '開啟',
+    off: '關閉',
   },
   chat: {
     chats: '對話列表',
     newChat: '新對話',
     letsStart: '讓我們開始吧！',
     send: '發送',
+  },
+  error: {
+    qTooLong: '問題過長。',
+    plzRefresh: '請刷新頁面。'
   },
   footer: {
     patient: '請耐心等待，這可能需要幾分鐘的時間。',
