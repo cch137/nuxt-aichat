@@ -67,12 +67,10 @@ class LocaleChangeTrigger {
 const i18n = createI18n({
   messages: {
     en,
-    // ms,
     'zh-TW': zhTW,
     'zh-CN': zhCN
   },
   fallbackLocale: {
-    // ms: ['en'],
     'zh-TW': ['zh-CN', 'en'],
     'zh-CN': ['zh-TW', 'en']
   }
@@ -82,11 +80,9 @@ const checkLocale = (code: string | undefined | null) => {
   if (code === null || code === undefined) {
     return DEFAULT_LOCALE
   } else if ((i18n.availableLocales as string[]).includes(code)) {
-    return code as 'en' | /* 'ms' | */'zh-TW' | 'zh-CN'
+    return code as 'en' | 'zh-TW' | 'zh-CN'
   } else if (code.startsWith('en-')) {
     return 'en'
-  // } else if (code.startsWith('ms-')) {
-  //   return 'ms'
   } else if (code === 'zh-Hant' || code === 'zh-hant') {
     return 'zh-TW'
   } else if (code.startsWith('zh-') || code === 'zh') {
