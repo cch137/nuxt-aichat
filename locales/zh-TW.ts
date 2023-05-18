@@ -1,4 +1,5 @@
 export default {
+  colon: '：',
   header: {
     joinDc: '加入'
   },
@@ -6,6 +7,7 @@ export default {
     copy: '複製',
     copySuccess: '已複製！',
     copyFailed: '複製失敗。',
+    delete: '刪除',
     newVersion: '新版本已經發布！請問你是否要刷新頁面？',
   },
   message: {
@@ -14,9 +16,7 @@ export default {
     cancel: '取消',
   },
   menu: {
-    title: '菜單',
-    version: '版本：',
-    currentChat: '當前對話：',
+    title: '菜單'
   },
   settings: {
     title: '設置',

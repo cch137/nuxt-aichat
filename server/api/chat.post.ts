@@ -2,7 +2,7 @@ import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/app'
 import { read as tokenReader } from '~/server/services/token'
-import curva from '~/server/services/curva'
+import curva from '~/server/services/curva/index'
 import getIp from '~/server/services/getIp'
 import troll from '~/utils/troll'
 

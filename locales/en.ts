@@ -1,4 +1,5 @@
 export default {
+  colon: ':',
   header: {
     joinDc: 'Join'
   },
@@ -6,6 +7,7 @@ export default {
     copy: 'Copy',
     copySuccess: 'Copied!',
     copyFailed: 'Copy failed.',
+    delete: 'Delete',
     newVersion: 'A new version has been released! Do you want to reload the page?',
   },
   message: {
@@ -14,9 +16,7 @@ export default {
     cancel: 'Cancel',
   },
   menu: {
-    title: 'Menu',
-    version: 'Version: ',
-    currentChat: 'Current chat: ',
+    title: 'Menu'
   },
   settings: {
     title: 'Settings',

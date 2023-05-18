@@ -31,7 +31,13 @@ const allowedWebBrowsingModes: any[] = ['ON', 'OFF']
 const DEFAULT_WEB_BROWSING_MODE = 'ON'
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
 
-const messages = ref<Array<{ type: string, text: string, t: Date }>>([])
+interface ChatMessage {
+  type: string;
+  text: string;
+  t: Date;
+}
+
+const messages = ref<Array<ChatMessage>>([])
 
 const context = {
   add: addContext,

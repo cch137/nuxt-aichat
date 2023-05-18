@@ -27,11 +27,11 @@
               />
               <span v-else>{{ message.text }}</span>
             </div>
-            <div v-if="message.type === 'A'" class="flex mt-2 justify-end">
+            <div v-if="message.type === 'A'" class="flex mt-2 gap-4 justify-end">
               <el-button
                 :icon="DocumentCopy"
                 size="small"
-                class="CopyAnswerButton"
+                class="MessageActionButton"
                 plain
                 @click="useCopyToClipboard(message.text)"
               >{{ $t('action.copy') }}</el-button>
@@ -48,7 +48,7 @@ import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import { DocumentCopy } from '@element-plus/icons-vue'
 
-const { messages } = useChat()
+const { messages, context } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -96,7 +96,7 @@ setInterval(() => {
 .Message.Q .InnerMessage {
   white-space: pre-wrap;
 }
-.CopyAnswerButton {
+.MessageActionButton {
   background: #ffffff0f !important;
 }
 .CodeBlockWrapper {
