@@ -590,7 +590,6 @@ const validate = /* @__PURE__ */ defineNuxtRouteMiddleware(async (to) => {
   }
 });
 const appName = "Curva";
-process.env.npm_package_version;
 const client_45global = /* @__PURE__ */ defineNuxtRouteMiddleware(() => {
   useState("appName", () => appName);
 });

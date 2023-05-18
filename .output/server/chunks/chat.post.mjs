@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
-import { v as version } from './app.mjs';
+import { v as version } from './server.mjs';
 import { s as str, t as troll, r as read } from './token.mjs';
 import { m as message } from './index.mjs';
 import googlethis from 'googlethis';
