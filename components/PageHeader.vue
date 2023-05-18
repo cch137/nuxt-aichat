@@ -10,12 +10,11 @@
         {{ appName }}
       </div>
       <div class="flex-1"></div>
-      <ModelSelect />
       <div>
         <a href="https://discord.gg/5v49JKKmzJ" target="_blank">
           <el-button class="DiscordButton">
             <DiscordIconSvg style="height: 24px; width: 24px;" />
-            <span class="ml-2 DCJoinText">Join</span>
+            <span class="ml-2 DCJoinText">{{ $t('header.joinDc') }}</span>
           </el-button>
         </a>
       </div>

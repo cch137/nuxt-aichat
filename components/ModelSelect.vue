@@ -1,10 +1,10 @@
 <template>
-  <div class="flex-center gap-2">
-    <el-text size="large" class="ModelSelectLabel">Model:</el-text>
+  <div>
     <el-select
       v-model="value"
       placeholder="Select model"
       class="ModelSelect"
+      size="small"
     >
       <el-option
         v-for="item in options"
@@ -33,13 +33,5 @@ const options = [
 <style scoped>
 .ModelSelect {
   max-width: 10rem;
-}
-@media screen and (max-width: 500px) {
-  .ModelSelect {
-    max-width: 8rem;
-  }
-  .ModelSelectLabel {
-    display: none;
-  }
 }
 </style>

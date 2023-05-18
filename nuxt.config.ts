@@ -1,7 +1,7 @@
-import { appName } from "./config/app"
+import { author, appName } from "./config/app"
 
-const author = appName
-const description = 'Oh yeah! It\'s an AI chat robot!'
+const description = 'Hi, I\'m Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let\'s get started!'
+const image = 'https://voodex.netlify.app/bg/black-trianglify-3.png'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -18,10 +18,13 @@ export default defineNuxtConfig({
         { name: 'author', content: author },
         { name: 'keywords', content: appName },
         { name: 'description', content: description },
-        { property: 'og:description', content: description },
+        { property: 'twitter:card', content: 'summary_large_image' },
+        { property: 'twitter:description', content: description },
+        { property: 'twitter:image', content: image },
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: appName },
-        { property: 'og:image', content: 'https://voodex.netlify.app/bg/black-trianglify-3.png' }
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: image }
       ]
     },
     layoutTransition: true,

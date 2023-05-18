@@ -17,14 +17,14 @@
             size="large"
             @click="clickSendMessage"
           >
-            Send
+            {{ $t('chat.send') }}
           </el-button>
         </div>
       </el-form-item>
     </el-form>
     <div class="text-center">
       <el-text type="info">
-        Please be patient, this may take a few minutes.
+        {{ $t('footer.patient') }}
       </el-text>
     </div>
   </div>
@@ -40,6 +40,9 @@ const inputValue = ref('')
 const context = useState('context', () => '')
 const messages = useState('messages', () => [] as Array<{ type: string, text: string, t: Date }>)
 const conversations = useState('conversations', () => [] as string[])
+
+// @ts-ignore
+const _t = useLocale().t
 
 const f = () => $fetch
 const { h: createHash } = troll
@@ -133,10 +136,10 @@ const sendMessage = (): boolean => {
       }
       if (_version !== version.value) {
         ElMessageBox.confirm(
-          'A new version has been released! Do you want to reload the page?',
-          'Notice', {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel',
+          _t('message.version'),
+          _t('message.notice'), {
+            confirmButtonText: _t('message.ok'),
+            cancelButtonText: _t('message.cancel'),
             type: 'warning'
           })
           .then(() => {

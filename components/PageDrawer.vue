@@ -1,17 +1,32 @@
 <template>
   <el-drawer
     v-model="openDrawer"
-    title="Menu"
+    :title="$t('menu.title')"
     direction="ltr"
     style="min-width: 320px; max-width: 100vw;"
   >
     <div>
-      <el-text type="info" v-if="!versionPending">Version: {{ versionData }}</el-text>
+      <el-text type="info" v-if="!versionPending">{{ $t('menu.version') }}{{ versionData }}</el-text>
     </div>
     <div>
-      <el-text type="info" v-if="currentConv != 0">Current chat: {{ currentConv }}</el-text>
+      <el-text type="info" v-if="currentConv != 0">{{ $t('menu.currentChat') }}{{ currentConv }}</el-text>
     </div>
-    <h3>Conversations</h3>
+    <el-form class="py-4" @submit.prevent>
+      <h5>{{ $t('settings.title') }}</h5>
+      <div class="flex flex-col gap-1">
+        <div class="flex gap-1">
+          <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
+          <ModelSelect class="flex-1" />
+        </div>
+        <div class="flex gap-1">
+          <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>
+          <div class="flex-1">
+            <LanguageSelect />
+          </div>
+        </div>
+      </div>
+    </el-form>
+    <h3>{{ $t('chat.chats') }}</h3>
     <div class="mt-2">
       <div>
         <NuxtLink :to="`/`" @click="goToChat(null)">
@@ -20,7 +35,7 @@
             size="large"
             class="ConversationLink w-full"
           >
-            New Chat
+            {{ $t('chat.newChat') }}
           </el-button>
         </NuxtLink>
       </div>
@@ -125,6 +140,7 @@ const initPage = (conv) => {
     fetchHistory(conv)
   ])
     .finally(() => {
+      useScrollToBottom()
       setTimeout(() => {
         renderCodeBlocks()
         useScrollToBottom()

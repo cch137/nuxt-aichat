@@ -2,7 +2,7 @@
   <ClientOnly>
     <div class="mx-auto Messages pt-4 px-4 pb-10 mb-40">
       <div class="text-center my-4">
-        <el-text type="info" size="large">Let's start!</el-text>
+        <el-text type="info" size="large">{{ $t('Let\'s start!') }}</el-text>
       </div>
       <div
         v-for="message in messages"
@@ -34,7 +34,7 @@
                 class="CopyAnswerButton"
                 plain
                 @click="useCopyToClipboard(message.text)"
-              >Copy</el-button>
+              >{{ $t('action.copy') }}</el-button>
             </div>
           </div>
         </el-tooltip>
