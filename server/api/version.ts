@@ -1,6 +1,4 @@
-import { version } from '~/package.json'
-
-console.log('Version:', version)
+import { version } from '~/config/app'
 
 export default defineEventHandler(async (event) => {
   return version

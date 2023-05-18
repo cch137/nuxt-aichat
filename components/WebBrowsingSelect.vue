@@ -1,8 +1,6 @@
 <template>
   <div>
-    <el-select
-      v-model="webBrowsing"
-    >
+    <el-select v-model="webBrowsingMode">
       <el-option :label="$t('settings.on')" value="ON" />
       <el-option :label="$t('settings.off')" value="OFF" />
     </el-select>
@@ -10,21 +8,5 @@
 </template>
 
 <script setup lang="ts">
-const allowedValues: any[] = ['ON', 'OFF']
-const DEFAULT_VALUE = 'ON'
-const name = 'web-browsing'
-const cookie = useUniCookie()
-const webBrowsing = useState(name, () => {
-  const previousSetting = cookie.get(name)
-  if (allowedValues.includes(previousSetting)) {
-    return previousSetting
-  } else {
-    return DEFAULT_VALUE
-  }
-})
-watch(webBrowsing, (newValue) => {
-  if (typeof newValue === 'string') {
-    cookie.set(name, newValue)
-  }
-})
+const { webBrowsingMode } = useChat()
 </script>

@@ -48,6 +48,8 @@ import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import { DocumentCopy } from '@element-plus/icons-vue'
 
+const { messages } = useChat()
+
 marked.setOptions({ headerIds: false, mangle: false })
 
 const loadingDots = ref('.')
@@ -59,8 +61,6 @@ setInterval(() => {
     loadingDots.value = '.'
   }
 }, 500)
-
-const messages = useState('messages', () => [])
 </script>
 
 <style>

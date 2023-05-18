@@ -37,8 +37,7 @@ import troll from '~/utils/troll'
 import str from '~/utils/str'
 
 const inputValue = ref('')
-const context = useChatContext()
-const messages = useState('messages', () => [] as Array<{ type: string, text: string, t: Date }>)
+const { messages, context, webBrowsingMode } = useChat()
 const conversations = useState('conversations', () => [] as string[])
 
 // @ts-ignore
@@ -47,7 +46,6 @@ const _t = useLocale().t
 const f = () => $fetch
 const { h: createHash } = troll
 const model = useState('model', () => 'gpt4')
-const webBrowsing = useState('web-browsing')
 const version = useState('version')
 
 const apiPath = '/api/chat'
@@ -57,7 +55,7 @@ const getModel = () => {
 }
 
 const getWebBrowsing = () => {
-  return webBrowsing.value as string
+  return webBrowsingMode.value as string
 }
 
 const getHashType = () => {
