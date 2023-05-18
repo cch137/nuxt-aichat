@@ -15,7 +15,7 @@ import 'mongoose';
 import 'axios';
 
 load();
-const crawler = async (query) => {
+const search = async (query) => {
   try {
     const queryInEnglish = (await translateZh2En(query.substring(0, 5e3))).text;
     const searchQueries = [
@@ -30,14 +30,16 @@ const crawler = async (query) => {
       ...results1.results,
       ...results2.results
     ].map((r) => `# ${r.title}
-${r.description}
-`))].join("\n\n");
+${r.description}`))].join("\n\n");
     return `Here are references from the internet. Use only when necessary:
 ${summarize}`;
   } catch (err) {
     console.error(err);
     return "";
   }
+};
+const crawler = {
+  search
 };
 const crawler$1 = crawler;
 
@@ -128,13 +130,14 @@ const createModel = (tableName) => {
 };
 const Gpt4 = createModel("gpt4");
 const Gpt35Turbo = createModel("gpt3_5_turbo");
-async function ask(user, conv, modelName = "gpt4", question, context = "", tz = 0) {
+async function ask(user, conv, modelName = "gpt4", webBrowsing = true, question, context = "", tz = 0) {
   let model = Gpt4;
   switch (modelName) {
     case "gpt3_5_turbo":
       model = Gpt35Turbo;
       break;
   }
+  const crawlerResult = webBrowsing ? await crawler$1.search(question) : "";
   const now = /* @__PURE__ */ new Date();
   const servarTimeZone = now.getTimezoneOffset() / -60;
   const calculatedTime = new Date(now.getTime() + tz * 60 * 60 * 1e3 - servarTimeZone * 60 * 60 * 1e3);
@@ -142,7 +145,10 @@ async function ask(user, conv, modelName = "gpt4", question, context = "", tz = 
 
 ${question}
 
-${await crawler$1(question.substring(0, 1024))}`;
+${crawlerResult}
+
+-END-`.substring(0, 8192);
+  const complete = fullQuestion.endsWith("-END-");
   const result = await model.findOne({
     attributes: ["answer"],
     where: {
@@ -158,7 +164,10 @@ ${await crawler$1(question.substring(0, 1024))}`;
       Q: question,
       A: result.answer
     });
-    return result;
+    return {
+      answer: result.answer,
+      complete
+    };
   }
   throw new Error("No answer found");
 }
@@ -173,7 +182,7 @@ const chat_post = defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 };
   }
-  const { conv, prompt, context = "", model, t, tz = 0 } = body;
+  const { conv, prompt, context = "", model, web, t, tz = 0 } = body;
   if (!conv || !prompt || !model || !t) {
     return { error: 2 };
   }
@@ -190,10 +199,21 @@ const chat_post = defineEventHandler(async (event) => {
   if (token === null || typeof user !== "string") {
     return { error: 4 };
   }
+  let webBrowsing;
+  switch (web) {
+    case "OFF":
+      webBrowsing = false;
+      break;
+    case "ON":
+    default:
+      webBrowsing = true;
+  }
   try {
+    const result = await chat$1.ask(user, conv, model, webBrowsing, prompt, context, tz);
     return {
       version,
-      answer: (await chat$1.ask(user, conv, model, prompt, context, tz)).answer
+      answer: result.answer,
+      complete: result.complete
     };
   } catch (err) {
     console.error(err);

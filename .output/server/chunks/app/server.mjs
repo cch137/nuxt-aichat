@@ -3741,8 +3741,7 @@ const en = {
     joinDc: "Join"
   },
   action: {
-    copy: "copy",
-    Copy: "Copy",
+    copy: "Copy",
     copySuccess: "Copied!",
     copyFailed: "Copy failed.",
     newVersion: "A new version has been released! Do you want to reload the page?"
@@ -3760,13 +3759,20 @@ const en = {
   settings: {
     title: "Settings",
     model: "Model",
-    lang: "UI Language"
+    lang: "UI Language",
+    webBrowsing: "Web Browsing",
+    on: "On",
+    off: "Off"
   },
   chat: {
     chats: "Conversations",
     newChat: "New Chat",
     letsStart: "Let's start!",
     send: "Send"
+  },
+  error: {
+    qTooLong: "Question too long.",
+    plzRefresh: "Please refresh the page."
   },
   footer: {
     patient: "Please be patient, this may take a few minutes."
@@ -3778,7 +3784,6 @@ const zhTW = {
   },
   action: {
     copy: "複製",
-    Copy: "複製",
     copySuccess: "已複製！",
     copyFailed: "複製失敗。",
     newVersion: "新版本已經發布！請問你是否要刷新頁面？"
@@ -3796,13 +3801,20 @@ const zhTW = {
   settings: {
     title: "設置",
     model: "模型",
-    lang: "UI 語言"
+    lang: "UI 語言",
+    webBrowsing: "訪問網絡",
+    on: "開啟",
+    off: "關閉"
   },
   chat: {
     chats: "對話列表",
     newChat: "新對話",
     letsStart: "讓我們開始吧！",
     send: "發送"
+  },
+  error: {
+    qTooLong: "問題過長。",
+    plzRefresh: "請刷新頁面。"
   },
   footer: {
     patient: "請耐心等待，這可能需要幾分鐘的時間。"
@@ -3833,12 +3845,10 @@ _afterUpdateCallbacks = new WeakMap();
 const i18n = createI18n({
   messages: {
     en,
-    // ms,
     "zh-TW": zhTW,
     "zh-CN": zhCN
   },
   fallbackLocale: {
-    // ms: ['en'],
     "zh-TW": ["zh-CN", "en"],
     "zh-CN": ["zh-TW", "en"]
   }
