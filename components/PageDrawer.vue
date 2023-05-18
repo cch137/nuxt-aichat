@@ -84,7 +84,9 @@ const focusInput = () => {
 const nuxtApp = useNuxtApp()
 
 const getCurrrentConvId = () => {
-  return nuxtApp._route?.params?.conv
+  const conv = nuxtApp._route?.params?.conv
+  console.log(conv)
+  return conv
 }
 
 const goToChat = (conv) => {
