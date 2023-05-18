@@ -324,7 +324,7 @@ function useHead(input, options = {}) {
     return isBrowser ? clientUseHead(input, options) : serverUseHead(input, options);
   }
 }
-const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "DAN" }, { "name": "keywords", "content": "Curva" }, { "name": "description", "content": "Hi, I'm Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let's get started!" }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "Hi, I'm Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let's get started!" }, { "property": "twitter:image", "content": "https://voodex.netlify.app/bg/black-trianglify-3.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "Curva" }, { "property": "og:description", "content": "Hi, I'm Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let's get started!" }, { "property": "og:image", "content": "https://voodex.netlify.app/bg/black-trianglify-3.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
+const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "DAN" }, { "name": "keywords", "content": "Curva" }, { "name": "description", "content": "Hi, I'm Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let's get started!" }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "Hi, I'm Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let's get started!" }, { "property": "twitter:image", "content": "https://voodex.netlify.app/img/curva.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "Curva" }, { "property": "og:description", "content": "Hi, I'm Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let's get started!" }, { "property": "og:image", "content": "https://voodex.netlify.app/img/curva.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
 const appLayoutTransition = true;
 const appPageTransition = true;
 const appKeepalive = false;
@@ -501,7 +501,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-faa95ec4.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-4fe4fa13.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -509,7 +509,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-cd9d7e8d.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-f5401e09.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",

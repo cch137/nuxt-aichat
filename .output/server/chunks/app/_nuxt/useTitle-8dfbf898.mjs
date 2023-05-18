@@ -14,8 +14,12 @@ const checkContext = () => {
 };
 const getContext = () => {
   checkContext();
+  const joinedContexts = [...contexts].reverse().join("\n---\n");
+  if (joinedContexts.length === 0) {
+    return "";
+  }
   return `Here are your replies, from newest to oldest:
-${[...contexts].reverse().join("\n---\n")}`.substring(0, CONTEXT_MAX_LENGTH);
+${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH);
 };
 const addContext = (...texts) => {
   contexts.push(...texts);
@@ -88,4 +92,4 @@ function useTitle(title) {
 }
 
 export { __nuxt_component_0 as _, useTitle as u };
-//# sourceMappingURL=useTitle-da9dc0a6.mjs.map
+//# sourceMappingURL=useTitle-8dfbf898.mjs.map
