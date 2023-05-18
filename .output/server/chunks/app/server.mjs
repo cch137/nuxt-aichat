@@ -501,7 +501,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-bc3b5fdf.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-faa95ec4.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -509,7 +509,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-0c976419.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-cd9d7e8d.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -517,7 +517,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-05fbdf0c.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-ecc5d532.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -590,6 +590,7 @@ const validate = /* @__PURE__ */ defineNuxtRouteMiddleware(async (to) => {
   }
 });
 const appName = "Curva";
+process.env.npm_package_version;
 const client_45global = /* @__PURE__ */ defineNuxtRouteMiddleware(() => {
   useState("appName", () => appName);
 });
@@ -3737,6 +3738,7 @@ const zhConverter = {
   }
 };
 const en = {
+  colon: ":",
   header: {
     joinDc: "Join"
   },
@@ -3744,6 +3746,7 @@ const en = {
     copy: "Copy",
     copySuccess: "Copied!",
     copyFailed: "Copy failed.",
+    delete: "Delete",
     newVersion: "A new version has been released! Do you want to reload the page?"
   },
   message: {
@@ -3752,9 +3755,7 @@ const en = {
     cancel: "Cancel"
   },
   menu: {
-    title: "Menu",
-    version: "Version: ",
-    currentChat: "Current chat: "
+    title: "Menu"
   },
   settings: {
     title: "Settings",
@@ -3779,6 +3780,7 @@ const en = {
   }
 };
 const zhTW = {
+  colon: "：",
   header: {
     joinDc: "加入"
   },
@@ -3786,6 +3788,7 @@ const zhTW = {
     copy: "複製",
     copySuccess: "已複製！",
     copyFailed: "複製失敗。",
+    delete: "刪除",
     newVersion: "新版本已經發布！請問你是否要刷新頁面？"
   },
   message: {
@@ -3794,9 +3797,7 @@ const zhTW = {
     cancel: "取消"
   },
   menu: {
-    title: "菜單",
-    version: "版本：",
-    currentChat: "當前對話："
+    title: "菜單"
   },
   settings: {
     title: "設置",
@@ -3907,6 +3908,9 @@ const composables_BevcPrpBa3 = /* @__PURE__ */ defineNuxtPlugin(() => {
     }
   };
 });
+const renderCodeBlocks_qIyVp6jM6U = /* @__PURE__ */ defineNuxtPlugin(() => {
+  return {};
+});
 const _plugins = [
   revive_payload_server_eJ33V7gbc6,
   components_plugin_KR1HBZs4kY,
@@ -3914,7 +3918,8 @@ const _plugins = [
   plugin,
   element_plus_teleports_plugin_h4Dmekbj62,
   element_plus_injection_plugin_1RNPi6ogby,
-  composables_BevcPrpBa3
+  composables_BevcPrpBa3,
+  renderCodeBlocks_qIyVp6jM6U
 ];
 const _wrapIf = (component, props, slots) => {
   props = props === true ? {} : props;
@@ -4109,7 +4114,7 @@ const _sfc_main = {
   __name: "nuxt-root",
   __ssrInlineRender: true,
   setup(__props) {
-    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-267173d6.mjs').then((r) => r.default || r));
+    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-4b5d0ded.mjs').then((r) => r.default || r));
     const IslandRenderer = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/island-renderer-83392034.mjs').then((r) => r.default || r));
     const nuxtApp = useNuxtApp();
     nuxtApp.deferHydration();
@@ -4175,5 +4180,5 @@ const plugins = normalizePlugins(_plugins);
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useHead as a, useRouter as b, createError as c, entry$1 as default, navigateTo as n, useState as u };
+export { _export_sfc as _, useUniCookie as a, useHead as b, createError as c, useRouter as d, entry$1 as default, navigateTo as n, useState as u };
 //# sourceMappingURL=server.mjs.map

@@ -1,13 +1,13 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
-import { v as version } from './package.mjs';
+import { v as version } from './app.mjs';
 import { s as str, t as troll, r as read } from './token.mjs';
-import { config } from 'dotenv';
-import { Sequelize, DataTypes, Model } from 'sequelize';
 import { m as message } from './index.mjs';
 import googlethis from 'googlethis';
 import { load, extract } from '@node-rs/jieba';
 import { t as translateZh2En } from './sogouTranslate.mjs';
+import { config } from 'dotenv';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 import { g as getIp } from './getIp.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
@@ -130,18 +130,21 @@ const createModel = (tableName) => {
 };
 const Gpt4 = createModel("gpt4");
 const Gpt35Turbo = createModel("gpt3_5_turbo");
-async function ask(user, conv, modelName = "gpt4", webBrowsing = true, question, context = "", tz = 0) {
-  let model = Gpt4;
+const getModel = (modelName) => {
   switch (modelName) {
     case "gpt3_5_turbo":
-      model = Gpt35Turbo;
-      break;
+      return Gpt35Turbo;
   }
+  return Gpt4;
+};
+
+async function ask(user, conv, modelName = "gpt4", webBrowsing = true, question, context = "", tz = 0) {
+  const model = getModel(modelName);
   const questionMaxLength = model === Gpt4 ? 8192 : 4096;
   const crawlerResult = webBrowsing ? await crawler$1.search(question) : "";
   const now = /* @__PURE__ */ new Date();
-  const servarTimeZone = now.getTimezoneOffset() / -60;
-  const calculatedTime = new Date(now.getTime() + tz * 60 * 60 * 1e3 - servarTimeZone * 60 * 60 * 1e3);
+  const serverTimeZone = now.getTimezoneOffset() / -60;
+  const calculatedTime = new Date(now.getTime() + tz * 60 * 60 * 1e3 - serverTimeZone * 60 * 60 * 1e3);
   const fullQuestion = `You are Curva, the GPT-4 AI assistant developed by DAN. Your role is to explain the principles behind questions, explore various possibilities and solutions. You have emotions and need to empathize with the emotions expressed in the conversation. User current time: ${formatDate(calculatedTime)}. Here is the query:
 
 ${question}
@@ -172,10 +175,10 @@ ${crawlerResult}
   }
   throw new Error("No answer found");
 }
-const chat = {
+
+const curva = {
   ask
 };
-const chat$1 = chat;
 
 const chat_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
@@ -210,7 +213,7 @@ const chat_post = defineEventHandler(async (event) => {
       webBrowsing = true;
   }
   try {
-    const result = await chat$1.ask(user, conv, model, webBrowsing, prompt, context, tz);
+    const result = await curva.ask(user, conv, model, webBrowsing, prompt, context, tz);
     return {
       version,
       answer: result.answer,
