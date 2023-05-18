@@ -1,7 +1,7 @@
 import { author, appName } from "./config/app"
 
 const description = 'Hi, I\'m Curva, a free AI assistant powered by GPT-4. I can now browse the web! Let\'s get started!'
-const image = 'https://voodex.netlify.app/bg/black-trianglify-3.png'
+const image = 'https://voodex.netlify.app/img/curva.png'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({

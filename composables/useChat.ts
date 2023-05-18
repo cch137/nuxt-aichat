@@ -13,9 +13,11 @@ const checkContext = () => {
 
 const getContext = () => {
   checkContext()
-  return `Here are your replies, from newest to oldest:\n${
-    [...contexts].reverse().join('\n---\n')
-  }`.substring(0, CONTEXT_MAX_LENGTH)
+  const joinedContexts = [...contexts].reverse().join('\n---\n')
+  if (joinedContexts.length === 0) {
+    return ''
+  }
+  return `Here are your replies, from newest to oldest:\n${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH)
 }
 
 const addContext = (...texts: string[]) => {
