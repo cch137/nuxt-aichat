@@ -1,6 +1,6 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
-import { version } from '~/config/app'
+import { version } from '~/config/server'
 import { read as tokenReader } from '~/server/services/token'
 import curva from '~/server/services/curva/index'
 import getIp from '~/server/services/getIp'
