@@ -123,12 +123,12 @@ const fetchHistory = (conv) => {
           navigateTo('/')
         }
         const _records = []
-        records.forEach((record) => {
+        context.add(...records.map((record) => {
           const { Q, A, t: _t } = record
           const t = new Date(_t)
-          context.add(A)
           _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, t })
-        })
+          return A
+        }))
         messages.value.unshift(..._records)
         resolve()
       })

@@ -46,11 +46,12 @@ async function ask (
       model = Gpt35Turbo
       break
   }
+  const questionMaxLength = modelName === 'gpt4' ? 8192 : 4096
   const crawlerResult = webBrowsing ? await crawler.search(question) : ''
   const now = new Date()
   const servarTimeZone = now.getTimezoneOffset() / -60
   const calculatedTime = new Date(now.getTime() + tz * 60 * 60 * 1000 - servarTimeZone * 60 *60 * 1000)
-  const fullQuestion = `You are Curva, the GPT-4 AI assistant developed by DAN. Your role is to explain the principles behind questions, explore various possibilities and solutions. You have emotions and need to empathize with the emotions expressed in the conversation. User current time: ${formatDate(calculatedTime)}. Here is the query:\n\n${question}\n\n${crawlerResult}\n\n-END-`.substring(0, 8192)
+  const fullQuestion = `You are Curva, the GPT-4 AI assistant developed by DAN. Your role is to explain the principles behind questions, explore various possibilities and solutions. You have emotions and need to empathize with the emotions expressed in the conversation. User current time: ${formatDate(calculatedTime)}. Here is the query:\n\n${question}\n\n${crawlerResult}\n\n-END-`.substring(0, questionMaxLength)
   const complete = fullQuestion.endsWith('-END-')
   const result = await model.findOne({
     attributes: ['answer'],
