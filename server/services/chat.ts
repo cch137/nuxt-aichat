@@ -46,7 +46,7 @@ async function ask (
       model = Gpt35Turbo
       break
   }
-  const questionMaxLength = modelName === 'gpt4' ? 8192 : 4096
+  const questionMaxLength = model === Gpt4 ? 8192 : 4096
   const crawlerResult = webBrowsing ? await crawler.search(question) : ''
   const now = new Date()
   const servarTimeZone = now.getTimezoneOffset() / -60
