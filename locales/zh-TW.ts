@@ -4,19 +4,26 @@ export default {
     joinDc: '加入'
   },
   action: {
+    more: '更多操作',
     copy: '複製',
     copySuccess: '已複製！',
     copyFailed: '複製失敗。',
     delete: '刪除',
+    deleteConv: '刪除對話',
+    exportAs: '導出為',
     newVersion: '新版本已經發布！請問你是否要刷新頁面？',
   },
   message: {
+    deleteConvConfirm: '你確定要刪除當前對話嗎？此操作將無法撤消！',
     notice: '通告',
+    warning: '警告',
     ok: '確認',
     cancel: '取消',
   },
   menu: {
-    title: '菜單'
+    title: '菜單',
+    about: '關於',
+    joinDcMessage: '加入我們的 Discord 服務器以跟進 Curva 的最新消息！',
   },
   settings: {
     title: '設置',

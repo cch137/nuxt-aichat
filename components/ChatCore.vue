@@ -10,34 +10,33 @@
         :class="message.type"
         class="Message flex p-1"
       >
-        <el-tooltip
-          effect="light"
-          :content="formatDate(message.t, 'yyyy/MM/dd HH:mm')"
-          :placement="message.type === 'Q' ? 'left' : 'right'"
-        >
-          <div class="InnerMessage p-2">
-            <div>
-              <span v-if="message.type === 'T'">
-                <span>Thinking</span>
-                <span>{{ loadingDots }}</span>
-              </span>
-              <span
-                v-else-if="message.type === 'A'"
-                v-html="marked.parse(message.text)"
-              />
-              <span v-else>{{ message.text }}</span>
-            </div>
-            <div v-if="message.type === 'A'" class="flex mt-2 gap-4 justify-end">
-              <el-button
-                :icon="DocumentCopy"
-                size="small"
-                class="MessageActionButton"
-                plain
-                @click="useCopyToClipboard(message.text)"
-              >{{ $t('action.copy') }}</el-button>
-            </div>
+        <div class="InnerMessage p-2">
+          <div>
+            <span v-if="message.type === 'T'">
+              <span>Thinking</span>
+              <span>{{ loadingDots }}</span>
+            </span>
+            <span
+              v-else-if="message.type === 'A'"
+              v-html="marked.parse(message.text)"
+            />
+            <span v-else>{{ message.text }}</span>
           </div>
-        </el-tooltip>
+          <div v-if="message.type === 'A'" class="flex mt-2 gap-4">
+            <div class="flex-1">
+              <el-text type="info" size="small" class="opacity-75">
+                {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
+              </el-text>
+            </div>
+            <el-button
+              :icon="DocumentCopy"
+              size="small"
+              class="MessageActionButton"
+              plain
+              @click="useCopyToClipboard(message.text)"
+            >{{ $t('action.copy') }}</el-button>
+          </div>
+        </div>
       </div>
     </div>
   </ClientOnly>

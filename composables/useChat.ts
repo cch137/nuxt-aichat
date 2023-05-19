@@ -41,6 +41,8 @@ interface ChatMessage {
 
 const messages = ref<Array<ChatMessage>>([])
 
+const conversations = ref<Array<string>>([])
+
 const context = {
   add: addContext,
   get: getContext,
@@ -60,9 +62,15 @@ export default function () {
       })
     }
   })
+  const nuxtApp = useNuxtApp()
+  const getCurrrentConvId = () => {
+    return nuxtApp._route?.params?.conv
+  }
   return {
+    conversations,
     messages,
     context,
-    webBrowsingMode
+    webBrowsingMode,
+    getCurrrentConvId
   }
 }

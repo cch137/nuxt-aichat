@@ -41,8 +41,7 @@ import troll from '~/utils/troll'
 import str from '~/utils/str'
 
 const inputValue = ref('')
-const { messages, context, webBrowsingMode } = useChat()
-const conversations = useState('conversations', () => [] as string[])
+const { conversations, messages, context, webBrowsingMode } = useChat()
 
 // @ts-ignore
 const _t = useLocale().t

@@ -5,7 +5,11 @@
     direction="ltr"
     style="min-width: 320px; max-width: 100vw;"
   >
-    <el-form class="pb-4" @submit.prevent>
+    <!-- <h3 class="mt-0">{{ $t('menu.about') }}</h3>
+    <div>
+      <el-text>{{ $t('menu.joinDcMessage') }}</el-text>
+    </div> -->
+    <el-form class="py-4" @submit.prevent>
       <div class="flex justify-stretch">
         <h3 class="flex-1 mt-0">{{ $t('settings.title') }}</h3>
         <div class="px-1">
@@ -36,7 +40,7 @@
     <h3>{{ $t('chat.chats') }}</h3>
     <div class="mt-2 border border-neutral-700 rounded">
       <div class="border-b border-neutral-700">
-        <NuxtLink :to="`/`" @click="goToChat(null)">
+        <NuxtLink id="createNewChat" :to="`/`" @click="goToChat(null)">
           <el-button
             :icon="Plus"
             size="large"
@@ -48,7 +52,7 @@
       </div>
       <div class="max-h-[16rem] overflow-auto">
         <div v-for="conv in conversations">
-          <NuxtLink :to="`/c/${conv}`" @click="goToChat(conv)">
+          <NuxtLink :id="conv" :to="`/c/${conv}`" @click="goToChat(conv)">
             <el-button
               :type="conv === getCurrrentConvId() ? 'primary' : 'default'"
               :icon="ChatSquare"
@@ -72,19 +76,12 @@ import { Plus, ChatSquare } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 
 const openDrawer = useState('openDrawer', () => false)
-const conversations = useState('conversations', () => [])
 const version = useState('version', () => '...')
-const { messages, context } = useChat()
+const { conversations, messages, context, getCurrrentConvId } = useChat()
 const currentConv = ref('')
 
 const focusInput = () => {
   document.querySelector('.InputBox textarea').focus()
-}
-
-const nuxtApp = useNuxtApp()
-
-const getCurrrentConvId = () => {
-  return nuxtApp._route?.params?.conv
 }
 
 const goToChat = (conv) => {

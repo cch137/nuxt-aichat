@@ -4,19 +4,26 @@ export default {
     joinDc: 'Join'
   },
   action: {
+    more: 'More actions',
     copy: 'Copy',
     copySuccess: 'Copied!',
     copyFailed: 'Copy failed.',
     delete: 'Delete',
+    deleteConv: 'Delete conversation',
+    exportAs: 'Export as',
     newVersion: 'A new version has been released! Do you want to reload the page?',
   },
   message: {
+    deleteConvConfirm: 'Are you certain you want to delete the current conversation? This action cannot be undone!',
     notice: 'Notice',
+    warning: 'Warning',
     ok: 'OK',
     cancel: 'Cancel',
   },
   menu: {
-    title: 'Menu'
+    title: 'Menu',
+    about: 'About',
+    joinDcMessage: 'Join our Discord server to keep up with the latest news from Curva!',
   },
   settings: {
     title: 'Settings',
