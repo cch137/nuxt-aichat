@@ -1,4 +1,4 @@
-import { u as useTitle, _ as __nuxt_component_0 } from './useTitle-d1df23ba.mjs';
+import { u as useTitle, _ as __nuxt_component_0 } from './useTitle-18bdbb22.mjs';
 import { useSSRContext } from 'vue';
 import { u as useState } from '../server.mjs';
 import { ssrRenderAttrs, ssrRenderComponent } from 'vue/server-renderer';
@@ -33,7 +33,7 @@ import 'node:url';
 import 'pathe';
 
 const _sfc_main = {
-  __name: "index",
+  __name: "[conv]",
   __ssrInlineRender: true,
   setup(__props) {
     useTitle(`Chat - ${useState("appName").value}`);
@@ -48,9 +48,9 @@ const _sfc_main = {
 const _sfc_setup = _sfc_main.setup;
 _sfc_main.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/index.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/c/[conv].vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-bb8397ef.mjs.map
+//# sourceMappingURL=_conv_-386ef334.mjs.map

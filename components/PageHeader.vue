@@ -12,7 +12,7 @@
       <div class="flex-1"></div>
       <div class="flex-center gap-2">
         <ClientOnly>
-          <el-dropdown>
+          <el-dropdown v-if="getCurrentConvId()">
             <el-button>
               {{ $t('action.more') }}<el-icon class="el-icon--right"><ArrowDown /></el-icon>
             </el-button>
@@ -63,12 +63,12 @@ import { Download, Delete, ArrowDown } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 const openDrawer = useState('openDrawer', () => false)
 const appName = useState('appName')
-const { conversations, messages, getCurrrentConvId } = useChat()
+const { conversations, messages, getCurrentConvId } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 
 const deleteConversation = () => {
-  const currentConvId = getCurrrentConvId()
+  const currentConvId = getCurrentConvId()
   const _conversations = [...conversations.value]
   let currentConvIndex = -1
   let nextConvId = 'createNewChat'
@@ -119,7 +119,7 @@ const exportAsMarkdown = () => {
     return '(Unknown message)'
   }).join('\n\n---\n\n') + '\n\n---\n\n'
   const a = document.createElement('a')
-  const filename = `${baseConverter.convert(getCurrrentConvId(), '64w', 10)}.md`
+  const filename = `${baseConverter.convert(getCurrentConvId(), '64w', 10)}.md`
   a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(markdownContent))
   a.setAttribute('download', filename)
   a.style.display = 'none'

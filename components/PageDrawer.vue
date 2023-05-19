@@ -54,12 +54,12 @@
         <div v-for="conv in conversations">
           <NuxtLink :id="conv" :to="`/c/${conv}`" @click="goToChat(conv)">
             <el-button
-              :type="conv === getCurrrentConvId() ? 'primary' : 'default'"
+              :type="conv === getCurrentConvId() ? 'primary' : 'default'"
               :icon="ChatSquare"
               size="large"
               class="ConversationLink w-full"
-              :plain="conv === getCurrrentConvId()"
-              :class="conv === getCurrrentConvId() ? 'pointer-events-none brightness-125' : ''"
+              :plain="conv === getCurrentConvId()"
+              :class="conv === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
             >
               {{ baseConverter.convert(conv, '64w', 10) }}
             </el-button>
@@ -77,7 +77,7 @@ import baseConverter from '~/utils/baseConverter'
 
 const openDrawer = useState('openDrawer', () => false)
 const version = useState('version', () => '...')
-const { conversations, messages, context, getCurrrentConvId } = useChat()
+const { conversations, messages, context, getCurrentConvId } = useChat()
 const currentConv = ref('')
 
 const focusInput = () => {
@@ -85,7 +85,7 @@ const focusInput = () => {
 }
 
 const goToChat = (conv) => {
-  const currentConvId = getCurrrentConvId()
+  const currentConvId = getCurrentConvId()
   if (currentConvId !== conv || conv === null) {
     messages.value = []
     initPage(conv)

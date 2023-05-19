@@ -63,7 +63,7 @@ export default function () {
     }
   })
   const nuxtApp = useNuxtApp()
-  const getCurrrentConvId = () => {
+  const getCurrentConvId = () => {
     return nuxtApp._route?.params?.conv
   }
   return {
@@ -71,6 +71,6 @@ export default function () {
     messages,
     context,
     webBrowsingMode,
-    getCurrrentConvId
+    getCurrentConvId
   }
 }

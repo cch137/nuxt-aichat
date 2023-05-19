@@ -52,7 +52,7 @@ function useChat() {
     }
   });
   const nuxtApp = useNuxtApp();
-  const getCurrrentConvId = () => {
+  const getCurrentConvId = () => {
     var _a, _b;
     return (_b = (_a = nuxtApp._route) == null ? void 0 : _a.params) == null ? void 0 : _b.conv;
   };
@@ -61,7 +61,7 @@ function useChat() {
     messages,
     context,
     webBrowsingMode,
-    getCurrrentConvId
+    getCurrentConvId
   };
 }
 const _sfc_main = {
@@ -102,4 +102,4 @@ function useTitle(title) {
 }
 
 export { __nuxt_component_0 as _, useTitle as u };
-//# sourceMappingURL=useTitle-d1df23ba.mjs.map
+//# sourceMappingURL=useTitle-18bdbb22.mjs.map
