@@ -47,6 +47,12 @@ Build, push and test:
 
 ```bash
 npm run build
+npm run preview
+
+```
+
+```bash
+npm run build
 git add .
 git commit -am "build"
 git push
