@@ -48,7 +48,7 @@ import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import { DocumentCopy } from '@element-plus/icons-vue'
 
-const { messages, context } = useChat()
+const { messages } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -69,7 +69,7 @@ setInterval(() => {
   max-width: 100%;
 }
 .InnerMessage {
-  max-width: 75%;
+  max-width: 78%;
   border-radius: 0.5rem;
 }
 .Messages code:not(pre code) {

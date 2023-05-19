@@ -23,8 +23,10 @@ export default {
     model: 'Model',
     lang: 'UI Language',
     webBrowsing: 'Web Browsing',
-    on: 'On',
     off: 'Off',
+    on: 'On',
+    basic: 'Basic',
+    advanced: 'Advanced'
   },
   chat: {
     chats: 'Conversations',

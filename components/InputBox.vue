@@ -1,24 +1,28 @@
 <template>
-  <div class="InputBox fixed pt-20 pb-4 px-4 w-screen">
+  <div class="InputBox fixed pt-20 pb-2 px-4 w-screen">
     <el-form ref="inputForm" class="mx-auto mb-2 max-w-full" @submit.prevent>
       <el-form-item style="margin: 0;">
         <div class="flex gap-3 w-full">
-          <el-input
-            v-model="inputValue"
-            :autosize="{ minRows: 2, maxRows: 16 }"
-            type="textarea"
-            size="large"
-            :maxlength="model === 'gpt4' ? 4096 : 2048"
-            :autofocus="true"
-            @keydown="keyboardSendMessage"
-          />
-          <el-button
-            type="primary"
-            size="large"
-            @click="clickSendMessage"
-          >
-            {{ $t('chat.send') }}
-          </el-button>
+          <div class="w-full">
+            <el-input
+              v-model="inputValue"
+              :autosize="{ minRows: 2, maxRows: 16 }"
+              type="textarea"
+              size="large"
+              :maxlength="model === 'gpt4' ? 4096 : 2048"
+              :autofocus="true"
+              @keydown="keyboardSendMessage"
+            />
+          </div>
+          <div class="InputBoxActionButtonGroup flex flex-col gap-1">
+            <el-button
+              type="primary"
+              size="large"
+              @click="clickSendMessage"
+            >
+              {{ $t('chat.send') }}
+            </el-button>
+          </div>
         </div>
       </el-form-item>
     </el-form>
@@ -134,10 +138,15 @@ const sendMessage = (): boolean => {
       const answer = (res as any).answer as string
       const isQuestionComplete = (res as any).complete as boolean
       const _version = (res as any).version as string
+      if (!isQuestionComplete) {
+        ElMessage.warning(_t('error.qTooLong'))
+      }
       // @ts-ignore
       if (!answer) {
         throw _t('error.plzRefresh')
       }
+      answerMessage.text = answer
+      context.add(answer)
       if (_version !== version.value) {
         ElMessageBox.confirm(
           _t('action.newVersion'),
@@ -152,11 +161,6 @@ const sendMessage = (): boolean => {
           .finally(() => {
             focusInput()
           })
-      }
-      answerMessage.text = answer
-      context.add(answer)
-      if (!isQuestionComplete) {
-        ElMessage.warning(_t('error.qTooLong'))
       }
     })
     .catch((err) => {
@@ -190,5 +194,14 @@ const sendMessage = (): boolean => {
 }
 .DeleteButton i {
   transform: scale(1.25);
+}
+.InputBoxActionButtonGroup {
+  max-height: 1px;
+  overflow: visible;
+}
+@media screen and (max-width: 600px) {
+  .InputBoxActionButtonGroup {
+    max-height: fit-content;
+  }
 }
 </style>

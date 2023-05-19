@@ -28,16 +28,34 @@ const createModel = (tableName: string) => {
 const Gpt4 = createModel('gpt4')
 const Gpt35Turbo = createModel('gpt3_5_turbo')
 
-const getModel = (modelName: string) => {
+const fixModelName = (modelName: string) => {
   switch (modelName) {
+    case 'gpt4':
+    case 'gpt3_5_turbo':
+      return modelName
+  }
+  return 'gpt4'
+}
+
+const getModel = (modelName: string) => {
+  switch (fixModelName(modelName)) {
     case 'gpt3_5_turbo':
       return Gpt35Turbo
   }
   return Gpt4
 }
 
+const getQuestionMaxLength = (modelName: string) => {
+  switch (fixModelName(modelName)) {
+    case 'gpt3_5_turbo':
+      return 4096
+  }
+  return 8192
+}
+
 export {
   Gpt4,
   Gpt35Turbo,
-  getModel
+  getModel,
+  getQuestionMaxLength
 }

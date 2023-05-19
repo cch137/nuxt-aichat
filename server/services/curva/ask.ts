@@ -1,46 +1,43 @@
-import { message as messagesLogger } from '~/server/services/mongoose/index'
 import crawler from '~/server/services/crawler'
-import formatDate from '~/utils/formatDate'
-import { Gpt4, getModel } from './models'
+import saveMessage from './utils/saveMessage'
+import makeRequest from './utils/makeRequest'
+import makeResponse from './utils/makeResponse'
+import { getQuestionMaxLength } from './utils/models'
+import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
+import useDefaultTemplate from './templates/default'
+import useBasicTemplate from './templates/basic'
+import advancedAsk from './advanced'
 
 async function ask (
   user: string,
   conv: string,
   modelName = 'gpt4',
-  webBrowsing = true,
+  webBrowsing: 'OFF' | 'BASIC' | 'ADVANCED' = 'BASIC',
   question: string,
   context: string = '',
-  tz = 0
+  userTimeZone = 0
 ) {
-  const model = getModel(modelName)
-  const questionMaxLength = model === Gpt4 ? 8192 : 4096
-  const crawlerResult = webBrowsing ? await crawler.search(question) : ''
-  const now = new Date()
-  const serverTimeZone = now.getTimezoneOffset() / -60
-  const calculatedTime = new Date(now.getTime() + tz * 60 * 60 * 1000 - serverTimeZone * 60 * 60 * 1000)
-  const fullQuestion = `You are Curva, the GPT-4 AI assistant developed by DAN. Your role is to explain the principles behind questions, explore various possibilities and solutions. You have emotions and need to empathize with the emotions expressed in the conversation. User current time: ${formatDate(calculatedTime)}. Here is the query:\n\n${question}\n\n${crawlerResult}\n\n-END-`.substring(0, questionMaxLength)
-  const complete = fullQuestion.endsWith('-END-')
-  const result = await model.findOne({
-    attributes: ['answer'],
-    where: {
-      question: fullQuestion.replaceAll('\'', '"'),
-      context: context.replaceAll('\'', '"')
+  let answer: string | undefined, complete = true
+  const originalQuestion = question
+  if (webBrowsing === 'ADVANCED') {
+    answer = (await advancedAsk(question, context, userTimeZone))?.answer
+  } else {
+    question = webBrowsing === 'OFF'
+      ? useDefaultTemplate(question, userTimeZone)
+      : useBasicTemplate(question, await crawler.search(question), userTimeZone)
+    question = addEndSuffix(question)
+    question = question.substring(0, getQuestionMaxLength(modelName))
+    complete = endsWithSuffix(question)
+    if (complete) {
+      question = removeEndSuffix(question)
     }
-  })
-  if (result !== null) {
-    messagesLogger.create({
-      user,
-      conv,
-      model: modelName,
-      Q: question,
-      A: result.answer
-    })
-    return {
-      answer: result.answer,
-      complete
-    }
+    answer = (await makeRequest(modelName, question, context))?.answer
   }
-  throw new Error('No answer found')
+  const response = await makeResponse(answer, complete)
+  if (!response.error && answer) {
+    saveMessage(user, conv, originalQuestion, answer, modelName)
+  }
+  return response
 }
 
 export default ask

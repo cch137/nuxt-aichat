@@ -29,8 +29,8 @@ const clearContext = () => {
   contexts.splice(0, contexts.length)
 }
 
-const allowedWebBrowsingModes: any[] = ['ON', 'OFF']
-const DEFAULT_WEB_BROWSING_MODE = 'ON'
+const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
+const DEFAULT_WEB_BROWSING_MODE = 'BASIC'
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
 
 interface ChatMessage {
@@ -55,7 +55,9 @@ export default function () {
   }
   watch(webBrowsingMode, (newValue) => {
     if (typeof newValue === 'string') {
-      cookie.set(webBrowsingCookieName, newValue)
+      cookie.set(webBrowsingCookieName, newValue, {
+        path: '/'
+      })
     }
   })
   return {

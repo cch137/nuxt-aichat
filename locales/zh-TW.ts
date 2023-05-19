@@ -23,8 +23,10 @@ export default {
     model: '模型',
     lang: 'UI 語言',
     webBrowsing: '訪問網絡',
-    on: '開啟',
     off: '關閉',
+    on: '開啟',
+    basic: '基礎',
+    advanced: '進階',
   },
   chat: {
     chats: '對話列表',

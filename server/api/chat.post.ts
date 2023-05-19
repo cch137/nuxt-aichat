@@ -32,26 +32,14 @@ export default defineEventHandler(async (event) => {
   if (token === null || typeof user !== 'string') {
     return { error: 4 }
   }
-  let webBrowsing: boolean
-  switch (web) {
-    case 'OFF':
-      webBrowsing = false
-      break
-    case 'ON':
-    default:
-      webBrowsing = true
-  }
   try {
-    const result = await curva.ask(user, conv, model, webBrowsing, prompt, context, tz)
-    return {
-      version,
-      answer: result.answer,
-      complete: result.complete
+    const { answer, complete, error } = await curva.ask(user, conv, model, web, prompt, context, tz)
+    if (error) {
+      return { error }
     }
+    return { version, answer, complete }
   } catch (err) {
     console.error(err)
-    return {
-      error: 5
-    }
+    return { error: 5 }
   }
 })
