@@ -65,8 +65,8 @@ const getHashType = () => {
   return [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
 }
 
-const createHeaders = (message: string, t: number) => {
-  const hash = createHash(message, getHashType(), t)
+const createHeaders = (message: string, context: string, t: number) => {
+  const hash = createHash(`${message}${context}`, getHashType(), t)
   const timestamp = str(t)
   return { hash, timestamp }
 }
@@ -105,8 +105,8 @@ const createRequestOptions = (message: string) => {
   const t = date.getTime()
   const tz = (date.getTimezoneOffset() / 60) * -1
   const method = 'POST'
-  const headers = createHeaders(message, t)
   const body = createBody(message, getModel(), getWebBrowsing(), t, tz)
+  const headers = createHeaders(message, body.context, t)
   return { method, headers, body }
 }
 

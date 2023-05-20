@@ -67,13 +67,13 @@
         </div>
       </div>
     </div>
-    <div class="py-4">
+    <!-- <div class="py-4">
       <h3>{{ $t('auth.title') }}</h3>
       <div>
         <el-button @click="viewUserId">{{ $t('auth.login') }}</el-button>
         <el-button @click="viewUserId">{{ $t('auth.signup') }}</el-button>
       </div>
-    </div>
+    </div> -->
   </el-drawer>
 </template>
 

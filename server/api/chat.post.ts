@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   if (!conv || !prompt ||!model || !t) {
     return { error: 2 }
   }
-  const stdHash = troll.h(prompt, 'MD5', t)
+  const stdHash = troll.h(`${prompt}${context}`, 'MD5', t)
   const hashFromClient = event?.node?.req?.headers?.hash
   const timestamp = Number(event?.node?.req?.headers?.timestamp)
   // Validate hash and timestamp

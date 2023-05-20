@@ -8,8 +8,7 @@
     <div class="text-2xl font-medium">
       {{ appName }}
     </div>
-    <div class="flex-1"></div>
-    <div class="flex-center gap-2">
+    <div class="flex-1 flex items-center justify-end gap-2">
       <ClientOnly>
         <el-dropdown v-if="getCurrentConvId()" trigger="click" placement="bottom-start">
           <el-button>
@@ -68,7 +67,7 @@
     </div>
     <div>
       <a href="https://discord.gg/5v49JKKmzJ" target="_blank">
-        <el-button style="padding: 12px;">
+        <el-button class="DCJoinButton" style="padding: 12px;">
           <DiscordIconSvg style="height: 24px; width: 24px;" />
           <span class="ml-2 DCJoinText">{{ $t('header.joinDc') }}</span>
         </el-button>
@@ -83,7 +82,7 @@ import { EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plu
 import baseConverter from '~/utils/baseConverter'
 const openDrawer = useState('openDrawer', () => false)
 const appName = useState('appName')
-const { conversations, messages, getCurrentConvId, goToChat, checkTokenAndGetConversations } = useChat()
+const { conversations, messages, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 
@@ -95,6 +94,7 @@ const renameConversation = () => {
   ElMessageBox.prompt(_t('message.renameConvHint'), _t('message.setting'), {
     confirmButtonText: _t('message.ok'),
     cancelButtonText: _t('message.cancel'),
+    inputValue: getCurrentConvName()
   })
     .then(({ value: name }) => {
       $fetch('/api/renameConv', { method: 'POST', body: { id: getCurrentConvId(), name } })
@@ -127,8 +127,8 @@ const deleteConversation = () => {
     }
   }
   if (currentConvIndex !== -1) {
-    const beforeConv = _conversations[currentConvIndex - 1].id
-    const afterConv = _conversations[currentConvIndex + 1].id
+    const beforeConv = _conversations[currentConvIndex - 1]?.id
+    const afterConv = _conversations[currentConvIndex + 1]?.id
     if (beforeConv !== undefined) {
       nextConvId = beforeConv 
     } else if (afterConv !== undefined) {
@@ -186,5 +186,13 @@ const exportAsMarkdown = () => {
 .PageHeader > * {
   display: flex;
   align-items: center;
+}
+@media screen and (max-width: 600px) {
+  .DCJoinButton {
+    padding: 12px 8px !important;
+  }
+  .DCJoinText {
+    display: none;
+  }
 }
 </style>

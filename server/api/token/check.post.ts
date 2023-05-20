@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     if (Array.isArray(conversations)) {
       const record: Record<string, string>  = {}
       const items = await conversation.find(
-        { $or: conversations.map((id) => ({ id })) },
+        { $or: conversations.map((id) => ({ user, id })) },
         { _id: 0, id: 1, name: 1 }
       )
       for (const item of items) {

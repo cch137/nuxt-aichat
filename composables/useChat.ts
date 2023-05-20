@@ -139,6 +139,11 @@ export default function () {
   const getCurrentConvId = () => {
     return nuxtApp._route?.params?.conv
   }
+  const getCurrentConvName = () => {
+    const currentConvId = getCurrentConvId()
+    return conversations.value
+      .filter((conv) => conv.id === currentConvId)[0].name || ''
+  }
   const openDrawer = useState('openDrawer', () => false)
   const goToChat = (conv: string | null, force = false) => {
     const currentConvId = getCurrentConvId()
@@ -155,6 +160,7 @@ export default function () {
     context,
     webBrowsingMode,
     getCurrentConvId,
+    getCurrentConvName,
     checkTokenAndGetConversations,
     initPage,
     goToChat
