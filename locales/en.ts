@@ -5,6 +5,7 @@ export default {
   },
   action: {
     more: 'More actions',
+    refresh: 'Refresh conversation',
     copy: 'Copy',
     copySuccess: 'Copied!',
     copyFailed: 'Copy failed.',

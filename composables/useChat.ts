@@ -1,3 +1,4 @@
+import { ElMessage, ElLoading } from 'element-plus'
 import { webBrowsing as webBrowsingCookieName } from '~/config/cookieNames'
 
 const CONTEXT_MAX_TOKENS = 1024
@@ -33,6 +34,12 @@ const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
 const DEFAULT_WEB_BROWSING_MODE = 'BASIC'
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
 
+interface SavedChatMessage {
+  Q: string;
+  A: string;
+  t: Date;
+}
+
 interface ChatMessage {
   type: string;
   text: string;
@@ -47,6 +54,70 @@ const context = {
   add: addContext,
   get: getContext,
   clear: clearContext
+}
+const currentConv = ref('')
+
+const focusInput = () => {
+  (document.querySelector('.InputBox textarea') as HTMLElement).focus()
+}
+
+const checkTokenAndGetConversations = () => {
+  return new Promise((resolve, reject) => {
+    $fetch('/api/token/check', { method: 'POST' })
+      .then((_conversations) => {
+        conversations.value = _conversations.sort()
+        resolve(true)
+      })
+      .catch((err) => {
+        ElMessage.error('Initialization Failed')
+        reject(err)
+      })
+  })
+}
+
+const fetchHistory = (conv: string | null) => {
+  return new Promise((resolve, reject) => {
+    const convIdDemical = baseConverter.convert(conv as string, '64w', 10)
+    currentConv.value = convIdDemical
+    if (conv === undefined || conv === null) {
+      context.clear()
+      return resolve(true)
+    }
+    $fetch('/api/history', { method: 'POST', body: { id: conv } })
+      .then((fetched) => {
+        const records = fetched as Array<SavedChatMessage>
+        if (records.length === 0) {
+          navigateTo('/')
+        }
+        const _records = [] as Array<ChatMessage>
+        context.add(...records.map((record) => {
+          const { Q, A, t: _t } = record
+          const t = new Date(_t)
+          _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, t })
+          return A
+        }))
+        messages.value.unshift(..._records)
+        resolve(true)
+      })
+      .catch((err) => {
+        ElMessage.error('There was an error loading the conversation.')
+        reject(err)
+      })
+  })
+}
+
+const initPage = (conv: string | null) => {
+  const loading = ElLoading.service()
+  Promise.all([
+    conv === null ? null : checkTokenAndGetConversations(),
+    fetchHistory(conv)
+  ])
+    .finally(() => {
+      useScrollToBottom()
+      setTimeout(() => {
+        loading.close()
+      }, 500)
+    })
 }
 
 export default function () {
@@ -66,11 +137,23 @@ export default function () {
   const getCurrentConvId = () => {
     return nuxtApp._route?.params?.conv
   }
+  const openDrawer = useState('openDrawer', () => false)
+  const goToChat = (conv: string | null, force = false) => {
+    const currentConvId = getCurrentConvId()
+    if (force || (currentConvId !== conv || conv === null)) {
+      messages.value = []
+      initPage(conv)
+    }
+    openDrawer.value = false
+    focusInput()
+  }
   return {
     conversations,
     messages,
     context,
     webBrowsingMode,
-    getCurrentConvId
+    getCurrentConvId,
+    initPage,
+    goToChat
   }
 }

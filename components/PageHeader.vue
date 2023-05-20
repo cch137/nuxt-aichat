@@ -23,6 +23,16 @@
                     <el-button
                       class="w-full"
                       style="justify-content: start;"
+                      :icon="RefreshRight"
+                      @click="refreshChat"
+                    >
+                      {{ $t('action.refresh') }}
+                    </el-button>
+                  </div>
+                  <div>
+                    <el-button
+                      class="w-full"
+                      style="justify-content: start;"
                       :icon="Delete"
                       @click="deleteConversation"
                     >
@@ -59,13 +69,17 @@
 
 <script setup>
 import { ElMessageBox, ElLoading } from 'element-plus'
-import { Download, Delete, ArrowDown } from '@element-plus/icons-vue'
+import { RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 const openDrawer = useState('openDrawer', () => false)
 const appName = useState('appName')
-const { conversations, messages, getCurrentConvId } = useChat()
+const { conversations, messages, getCurrentConvId, goToChat } = useChat()
 // @ts-ignore
 const _t = useLocale().t
+
+const refreshChat = () => {
+  goToChat(getCurrentConvId(), true)
+}
 
 const deleteConversation = () => {
   const currentConvId = getCurrentConvId()

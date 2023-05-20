@@ -71,28 +71,12 @@
 </template>
 
 <script setup>
-import { ElMessage, ElLoading } from 'element-plus'
 import { Plus, ChatSquare } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 
 const openDrawer = useState('openDrawer', () => false)
 const version = useState('version', () => '...')
-const { conversations, messages, context, getCurrentConvId } = useChat()
-const currentConv = ref('')
-
-const focusInput = () => {
-  document.querySelector('.InputBox textarea').focus()
-}
-
-const goToChat = (conv) => {
-  const currentConvId = getCurrentConvId()
-  if (currentConvId !== conv || conv === null) {
-    messages.value = []
-    initPage(conv)
-  }
-  openDrawer.value = false
-  focusInput()
-}
+const { conversations, goToChat, initPage, getCurrentConvId } = useChat()
 
 const {
   data: versionData,
@@ -102,64 +86,6 @@ const {
 watch(versionData, (newValue) => {
   version.value = newValue
 })
-
-const checkTokenAndGetConversations = () => {
-  return new Promise((resolve, reject) => {
-    $fetch('/api/token/check', { method: 'POST' })
-      .then((_conversations) => {
-        conversations.value = _conversations.sort()
-        resolve()
-      })
-      .catch((err) => {
-        ElMessage.error('Initialization Failed')
-        reject(err)
-      })
-  })
-}
-
-const fetchHistory = (conv) => {
-  return new Promise((resolve, reject) => {
-    const convIdDemical = baseConverter.convert(conv, '64w', 10)
-    currentConv.value = convIdDemical
-    if (conv === undefined || conv === null) {
-      context.clear()
-      return resolve()
-    }
-    $fetch('/api/history', { method: 'POST', body: { id: conv } })
-      .then((records) => {
-        if (records.length === 0) {
-          navigateTo('/')
-        }
-        const _records = []
-        context.add(...records.map((record) => {
-          const { Q, A, t: _t } = record
-          const t = new Date(_t)
-          _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, t })
-          return A
-        }))
-        messages.value.unshift(..._records)
-        resolve()
-      })
-      .catch((err) => {
-        ElMessage.error('There was an error loading the conversation.')
-        reject(err)
-      })
-  })
-}
-
-const initPage = (conv) => {
-  const loading = ElLoading.service()
-  Promise.all([
-    conv === null ? null : checkTokenAndGetConversations(),
-    fetchHistory(conv)
-  ])
-    .finally(() => {
-      useScrollToBottom()
-      setTimeout(() => {
-        loading.close()
-      }, 500)
-    })
-}
 
 if (process.client) {
   const conv = useNuxtApp()._route?.params?.conv

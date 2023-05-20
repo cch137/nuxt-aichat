@@ -5,6 +5,7 @@ export default {
   },
   action: {
     more: '更多操作',
+    refresh: '刷新對話',
     copy: '複製',
     copySuccess: '已複製！',
     copyFailed: '複製失敗。',

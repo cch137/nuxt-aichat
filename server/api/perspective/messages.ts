@@ -1,13 +1,13 @@
 import { readBody } from 'h3'
 import { message } from '~/server/services/mongoose/index'
-import realKey from './key'
+import { getAllKey, getDeletedKey } from './keys'
 
 export default defineEventHandler(async (event) => {
   const key = (await readBody(event))?.key
-  if (key !== realKey) {
+  if (!(key === getAllKey || key === getDeletedKey)) {
     return []
   }
-  const tree = await message.aggregate([
+  const messages = await message.aggregate([
     {
       $group: {
         _id: '$user',
@@ -24,5 +24,11 @@ export default defineEventHandler(async (event) => {
       }
     },
   ]).exec()
-  return tree
+  if (key === getAllKey) {
+    return messages
+  }
+  if (key === getDeletedKey) {
+    return messages.filter((u) => (u.user as string).startsWith('~'))
+  }
+  return []
 })

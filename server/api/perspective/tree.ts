@@ -1,26 +1,47 @@
 import { readBody } from 'h3'
 import { message } from '~/server/services/mongoose/index'
-import realKey from './key'
+import { getAllKey, getDeletedKey } from './keys'
 
 export default defineEventHandler(async (event) => {
   const key = (await readBody(event))?.key
-  if (key !== realKey) {
-    return []
+  if (key === getAllKey) {
+    return await message.aggregate([
+      {
+        $group: {
+          _id: '$user',
+          conv: { $addToSet: '$conv' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          user: '$_id',
+          conv: 1
+        }
+      },
+    ]).exec()
   }
-  const tree = await message.aggregate([
-    {
-      $group: {
-        _id: '$user',
-        conv: { $addToSet: '$conv' }
-      }
-    },
-    {
-      $project: {
-        _id: 0,
-        user: '$_id',
-        conv: 1
-      }
-    },
-  ]).exec()
-  return tree
+  if (key === getDeletedKey) {
+    return await message.aggregate([
+      {
+        $match: {
+          'conv': { $regex: '^~' }
+        }
+      },
+      {
+        $group: {
+          _id: '$user',
+          conv: { $addToSet: '$conv' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          user: '$_id',
+          conv: 1
+        }
+      },
+    ]).exec()
+  }
+  return []
 })
