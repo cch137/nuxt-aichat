@@ -1,16 +1,16 @@
 import { defineEventHandler, readBody } from 'h3';
 import { m as message } from './index.mjs';
-import realKey from './key.mjs';
+import { getAllKey, getDeletedKey } from './keys.mjs';
 import 'mongoose';
 import 'dotenv';
 
 const messages = defineEventHandler(async (event) => {
   var _a;
   const key = (_a = await readBody(event)) == null ? void 0 : _a.key;
-  if (key !== realKey) {
+  if (!(key === getAllKey || key === getDeletedKey)) {
     return [];
   }
-  const tree = await message.aggregate([
+  const messages = await message.aggregate([
     {
       $group: {
         _id: "$user",
@@ -27,7 +27,13 @@ const messages = defineEventHandler(async (event) => {
       }
     }
   ]).exec();
-  return tree;
+  if (key === getAllKey) {
+    return messages;
+  }
+  if (key === getDeletedKey) {
+    return messages.filter((u) => u.user.startsWith("~"));
+  }
+  return [];
 });
 
 export { messages as default };

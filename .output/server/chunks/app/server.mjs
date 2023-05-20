@@ -501,7 +501,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-386ef334.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-db8b7fec.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -509,7 +509,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-d4516f6a.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-0f83ab40.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -517,7 +517,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-ecc5d532.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-af9a1424.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -3741,8 +3741,17 @@ const en = {
   header: {
     joinDc: "Join"
   },
+  auth: {
+    title: "Account",
+    uid: "User ID",
+    viewUid: "View User ID",
+    login: "Log In",
+    signup: "Sign Up"
+  },
   action: {
     more: "More actions",
+    renameConv: "Rename conversation",
+    refresh: "Refresh conversation",
     copy: "Copy",
     copySuccess: "Copied!",
     copyFailed: "Copy failed.",
@@ -3752,9 +3761,12 @@ const en = {
     newVersion: "A new version has been released! Do you want to reload the page?"
   },
   message: {
+    renameConvHint: "Please enter a conversation title: ",
+    renameSuccess: "Conversation has been renamed.",
     deleteConvConfirm: "Are you certain you want to delete the current conversation? This action cannot be undone!",
     notice: "Notice",
     warning: "Warning",
+    setting: "Setting",
     ok: "OK",
     cancel: "Cancel"
   },
@@ -3792,8 +3804,17 @@ const zhTW = {
   header: {
     joinDc: "加入"
   },
+  auth: {
+    title: "帳號",
+    uid: "用戶 ID",
+    viewUid: "查看用戶 ID",
+    login: "登錄",
+    signup: "註冊"
+  },
   action: {
     more: "更多操作",
+    renameConv: "重命名對話",
+    refresh: "刷新對話",
     copy: "複製",
     copySuccess: "已複製！",
     copyFailed: "複製失敗。",
@@ -3803,9 +3824,12 @@ const zhTW = {
     newVersion: "新版本已經發布！請問你是否要刷新頁面？"
   },
   message: {
+    renameConvHint: "請輸入對話標題：",
+    renameSuccess: "對話已重命名。",
     deleteConvConfirm: "你確定要刪除當前對話嗎？此操作將無法撤消！",
     notice: "通告",
     warning: "警告",
+    setting: "設定",
     ok: "確認",
     cancel: "取消"
   },
@@ -3946,7 +3970,7 @@ const _wrapIf = (component, props, slots) => {
   } };
 };
 const layouts = {
-  chat: () => import('./_nuxt/chat-b4006ab5.mjs').then((m) => m.default || m),
+  chat: () => import('./_nuxt/chat-d4f100d1.mjs').then((m) => m.default || m),
   default: () => import('./_nuxt/default-f806e1b4.mjs').then((m) => m.default || m)
 };
 const LayoutLoader = /* @__PURE__ */ defineComponent({

@@ -3,6 +3,7 @@ import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
 import { r as read, p as pack, a as random, g as generate } from './token.mjs';
 import { m as message } from './index.mjs';
+import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import 'mongoose';
@@ -37,12 +38,28 @@ const check_post = defineEventHandler(async (event) => {
       { $project: { _id: 0, conv: 1 } }
     ]).exec())[0]) == null ? void 0 : _a.conv;
     if (Array.isArray(conversations)) {
-      return conversations;
+      const record = {};
+      const items = await conversation.find(
+        { $or: conversations.map((id) => ({ id })) },
+        { _id: 0, id: 1, name: 1 }
+      );
+      for (const item of items) {
+        if (typeof item.name === "string") {
+          record[item.id] = item.name;
+        }
+      }
+      return {
+        list: conversations,
+        named: record
+      };
     }
   } catch (err) {
     console.error(err);
   }
-  return [];
+  return {
+    list: [],
+    named: {}
+  };
 });
 
 export { check_post as default };

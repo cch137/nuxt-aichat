@@ -1,0 +1,1 @@
+import{u as a,_ as t}from"./useTitle.3d56e2d1.js";import{a as o,b as r,e as s,o as n}from"./entry.7dae1efa.js";import"./useChat.93315faa.js";import"./el-button.04fc5030.js";const f={__name:"index",setup(_){return a(`Chat - ${o("appName").value}`),(c,m)=>{const e=t;return n(),r("div",null,[s(e)])}}};export{f as default};

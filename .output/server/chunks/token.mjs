@@ -359,13 +359,14 @@ const maskingCharsetGenerator = (_charset, mt) => {
   };
 };
 const mask = (_string, charset = 16, level = 1, seed) => {
+  const charsetNum = Number.isNaN(+charset) ? 64 : +charset;
   const realCharset = getCharset(charset);
-  const seed1 = toSeed(seed !== void 0 ? seed : randInt(0, charset));
+  const seed1 = toSeed(seed !== void 0 ? seed : randInt(0, charsetNum));
   const mt1 = MT(seed1);
   const generator = maskingCharsetGenerator(realCharset, MT(randInt(0, 1e6, mt1)));
   const characters = typeof _string === "string" ? _string.split("") : _string;
   const result = [
-    seed !== void 0 ? realCharset[randInt(0, charset)] : convert(seed1, 10, charset),
+    seed !== void 0 ? realCharset[randInt(0, charsetNum)] : convert(seed1, 10, charset),
     ...characters.map((char) => generator()[realCharset.indexOf(char)])
   ];
   if (--level < 1) {
@@ -438,5 +439,5 @@ function read(token) {
   return null;
 }
 
-export { random$1 as a, generate as g, pack as p, read as r, str$1 as s, troll$1 as t };
+export { random$1 as a, generate as g, mask as m, pack as p, read as r, str$1 as s, troll$1 as t };
 //# sourceMappingURL=token.mjs.map
