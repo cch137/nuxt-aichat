@@ -28,7 +28,7 @@ export default {
     deleteConvConfirm: '你確定要刪除當前對話嗎？此操作將無法撤消！',
     notice: '通告',
     warning: '警告',
-    setting: '設定',
+    setting: '設置',
     ok: '確認',
     cancel: '取消',
   },
@@ -40,7 +40,7 @@ export default {
   settings: {
     title: '設置',
     model: '模型',
-    lang: 'UI 語言',
+    lang: 'UI 語言 (Language)',
     webBrowsing: '訪問網絡',
     off: '關閉',
     on: '開啟',
