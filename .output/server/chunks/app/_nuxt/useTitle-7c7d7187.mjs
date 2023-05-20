@@ -512,6 +512,10 @@ function useChat() {
     var _a, _b;
     return (_b = (_a = nuxtApp._route) == null ? void 0 : _a.params) == null ? void 0 : _b.conv;
   };
+  const getCurrentConvName = () => {
+    const currentConvId = getCurrentConvId();
+    return conversations.value.filter((conv) => conv.id === currentConvId)[0].name || "";
+  };
   const openDrawer = useState("openDrawer", () => false);
   const goToChat = (conv, force = false) => {
     const currentConvId = getCurrentConvId();
@@ -528,6 +532,7 @@ function useChat() {
     context,
     webBrowsingMode,
     getCurrentConvId,
+    getCurrentConvName,
     checkTokenAndGetConversations,
     initPage,
     goToChat
@@ -571,4 +576,4 @@ function useTitle(title) {
 }
 
 export { __nuxt_component_0 as _, useTitle as u };
-//# sourceMappingURL=useTitle-1287bb89.mjs.map
+//# sourceMappingURL=useTitle-7c7d7187.mjs.map

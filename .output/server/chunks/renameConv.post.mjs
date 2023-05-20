@@ -32,7 +32,7 @@ const renameConv_post = defineEventHandler(async (event) => {
   } else {
     await conversation.findOneAndUpdate(
       { id: conv },
-      { $set: { id: conv, name: trimmedName } },
+      { $set: { id: conv, user, name: trimmedName } },
       { upsert: true }
     );
   }

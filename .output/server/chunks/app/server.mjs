@@ -501,7 +501,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-db8b7fec.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-a583f18a.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -509,7 +509,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-0f83ab40.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-e2e0fbbf.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -3829,7 +3829,7 @@ const zhTW = {
     deleteConvConfirm: "你確定要刪除當前對話嗎？此操作將無法撤消！",
     notice: "通告",
     warning: "警告",
-    setting: "設定",
+    setting: "設置",
     ok: "確認",
     cancel: "取消"
   },
@@ -3841,7 +3841,7 @@ const zhTW = {
   settings: {
     title: "設置",
     model: "模型",
-    lang: "UI 語言",
+    lang: "UI 語言 (Language)",
     webBrowsing: "訪問網絡",
     off: "關閉",
     on: "開啟",

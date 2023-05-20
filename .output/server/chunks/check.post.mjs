@@ -40,7 +40,7 @@ const check_post = defineEventHandler(async (event) => {
     if (Array.isArray(conversations)) {
       const record = {};
       const items = await conversation.find(
-        { $or: conversations.map((id) => ({ id })) },
+        { $or: conversations.map((id) => ({ user, id })) },
         { _id: 0, id: 1, name: 1 }
       );
       for (const item of items) {

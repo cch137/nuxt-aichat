@@ -262,7 +262,7 @@ const chat_post = defineEventHandler(async (event) => {
   if (!conv || !prompt || !model || !t) {
     return { error: 2 };
   }
-  const stdHash = troll.h(prompt, "MD5", t);
+  const stdHash = troll.h(`${prompt}${context}`, "MD5", t);
   const hashFromClient = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.hash;
   const timestamp = Number((_f = (_e = (_d = event == null ? void 0 : event.node) == null ? void 0 : _d.req) == null ? void 0 : _e.headers) == null ? void 0 : _f.timestamp);
   if (stdHash !== hashFromClient || timestamp !== t) {
