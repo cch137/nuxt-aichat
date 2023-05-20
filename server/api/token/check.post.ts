@@ -6,7 +6,7 @@ import {
   read as tokenReader
 } from '~/server/services/token'
 import random from '~/utils/random'
-import { message } from '~/server/services/mongoose/index'
+import { message, conversation } from '~/server/services/mongoose/index'
 
 export default defineEventHandler(async (event) => {
   const { req, res } = event.node
@@ -36,10 +36,26 @@ export default defineEventHandler(async (event) => {
       { $project: { _id: 0, conv: 1 } }
     ]).exec())[0]?.conv
     if (Array.isArray(conversations)) {
-      return conversations as string[]
+      const record: Record<string, string>  = {}
+      const items = await conversation.find(
+        { $or: conversations.map((id) => ({ id })) },
+        { _id: 0, id: 1, name: 1 }
+      )
+      for (const item of items) {
+        if (typeof item.name === 'string') {
+          record[item.id] = item.name
+        }
+      }
+      return {
+        list: conversations as string[],
+        named: record
+      }
     }
   } catch (err) {
     console.error(err)
   }
-  return []
+  return {
+    list: [] as string[],
+    named: {} as Record<string, string>
+  }
 })

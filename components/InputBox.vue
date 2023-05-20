@@ -75,7 +75,7 @@ const createBody = (message: string, model: string, web: string, t: number, tz: 
   let conv = useNuxtApp()._route?.params?.conv as string
   if (!conv) {
     conv = random.base64(8)
-    conversations.value.push(conv)
+    conversations.value.push({ id: conv, name: undefined })
     navigateTo(`/c/${conv}`)
   }
   return { conv, context: context.get(), prompt: message, model, web, t, tz }

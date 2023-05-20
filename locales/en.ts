@@ -3,8 +3,16 @@ export default {
   header: {
     joinDc: 'Join'
   },
+  auth: {
+    title: 'Account',
+    uid: 'User ID',
+    viewUid: 'View User ID',
+    login: 'Log In',
+    signup: 'Sign Up',
+  },
   action: {
     more: 'More actions',
+    renameConv: 'Rename conversation',
     refresh: 'Refresh conversation',
     copy: 'Copy',
     copySuccess: 'Copied!',
@@ -15,9 +23,12 @@ export default {
     newVersion: 'A new version has been released! Do you want to reload the page?',
   },
   message: {
+    renameConvHint: 'Please enter a conversation title: ',
+    renameSuccess: 'Conversation has been renamed.',
     deleteConvConfirm: 'Are you certain you want to delete the current conversation? This action cannot be undone!',
     notice: 'Notice',
     warning: 'Warning',
+    setting: 'Setting',
     ok: 'OK',
     cancel: 'Cancel',
   },

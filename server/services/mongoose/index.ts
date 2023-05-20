@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import mongoose from 'mongoose'
 import message from './models/message'
+import conversation from './models/conversation'
 
 config()
 
@@ -10,5 +11,6 @@ void mongoose.connect(process.env.MONGODB_KEY as string)
 export default mongoose
 
 export {
-  message
+  message,
+  conversation
 }

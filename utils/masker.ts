@@ -14,14 +14,15 @@ const maskingCharsetGenerator = (_charset: string, mt?: MersenneTwister) => {
   }
 }
 
-const mask = (_string: string | string[], charset = 16, level = 1, seed?: any): string => {
+const mask = (_string: string | string[], charset: number | string = 16, level = 1, seed?: any): string => {
+  const charsetNum = Number.isNaN(+charset) ? 64 : +charset
   const realCharset = getCharset(charset)
-  const seed1 = toSeed(seed !== undefined ? seed : randInt(0, charset))
+  const seed1 = toSeed(seed !== undefined ? seed : randInt(0, charsetNum))
   const mt1 = MT(seed1)
   const generator = maskingCharsetGenerator(realCharset, MT(randInt(0, 1000000, mt1)))
   const characters = typeof _string === 'string' ? _string.split('') : _string
   const result = [
-    seed !== undefined ? realCharset[randInt(0, charset)] : convert(seed1, 10, charset),
+    seed !== undefined ? realCharset[randInt(0, charsetNum)] : convert(seed1, 10, charset),
     ...characters.map(char => generator()[realCharset.indexOf(char)])
   ] as string[]
   if (--level < 1) {
@@ -30,7 +31,7 @@ const mask = (_string: string | string[], charset = 16, level = 1, seed?: any): 
   return mask(result, charset, level, seed)
 }
 
-const unmask = (string: string | string[], charset = 16, level = 1, seed?: any): any => {
+const unmask = (string: string | string[], charset: number | string = 16, level = 1, seed?: any): any => {
   const realCharset = getCharset(charset)
   const seed1 = toSeed(seed !== undefined ? seed : +convert(string[0], charset, 10))
   const mt1 = MT(seed1)

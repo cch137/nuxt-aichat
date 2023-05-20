@@ -1,5 +1,6 @@
 import { ElMessage, ElLoading } from 'element-plus'
 import { webBrowsing as webBrowsingCookieName } from '~/config/cookieNames'
+import baseConverter from '~/utils/baseConverter'
 
 const CONTEXT_MAX_TOKENS = 1024
 const CONTEXT_MAX_LENGTH = 2048
@@ -48,7 +49,7 @@ interface ChatMessage {
 
 const messages = ref<Array<ChatMessage>>([])
 
-const conversations = ref<Array<string>>([])
+const conversations = ref<Array<{ id: string, name: string | undefined }>>([])
 
 const context = {
   add: addContext,
@@ -65,7 +66,8 @@ const checkTokenAndGetConversations = () => {
   return new Promise((resolve, reject) => {
     $fetch('/api/token/check', { method: 'POST' })
       .then((_conversations) => {
-        conversations.value = _conversations.sort()
+        const { list, named } = _conversations
+        conversations.value = list.sort().map((id) => ({ id, name: named[id] as string | undefined }))
         resolve(true)
       })
       .catch((err) => {
@@ -153,6 +155,7 @@ export default function () {
     context,
     webBrowsingMode,
     getCurrentConvId,
+    checkTokenAndGetConversations,
     initPage,
     goToChat
   }

@@ -3,8 +3,16 @@ export default {
   header: {
     joinDc: '加入'
   },
+  auth: {
+    title: '帳號',
+    uid: '用戶 ID',
+    viewUid: '查看用戶 ID',
+    login: '登錄',
+    signup: '註冊',
+  },
   action: {
     more: '更多操作',
+    renameConv: '重命名對話',
     refresh: '刷新對話',
     copy: '複製',
     copySuccess: '已複製！',
@@ -15,9 +23,12 @@ export default {
     newVersion: '新版本已經發布！請問你是否要刷新頁面？',
   },
   message: {
+    renameConvHint: '請輸入對話標題：',
+    renameSuccess: '對話已重命名。',
     deleteConvConfirm: '你確定要刪除當前對話嗎？此操作將無法撤消！',
     notice: '通告',
     warning: '警告',
+    setting: '設定',
     ok: '確認',
     cancel: '取消',
   },

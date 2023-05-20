@@ -52,31 +52,42 @@
       </div>
       <div class="max-h-[16rem] overflow-auto">
         <div v-for="conv in conversations">
-          <NuxtLink :id="conv" :to="`/c/${conv}`" @click="goToChat(conv)">
+          <NuxtLink :id="conv.id" :to="`/c/${conv.id}`" @click="goToChat(conv.id)">
             <el-button
-              :type="conv === getCurrentConvId() ? 'primary' : 'default'"
+              :type="conv.id === getCurrentConvId() ? 'primary' : 'default'"
               :icon="ChatSquare"
               size="large"
               class="ConversationLink w-full"
-              :plain="conv === getCurrentConvId()"
-              :class="conv === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
+              :plain="conv.id === getCurrentConvId()"
+              :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
             >
-              {{ baseConverter.convert(conv, '64w', 10) }}
+              {{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}
             </el-button>
           </NuxtLink>
         </div>
       </div>
     </div>
+    <!-- <div class="py-4">
+      <h3>{{ $t('auth.title') }}</h3>
+      <div>
+        <el-button @click="viewUserId">{{ $t('auth.login') }}</el-button>
+        <el-button @click="viewUserId">{{ $t('auth.signup') }}</el-button>
+      </div>
+    </div> -->
   </el-drawer>
 </template>
 
 <script setup>
+import { ElLoading, ElMessageBox } from 'element-plus'
 import { Plus, ChatSquare } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
+import { unmask } from '~/utils/masker'
 
 const openDrawer = useState('openDrawer', () => false)
 const version = useState('version', () => '...')
 const { conversations, goToChat, initPage, getCurrentConvId } = useChat()
+// @ts-ignore
+const _t = useLocale().t
 
 const {
   data: versionData,
@@ -86,6 +97,22 @@ const {
 watch(versionData, (newValue) => {
   version.value = newValue
 })
+
+const viewUserId = () => {
+  const loading = ElLoading.service()
+  $fetch('/api/user', {
+    method: 'POST'
+  })
+    .then((encryptedUid) => {
+      loading.close()
+      ElMessageBox.alert(unmask(`0${encryptedUid}`, '64w', 1, 4896), _t('auth.uid'), {
+        confirmButtonText: _t('message.ok'),
+      })
+    })
+    .catch(() => {
+      loading.close()
+    })
+}
 
 if (process.client) {
   const conv = useNuxtApp()._route?.params?.conv
