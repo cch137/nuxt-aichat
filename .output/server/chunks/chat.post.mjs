@@ -379,7 +379,7 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
     answer = (_a = await makeRequest(modelName, question, context)) == null ? void 0 : _a.answer;
   }
   const response = await makeResponse(answer, complete, props);
-  if (!response.error && answer && webBrowsing !== "ADVANCED") {
+  if (!response.error && answer) {
     saveMessage(user, conv, originalQuestion, answer, modelName);
   }
   return response;
