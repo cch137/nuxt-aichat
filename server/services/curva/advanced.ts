@@ -17,7 +17,7 @@ const gpt4ScrapeAndSummary = async (question: string, url: string, userTimeZone 
         userTimeZone
       )
     ))?.answer || ''
-    logger.create({ type: 'adv-summary', text: str(answer) })
+    logger.create({ type: 'adv-summary', refer: `${question}${url}`, text: str(answer) })
     return answer
   } catch (err) {
     logger.create({ type: 'error', text: str(err) })
@@ -55,7 +55,7 @@ export default async function (question: string, context = '', userTimeZone = 0)
       }
     })
     const finalQuestion = useBasic(question, `Here are the references:\n${references.join('\n')}`, userTimeZone).substring(0, 16384)
-    logger.create({ type: 'adv-final', text: str(finalQuestion) })
+    logger.create({ type: 'adv-final', refer: question, text: str(finalQuestion) })
     return {
       queries,
       urls,
