@@ -47,7 +47,7 @@ async function ask (
     answer = (await makeRequest(modelName, question, context))?.answer
   }
   const response = await makeResponse(answer, complete, props)
-  if (!((response as any).error) && answer && webBrowsing !== 'ADVANCED') {
+  if (!((response as any).error) && answer) {
     saveMessage(user, conv, originalQuestion, answer, modelName)
   }
   return response
