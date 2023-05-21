@@ -35,10 +35,9 @@ async function ask (
     }
   }
   if (webBrowsing !== 'ADVANCED') {
-    const searchResult = _wrapSearchResult(await crawler.summarize(question))
     question = webBrowsing === 'OFF'
       ? useDefaultTemplate(question, userTimeZone)
-      : useBasicTemplate(question, searchResult, userTimeZone)
+      : useBasicTemplate(question, _wrapSearchResult(await crawler.summarize(question)), userTimeZone)
     question = addEndSuffix(question)
     question = question.substring(0, getQuestionMaxLength(modelName))
     complete = endsWithSuffix(question)
