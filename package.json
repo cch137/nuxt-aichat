@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "nuxt dev",
-    "start": "node .output/server/index.mjs"
+    "start": "node --max-old-space-size=2048 .output/server/index.mjs"
   },
   "devDependencies": {
     "@element-plus/nuxt": "^1.0.5",
