@@ -3773,7 +3773,14 @@ const en = {
   menu: {
     title: "Menu",
     about: "About",
-    joinDcMessage: "Join our Discord server to keep up with the latest news from Curva!"
+    joinDcMessage: "Join our Discord server to keep up with the latest news from Curva!",
+    webInfo1: "Basic: ",
+    webInfo2: "Use summaries provided by search engines as reference materials.",
+    webInfo3: "Advanced: ",
+    webInfo4: "Analyze and summarize information from web pages to answer your question. Please note that this option will require more time for Curva to process and provide an answer. ",
+    webInfo5: "Tip: ",
+    webInfo6: "If you want Curva to visit the URLs you provide, select the `Advanced` option.",
+    expFeat: "This is an experimental feature."
   },
   settings: {
     title: "Settings",
@@ -3836,7 +3843,14 @@ const zhTW = {
   menu: {
     title: "菜單",
     about: "關於",
-    joinDcMessage: "加入我們的 Discord 服務器以跟進 Curva 的最新消息！"
+    joinDcMessage: "加入我們的 Discord 服務器以跟進 Curva 的最新消息！",
+    webInfo1: "基本：",
+    webInfo2: "使用搜索引擎提供的摘要作為參考資料。",
+    webInfo3: "進階：",
+    webInfo4: "分析和總結網頁中的信息來回答您的問題。請注意，此選項將需要更多時間讓 Curva 進行思考。",
+    webInfo5: "提示：",
+    webInfo6: "如果您希望 Curva 訪問您提供的 URL，請選擇“進階”選項。",
+    expFeat: "這是一項實驗性功能。"
   },
   settings: {
     title: "設置",
