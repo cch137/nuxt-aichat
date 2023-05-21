@@ -287,19 +287,23 @@ User's question: ${question}
 Webpage results: ${result}`;
 }
 
-const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0) => {
-  var _a;
+const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0, delay = 0) => {
   try {
-    const answer = ((_a = await makeRequest(
-      "gpt4_summarizer",
-      useExtractPage(
-        question,
-        (await crawler$1.scrape(url)).substring(0, 16384),
-        userTimeZone
-      )
-    )) == null ? void 0 : _a.answer) || "";
-    logger.create({ type: "adv-summary", refer: `${question}${url}`, text: str(answer) });
-    return answer;
+    return await new Promise(async (resolve, reject) => {
+      setTimeout(async () => {
+        var _a;
+        const answer = ((_a = await makeRequest(
+          "gpt4_summarizer",
+          useExtractPage(
+            question,
+            (await crawler$1.scrape(url)).substring(0, 16384),
+            userTimeZone
+          )
+        )) == null ? void 0 : _a.answer) || "";
+        logger.create({ type: "adv-summary", refer: `${question}${url}`, text: str(answer) });
+        resolve(answer);
+      }, delay);
+    });
   } catch (err) {
     logger.create({ type: "error", text: str(err) });
     return "";
@@ -308,18 +312,19 @@ const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0) => {
 async function advancedAsk(question, context = "", userTimeZone = 0) {
   var _a, _b, _c;
   try {
+    let i = 0;
     const question1 = useParseUrlsAndQueries(question, userTimeZone);
     const answer1 = (_a = await makeRequest("gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
     const answer1Json = answer1.substring(answer1.indexOf("{"), answer1.lastIndexOf("}") + 1);
     const { urls, queries } = JSON.parse(answer1Json);
-    const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone));
+    const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
     const summary = (await Promise.all(queries.map((query) => crawler$1.summarize(query, true, false)))).join("\n\n");
     const question2 = useSelectSites(question, summary, userTimeZone);
     const answer2 = (_b = await makeRequest("gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
     const answer2Json = answer2.substring(answer2.indexOf("["), answer2.lastIndexOf("]") + 1);
     const selectedSites = JSON.parse(answer2Json);
     const selectedSiteUrls = selectedSites.map((site) => site.url);
-    const _pages2 = selectedSiteUrls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone));
+    const _pages2 = selectedSiteUrls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
     const pages = [..._pages1, ..._pages2];
     const references = await new Promise(async (resolve, reject) => {
       const results = [];
