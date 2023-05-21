@@ -364,8 +364,7 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
     }
   }
   if (webBrowsing !== "ADVANCED") {
-    const searchResult = _wrapSearchResult(await crawler$1.summarize(question));
-    question = webBrowsing === "OFF" ? useDefaultTemplate(question, userTimeZone) : useBasicTemplate(question, searchResult, userTimeZone);
+    question = webBrowsing === "OFF" ? useDefaultTemplate(question, userTimeZone) : useBasicTemplate(question, _wrapSearchResult(await crawler$1.summarize(question)), userTimeZone);
     question = addEndSuffix(question);
     question = question.substring(0, getQuestionMaxLength(modelName));
     complete = endsWithSuffix(question);
