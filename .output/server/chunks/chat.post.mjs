@@ -281,10 +281,10 @@ ${results}`;
 
 function useExtractPage(question, result, userTimeZone = 0) {
   const time = formatUserCurrentTime(userTimeZone);
-  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is asking you a question. Please extract relevant information from the web page using concise phrases. Focus on key points while analyzing the page and ignore headers, footers, ads, or other irrelevant information.
-Here is the user's question: ${question}
+  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is asking you a question. Please provide a concise summary from the webpage that can help you answer the user's question. Organize the information into a paragraph instead of bullet points. When analyzing the webpage, focus on extracting key points and ignore irrelevant information such as headers, footers, ads, or other unrelated content.
+User's question: ${question}
 
-Here are the web page results: ${result}`;
+Webpage results: ${result}`;
 }
 
 const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0) => {
