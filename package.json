@@ -1,5 +1,5 @@
 {
-  "version": "0.1.9",
+  "version": "0.1.10",
   "name": "curva",
   "private": true,
   "scripts": {
@@ -22,6 +22,7 @@
     "@vueuse/core": "^10.1.2",
     "autoprefixer": "^10.4.14",
     "axios": "^1.4.0",
+    "cheerio": "^1.0.0-rc.12",
     "cookie": "^0.5.0",
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.3",

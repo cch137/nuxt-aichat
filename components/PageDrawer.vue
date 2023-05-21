@@ -24,7 +24,41 @@
           <ModelSelect class="flex-1" />
         </div>
         <div class="flex gap-1">
-          <el-text class="flex-1">{{ $t('settings.webBrowsing') }}</el-text>
+          <el-text class="flex flex-1 items-center">
+            <span class="mr-2">{{ $t('settings.webBrowsing') }}</span>
+            <ClientOnly>
+              <el-popover
+                placement="bottom"
+                :width="240"
+                trigger="click"
+              >
+                <template #reference>
+                  <el-icon color="#409EFF" class="cursor-pointer" size="large">
+                    <InfoFilled />
+                  </el-icon>
+                </template>
+                <template #default>
+                  <div>
+                    <div>
+                      <strong>{{ $t('menu.webInfo1') }}</strong>
+                      <span>{{ $t('menu.webInfo2') }}</span>
+                    </div>
+                    <el-divider style="margin: .5rem 0;" />
+                    <div>
+                      <strong>{{ $t('menu.webInfo3') }}</strong>
+                      <span>{{ $t('menu.webInfo4') }}</span>
+                      <el-text type="warning">{{ $t('menu.expFeat') }}</el-text>
+                    </div>
+                    <el-divider style="margin: .5rem 0;" />
+                    <div>
+                      <strong>{{ $t('menu.webInfo5') }}</strong>
+                      <span>{{ $t('menu.webInfo6') }}</span>
+                    </div>
+                  </div>
+                </template>
+              </el-popover>
+            </ClientOnly>
+          </el-text>
           <div class="flex-1">
             <WebBrowsingSelect />
           </div>
@@ -79,7 +113,7 @@
 
 <script setup>
 import { ElLoading, ElMessageBox } from 'element-plus'
-import { Plus, ChatSquare } from '@element-plus/icons-vue'
+import { InfoFilled, Plus, ChatSquare } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 import { unmask } from '~/utils/masker'
 

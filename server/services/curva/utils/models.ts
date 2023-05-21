@@ -12,7 +12,11 @@ const sequelize = new Sequelize(
   {
     host: 'cloud.mindsdb.com',
     dialect: 'mysql',
-    logging: false
+    logging: false,
+    pool: {
+      min: 64,
+      max: 512
+    }
   }
 )
 
@@ -28,9 +32,14 @@ const createModel = (tableName: string) => {
 const Gpt4 = createModel('gpt4')
 const Gpt35Turbo = createModel('gpt3_5_turbo')
 
+const Gpt4Summarizer = createModel('gpt4_summarizer')
+const Gpt4Mixer = createModel('gpt4_mixer')
+
 const fixModelName = (modelName: string) => {
   switch (modelName) {
     case 'gpt4':
+    case 'gpt4_summarizer':
+    case 'gpt4_mixer':
     case 'gpt3_5_turbo':
       return modelName
   }
@@ -39,6 +48,10 @@ const fixModelName = (modelName: string) => {
 
 const getModel = (modelName: string) => {
   switch (fixModelName(modelName)) {
+    case 'gpt4_summarizer':
+      return Gpt4Summarizer
+    case 'gpt4_mixer':
+      return Gpt4Mixer
     case 'gpt3_5_turbo':
       return Gpt35Turbo
   }
@@ -56,6 +69,8 @@ const getQuestionMaxLength = (modelName: string) => {
 export {
   Gpt4,
   Gpt35Turbo,
+  Gpt4Summarizer,
+  Gpt4Mixer,
   getModel,
   getQuestionMaxLength
 }

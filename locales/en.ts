@@ -36,6 +36,13 @@ export default {
     title: 'Menu',
     about: 'About',
     joinDcMessage: 'Join our Discord server to keep up with the latest news from Curva!',
+    webInfo1: 'Basic: ',
+    webInfo2: 'Use summaries provided by search engines as reference materials.',
+    webInfo3: 'Advanced: ',
+    webInfo4: 'Analyze and summarize information from web pages to answer your question. Please note that this option will require more time for Curva to process and provide an answer. ',
+    webInfo5: 'Tip: ',
+    webInfo6: 'If you want Curva to visit the URLs you provide, select the `Advanced` option.',
+    expFeat: 'This is an experimental feature.',
   },
   settings: {
     title: 'Settings',

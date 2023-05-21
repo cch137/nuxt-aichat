@@ -8,6 +8,12 @@ import useDefaultTemplate from './templates/default'
 import useBasicTemplate from './templates/basic'
 import advancedAsk from './advanced'
 
+const _wrapSearchResult = (result: string) => {
+  return result
+    ? `Here are references from the internet. Use only when necessary:\n${result}`
+    : ''
+}
+
 async function ask (
   user: string,
   conv: string,
@@ -17,14 +23,22 @@ async function ask (
   context: string = '',
   userTimeZone = 0
 ) {
-  let answer: string | undefined, complete = true
+  let answer: string | undefined, props = {}, complete = true
   const originalQuestion = question
   if (webBrowsing === 'ADVANCED') {
-    answer = (await advancedAsk(question, context, userTimeZone))?.answer
-  } else {
+    const advResult = (await advancedAsk(question, context, userTimeZone))
+    props = { queries: advResult.queries, urls: advResult.urls }
+    if (!advResult?.answer) {
+      webBrowsing = 'BASIC'
+    } else {
+      answer = advResult.answer
+    }
+  }
+  if (webBrowsing !== 'ADVANCED') {
+    const searchResult = _wrapSearchResult(await crawler.summarize(question))
     question = webBrowsing === 'OFF'
       ? useDefaultTemplate(question, userTimeZone)
-      : useBasicTemplate(question, await crawler.search(question), userTimeZone)
+      : useBasicTemplate(question, searchResult, userTimeZone)
     question = addEndSuffix(question)
     question = question.substring(0, getQuestionMaxLength(modelName))
     complete = endsWithSuffix(question)
@@ -33,8 +47,8 @@ async function ask (
     }
     answer = (await makeRequest(modelName, question, context))?.answer
   }
-  const response = await makeResponse(answer, complete)
-  if (!response.error && answer && webBrowsing !== 'ADVANCED') {
+  const response = await makeResponse(answer, complete, props)
+  if (!((response as any).error) && answer && webBrowsing !== 'ADVANCED') {
     saveMessage(user, conv, originalQuestion, answer, modelName)
   }
   return response
