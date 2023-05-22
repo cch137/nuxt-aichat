@@ -5,7 +5,7 @@ import makeResponse from './utils/makeResponse'
 import { getQuestionMaxLength } from './utils/models'
 import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
 import useDefaultTemplate from './templates/default'
-import advancedAsk from './advanced'
+// import advancedAsk from './advanced'
 
 const _wrapSearchResult = (result: string) => {
   return result
@@ -25,26 +25,27 @@ async function ask (
   let answer: string | undefined, props = {}, complete = true
   const originalQuestion = question
   if (webBrowsing === 'ADVANCED') {
-    const advResult = (await advancedAsk(question, context, userTimeZone))
-    props = { queries: advResult.queries, urls: advResult.urls }
-    if (!advResult?.answer) {
-      webBrowsing = 'BASIC'
-    } else {
-      answer = advResult.answer
-    }
+    // const advResult = (await advancedAsk(question, context, userTimeZone))
+    // props = { queries: advResult.queries, urls: advResult.urls }
+    // if (!advResult?.answer) {
+    //   webBrowsing = 'BASIC'
+    // } else {
+    //   answer = advResult.answer
+    // }
+    webBrowsing = 'BASIC'
   }
-  if (webBrowsing !== 'ADVANCED') {
-    question = webBrowsing === 'OFF'
-      ? useDefaultTemplate(question, userTimeZone)
-      : useDefaultTemplate(question, userTimeZone, '', _wrapSearchResult(await crawler.summarize(question)))
-    question = addEndSuffix(question)
-    question = question.substring(0, getQuestionMaxLength(modelName))
-    complete = endsWithSuffix(question)
-    if (complete) {
-      question = removeEndSuffix(question)
-    }
-    answer = (await makeRequest(modelName, question, context))?.answer
+  // if (webBrowsing !== 'ADVANCED') {
+  question = webBrowsing === 'OFF'
+    ? useDefaultTemplate(question, userTimeZone)
+    : useDefaultTemplate(question, userTimeZone, '', _wrapSearchResult(await crawler.summarize(question)))
+  question = addEndSuffix(question)
+  question = question.substring(0, getQuestionMaxLength(modelName))
+  complete = endsWithSuffix(question)
+  if (complete) {
+    question = removeEndSuffix(question)
   }
+  answer = (await makeRequest(modelName, question, context))?.answer
+  // }
   const response = await makeResponse(answer, complete, props)
   if (!((response as any).error) && answer) {
     saveMessage(user, conv, originalQuestion, answer, modelName)
