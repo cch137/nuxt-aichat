@@ -359,7 +359,7 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
         });
       }
     });
-    const _role = "You need to read the references and provide valuable answers to the user. You must organize your language to ensure the coherence and logic of your responses. ";
+    const _role = "Please use references whenever possible to provide users with valuable answers. You must organize your language to ensure the coherence and logic of your responses. ";
     const _references = `Here are references from the internet:
 ${references.join("\n")}`;
     const finalQuestion = useDefaultTemplate(question, userTimeZone, _role, _references).substring(0, 16384);
