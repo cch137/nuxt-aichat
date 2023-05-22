@@ -41,7 +41,7 @@ import troll from '~/utils/troll'
 import str from '~/utils/str'
 
 const inputValue = ref('')
-const { conversations, messages, context, webBrowsingMode } = useChat()
+const { conversations, messages, context, webBrowsingMode, temperatureSuffix } = useChat()
 
 // @ts-ignore
 const _t = useLocale().t
@@ -54,7 +54,7 @@ const version = useState('version')
 const apiPath = '/api/chat'
 
 const getModel = () => {
-  return model.value as string
+  return `${model.value}${temperatureSuffix.value}`
 }
 
 const getWebBrowsing = () => {
@@ -135,7 +135,9 @@ const sendMessage = (): boolean => {
   createRequest(message)
     .then((res) => {
       const answer = (res as any).answer as string
-      const isQuestionComplete = (res as any).complete as boolean
+      const isQuestionComplete = 'complete' in (res as any)
+        ? (res as any).complete
+        : true
       const _version = (res as any).version as string
       if (!isQuestionComplete) {
         ElMessage.warning(_t('error.qTooLong'))

@@ -23,8 +23,8 @@ const options = [
     value: 'gpt4'
   },
   {
-    label: 'GPT-3.5 Turbo',
-    value: 'gpt3_5_turbo'
+    label: 'dev-mode',
+    value: 'gpt3'
   }
 ]
 </script>

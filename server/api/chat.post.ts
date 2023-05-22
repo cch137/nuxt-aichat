@@ -1,9 +1,11 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/server'
+import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
 import curva from '~/server/services/curva/index'
 import getIp from '~/server/services/getIp'
+import str from '~/utils/str'
 import troll from '~/utils/troll'
 
 export default defineEventHandler(async (event) => {
@@ -33,13 +35,10 @@ export default defineEventHandler(async (event) => {
     return { error: 4 }
   }
   try {
-    const { answer, complete, error } = await curva.ask(user, conv, model, web, prompt, context, tz)
-    if (error) {
-      return { error }
-    }
-    return { version, answer, complete }
+    const response = await curva.ask(user, conv, model, web, prompt, context, tz)
+    return { version, ...response }
   } catch (err) {
-    console.error(err)
+    logger.create({ type: 'error.api.response', text: str(err) })
     return { error: 5 }
   }
 })

@@ -17,6 +17,9 @@ const trimText = (text: string) => {
 
 const scrape = async (url: string) => {
   try {
+    if (!url.startsWith('http://') || !url.startsWith('https://')) {
+      url = `http://${url}`
+    }
     const origin = new URL(url).origin
     const headers = {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50',
@@ -25,11 +28,12 @@ const scrape = async (url: string) => {
       'Accept-Language': 'en-US,en;q=0.9',
     }
     const res = await axios.get(url, { headers, timeout: 10000 })
-    console.log('SCRAPE SUCCEEDED:', url)
+    console.log('SCRAPE:', url)
     const $ = cheerioLoad(str(res.data))
     return trimText($('body').prop('innerText') as string)
   } catch (err) {
     console.log('SCRAPE FAILED:', url)
+    logger.create({ type: 'error.crawler.scrape', text: str(err) })
     return 'Error: Page fetch failed'
   }
 }
@@ -55,7 +59,7 @@ const summarize = async (query: string, showUrl = false, translate = true) => {
     ].join('\n\n')
     return summarize
   } catch (err) {
-    logger.create({ type: 'error', text: str(err) })
+    logger.create({ type: 'error.crawler.summarize', text: str(err) })
     return ''
   }
 }

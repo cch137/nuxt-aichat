@@ -71,6 +71,10 @@ setInterval(() => {
   max-width: 78%;
   border-radius: 0.5rem;
 }
+.InnerMessage a {
+  word-break: break-all;
+  text-decoration: underline;
+}
 .Messages code:not(pre code) {
   padding: .125rem .25rem;
   font-weight: bolder;
@@ -109,12 +113,13 @@ setInterval(() => {
   border-radius: .75rem .75rem 0 0;
 }
 .CodeBlockWrapper pre {
-  white-space: pre-wrap;
   background: #262626;
   color: lightgrey;
   padding: .75rem;
   border-radius: 0 0 .75rem .75rem;
   line-height: 1.25rem;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 .CopyCodeButton {
   padding: 0 .5rem;

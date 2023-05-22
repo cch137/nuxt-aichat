@@ -1,6 +1,8 @@
 import { config } from 'dotenv'
 import { Sequelize, Model, DataTypes } from 'sequelize'
 
+const models = new Map<string, typeof Model>()
+
 config()
 
 console.log('EMAIL:', process.env.EMAIL_ADDRESS)
@@ -26,51 +28,56 @@ const createModel = (tableName: string) => {
     { answer: { type: DataTypes.STRING, allowNull: false } },
     { sequelize, tableName }
   )
+  models.set(tableName, _Model)
   return _Model
 }
 
-const Gpt4 = createModel('gpt4')
-const Gpt35Turbo = createModel('gpt3_5_turbo')
-
-const Gpt4Summarizer = createModel('gpt4_summarizer')
-const Gpt4Mixer = createModel('gpt4_mixer')
-
 const fixModelName = (modelName: string) => {
-  switch (modelName) {
-    case 'gpt4':
-    case 'gpt4_summarizer':
-    case 'gpt4_mixer':
-    case 'gpt3_5_turbo':
-      return modelName
+  if (models.has(modelName)) {
+    return modelName
   }
   return 'gpt4'
 }
 
-const getModel = (modelName: string) => {
-  switch (fixModelName(modelName)) {
-    case 'gpt4_summarizer':
-      return Gpt4Summarizer
-    case 'gpt4_mixer':
-      return Gpt4Mixer
-    case 'gpt3_5_turbo':
-      return Gpt35Turbo
-  }
-  return Gpt4
+const getModel = (modelName: string): typeof Model => {
+  return models.get(fixModelName(modelName)) as typeof Model
 }
 
 const getQuestionMaxLength = (modelName: string) => {
-  switch (fixModelName(modelName)) {
-    case 'gpt3_5_turbo':
-      return 4096
-  }
-  return 8192
+  return fixModelName(modelName).startsWith('gpt3') ? 4096 : 8192
 }
 
 export {
-  Gpt4,
-  Gpt35Turbo,
-  Gpt4Summarizer,
-  Gpt4Mixer,
   getModel,
-  getQuestionMaxLength
+  getQuestionMaxLength,
+  Model
 }
+
+[
+  'gpt4',
+  'gpt4_t00',
+  'gpt4_t01',
+  'gpt4_t02',
+  'gpt4_t03',
+  'gpt4_t04',
+  'gpt4_t05',
+  'gpt4_t06',
+  'gpt4_t07',
+  'gpt4_t08',
+  'gpt4_t09',
+  'gpt4_t10',
+  'gpt3',
+  'gpt3_t00',
+  'gpt3_t01',
+  'gpt3_t02',
+  'gpt3_t03',
+  'gpt3_t04',
+  'gpt3_t05',
+  'gpt3_t06',
+  'gpt3_t07',
+  'gpt3_t08',
+  'gpt3_t09',
+  'gpt3_t10',
+  'gpt4_summarizer',
+  'gpt4_mixer'
+].forEach((modelName) => createModel(modelName))

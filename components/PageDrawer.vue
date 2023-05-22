@@ -24,6 +24,10 @@
           <ModelSelect class="flex-1" />
         </div>
         <div class="flex gap-1">
+          <el-text class="flex-1">Temperature</el-text>
+          <TemperatureSelect class="flex-1" />
+        </div>
+        <div class="flex gap-1">
           <el-text class="flex flex-1 items-center">
             <span class="mr-2">{{ $t('settings.webBrowsing') }}</span>
             <ClientOnly>

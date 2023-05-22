@@ -1,3 +1,5 @@
+import { log as logger } from '~/server/services/mongoose/index'
+
 export default async function (
   answer: string | undefined,
   complete = true,
@@ -10,7 +12,7 @@ export default async function (
     }
     return { answer, complete, ...props }
   } catch (err) {
-    console.error(err)
+    logger.create({ type: 'error.makeResponse', text: str(err) })
     return { error: 'Request failed', complete, ...props }
   }
 }

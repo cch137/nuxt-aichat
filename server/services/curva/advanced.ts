@@ -7,6 +7,10 @@ import makeRequest from './utils/makeRequest'
 import { log as logger } from '~/server/services/mongoose/index'
 import str from '~/utils/str'
 
+const makeSureUrlsStartsWithHttp = (urls: string[]) => {
+  return urls.map((url) => (url.startsWith('http://') || url.startsWith('https://')) ? url : `http://${url}`)
+}
+
 const gpt4ScrapeAndSummary = async (question: string, url: string, userTimeZone = 0, delay = 0) => {
   try {
     return await new Promise<string>(async (resolve, reject) => {
@@ -19,12 +23,12 @@ const gpt4ScrapeAndSummary = async (question: string, url: string, userTimeZone 
             userTimeZone
           )
         ))?.answer || ''
-        logger.create({ type: 'adv-summary', refer: `${question}${url}`, text: str(answer) })
+        logger.create({ type: 'advanced.summary', refer: `${question}${url}`, text: str(answer) })
         resolve(answer)
       }, delay)
     })
   } catch (err) {
-    logger.create({ type: 'error', text: str(err) })
+    logger.create({ type: 'error.advanced.summary', text: str(err) })
     return ''
   }
 }
@@ -35,14 +39,15 @@ export default async function (question: string, context = '', userTimeZone = 0)
     const question1 = useParseUrlsAndQueries(question, userTimeZone)
     const answer1 = (await makeRequest('gpt4_summarizer', question1))?.answer as string
     const answer1Json = answer1.substring(answer1.indexOf('{'), answer1.lastIndexOf('}') + 1)
-    const { urls, queries } = JSON.parse(answer1Json) as { urls: string[], queries: string[] }
+    const { urls: _urls, queries } = JSON.parse(answer1Json) as { urls: string[], queries: string[] }
+    const urls = makeSureUrlsStartsWithHttp(_urls)
     const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1000))
     const summary = (await Promise.all(queries.map((query) => crawler.summarize(query, true, false)))).join('\n\n')
     const question2 = useSelectSites(question, summary, userTimeZone)
     const answer2 = (await makeRequest('gpt4_summarizer', question2))?.answer as string
     const answer2Json = answer2.substring(answer2.indexOf('['), answer2.lastIndexOf(']') + 1)
     const selectedSites = JSON.parse(answer2Json) as Array<{ url: string, title:string }>
-    const selectedSiteUrls = selectedSites.map((site) => site.url)
+    const selectedSiteUrls = makeSureUrlsStartsWithHttp(selectedSites.map((site) => site.url))
     const _pages2 = selectedSiteUrls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1000))
     const pages = [..._pages1, ..._pages2]
     const references = await new Promise<string[]>(async (resolve, reject) => {
@@ -60,14 +65,11 @@ export default async function (question: string, context = '', userTimeZone = 0)
       }
     })
     const finalQuestion = useBasic(question, `Here are the references:\n${references.join('\n')}`, userTimeZone).substring(0, 16384)
-    logger.create({ type: 'adv-final', refer: question, text: str(finalQuestion) })
-    return {
-      queries,
-      urls,
-      answer: (await makeRequest('gpt4', finalQuestion, context))?.answer
-    }
+    logger.create({ type: 'advanced.final', refer: question, text: str(finalQuestion) })
+    return { queries, urls, ...(await makeRequest('gpt4', finalQuestion, context)) }
   } catch (err) {
-    logger.create({ type: 'error', text: str(err) })
-    return { answer: undefined }
+    const sqlMessage = (err as any)?.original?.sqlMessage as string | undefined
+    logger.create({ type: 'error.advanced', text: str(err) })
+    return { queries: [], urls: [], answer: undefined, sqlMessage }
   }
 }

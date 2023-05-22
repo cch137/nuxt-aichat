@@ -1,5 +1,8 @@
 import { ElMessage, ElLoading } from 'element-plus'
-import { webBrowsing as webBrowsingCookieName } from '~/config/cookieNames'
+import {
+  webBrowsing as webBrowsingCookieName,
+  temperatureSuffix as temperatureSuffixCookieName,
+} from '~/config/cookieNames'
 import baseConverter from '~/utils/baseConverter'
 
 const CONTEXT_MAX_TOKENS = 1024
@@ -122,6 +125,9 @@ const initPage = (conv: string | null) => {
     })
 }
 
+const DEFAULT_TEMPERATURE = '_05'
+const temperatureSuffix = ref<'_00'|'_01'|'_02'|'_03'|'_04'|'_05'|'_06'|'_07'|'_08'|'_09'|'_10'>(DEFAULT_TEMPERATURE)
+
 export default function () {
   const cookie = useUniCookie()
   const previousWebBrowsingMode = cookie.get(webBrowsingCookieName)
@@ -134,6 +140,11 @@ export default function () {
         path: '/'
       })
     }
+  })
+  watch(temperatureSuffix, (newValue) => {
+    cookie.set(temperatureSuffixCookieName, newValue, {
+      path: '/'
+    })
   })
   const nuxtApp = useNuxtApp()
   const getCurrentConvId = () => {
@@ -159,6 +170,7 @@ export default function () {
     messages,
     context,
     webBrowsingMode,
+    temperatureSuffix,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,
