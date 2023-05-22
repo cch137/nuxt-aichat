@@ -1,6 +1,13 @@
 <template>
   <div>
-    <el-input-number style="width: 100%;" v-model="temperature" :min="0" :max="1" :step="0.1" @change="handleChange" />
+    <el-input-number
+      v-model="temperature"
+      :min="0"
+      :max="1"
+      :step="0.1"
+      style="width: 96%;"
+      @change="handleChange"
+    />
   </div>
 </template>
 

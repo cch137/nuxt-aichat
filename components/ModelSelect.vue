@@ -4,6 +4,7 @@
       v-model="model"
       placeholder="Select model"
       class="ModelSelect"
+      style="width: 96%;"
     >
       <el-option
         v-for="item in options"
