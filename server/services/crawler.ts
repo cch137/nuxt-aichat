@@ -59,7 +59,9 @@ const summarize = async (query: string, showUrl = false, translate = true) => {
     ].join('\n\n')
     return summarize
   } catch (err) {
-    logger.create({ type: 'error.crawler.summarize', text: str(err) })
+    err = str(err)
+    console.log('SUMMARIZE FAILED:', err)
+    logger.create({ type: 'error.crawler.summarize', text: err })
     return ''
   }
 }

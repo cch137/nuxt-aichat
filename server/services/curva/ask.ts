@@ -5,7 +5,6 @@ import makeResponse from './utils/makeResponse'
 import { getQuestionMaxLength } from './utils/models'
 import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
 import useDefaultTemplate from './templates/default'
-import useBasicTemplate from './templates/basic'
 import advancedAsk from './advanced'
 
 const _wrapSearchResult = (result: string) => {
@@ -37,7 +36,7 @@ async function ask (
   if (webBrowsing !== 'ADVANCED') {
     question = webBrowsing === 'OFF'
       ? useDefaultTemplate(question, userTimeZone)
-      : useBasicTemplate(question, _wrapSearchResult(await crawler.summarize(question)), userTimeZone)
+      : useDefaultTemplate(question, userTimeZone, '', _wrapSearchResult(await crawler.summarize(question)))
     question = addEndSuffix(question)
     question = question.substring(0, getQuestionMaxLength(modelName))
     complete = endsWithSuffix(question)

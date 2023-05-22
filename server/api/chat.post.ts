@@ -36,6 +36,9 @@ export default defineEventHandler(async (event) => {
   }
   try {
     const response = await curva.ask(user, conv, model, web, prompt, context, tz)
+    if ((response as any)?.error) {
+      console.error((response as any)?.error)
+    }
     return { version, ...response }
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })

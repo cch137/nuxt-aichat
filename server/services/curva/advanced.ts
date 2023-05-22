@@ -2,7 +2,7 @@ import crawler from '~/server/services/crawler'
 import useParseUrlsAndQueries from './templates/parseUrlsAndQueries'
 import useSelectSites from './templates/selectSites'
 import useExtractPage from './templates/extractPage'
-import useBasic from './templates/basic'
+import useDefaultTemplate from './templates/default'
 import makeRequest from './utils/makeRequest'
 import { log as logger } from '~/server/services/mongoose/index'
 import str from '~/utils/str'
@@ -64,7 +64,9 @@ export default async function (question: string, context = '', userTimeZone = 0)
           })
       }
     })
-    const finalQuestion = useBasic(question, `Here are the references:\n${references.join('\n')}`, userTimeZone).substring(0, 16384)
+    const _role = 'You need to read the references and provide valuable answers to the user. You must organize your language to ensure the coherence and logic of your responses. '
+    const _references = `Here are references from the internet:\n${references.join('\n')}`
+    const finalQuestion = useDefaultTemplate(question, userTimeZone, _role, _references).substring(0, 16384)
     logger.create({ type: 'advanced.final', refer: question, text: str(finalQuestion) })
     return { queries, urls, ...(await makeRequest('gpt4', finalQuestion, context)) }
   } catch (err) {
