@@ -17,7 +17,7 @@ const trimText = (text: string) => {
 
 const scrape = async (url: string) => {
   try {
-    if (!url.startsWith('http://') || !url.startsWith('https://')) {
+    if (!(url.startsWith('http://') || url.startsWith('https://'))) {
       url = `http://${url}`
     }
     const origin = new URL(url).origin
