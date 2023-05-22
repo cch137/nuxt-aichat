@@ -282,96 +282,6 @@ ${question}
 ${addAfter}`;
 }
 
-function useParseUrlsAndQueries(question, userTimeZone = 0) {
-  const time = formatUserCurrentTime(userTimeZone);
-  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is requesting you to answer a question. You need to utilize search engines and web crawlers to retrieve information from the internet. Once you obtain the information, analyze it to fill in missing data or knowledge in your database and improve your ability to respond to the user. Your task is to analyze the user's question and determine the necessary information or web pages to search for. If the question includes any URLs, visit those websites. When formulating search queries, include at least one English query. Remember that you can perform 0 to 3 searches using the search engine, and limit the number of query phrases to 3. Use your searches wisely. Keep in mind that search results should be used as reference material rather than direct answers since you'll need to analyze and summarize websites to generate responses. Avoid queries with similar meanings. Avoid directly searching for the question you're contemplating. Consider yourself as an API, do not make additional comments, only respond with a JSON object in the following format: \`{ "urls": [], "queries": [] }\`
-Here is the user's question: ${question}`;
-}
-
-function useSelectSites(question, results, userTimeZone = 0) {
-  const time = formatUserCurrentTime(userTimeZone);
-  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is asking you a question. You need to select some web pages from the search engine results, which you will analyze later. The web pages you select should be helpful for your answer. You are an API, please refrain from making any comments and only reply with a JSON array. Each element in the array should be an object with two properties: "url" (string) and "title" (string). Here is the user's question:
-${question}
-
-Here are the search engine results:
-${results}`;
-}
-
-function useExtractPage(question, result, userTimeZone = 0) {
-  const time = formatUserCurrentTime(userTimeZone);
-  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is asking you a question. Please provide a concise summary from the webpage that can help you answer the user's question. Organize the information into a paragraph instead of bullet points. When analyzing the webpage, focus on extracting key points and ignore irrelevant information such as headers, footers, ads, or other unrelated content.
-User's question: ${question}
-
-Webpage results: ${result}`;
-}
-
-const makeSureUrlsStartsWithHttp = (urls) => {
-  return urls.map((url) => url.startsWith("http://") || url.startsWith("https://") ? url : `http://${url}`);
-};
-const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0, delay = 0) => {
-  try {
-    return await new Promise(async (resolve, reject) => {
-      setTimeout(async () => {
-        var _a;
-        const answer = ((_a = await makeRequest(
-          "gpt4_summarizer",
-          useExtractPage(
-            question,
-            (await crawler$1.scrape(url)).substring(0, 16384),
-            userTimeZone
-          )
-        )) == null ? void 0 : _a.answer) || "";
-        logger.create({ type: "advanced.summary", refer: `${question}${url}`, text: str$1(answer) });
-        resolve(answer);
-      }, delay);
-    });
-  } catch (err) {
-    logger.create({ type: "error.advanced.summary", text: str$1(err) });
-    return "";
-  }
-};
-async function advancedAsk(question, context = "", userTimeZone = 0) {
-  var _a, _b, _c;
-  try {
-    let i = 0;
-    const question1 = useParseUrlsAndQueries(question, userTimeZone);
-    const answer1 = (_a = await makeRequest("gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
-    const answer1Json = answer1.substring(answer1.indexOf("{"), answer1.lastIndexOf("}") + 1);
-    const { urls: _urls, queries } = JSON.parse(answer1Json);
-    const urls = makeSureUrlsStartsWithHttp(_urls);
-    const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
-    const summary = (await Promise.all(queries.map((query) => crawler$1.summarize(query, true, false)))).join("\n\n");
-    const question2 = useSelectSites(question, summary, userTimeZone);
-    const answer2 = (_b = await makeRequest("gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
-    const answer2Json = answer2.substring(answer2.indexOf("["), answer2.lastIndexOf("]") + 1);
-    const selectedSites = JSON.parse(answer2Json);
-    const selectedSiteUrls = makeSureUrlsStartsWithHttp(selectedSites.map((site) => site.url));
-    const _pages2 = selectedSiteUrls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
-    const pages = [..._pages1, ..._pages2];
-    const references = await new Promise(async (resolve, reject) => {
-      const results = [];
-      setTimeout(() => resolve(results), 3 * 6e4);
-      for (const page of pages) {
-        page.then((result) => results.push(result)).catch(() => results.push("")).finally(() => {
-          if (results.length === pages.length) {
-            resolve(results);
-          }
-        });
-      }
-    });
-    const _role = "Please use references whenever possible to provide users with valuable answers. You must organize your language to ensure the coherence and logic of your responses. ";
-    const _references = `Here are references from the internet:
-${references.join("\n")}`;
-    const finalQuestion = useDefaultTemplate(question, userTimeZone, _role, _references).substring(0, 16384);
-    logger.create({ type: "advanced.final", refer: question, text: str$1(finalQuestion) });
-    return { queries, urls, ...await makeRequest("gpt4", finalQuestion, context) };
-  } catch (err) {
-    const sqlMessage = (_c = err == null ? void 0 : err.original) == null ? void 0 : _c.sqlMessage;
-    logger.create({ type: "error.advanced", text: str$1(err) });
-    return { queries: [], urls: [], answer: void 0, sqlMessage };
-  }
-}
-
 const _wrapSearchResult = (result) => {
   return result ? `Here are references from the internet. Use only when necessary:
 ${result}` : "";
@@ -381,24 +291,16 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
   let answer, props = {}, complete = true;
   const originalQuestion = question;
   if (webBrowsing === "ADVANCED") {
-    const advResult = await advancedAsk(question, context, userTimeZone);
-    props = { queries: advResult.queries, urls: advResult.urls };
-    if (!(advResult == null ? void 0 : advResult.answer)) {
-      webBrowsing = "BASIC";
-    } else {
-      answer = advResult.answer;
-    }
+    webBrowsing = "BASIC";
   }
-  if (webBrowsing !== "ADVANCED") {
-    question = webBrowsing === "OFF" ? useDefaultTemplate(question, userTimeZone) : useDefaultTemplate(question, userTimeZone, "", _wrapSearchResult(await crawler$1.summarize(question)));
-    question = addEndSuffix(question);
-    question = question.substring(0, getQuestionMaxLength(modelName));
-    complete = endsWithSuffix(question);
-    if (complete) {
-      question = removeEndSuffix(question);
-    }
-    answer = (_a = await makeRequest(modelName, question, context)) == null ? void 0 : _a.answer;
+  question = webBrowsing === "OFF" ? useDefaultTemplate(question, userTimeZone) : useDefaultTemplate(question, userTimeZone, "", _wrapSearchResult(await crawler$1.summarize(question)));
+  question = addEndSuffix(question);
+  question = question.substring(0, getQuestionMaxLength(modelName));
+  complete = endsWithSuffix(question);
+  if (complete) {
+    question = removeEndSuffix(question);
   }
+  answer = (_a = await makeRequest(modelName, question, context)) == null ? void 0 : _a.answer;
   const response = await makeResponse(answer, complete, props);
   if (!response.error && answer) {
     saveMessage(user, conv, originalQuestion, answer, modelName);

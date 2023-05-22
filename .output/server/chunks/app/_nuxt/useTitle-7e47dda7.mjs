@@ -430,7 +430,7 @@ const addContext = (...texts) => {
 const clearContext = () => {
   contexts.splice(0, contexts.length);
 };
-const allowedWebBrowsingModes = ["OFF", "BASIC", "ADVANCED"];
+const allowedWebBrowsingModes = ["OFF", "BASIC"];
 const DEFAULT_WEB_BROWSING_MODE = "BASIC";
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE);
 const messages = ref([]);
@@ -585,4 +585,4 @@ function useTitle(title) {
 }
 
 export { __nuxt_component_0 as _, useTitle as u };
-//# sourceMappingURL=useTitle-3ed2c423.mjs.map
+//# sourceMappingURL=useTitle-7e47dda7.mjs.map
