@@ -1,15 +1,9 @@
-import { getModel } from './models'
+import { execQuery } from './mindsdb'
 
 export default async function (modelName: string, question: string, context = '') {
   try {
     // @ts-ignore
-    const result = await getModel(modelName).findOne({
-      attributes: ['answer'],
-      where: {
-        question: question.replaceAll('\'', '`'),
-        context: context.replaceAll('\'', '`')
-      }
-    }) as { answer: string }
+    const result = await execQuery(modelName, question, context)
     if (result === null) {
       throw Error('No Answer Found')
     }

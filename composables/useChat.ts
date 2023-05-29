@@ -34,8 +34,8 @@ const clearContext = () => {
   contexts.splice(0, contexts.length)
 }
 
-// const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
-const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC']
+const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
+// const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC']
 const DEFAULT_WEB_BROWSING_MODE = 'BASIC'
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
 
