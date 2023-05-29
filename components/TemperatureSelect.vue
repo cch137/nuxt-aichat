@@ -18,6 +18,6 @@ const handleChange = (value: number) => {
   const temp = Math.round(value * 10) / 10
   temperature.value = temp
   // @ts-ignore
-  temperatureSuffix.value = `_${(temp * 10).toString().padStart(2, '0')}`
+  temperatureSuffix.value = `_t${(temp * 10).toString().padStart(2, '0')}`
 }
 </script>

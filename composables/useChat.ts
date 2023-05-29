@@ -126,8 +126,8 @@ const initPage = (conv: string | null) => {
     })
 }
 
-const DEFAULT_TEMPERATURE = '_05'
-const temperatureSuffix = ref<'_00'|'_01'|'_02'|'_03'|'_04'|'_05'|'_06'|'_07'|'_08'|'_09'|'_10'>(DEFAULT_TEMPERATURE)
+const DEFAULT_TEMPERATURE = '_t05'
+const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'_t07'|'_t08'|'_t09'|'_t10'>(DEFAULT_TEMPERATURE)
 
 export default function () {
   const cookie = useUniCookie()
