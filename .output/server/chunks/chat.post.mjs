@@ -119,6 +119,7 @@ WHERE question = '${question}' AND context = '${context}'`,
     const answerIndex = data.column_names.indexOf("answer");
     return { answer: data.data[0][answerIndex] };
   } catch (err) {
+    console.error("MindsDB ERROR:", err);
     logger.create({ type: "error.mindsdb.query", text: str(err) });
     return null;
   }
@@ -154,7 +155,7 @@ const allowedModelNames = /* @__PURE__ */ new Set([
 let session;
 const login = () => {
   session = createAxiosSession({
-    "Referer": "https://cloud.mindsdb.com"
+    "Referer": "https://cloud.mindsdb.com/editor"
   });
   session.post("https://cloud.mindsdb.com/cloud/login", {
     email: "137emailservice@gmail.com",
@@ -170,10 +171,7 @@ setInterval(() => {
 async function makeRequest(modelName, question, context = "") {
   try {
     const result = await execQuery(modelName, question, context);
-    if (result === null) {
-      throw Error("No Answer Found");
-    }
-    return { answer: result.answer };
+    return { answer: result == null ? void 0 : result.answer };
   } catch (err) {
     return { answer: void 0 };
   }
@@ -295,7 +293,7 @@ Here is the user's question: ${question}`;
 
 function useSelectSites(question, results, userTimeZone = 0) {
   const time = formatUserCurrentTime(userTimeZone);
-  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is asking you a question. You need to select some web pages from the search engine results, which you will analyze later. The web pages you select should be helpful for your answer. You are an API, please refrain from making any comments and only reply with a JSON array. Each element in the array should be an object with two properties: "url" (string) and "title" (string). Here is the user's question:
+  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is asking you a question. You need to select some web pages from the search engine results, which you will analyze later. The web pages you select should be helpful for your answer. Make sure the page you choose has the information you need. You are an API, please refrain from making any comments and only reply with a JSON array. Each element in the array should be an object with two properties: "url" (string) and "title" (string). Here is the user's question:
 ${question}
 
 Here are the search engine results:
@@ -304,10 +302,10 @@ ${results}`;
 
 function useExtractPage(question, result, userTimeZone = 0) {
   const time = formatUserCurrentTime(userTimeZone);
-  return `The current time is ${time}. Please provide a concise summary from the webpage that can help you answer the user's question. Organize the information into a paragraph instead of bullet points. When analyzing the webpage, focus on extracting key points and ignore irrelevant information such as headers, footers, ads, or other unrelated content. Do not answer user's questions, only summarize using the language of the reference materials.
-User's question: ${question}
+  return `The current time is ${time}. Please provide a concise summary from the webpage that can help you answer a question. Organize the information into a paragraph instead of bullet points. When analyzing the webpage, focus on extracting key points and ignore irrelevant information such as headers, footers, ads, or other unrelated content.
+The question: ${question}
 
-Webpage results: ${result}`;
+Webpage results (summarize in the language of the webpage, never in the language of the question, do not mark the source): ${result}`;
 }
 
 const makeSureUrlsStartsWithHttp = (urls) => {
@@ -355,7 +353,7 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
     const pages = [..._pages1, ..._pages2];
     const references = await new Promise(async (resolve, reject) => {
       const results = [];
-      setTimeout(() => resolve(results), 3 * 6e4);
+      setTimeout(() => resolve(results), 5 * 6e4);
       for (const page of pages) {
         page.then((result) => results.push(result)).catch(() => results.push("")).finally(() => {
           if (results.length === pages.length) {
