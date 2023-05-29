@@ -29,11 +29,22 @@ const scrape = async (url: string) => {
     }
     const res = await axios.get(url, { headers, timeout: 10000 })
     console.log('SCRAPE:', url)
-    const $ = cheerioLoad(str(res.data))
-    return trimText($('body').prop('innerText') as string)
+    if (typeof res.data === 'string') {
+      const $ = cheerioLoad(str(res.data))
+      const title = $('title').text()
+        || $('meta[name="title"]').attr('content')
+        || $('meta[name="og:title"]').attr('content')
+      const description = $('meta[name="description"]').attr('content')
+        || $('meta[name="og:description"]').attr('content')
+      return title ? `title: ${title}\n` : '' +
+        description ? `description: ${description}\n` : '' +
+        trimText($('body').prop('innerText') as string)
+    } else {
+      throw 'Page is not string'
+    }
   } catch (err) {
     console.log('SCRAPE FAILED:', url)
-    logger.create({ type: 'error.crawler.scrape', text: str(err) })
+    logger.create({ type: 'error.crawler.scrape', refer: url, text: str(err) })
     return 'Error: Page fetch failed'
   }
 }
