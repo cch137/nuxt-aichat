@@ -304,7 +304,7 @@ ${results}`;
 
 function useExtractPage(question, result, userTimeZone = 0) {
   const time = formatUserCurrentTime(userTimeZone);
-  return `The current time is ${time}. Please provide a concise summary from the webpage that can help you answer the user's question. Organize the information into a paragraph instead of bullet points. When analyzing the webpage, focus on extracting key points and ignore irrelevant information such as headers, footers, ads, or other unrelated content. Summarize in the language of the webpage, not the language of the user's question.
+  return `The current time is ${time}. Please provide a concise summary from the webpage that can help you answer the user's question. Organize the information into a paragraph instead of bullet points. When analyzing the webpage, focus on extracting key points and ignore irrelevant information such as headers, footers, ads, or other unrelated content. Do not answer user's questions, only summarize using the language of the reference materials.
 User's question: ${question}
 
 Webpage results: ${result}`;
@@ -382,16 +382,17 @@ ${result}` : "";
 };
 async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", question, context = "", userTimeZone = 0) {
   var _a;
-  let answer, props = {}, complete = true;
+  let answer;
+  let props = {};
+  let complete = true;
   const originalQuestion = question;
   if (webBrowsing === "ADVANCED") {
     const advResult = await advancedAsk(question, context, userTimeZone);
     props = { queries: advResult.queries, urls: advResult.urls };
-    if (!(advResult == null ? void 0 : advResult.answer)) {
+    answer = advResult == null ? void 0 : advResult.answer;
+    if (!answer) {
       webBrowsing = "BASIC";
       console.log("DOWNGRADE: ADVANCED => BASE");
-    } else {
-      answer = advResult.answer;
     }
   }
   if (webBrowsing === "BASIC" || webBrowsing === "OFF") {
@@ -408,6 +409,7 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
     }
     answer = (_a = await makeRequest(modelName, question, context)) == null ? void 0 : _a.answer;
   }
+  props.web = webBrowsing;
   const response = await makeResponse(answer, complete, props);
   if (!response.error && answer) {
     saveMessage(user, conv, originalQuestion, answer, modelName);

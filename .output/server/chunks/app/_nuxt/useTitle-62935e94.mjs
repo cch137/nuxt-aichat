@@ -177,7 +177,7 @@ const resolveOptions = (options) => {
   };
 };
 const addStyle = async (options, parent, instance) => {
-  const { nextZIndex } = instance.vm.zIndex;
+  const { nextZIndex } = instance.vm.zIndex || instance.vm._.exposed.zIndex;
   const maskStyle = {};
   if (options.fullscreen) {
     instance.originalPosition.value = getStyle(document.body, "position");
@@ -201,7 +201,7 @@ const addStyle = async (options, parent, instance) => {
   }
 };
 const addClassList = (options, parent, instance) => {
-  const ns = instance.vm.ns;
+  const ns = instance.vm.ns || instance.vm._.exposed.ns;
   if (!["absolute", "fixed", "sticky"].includes(instance.originalPosition.value)) {
     addClass(parent, ns.bm("parent", "relative"));
   } else {
@@ -590,4 +590,4 @@ function useTitle(title) {
 }
 
 export { __nuxt_component_0 as _, useTitle as u };
-//# sourceMappingURL=useTitle-e648a115.mjs.map
+//# sourceMappingURL=useTitle-62935e94.mjs.map
