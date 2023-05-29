@@ -415,6 +415,9 @@ const checkContext = () => {
   }
 };
 const getContext = () => {
+  if (!contextMode.value) {
+    return "";
+  }
   checkContext();
   const joinedContexts = [...contexts].reverse().join("\n---\n");
   if (joinedContexts.length === 0) {
@@ -430,7 +433,7 @@ const addContext = (...texts) => {
 const clearContext = () => {
   contexts.splice(0, contexts.length);
 };
-const allowedWebBrowsingModes = ["OFF", "BASIC"];
+const allowedWebBrowsingModes = ["OFF", "BASIC", "ADVANCED"];
 const DEFAULT_WEB_BROWSING_MODE = "BASIC";
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE);
 const messages = ref([]);
@@ -495,8 +498,9 @@ const initPage = (conv) => {
     }, 500);
   });
 };
-const DEFAULT_TEMPERATURE = "_05";
+const DEFAULT_TEMPERATURE = "_t05";
 const temperatureSuffix = ref(DEFAULT_TEMPERATURE);
+const contextMode = ref(true);
 function useChat() {
   const cookie = useUniCookie();
   const previousWebBrowsingMode = cookie.get(webBrowsing);
@@ -540,6 +544,7 @@ function useChat() {
     context,
     webBrowsingMode,
     temperatureSuffix,
+    contextMode,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,
@@ -585,4 +590,4 @@ function useTitle(title) {
 }
 
 export { __nuxt_component_0 as _, useTitle as u };
-//# sourceMappingURL=useTitle-7e47dda7.mjs.map
+//# sourceMappingURL=useTitle-e648a115.mjs.map

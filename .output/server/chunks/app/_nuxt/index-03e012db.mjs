@@ -1,4 +1,4 @@
-import { u as useTitle, _ as __nuxt_component_0 } from './useTitle-7e47dda7.mjs';
+import { u as useTitle, _ as __nuxt_component_0 } from './useTitle-e648a115.mjs';
 import { useSSRContext } from 'vue';
 import { u as useState } from '../server.mjs';
 import { ssrRenderAttrs, ssrRenderComponent } from 'vue/server-renderer';
@@ -56,4 +56,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-d9bcad7d.mjs.map
+//# sourceMappingURL=index-03e012db.mjs.map

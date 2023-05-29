@@ -501,7 +501,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-4484a889.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-4db4ab03.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -509,7 +509,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-d9bcad7d.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-03e012db.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -3780,7 +3780,8 @@ const en = {
     webInfo4: "Analyze and summarize information from web pages to answer your question. Please note that this option will require more time for Curva to process and provide an answer. ",
     webInfo5: "Tip: ",
     webInfo6: "If you want Curva to visit the URLs you provide, select the `Advanced` option.",
-    expFeat: "This is an experimental feature."
+    expFeat: "This is an experimental feature.",
+    tempInfo: "With higher values increasing randomness and diversity, while lower values decrease randomness and make the output more predictable."
   },
   settings: {
     title: "Settings",
@@ -3789,8 +3790,11 @@ const en = {
     webBrowsing: "Web Browsing",
     off: "Off",
     on: "On",
+    enable: "Enable",
+    disable: "Disable",
     basic: "Basic",
-    advanced: "Advanced"
+    advanced: "Advanced",
+    context: "Context"
   },
   chat: {
     chats: "Conversations",
@@ -3850,7 +3854,8 @@ const zhTW = {
     webInfo4: "分析和總結網頁中的信息來回答您的問題。請注意，此選項將需要更多時間讓 Curva 進行思考。",
     webInfo5: "提示：",
     webInfo6: "如果您希望 Curva 訪問您提供的 URL，請選擇“進階”選項。",
-    expFeat: "這是一項實驗性功能。"
+    expFeat: "這是一項實驗性功能。",
+    tempInfo: "較高的值會增加隨機性和多樣性，而較低的值會降低隨機性並使輸出更具可預測性。"
   },
   settings: {
     title: "設置",
@@ -3859,8 +3864,11 @@ const zhTW = {
     webBrowsing: "訪問網絡",
     off: "關閉",
     on: "開啟",
+    enable: "啟用",
+    disable: "禁用",
     basic: "基礎",
-    advanced: "進階"
+    advanced: "進階",
+    context: "上下文關係"
   },
   chat: {
     chats: "對話列表",

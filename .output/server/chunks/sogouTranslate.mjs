@@ -1,22 +1,13 @@
+import md5$1 from 'crypto-js/md5.js';
 import axios from 'axios';
 import { serialize, parse } from 'cookie';
-import md5$1 from 'crypto-js/md5.js';
 
-const md5 = (text) => {
-  return md5$1(text).toString();
-};
-const apiName = "SogouTrans";
-let session;
-let secretCode = null;
-const sogouCrypto = (from, to, text) => md5(`${from}${to}${text}${secretCode}`);
-let lastInit = 0;
-const isOkToInit = () => Date.now() - lastInit > 1e3;
-const init = () => new Promise((resolve, reject) => {
-  session = axios.create({
+function createAxiosSession(headers = {}) {
+  const session = axios.create({
     withCredentials: true,
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
-      "Referer": "https://fanyi.sogou.com/"
+      ...headers
     }
   });
   const cookieJar = {};
@@ -39,6 +30,22 @@ const init = () => new Promise((resolve, reject) => {
       }
     }
     return response;
+  });
+  return session;
+}
+
+const md5 = (text) => {
+  return md5$1(text).toString();
+};
+const apiName = "SogouTrans";
+let session;
+let secretCode = null;
+const sogouCrypto = (from, to, text) => md5(`${from}${to}${text}${secretCode}`);
+let lastInit = 0;
+const isOkToInit = () => Date.now() - lastInit > 1e3;
+const init = () => new Promise((resolve, reject) => {
+  session = createAxiosSession({
+    "Referer": "https://fanyi.sogou.com/"
   });
   session.get("https://fanyi.sogou.com/text").then((res) => {
     const { data } = res;
@@ -103,5 +110,5 @@ const translateZh2En = async (text) => {
   }
 };
 
-export { translateZh2En as t };
+export { createAxiosSession as c, translateZh2En as t };
 //# sourceMappingURL=sogouTranslate.mjs.map
