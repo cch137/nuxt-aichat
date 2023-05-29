@@ -64,8 +64,32 @@
           </div>
         </div>
         <div class="flex gap-1">
-          <el-text class="flex-1">Temperature</el-text>
-          <TemperatureSelect class="flex-1" />
+          <el-text class="flex flex-1 items-center">
+            <span class="mr-2">Temperature</span>
+            <ClientOnly>
+              <el-popover
+                placement="bottom"
+                :width="240"
+                trigger="click"
+              >
+                <template #reference>
+                  <el-icon color="#409EFF" class="cursor-pointer" size="large">
+                    <InfoFilled />
+                  </el-icon>
+                </template>
+                <template #default>
+                  <div>{{ $t('menu.tempInfo') }}</div>
+                </template>
+              </el-popover>
+            </ClientOnly>
+          </el-text>
+          <div class="flex-1">
+            <TemperatureSelect class="flex-1" />
+          </div>
+        </div>
+        <div class="flex gap-1">
+          <el-text class="flex-1">{{ $t('settings.context') }}</el-text>
+          <ContextSelect class="flex-1" />
         </div>
         <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>

@@ -17,6 +17,9 @@ const checkContext = () => {
 }
 
 const getContext = () => {
+  if (!contextMode.value) {
+    return ''
+  }
   checkContext()
   const joinedContexts = [...contexts].reverse().join('\n---\n')
   if (joinedContexts.length === 0) {
@@ -129,6 +132,8 @@ const initPage = (conv: string | null) => {
 const DEFAULT_TEMPERATURE = '_t05'
 const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'_t07'|'_t08'|'_t09'|'_t10'>(DEFAULT_TEMPERATURE)
 
+const contextMode = ref(true)
+
 export default function () {
   const cookie = useUniCookie()
   const previousWebBrowsingMode = cookie.get(webBrowsingCookieName)
@@ -172,6 +177,7 @@ export default function () {
     context,
     webBrowsingMode,
     temperatureSuffix,
+    contextMode,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,

@@ -43,6 +43,7 @@ export default {
     webInfo5: '提示：',
     webInfo6: '如果您希望 Curva 訪問您提供的 URL，請選擇“進階”選項。',
     expFeat: '這是一項實驗性功能。',
+    tempInfo: '較高的值會增加隨機性和多樣性，而較低的值會降低隨機性並使輸出更具可預測性。',
   },
   settings: {
     title: '設置',
@@ -51,8 +52,11 @@ export default {
     webBrowsing: '訪問網絡',
     off: '關閉',
     on: '開啟',
+    enable: '啟用',
+    disable: '禁用',
     basic: '基礎',
     advanced: '進階',
+    context: '上下文關係',
   },
   chat: {
     chats: '對話列表',

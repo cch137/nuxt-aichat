@@ -43,6 +43,7 @@ export default {
     webInfo5: 'Tip: ',
     webInfo6: 'If you want Curva to visit the URLs you provide, select the `Advanced` option.',
     expFeat: 'This is an experimental feature.',
+    tempInfo: 'With higher values increasing randomness and diversity, while lower values decrease randomness and make the output more predictable.',
   },
   settings: {
     title: 'Settings',
@@ -51,8 +52,11 @@ export default {
     webBrowsing: 'Web Browsing',
     off: 'Off',
     on: 'On',
+    enable: 'Enable',
+    disable: 'Disable',
     basic: 'Basic',
-    advanced: 'Advanced'
+    advanced: 'Advanced',
+    context: 'Context',
   },
   chat: {
     chats: 'Conversations',

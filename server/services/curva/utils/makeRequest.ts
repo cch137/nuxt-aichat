@@ -9,7 +9,6 @@ export default async function (modelName: string, question: string, context = ''
     }
     return { answer: result.answer as string }
   } catch (err) {
-    const sqlMessage = (err as any)?.original?.sqlMessage as string | undefined
-    return { answer: undefined, sqlMessage }
+    return { answer: undefined }
   }
 }

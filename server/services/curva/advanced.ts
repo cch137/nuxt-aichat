@@ -23,12 +23,12 @@ const gpt4ScrapeAndSummary = async (question: string, url: string, userTimeZone 
             userTimeZone
           )
         ))?.answer || ''
-        logger.create({ type: 'advanced.summary', refer: `${question}${url}`, text: str(answer) })
+        logger.create({ type: 'advanced.summary', refer: `${question} ${url}`, text: str(answer) })
         resolve(answer)
       }, delay)
     })
   } catch (err) {
-    logger.create({ type: 'error.advanced.summary', text: str(err) })
+    logger.create({ type: 'error.advanced.summary', refer: `${question} ${url}`, text: str(err) })
     return ''
   }
 }
@@ -70,8 +70,7 @@ export default async function (question: string, context = '', userTimeZone = 0)
     logger.create({ type: 'advanced.final', refer: question, text: str(finalQuestion) })
     return { queries, urls, ...(await makeRequest('gpt4', finalQuestion, context)) }
   } catch (err) {
-    const sqlMessage = (err as any)?.original?.sqlMessage as string | undefined
     logger.create({ type: 'error.advanced', text: str(err) })
-    return { queries: [], urls: [], answer: undefined, sqlMessage }
+    return { queries: [], urls: [], answer: undefined }
   }
 }

@@ -29,10 +29,10 @@ async function ask (
     props = { queries: advResult.queries, urls: advResult.urls }
     if (!advResult?.answer) {
       webBrowsing = 'BASIC'
+      console.log('DOWNGRADE: ADVANCED => BASE')
     } else {
       answer = advResult.answer
     }
-    webBrowsing = 'BASIC'
   }
   if (webBrowsing === 'BASIC' || webBrowsing === 'OFF') {
     if (webBrowsing === 'BASIC') {
