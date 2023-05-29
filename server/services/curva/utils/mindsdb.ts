@@ -31,7 +31,6 @@ const execQuery = async (modelName: string, question = 'Hi', context = '') => {
     const answerIndex = data.column_names.indexOf('answer')
     return { answer: data.data[0][answerIndex] }
   } catch (err) {
-    console.error('MindsDB ERROR:', err)
     logger.create({ type: 'error.mindsdb.query', text: str(err) })
     return null
   }
@@ -73,13 +72,13 @@ const allowedModelNames = new Set([
 
 let session: AxiosInstance
 
-const login = () => {
+const login = async () => {
   session = createAxiosSession({
     'Referer': 'https://cloud.mindsdb.com/editor'
   })
-  session.post('https://cloud.mindsdb.com/cloud/login', {
-    email: '137emailservice@gmail.com',
-    password: 'Curva&&cch137',
+  return await session.post('https://cloud.mindsdb.com/cloud/login', {
+    email: process.env.EMAIL_ADDRESS as string,
+    password:  process.env.PASSWORD as string,
     rememberMe: true
   })
 }
