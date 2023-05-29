@@ -22,16 +22,17 @@ async function ask (
   context: string = '',
   userTimeZone = 0
 ) {
-  let answer: string | undefined, props = {}, complete = true
+  let answer: string | undefined
+  let props = {} as any
+  let complete = true
   const originalQuestion = question
   if (webBrowsing === 'ADVANCED') {
     const advResult = (await advancedAsk(question, context, userTimeZone))
     props = { queries: advResult.queries, urls: advResult.urls }
-    if (!advResult?.answer) {
+    answer = advResult?.answer
+    if (!answer) {
       webBrowsing = 'BASIC'
       console.log('DOWNGRADE: ADVANCED => BASE')
-    } else {
-      answer = advResult.answer
     }
   }
   if (webBrowsing === 'BASIC' || webBrowsing === 'OFF') {
@@ -48,6 +49,7 @@ async function ask (
     }
     answer = (await makeRequest(modelName, question, context))?.answer
   }
+  props.web = webBrowsing
   const response = await makeResponse(answer, complete, props)
   if (!((response as any).error) && answer) {
     saveMessage(user, conv, originalQuestion, answer, modelName)
