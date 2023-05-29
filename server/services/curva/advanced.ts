@@ -52,7 +52,7 @@ export default async function (question: string, context = '', userTimeZone = 0)
     const pages = [..._pages1, ..._pages2]
     const references = await new Promise<string[]>(async (resolve, reject) => {
       const results: string[] = []
-      setTimeout(() => resolve(results), 3 * 60000)
+      setTimeout(() => resolve(results), 5 * 60000)
       for (const page of pages) {
         page
           .then((result) => results.push(result))
