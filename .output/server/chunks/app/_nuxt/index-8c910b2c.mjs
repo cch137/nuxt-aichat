@@ -1,9 +1,10 @@
-import { u as useTitle, _ as __nuxt_component_0 } from './useTitle-62935e94.mjs';
+import { _ as __nuxt_component_0 } from './ChatCore-614fd3a1.mjs';
+import { u as useTitle } from './useTitle-8d70f262.mjs';
 import { useSSRContext } from 'vue';
 import { u as useState } from '../server.mjs';
 import { ssrRenderAttrs, ssrRenderComponent } from 'vue/server-renderer';
 import './client-only-29ef7f45.mjs';
-import './el-button-ad5509c0.mjs';
+import './index-dbbd4f4f.mjs';
 import '@vueuse/core';
 import 'lodash-unified';
 import '@vue/shared';
@@ -51,9 +52,9 @@ const _sfc_main = {
 const _sfc_setup = _sfc_main.setup;
 _sfc_main.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/index.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/c/index.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-3b97a621.mjs.map
+//# sourceMappingURL=index-8c910b2c.mjs.map

@@ -1,7 +1,7 @@
 import { _ as __nuxt_component_0$1 } from './client-only-29ef7f45.mjs';
-import { d as useHead, a as useUniCookie, b as useNuxtApp, u as useState, n as navigateTo } from '../server.mjs';
-import { E as ElMessage, g as getStyle, a as addClass, r as removeClass, u as useGlobalComponentSettings } from './el-button-ad5509c0.mjs';
+import { a as useUniCookie, b as useNuxtApp, u as useState, n as navigateTo } from '../server.mjs';
 import { ref, useSSRContext, watch, nextTick, reactive, createApp, toRefs, isRef, defineComponent, h, Transition, withCtx, withDirectives, createVNode, vShow } from 'vue';
+import { E as ElMessage, g as getStyle, a as addClass, r as removeClass, u as useGlobalComponentSettings } from './index-dbbd4f4f.mjs';
 import { isClient } from '@vueuse/core';
 import { isString, isObject, hyphenate } from '@vue/shared';
 import { ssrRenderComponent } from 'vue/server-renderer';
@@ -470,7 +470,7 @@ const fetchHistory = (conv) => {
     $fetch("/api/history", { method: "POST", body: { id: conv } }).then((fetched) => {
       const records = fetched;
       if (records.length === 0) {
-        navigateTo("/");
+        navigateTo("/c/");
       }
       const _records = [];
       context.add(...records.map((record) => {
@@ -487,16 +487,20 @@ const fetchHistory = (conv) => {
     });
   });
 };
-const initPage = (conv) => {
-  const loading = ElLoading.service();
-  Promise.all([
-    conv === null ? null : checkTokenAndGetConversations(),
-    fetchHistory(conv)
-  ]).finally(() => {
-    setTimeout(() => {
-      loading.close();
-    }, 500);
-  });
+const initPage = (conv, skipHistoryFetching = false) => {
+  if (!skipHistoryFetching) {
+    const loading = ElLoading.service();
+    Promise.all([
+      conv === null ? null : checkTokenAndGetConversations(),
+      fetchHistory(conv)
+    ]).finally(() => {
+      if (loading !== null) {
+        setTimeout(() => {
+          loading.close();
+        }, 500);
+      }
+    });
+  }
 };
 const DEFAULT_TEMPERATURE = "_t05";
 const temperatureSuffix = ref(DEFAULT_TEMPERATURE);
@@ -529,11 +533,11 @@ function useChat() {
     return conversations.value.filter((conv) => conv.id === currentConvId)[0].name || "";
   };
   const openDrawer = useState("openDrawer", () => false);
-  const goToChat = (conv, force = false) => {
+  const goToChat = (conv, force = false, skipHistoryFetching = false) => {
     const currentConvId = getCurrentConvId();
     if (force || (currentConvId !== conv || conv === null)) {
       messages.value = [];
-      initPage(conv);
+      initPage(conv, skipHistoryFetching);
     }
     openDrawer.value = false;
     focusInput();
@@ -579,15 +583,6 @@ _sfc_main.setup = (props, ctx) => {
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
 const __nuxt_component_0 = _sfc_main;
-function useTitle(title) {
-  useHead({
-    title,
-    meta: [
-      { property: "og:title", content: title },
-      { property: "twitter:title", content: title }
-    ]
-  });
-}
 
-export { __nuxt_component_0 as _, useTitle as u };
-//# sourceMappingURL=useTitle-62935e94.mjs.map
+export { __nuxt_component_0 as _ };
+//# sourceMappingURL=ChatCore-614fd3a1.mjs.map

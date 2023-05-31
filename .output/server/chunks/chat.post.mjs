@@ -6,10 +6,11 @@ import { s as str$1, t as troll, r as read } from './token.mjs';
 import axios from 'axios';
 import { load as load$1 } from 'cheerio';
 import googlethis from 'googlethis';
-import { load, extract } from '@node-rs/jieba';
+import { load } from '@node-rs/jieba';
 import { t as translateZh2En, c as createAxiosSession } from './sogouTranslate.mjs';
 import { model, Schema } from 'mongoose';
 import { config } from 'dotenv';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 import { g as getIp } from './getIp.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
@@ -60,8 +61,11 @@ const summarize = async (query, showUrl = false, translate = true) => {
   try {
     const searchQueries = [query.substring(0, 256)];
     if (translate) {
-      const queryInEnglish = (await translateZh2En(query.substring(0, 5e3))).text;
-      searchQueries.push(extract(queryInEnglish, 16).map((w) => w.keyword).join(", "));
+      const translateResult = await translateZh2En(query.substring(0, 5e3));
+      if ((translateResult == null ? void 0 : translateResult.lang) !== "\u82F1\u8BED") {
+        const queryInEnglish = translateResult.text;
+        searchQueries.push(queryInEnglish);
+      }
     }
     const searcheds = await Promise.all(searchQueries.map((query2) => {
       console.log("SEARCH:", query2);
@@ -94,35 +98,6 @@ function saveMessage(user, conv, Q, A, model) {
   return message.create({ user, conv, model, Q, A });
 }
 
-config();
-console.log("EMAIL:", process.env.EMAIL_ADDRESS);
-const fixModelName = (modelName) => {
-  if (allowedModelNames.has(modelName)) {
-    return modelName;
-  }
-  return "gpt4";
-};
-const getQuestionMaxLength = (modelName) => {
-  return fixModelName(modelName).startsWith("gpt3") ? 4096 : 8192;
-};
-const execQuery = async (modelName, question = "Hi", context = "") => {
-  modelName = fixModelName(modelName);
-  question = question.replaceAll("'", "`");
-  context = context.replaceAll("'", "`");
-  try {
-    const res = await session.post("https://cloud.mindsdb.com/api/sql/query", {
-      query: `SELECT answer FROM mindsdb.${modelName}\r
-WHERE question = '${question}' AND context = '${context}'`,
-      context: { db: "mindsdb" }
-    });
-    const data = res.data;
-    const answerIndex = data.column_names.indexOf("answer");
-    return { answer: data.data[0][answerIndex] };
-  } catch (err) {
-    logger.create({ type: "error.mindsdb.query", text: str(err) });
-    return null;
-  }
-};
 const allowedModelNames = /* @__PURE__ */ new Set([
   "gpt4",
   "gpt4_t00",
@@ -151,6 +126,92 @@ const allowedModelNames = /* @__PURE__ */ new Set([
   "gpt4_summarizer",
   "gpt4_mixer"
 ]);
+const allowedModelNames$1 = allowedModelNames;
+
+const models = /* @__PURE__ */ new Map();
+config();
+console.log("EMAIL:", process.env.EMAIL_ADDRESS);
+const sequelize = new Sequelize(
+  "mindsdb",
+  process.env.EMAIL_ADDRESS,
+  process.env.PASSWORD,
+  {
+    host: "cloud.mindsdb.com",
+    dialect: "mysql",
+    logging: false,
+    pool: {
+      min: 64,
+      max: 512
+    }
+  }
+);
+const createModel = (tableName) => {
+  class _Model extends Model {
+  }
+  _Model.init(
+    { answer: { type: DataTypes.STRING, allowNull: false } },
+    { sequelize, tableName }
+  );
+  models.set(tableName, _Model);
+  return _Model;
+};
+const fixModelName$1 = (modelName) => {
+  if (models.has(modelName)) {
+    return modelName;
+  }
+  return "gpt4";
+};
+const getModel = (modelName) => {
+  return models.get(fixModelName$1(modelName));
+};
+allowedModelNames$1.forEach((modelName) => createModel(modelName));
+
+const getAnswerBySql = async (modelName, question, context = "") => {
+  var _a;
+  try {
+    const result = await getModel(modelName).findOne({
+      attributes: ["answer"],
+      where: {
+        question: question.replaceAll("'", "`"),
+        context: context.replaceAll("'", "`")
+      }
+    });
+    if (result === null) {
+      throw Error("No Answer Found");
+    }
+    return { answer: result.answer };
+  } catch (err) {
+    const sqlMessage = (_a = err == null ? void 0 : err.original) == null ? void 0 : _a.sqlMessage;
+    return { answer: void 0, sqlMessage };
+  }
+};
+async function makeRequest(modelName, question, context = "") {
+  return await getAnswerBySql(modelName, question, context);
+}
+
+async function makeResponse(answer, complete = true, props = {}) {
+  try {
+    if (!answer) {
+      return { error: "No answer found", complete, ...props };
+    }
+    return { answer, complete, ...props };
+  } catch (err) {
+    logger.create({ type: "error.makeResponse", text: str(err) });
+    return { error: "Request failed", complete, ...props };
+  }
+}
+
+config();
+console.log("EMAIL:", process.env.EMAIL_ADDRESS);
+const fixModelName = (modelName) => {
+  if (allowedModelNames$1.has(modelName)) {
+    return modelName;
+  }
+  return "gpt4";
+};
+const getQuestionMaxLength = (modelName) => {
+  return fixModelName(modelName).startsWith("gpt3") ? 4096 : 8192;
+};
 let session;
 const login = async () => {
   session = createAxiosSession({
@@ -166,27 +227,6 @@ login();
 setInterval(() => {
   login();
 }, 7 * 24 * 60 * 60 * 1e3);
-
-async function makeRequest(modelName, question, context = "") {
-  try {
-    const result = await execQuery(modelName, question, context);
-    return { answer: result == null ? void 0 : result.answer };
-  } catch (err) {
-    return { answer: void 0 };
-  }
-}
-
-async function makeResponse(answer, complete = true, props = {}) {
-  try {
-    if (!answer) {
-      return { error: "No answer found", complete, ...props };
-    }
-    return { answer, complete, ...props };
-  } catch (err) {
-    logger.create({ type: "error.makeResponse", text: str(err) });
-    return { error: "Request failed", complete, ...props };
-  }
-}
 
 const endSuffix = "\n-END-";
 const endsWithSuffix = (text) => {

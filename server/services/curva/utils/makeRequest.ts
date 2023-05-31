@@ -1,4 +1,4 @@
-import { execQuery } from './mindsdb-web'
+// import { execQuery } from './mindsdb-web'
 import { getModel } from './mindsdb-sql'
 
 const getAnswerBySql = async (modelName: string, question: string, context = '') => {
@@ -21,15 +21,15 @@ const getAnswerBySql = async (modelName: string, question: string, context = '')
   }
 }
 
-const getAnswerByWeb = async (modelName: string, question: string, context = '') => {
-  try {
-    // @ts-ignore
-    const result = await execQuery(modelName, question, context)
-    return { answer: result?.answer }
-  } catch (err) {
-    return { answer: undefined }
-  }
-}
+// const getAnswerByWeb = async (modelName: string, question: string, context = '') => {
+//   try {
+//     // @ts-ignore
+//     const result = await execQuery(modelName, question, context)
+//     return { answer: result?.answer }
+//   } catch (err) {
+//     return { answer: undefined }
+//   }
+// }
 
 export default async function (modelName: string, question: string, context = '') {
   return await getAnswerBySql(modelName, question, context)

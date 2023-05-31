@@ -489,20 +489,31 @@ const unhead_KgADcZ0jPj = /* @__PURE__ */ defineNuxtPlugin({
     }
   }
 });
+const __nuxt_page_meta$2 = {
+  layout: "chat"
+};
 const __nuxt_page_meta$1 = {
   layout: "chat"
 };
 const __nuxt_page_meta = {
-  layout: "chat"
+  layout: "default"
 };
 const _routes = [
   {
-    name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c-conv",
-    path: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.path) ?? "/c/:conv()",
+    name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "c-conv",
+    path: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.path) ?? "/c/:conv()",
+    meta: __nuxt_page_meta$2 || {},
+    alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
+    redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
+    component: () => import('./_nuxt/_conv_-be69356a.mjs').then((m) => m.default || m)
+  },
+  {
+    name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c",
+    path: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.path) ?? "/c",
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-56ea7d0d.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-8c910b2c.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -510,7 +521,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-3b97a621.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-36aa7a16.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -518,7 +529,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-af9a1424.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-37911987.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -3852,7 +3863,7 @@ const zhTW = {
     title: "菜單",
     about: "關於",
     joinDcMessage: "加入我們的 Discord 服務器以跟進 Curva 的最新消息！",
-    webInfo1: "基本：",
+    webInfo1: "基礎：",
     webInfo2: "使用搜索引擎提供的摘要作為參考資料。",
     webInfo3: "進階：",
     webInfo4: "分析和總結網頁中的信息來回答您的問題。請注意，此選項將需要更多時間讓 Curva 進行思考。",
