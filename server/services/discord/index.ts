@@ -50,8 +50,8 @@ Here is the message: ${message}`.replaceAll('\'', '`')
 
 const chat = async (message: Message<boolean>) => {
   const { content } = message
-  const { answer } = await makeMindsDBRequest('gpt4_dc_bot', useChatTemplate(content), '', dcSequelize)
   console.log('READ:', content)
+  const { answer } = await makeMindsDBRequest('gpt4_dc_bot', useChatTemplate(content), '', dcSequelize)
   if (typeof answer !== 'string') {
     console.log('NO-ANSWER:', content)
     return
