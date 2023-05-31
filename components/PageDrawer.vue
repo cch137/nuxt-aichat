@@ -14,7 +14,7 @@
         <h3 class="flex-1 mt-0">{{ $t('settings.title') }}</h3>
         <div class="px-1">
           <el-text type="info" size="small" v-if="!versionPending">
-            v{{ versionData }}
+            v{{ versionData?.version }}
           </el-text>
         </div>
       </div>
@@ -102,7 +102,7 @@
     <h3>{{ $t('chat.chats') }}</h3>
     <div class="mt-2 border border-neutral-700 rounded">
       <div class="border-b border-neutral-700">
-        <NuxtLink id="createNewChat" :to="`/`" @click="goToChat(null)">
+        <NuxtLink id="createNewChat" to="/c/" @click="goToChat(null)">
           <el-button
             :icon="Plus"
             size="large"
@@ -146,7 +146,7 @@ import baseConverter from '~/utils/baseConverter'
 import { unmask } from '~/utils/masker'
 
 const openDrawer = useState('openDrawer', () => false)
-const version = useState('version', () => '...')
+const version = useState('version', () => '')
 const { conversations, goToChat, initPage, getCurrentConvId } = useChat()
 // @ts-ignore
 const _t = useLocale().t
@@ -157,7 +157,7 @@ const {
 } = useLazyFetch('/api/version', { method: 'POST' })
 
 watch(versionData, (newValue) => {
-  version.value = newValue
+  version.value = newValue.version
 })
 
 const viewUserId = () => {

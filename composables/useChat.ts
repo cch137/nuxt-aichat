@@ -96,7 +96,7 @@ const fetchHistory = (conv: string | null) => {
       .then((fetched) => {
         const records = fetched as Array<SavedChatMessage>
         if (records.length === 0) {
-          navigateTo('/')
+          navigateTo('/c/')
         }
         const _records = [] as Array<ChatMessage>
         context.add(...records.map((record) => {
@@ -115,18 +115,22 @@ const fetchHistory = (conv: string | null) => {
   })
 }
 
-const initPage = (conv: string | null) => {
-  const loading = ElLoading.service()
-  Promise.all([
-    conv === null ? null : checkTokenAndGetConversations(),
-    fetchHistory(conv)
-  ])
-    .finally(() => {
-      useScrollToBottom()
-      setTimeout(() => {
-        loading.close()
-      }, 500)
-    })
+const initPage = (conv: string | null, skipHistoryFetching = false) => {
+  if (!skipHistoryFetching) {
+    const loading = ElLoading.service()
+    Promise.all([
+      conv === null ? null : checkTokenAndGetConversations(),
+      fetchHistory(conv)
+    ])
+      .finally(() => {
+        useScrollToBottom()
+        if (loading !== null) {
+          setTimeout(() => {
+            loading.close()
+          }, 500)
+        }
+      })
+  }
 }
 
 const DEFAULT_TEMPERATURE = '_t05'
@@ -162,11 +166,11 @@ export default function () {
       .filter((conv) => conv.id === currentConvId)[0].name || ''
   }
   const openDrawer = useState('openDrawer', () => false)
-  const goToChat = (conv: string | null, force = false) => {
+  const goToChat = (conv: string | null, force = false, skipHistoryFetching = false) => {
     const currentConvId = getCurrentConvId()
     if (force || (currentConvId !== conv || conv === null)) {
       messages.value = []
-      initPage(conv)
+      initPage(conv, skipHistoryFetching)
     }
     openDrawer.value = false
     focusInput()

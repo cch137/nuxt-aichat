@@ -11,7 +11,7 @@
               size="large"
               :maxlength="model === 'gpt4' ? 4096 : 2048"
               :autofocus="true"
-              @keydown="keyboardSendMessage"
+              @keydown="(evt) => keyboardSendMessage(evt as KeyboardEvent)"
             />
           </div>
           <div class="InputBoxActionButtonGroup flex flex-col gap-1">
@@ -85,10 +85,10 @@ const focusInput = () => {
   (document.querySelector('.InputBox textarea') as any).focus()
 }
 
-const keyboardSendMessage = (e: KeyboardEvent) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
+const keyboardSendMessage = (evt: KeyboardEvent) => {
+  if (evt.key === 'Enter' && !evt.shiftKey) {
     sendMessage()
-    e.preventDefault()
+    evt.preventDefault()
     focusInput()
   }
 }

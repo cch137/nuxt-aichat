@@ -5,9 +5,9 @@
         <MenuIcon />
       </el-button>
     </div>
-    <div class="text-2xl font-medium">
+    <NuxtLink to="/" @click="goToChat(null, false, true)" class="text-2xl font-medium">
       {{ appName }}
-    </div>
+    </NuxtLink>
     <div class="flex-1 flex items-center justify-end gap-2">
       <ClientOnly>
         <el-dropdown v-if="getCurrentConvId()" trigger="click" placement="bottom-start">
