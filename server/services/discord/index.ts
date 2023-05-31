@@ -65,23 +65,24 @@ const chat = async (message: Message<boolean>) => {
   return reply
 }
 
-const client = new Client({
-  intents: [
-    IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildMembers,
-    IntentsBitField.Flags.GuildMessages,
-    IntentsBitField.Flags.MessageContent,
-  ]
-})
-
-client.login(process.env.DC_BOT_TOKEN)
-  .then(() => console.log('DC BOT Conneted.'))
-
-client.on('messageCreate', (message) => {
-  if (message.author.bot) {
-    return
-  }
-  chat(message)
-})
+if (+(process.env.RUN_DC_BOT as string)) {
+  const client = new Client({
+    intents: [
+      IntentsBitField.Flags.Guilds,
+      IntentsBitField.Flags.GuildMembers,
+      IntentsBitField.Flags.GuildMessages,
+      IntentsBitField.Flags.MessageContent,
+    ]
+  })
+  client.login(process.env.DC_BOT_TOKEN)
+    .then(() => console.log('DC BOT Conneted.'))
+  client.on('messageCreate', (message) => {
+    if (message.author.bot) {
+      return
+    }
+  })
+} else {
+  console.log('DC BOT closed.')
+}
 
 export default {}
