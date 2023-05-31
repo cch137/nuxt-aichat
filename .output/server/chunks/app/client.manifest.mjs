@@ -185,7 +185,7 @@ const client_manifest = {
     "dynamicImports": [
       "layouts/chat.vue",
       "layouts/default.vue",
-      "virtual:nuxt:C:/Users/cheec/Documents/GitHub/Curva/.nuxt/error-component.mjs"
+      "virtual:nuxt:C:/Users/cheec/OneDrive/Documents/GitHub/Curva/.nuxt/error-component.mjs"
     ],
     "file": "entry.06e953ff.js",
     "isEntry": true,
@@ -265,7 +265,7 @@ const client_manifest = {
     "file": "useChat.7dc6a0f8.css",
     "src": "useChat.css"
   },
-  "virtual:nuxt:C:/Users/cheec/Documents/GitHub/Curva/.nuxt/error-component.mjs": {
+  "virtual:nuxt:C:/Users/cheec/OneDrive/Documents/GitHub/Curva/.nuxt/error-component.mjs": {
     "resourceType": "script",
     "module": true,
     "dynamicImports": [
@@ -277,7 +277,7 @@ const client_manifest = {
       "node_modules/nuxt/dist/app/entry.js"
     ],
     "isDynamicEntry": true,
-    "src": "virtual:nuxt:C:/Users/cheec/Documents/GitHub/Curva/.nuxt/error-component.mjs"
+    "src": "virtual:nuxt:C:/Users/cheec/OneDrive/Documents/GitHub/Curva/.nuxt/error-component.mjs"
   }
 };
 

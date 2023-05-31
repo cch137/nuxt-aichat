@@ -517,182 +517,182 @@ const assets = {
   "/favicon.ico": {
     "type": "image/vnd.microsoft.icon",
     "etag": "\"7d26-msK/5wOlQI+ENfzUn8FM3lri6b8\"",
-    "mtime": "2023-05-16T04:27:07.194Z",
+    "mtime": "2023-05-16T03:45:14.707Z",
     "size": 32038,
     "path": "../public/favicon.ico"
   },
   "/_nuxt/chat.0e9a0d10.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"af2f-nEKeFYAl6Mtrgucy2RoPsFXBQBo\"",
-    "mtime": "2023-05-31T18:45:45.573Z",
+    "mtime": "2023-05-31T18:57:57.276Z",
     "size": 44847,
     "path": "../public/_nuxt/chat.0e9a0d10.css"
   },
   "/_nuxt/chat.d9e0a10d.js": {
     "type": "application/javascript",
     "etag": "\"31fe0-iFXORIZzSYswCzhkikDjx+2DHnE\"",
-    "mtime": "2023-05-31T18:45:45.590Z",
+    "mtime": "2023-05-31T18:57:57.288Z",
     "size": 204768,
     "path": "../public/_nuxt/chat.d9e0a10d.js"
   },
   "/_nuxt/ChatCore.4b2eb244.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"49b-iY97jHxqW36mrE74jNE5J3rTCqI\"",
-    "mtime": "2023-05-31T18:45:45.574Z",
+    "mtime": "2023-05-31T18:57:57.284Z",
     "size": 1179,
     "path": "../public/_nuxt/ChatCore.4b2eb244.css"
   },
   "/_nuxt/ChatCore.a4b4672a.js": {
     "type": "application/javascript",
     "etag": "\"a4bb-iM1fhzgRUTh5zuY4+7+9JCd/xJw\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.286Z",
     "size": 42171,
     "path": "../public/_nuxt/ChatCore.a4b4672a.js"
   },
   "/_nuxt/default.4371e704.js": {
     "type": "application/javascript",
     "etag": "\"9a-5uxYeAOhyh/UZwOzThTjI8ctHnM\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 154,
     "path": "../public/_nuxt/default.4371e704.js"
   },
   "/_nuxt/el-button.12264d10.js": {
     "type": "application/javascript",
     "etag": "\"511b-GELLvf+8RoCaCU869xk+fP3yfVU\"",
-    "mtime": "2023-05-31T18:45:45.581Z",
+    "mtime": "2023-05-31T18:57:57.288Z",
     "size": 20763,
     "path": "../public/_nuxt/el-button.12264d10.js"
   },
   "/_nuxt/el-button.2689f638.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"3d33-RzIPFKzgWgJB1bVDsB1E+qI9A3Y\"",
-    "mtime": "2023-05-31T18:45:45.575Z",
+    "mtime": "2023-05-31T18:57:57.284Z",
     "size": 15667,
     "path": "../public/_nuxt/el-button.2689f638.css"
   },
   "/_nuxt/el-input.01f6c30c.js": {
     "type": "application/javascript",
     "etag": "\"4fee-AvClq9HpYtM2bfATEtGvYGYVUds\"",
-    "mtime": "2023-05-31T18:45:45.589Z",
+    "mtime": "2023-05-31T18:57:57.287Z",
     "size": 20462,
     "path": "../public/_nuxt/el-input.01f6c30c.js"
   },
   "/_nuxt/el-input.399a025a.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"2fd4-GAWfCyEPNGCc+ABEB7VtuPpOCo4\"",
-    "mtime": "2023-05-31T18:45:45.574Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 12244,
     "path": "../public/_nuxt/el-input.399a025a.css"
   },
   "/_nuxt/entry.06e953ff.js": {
     "type": "application/javascript",
     "etag": "\"4ca56-/sh+uRTwZ8qyeetnAyqVXXf9mDk\"",
-    "mtime": "2023-05-31T18:45:45.590Z",
+    "mtime": "2023-05-31T18:57:57.288Z",
     "size": 313942,
     "path": "../public/_nuxt/entry.06e953ff.js"
   },
   "/_nuxt/entry.57e759c0.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"4f21e-OrHvOtZwMyCpDdM1kRF/YmcbrgY\"",
-    "mtime": "2023-05-31T18:45:45.557Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 324126,
     "path": "../public/_nuxt/entry.57e759c0.css"
   },
   "/_nuxt/error-404.23f2309d.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"e2e-ivsbEmi48+s9HDOqtrSdWFvddYQ\"",
-    "mtime": "2023-05-31T18:45:45.575Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 3630,
     "path": "../public/_nuxt/error-404.23f2309d.css"
   },
   "/_nuxt/error-404.d16742fa.js": {
     "type": "application/javascript",
     "etag": "\"8d5-jMjjUHMD/MkvKe+boi8RqZ0Yn/c\"",
-    "mtime": "2023-05-31T18:45:45.578Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 2261,
     "path": "../public/_nuxt/error-404.d16742fa.js"
   },
   "/_nuxt/error-500.aa16ed4d.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"79e-7j4Tsx89siDo85YoIs0XqsPWmPI\"",
-    "mtime": "2023-05-31T18:45:45.576Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 1950,
     "path": "../public/_nuxt/error-500.aa16ed4d.css"
   },
   "/_nuxt/error-500.df05a1b7.js": {
     "type": "application/javascript",
     "etag": "\"759-N2Tw8X9yuYxqbWLhXYq4vx6tt3o\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 1881,
     "path": "../public/_nuxt/error-500.df05a1b7.js"
   },
   "/_nuxt/error-component.1c363b05.js": {
     "type": "application/javascript",
     "etag": "\"478-TGo6hsDoGPHMU3V8uBDJZjt7V+k\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 1144,
     "path": "../public/_nuxt/error-component.1c363b05.js"
   },
   "/_nuxt/index.1103e95d.js": {
     "type": "application/javascript",
     "etag": "\"23f-619H9auLxJQDOSFxrFmEcTinZKQ\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 575,
     "path": "../public/_nuxt/index.1103e95d.js"
   },
   "/_nuxt/index.92375842.js": {
     "type": "application/javascript",
     "etag": "\"166-XeOHdnChlwLKKm6PkJVoFWdjm+A\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 358,
     "path": "../public/_nuxt/index.92375842.js"
   },
   "/_nuxt/nuxt-link.0234cadd.js": {
     "type": "application/javascript",
     "etag": "\"10ec-kJTBuN3ZKDohwjJWoQpclmSiWKs\"",
-    "mtime": "2023-05-31T18:45:45.575Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 4332,
     "path": "../public/_nuxt/nuxt-link.0234cadd.js"
   },
   "/_nuxt/perspective.2a33310e.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"2c58-K9HPWUhhXJZSxJWKkz1nlIL+lkQ\"",
-    "mtime": "2023-05-31T18:45:45.574Z",
+    "mtime": "2023-05-31T18:57:57.284Z",
     "size": 11352,
     "path": "../public/_nuxt/perspective.2a33310e.css"
   },
   "/_nuxt/perspective.942c1612.js": {
     "type": "application/javascript",
     "etag": "\"a1d5-bJ6eWtr6QnnNpoxwN2Ww/sAm2MQ\"",
-    "mtime": "2023-05-31T18:45:45.589Z",
+    "mtime": "2023-05-31T18:57:57.288Z",
     "size": 41429,
     "path": "../public/_nuxt/perspective.942c1612.js"
   },
   "/_nuxt/useChat.6fe3a368.js": {
     "type": "application/javascript",
     "etag": "\"1223-myTlm0vEMjA7Ol1mO5boYBPLV5Q\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 4643,
     "path": "../public/_nuxt/useChat.6fe3a368.js"
   },
   "/_nuxt/useChat.7dc6a0f8.css": {
     "type": "text/css; charset=utf-8",
     "etag": "\"3b8-ilGyRmsxar56yv5WdPXI1YlRsU4\"",
-    "mtime": "2023-05-31T18:45:45.575Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 952,
     "path": "../public/_nuxt/useChat.7dc6a0f8.css"
   },
   "/_nuxt/useTitle.29b04112.js": {
     "type": "application/javascript",
     "etag": "\"9f-68bhb/OxesrvMVxctUMAoyoJYTk\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 159,
     "path": "../public/_nuxt/useTitle.29b04112.js"
   },
   "/_nuxt/_conv_.9c7728ee.js": {
     "type": "application/javascript",
     "etag": "\"167-LZdVQRC8uts+6Qv73gcvga5yYDk\"",
-    "mtime": "2023-05-31T18:45:45.577Z",
+    "mtime": "2023-05-31T18:57:57.285Z",
     "size": 359,
     "path": "../public/_nuxt/_conv_.9c7728ee.js"
   }
@@ -792,36 +792,36 @@ const _f4b49z = eventHandler((event) => {
   return readAsset(id);
 });
 
-const _lazy_1ydGoE = () => import('../chat.post.mjs');
-const _lazy_t1gl5f = () => import('../deleteConv.delete.mjs');
-const _lazy_36o9OA = () => import('../discord.mjs');
-const _lazy_gHdcKI = () => import('../history.post.mjs');
-const _lazy_kSCyCm = () => import('../keys.mjs');
-const _lazy_QcObDY = () => import('../messages.mjs');
-const _lazy_D0mNky = () => import('../tree.mjs');
-const _lazy_4v6mKD = () => import('../renameConv.post.mjs');
-const _lazy_DkND8F = () => import('../check.post.mjs');
-const _lazy_exrXwu = () => import('../translate.mjs');
-const _lazy_EcMGl8 = () => import('../user.post.mjs');
-const _lazy_MNfkmp = () => import('../version.mjs');
-const _lazy_G40W9i = () => import('../handlers/renderer.mjs');
+const _lazy_Lu6W8s = () => import('../chat.post.mjs');
+const _lazy_fmIcJx = () => import('../deleteConv.delete.mjs');
+const _lazy_jB3LSP = () => import('../discord.mjs');
+const _lazy_xz2kUC = () => import('../history.post.mjs');
+const _lazy_SgsRvL = () => import('../keys.mjs');
+const _lazy_MEyQpG = () => import('../messages.mjs');
+const _lazy_3d4cLS = () => import('../tree.mjs');
+const _lazy_znxVZe = () => import('../renameConv.post.mjs');
+const _lazy_VOpJPC = () => import('../check.post.mjs');
+const _lazy_nNDnAg = () => import('../translate.mjs');
+const _lazy_JceUx4 = () => import('../user.post.mjs');
+const _lazy_xtJJaV = () => import('../version.mjs');
+const _lazy_afirBq = () => import('../handlers/renderer.mjs');
 
 const handlers = [
   { route: '', handler: _f4b49z, lazy: false, middleware: true, method: undefined },
-  { route: '/api/chat', handler: _lazy_1ydGoE, lazy: true, middleware: false, method: "post" },
-  { route: '/api/deleteConv', handler: _lazy_t1gl5f, lazy: true, middleware: false, method: "delete" },
-  { route: '/api/discord', handler: _lazy_36o9OA, lazy: true, middleware: false, method: undefined },
-  { route: '/api/history', handler: _lazy_gHdcKI, lazy: true, middleware: false, method: "post" },
-  { route: '/api/perspective/keys', handler: _lazy_kSCyCm, lazy: true, middleware: false, method: undefined },
-  { route: '/api/perspective/messages', handler: _lazy_QcObDY, lazy: true, middleware: false, method: undefined },
-  { route: '/api/perspective/tree', handler: _lazy_D0mNky, lazy: true, middleware: false, method: undefined },
-  { route: '/api/renameConv', handler: _lazy_4v6mKD, lazy: true, middleware: false, method: "post" },
-  { route: '/api/token/check', handler: _lazy_DkND8F, lazy: true, middleware: false, method: "post" },
-  { route: '/api/translate', handler: _lazy_exrXwu, lazy: true, middleware: false, method: undefined },
-  { route: '/api/user', handler: _lazy_EcMGl8, lazy: true, middleware: false, method: "post" },
-  { route: '/api/version', handler: _lazy_MNfkmp, lazy: true, middleware: false, method: undefined },
-  { route: '/__nuxt_error', handler: _lazy_G40W9i, lazy: true, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_G40W9i, lazy: true, middleware: false, method: undefined }
+  { route: '/api/chat', handler: _lazy_Lu6W8s, lazy: true, middleware: false, method: "post" },
+  { route: '/api/deleteConv', handler: _lazy_fmIcJx, lazy: true, middleware: false, method: "delete" },
+  { route: '/api/discord', handler: _lazy_jB3LSP, lazy: true, middleware: false, method: undefined },
+  { route: '/api/history', handler: _lazy_xz2kUC, lazy: true, middleware: false, method: "post" },
+  { route: '/api/perspective/keys', handler: _lazy_SgsRvL, lazy: true, middleware: false, method: undefined },
+  { route: '/api/perspective/messages', handler: _lazy_MEyQpG, lazy: true, middleware: false, method: undefined },
+  { route: '/api/perspective/tree', handler: _lazy_3d4cLS, lazy: true, middleware: false, method: undefined },
+  { route: '/api/renameConv', handler: _lazy_znxVZe, lazy: true, middleware: false, method: "post" },
+  { route: '/api/token/check', handler: _lazy_VOpJPC, lazy: true, middleware: false, method: "post" },
+  { route: '/api/translate', handler: _lazy_nNDnAg, lazy: true, middleware: false, method: undefined },
+  { route: '/api/user', handler: _lazy_JceUx4, lazy: true, middleware: false, method: "post" },
+  { route: '/api/version', handler: _lazy_xtJJaV, lazy: true, middleware: false, method: undefined },
+  { route: '/__nuxt_error', handler: _lazy_afirBq, lazy: true, middleware: false, method: undefined },
+  { route: '/**', handler: _lazy_afirBq, lazy: true, middleware: false, method: undefined }
 ];
 
 function createNitroApp() {
