@@ -54,7 +54,7 @@ const summarize = async (query: string, showUrl = false, translate = true) => {
     const searchQueries = [query.substring(0, 256)]
     if (translate) {
       const queryInEnglish = (await translateZh2En(query.substring(0, 5000))).text
-      searchQueries.push(extract(queryInEnglish, 16).map(w => w.keyword).join(', '))
+      searchQueries.push(queryInEnglish)
     }
     const searcheds = (await Promise.all(searchQueries.map((query) => {
       console.log('SEARCH:', query)
