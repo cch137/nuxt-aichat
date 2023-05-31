@@ -36,7 +36,7 @@ export default {
     title: '菜單',
     about: '關於',
     joinDcMessage: '加入我們的 Discord 服務器以跟進 Curva 的最新消息！',
-    webInfo1: '基本：',
+    webInfo1: '基礎：',
     webInfo2: '使用搜索引擎提供的摘要作為參考資料。',
     webInfo3: '進階：',
     webInfo4: '分析和總結網頁中的信息來回答您的問題。請注意，此選項將需要更多時間讓 Curva 進行思考。',
