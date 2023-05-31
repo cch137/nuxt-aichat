@@ -1,5 +1,5 @@
 {
-  "version": "0.1.14-dc-bot",
+  "version": "0.1.14-discord-bot",
   "name": "curva",
   "private": true,
   "scripts": {
@@ -26,6 +26,7 @@
     "cheerio": "^1.0.0-rc.12",
     "cookie": "^0.5.0",
     "crypto-js": "^4.1.1",
+    "discord.js": "^14.11.0",
     "dotenv": "^16.0.3",
     "element-plus": "^2.3.5",
     "googlethis": "^1.7.1",

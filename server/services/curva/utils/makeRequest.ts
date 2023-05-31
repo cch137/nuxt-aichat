@@ -1,10 +1,11 @@
 // import { execQuery } from './mindsdb-web'
-import { getModel } from './mindsdb-sql'
+import { getModel, defaultSequelize } from './mindsdb-sql'
 
-const getAnswerBySql = async (modelName: string, question: string, context = '') => {
+const getAnswerBySql = async (modelName: string, question: string, context = '', sequelize = defaultSequelize) => {
   try {
+    const model = getModel(modelName, sequelize)
     // @ts-ignore
-    const result = await getModel(modelName).findOne({
+    const result = await model.findOne({
       attributes: ['answer'],
       where: {
         question: question.replaceAll('\'', '`'),
@@ -16,6 +17,7 @@ const getAnswerBySql = async (modelName: string, question: string, context = '')
     }
     return { answer: result.answer as string }
   } catch (err) {
+    console.log(88, err)
     const sqlMessage = (err as any)?.original?.sqlMessage as string | undefined
     return { answer: undefined, sqlMessage }
   }
@@ -31,7 +33,7 @@ const getAnswerBySql = async (modelName: string, question: string, context = '')
 //   }
 // }
 
-export default async function (modelName: string, question: string, context = '') {
-  return await getAnswerBySql(modelName, question, context)
+export default async function (modelName: string, question: string, context = '', sequelize = defaultSequelize) {
+  return await getAnswerBySql(modelName, question, context, sequelize)
   // return await getAnswerByWeb(modelName, question, context)
 }
