@@ -80,6 +80,7 @@ if (+(process.env.RUN_DC_BOT as string)) {
     if (message.author.bot) {
       return
     }
+    chat(message)
   })
 } else {
   console.log('DC BOT closed.')
