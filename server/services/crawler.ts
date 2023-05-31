@@ -51,16 +51,17 @@ const scrape = async (url: string) => {
 
 const summarize = async (query: string, showUrl = false, translate = true) => {
   try {
-    const searchQueries = [query.substring(0, 256)]
+    query = query.replace(/[\s]+/g, ' ').trim()
+    const searchQueries = new Set([query.substring(0, 256)])
     if (translate) {
       const translateResult = await translateZh2En(query.substring(0, 5000))
       // @ts-ignore
       if (translateResult?.lang !== '英语') {
         const queryInEnglish = translateResult.text
-        searchQueries.push(queryInEnglish)
+        searchQueries.add(queryInEnglish)
       }
     }
-    const searcheds = (await Promise.all(searchQueries.map((query) => {
+    const searcheds = (await Promise.all([...searchQueries].map((query) => {
       console.log('SEARCH:', query)
       return googlethis.search(query)
     })))

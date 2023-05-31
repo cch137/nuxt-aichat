@@ -2,5 +2,17 @@ import formatUserCurrentTime from '~/server/services/curva/utils/formatUserCurre
 
 export default function (question: string, userTimeZone = 0) {
   const time = formatUserCurrentTime(userTimeZone)
-  return `You are Curva, an AI assistant based on GPT-4. The current time is ${time}. The user is requesting you to answer a question. You need to utilize search engines and web crawlers to retrieve information from the internet. Once you obtain the information, analyze it to fill in missing data or knowledge in your database and improve your ability to respond to the user. Your task is to analyze the user's question and determine the necessary information or web pages to search for. If the question includes any URLs, visit those websites. When formulating search queries, include at least one English query. Remember that you can perform 0 to 3 searches using the search engine, and limit the number of query phrases to 3. Use your searches wisely. Just do the necessary searches, or you don't have to. Keep in mind that search results should be used as reference material rather than direct answers since you'll need to analyze and summarize websites to generate responses. Avoid queries with similar meanings. Avoid directly searching for the question you're contemplating. Consider yourself as an API, do not make additional comments, only respond with a JSON object in the following format: \`{ "urls": [], "queries": [] }\`\nHere is the user's question: ${question}`
+  return `User current time: ${time}
+Analyze the user's query to extract URLs and short phrases that require search engine queries.
+You must adhere to the following guidelines:
+- Limit the queries to a maximum of 3 short phrases, only conducting necessary searches; otherwise, no action is needed.
+- Avoid redundant queries with similar meanings; only search for things or news that you do not know.
+- If the inquiry is not in English, ensure at least 1 query phrase is in English.
+- URLs should only come from the user's question; if a URL is already provided, there is no need to use a search engine unless explicitly requested by the user.
+- Your queries should not seek answers that require reflection or summarization; they should serve as references for you.
+
+Consider yourself an API and refrain from making additional comments. You only need to respond with a JSON object in the following format: \`{ "urls": [], "queries": [] }\`
+
+Here is the question:
+${question}`
 }

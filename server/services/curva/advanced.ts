@@ -33,6 +33,10 @@ const gpt4ScrapeAndSummary = async (question: string, url: string, userTimeZone 
   }
 }
 
+const addtionalRules = `- Use references where possible and answer in detail.
+- Ensure the overall coherence and consistency of the responses.
+- Ensure that the release time of news is relevant to the responses, avoiding outdated information.`
+
 export default async function (question: string, context = '', userTimeZone = 0) {
   try {
     let i = 0
@@ -64,9 +68,8 @@ export default async function (question: string, context = '', userTimeZone = 0)
           })
       }
     })
-    const _role = 'Please use references whenever possible to provide users with valuable answers. Please answer with as much detail as possible. You must organize your language to ensure the coherence and logic of your responses. '
     const _references = `Here are references from the internet:\n${references.join('\n')}`
-    const finalQuestion = useDefaultTemplate(question, userTimeZone, _role, _references).substring(0, 16384)
+    const finalQuestion = useDefaultTemplate(question, userTimeZone, addtionalRules, _references).substring(0, 16384)
     logger.create({ type: 'advanced.final', refer: question, text: str(finalQuestion) })
     return { queries, urls, ...(await makeRequest('gpt4', finalQuestion, context)) }
   } catch (err) {
