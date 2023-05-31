@@ -74,5 +74,30 @@ const getModel = (modelName, sequelize = defaultSequelize) => {
 };
 allowedModelNames$1.forEach((modelName) => createModel(modelName));
 
-export { allowedModelNames$1 as a, createModel as b, createClient as c, defaultSequelize as d, getModel as g };
-//# sourceMappingURL=mindsdb-sql.mjs.map
+const getAnswerBySql = async (modelName, question, context = "", sequelize = defaultSequelize) => {
+  var _a;
+  try {
+    const model = getModel(modelName, sequelize);
+    const result = await model.findOne({
+      attributes: ["answer"],
+      where: {
+        question: question.replaceAll("'", "`"),
+        context: context.replaceAll("'", "`")
+      }
+    });
+    if (result === null) {
+      throw Error("No Answer Found");
+    }
+    return { answer: result.answer };
+  } catch (err) {
+    console.log(88, err);
+    const sqlMessage = (_a = err == null ? void 0 : err.original) == null ? void 0 : _a.sqlMessage;
+    return { answer: void 0, sqlMessage };
+  }
+};
+async function makeMindsDBRequest(modelName, question, context = "", sequelize = defaultSequelize) {
+  return await getAnswerBySql(modelName, question, context, sequelize);
+}
+
+export { allowedModelNames$1 as a, createModel as b, createClient as c, makeMindsDBRequest as m };
+//# sourceMappingURL=makeRequest.mjs.map
