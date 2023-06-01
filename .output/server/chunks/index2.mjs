@@ -141,7 +141,7 @@ const connect = async () => {
   });
   return loggedIn;
 };
-if (+process.env.RUN_DC_BOT || true) {
+if (+process.env.RUN_DC_BOT) {
   connect();
 }
 const disconnect = () => {

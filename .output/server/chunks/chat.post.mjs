@@ -360,7 +360,7 @@ ${references.join("\n")}`;
 }
 
 function extractUrls(text) {
-  const urlRegex = /((?:(?:https?|ftp):\/\/)?(?:www\.)?[^\s/$.?#]+\.[^\s]+)/g;
+  const urlRegex = /((?:(?:https?|ftp):\/\/)?(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g;
   const matches = text.match(urlRegex);
   if (matches) {
     return matches.map((url) => {
