@@ -43,16 +43,11 @@
                       <strong>{{ $t('menu.webInfo1') }}</strong>
                       <span>{{ $t('menu.webInfo2') }}</span>
                     </div>
-                    <el-divider style="margin: .5rem 0;" />
+                    <el-divider style="margin: .25rem 0;" />
                     <div>
                       <strong>{{ $t('menu.webInfo3') }}</strong>
                       <span>{{ $t('menu.webInfo4') }}</span>
                       <el-text type="warning">{{ $t('menu.expFeat') }}</el-text>
-                    </div>
-                    <el-divider style="margin: .5rem 0;" />
-                    <div>
-                      <strong>{{ $t('menu.webInfo5') }}</strong>
-                      <span>{{ $t('menu.webInfo6') }}</span>
                     </div>
                   </div>
                 </template>

@@ -23,7 +23,6 @@ const gpt4ScrapeAndSummary = async (question: string, url: string, userTimeZone 
             userTimeZone
           )
         ))?.answer || ''
-        logger.create({ type: 'advanced.summary', refer: `${question} ${url}`, text: str(answer) })
         resolve(answer)
       }, delay)
     })
@@ -70,7 +69,6 @@ export default async function (question: string, context = '', userTimeZone = 0)
     })
     const _references = `Here are references from the internet:\n${references.join('\n')}`
     const finalQuestion = useDefaultTemplate(question, userTimeZone, addtionalRules, _references).substring(0, 16384)
-    logger.create({ type: 'advanced.final', refer: question, text: str(finalQuestion) })
     return { queries, urls, ...(await makeRequest('gpt4', finalQuestion, context)) }
   } catch (err) {
     logger.create({ type: 'error.advanced', text: str(err) })

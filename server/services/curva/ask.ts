@@ -6,6 +6,7 @@ import { getQuestionMaxLength } from './utils/mindsdb-web'
 import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
 import useDefaultTemplate from './templates/default'
 import advancedAsk from './advanced'
+import extractUrls from '~/utils/extractURLs'
 
 const _wrapSearchResult = (result: string) => {
   return result
@@ -37,7 +38,16 @@ async function ask (
   }
   if (webBrowsing === 'BASIC' || webBrowsing === 'OFF') {
     if (webBrowsing === 'BASIC') {
-      question = useDefaultTemplate(question, userTimeZone, '', _wrapSearchResult(await crawler.summarize(question)))
+      const urls = extractUrls(question)
+      if (urls.length === 0) {
+        question = useDefaultTemplate(question, userTimeZone, '', _wrapSearchResult(await crawler.summarize(question)))
+      } else {
+        const pages = await Promise.all(urls.map((url) => crawler.scrape(url)))
+        for (let i = 0; i < urls.length; i++) {
+          pages[i] = `${urls[i]}\n${pages[i]}`
+        }
+        question = useDefaultTemplate(question, userTimeZone, '', 'Here are the webpages:\n' + pages.join('\n\n---\n\n'))
+      }
     } else {
       useDefaultTemplate(question, userTimeZone)
     }
