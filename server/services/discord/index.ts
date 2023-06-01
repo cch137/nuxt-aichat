@@ -163,7 +163,7 @@ const connect = async () => {
   return loggedIn
 }
 
-if (+(process.env.RUN_DC_BOT as string) || true) {
+if (+(process.env.RUN_DC_BOT as string)) {
   connect()
 }
 
