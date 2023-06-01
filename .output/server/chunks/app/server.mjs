@@ -489,6 +489,9 @@ const unhead_KgADcZ0jPj = /* @__PURE__ */ defineNuxtPlugin({
     }
   }
 });
+const __nuxt_page_meta$3 = {
+  layout: "default"
+};
 const __nuxt_page_meta$2 = {
   layout: "chat"
 };
@@ -499,6 +502,14 @@ const __nuxt_page_meta = {
   layout: "default"
 };
 const _routes = [
+  {
+    name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "admin-dc-bot",
+    path: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.path) ?? "/admin/dc-bot",
+    meta: __nuxt_page_meta$3 || {},
+    alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
+    redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
+    component: () => import('./_nuxt/dc-bot-848b0f7b.mjs').then((m) => m.default || m)
+  },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "c-conv",
     path: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.path) ?? "/c/:conv()",
@@ -529,7 +540,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-37911987.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-bf0656e3.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -3790,12 +3801,10 @@ const en = {
     about: "About",
     joinDcMessage: "Join our Discord server to keep up with the latest news from Curva!",
     webInfo1: "Basic: ",
-    webInfo2: "Use summaries provided by search engines as reference materials.",
+    webInfo2: "Allow extracting URLs from the question or directly use a search engine to query the question.",
     webInfo3: "Advanced: ",
-    webInfo4: "Analyze and summarize information from web pages to answer your question. Please note that this option will require more time for Curva to process and provide an answer. ",
-    webInfo5: "Tip: ",
-    webInfo6: "If you want Curva to visit the URLs you provide, select the `Advanced` option.",
-    expFeat: "This is an experimental feature.",
+    webInfo4: "Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ",
+    expFeat: "This will take longer.",
     tempInfo: "With higher values increasing randomness and diversity, while lower values decrease randomness and make the output more predictable."
   },
   settings: {
@@ -3864,12 +3873,10 @@ const zhTW = {
     about: "關於",
     joinDcMessage: "加入我們的 Discord 服務器以跟進 Curva 的最新消息！",
     webInfo1: "基礎：",
-    webInfo2: "使用搜索引擎提供的摘要作為參考資料。",
+    webInfo2: "允許提取提問中的 URL 或直接使用搜索引擎查詢提問。",
     webInfo3: "進階：",
-    webInfo4: "分析和總結網頁中的信息來回答您的問題。請注意，此選項將需要更多時間讓 Curva 進行思考。",
-    webInfo5: "提示：",
-    webInfo6: "如果您希望 Curva 訪問您提供的 URL，請選擇“進階”選項。",
-    expFeat: "這是一項實驗性功能。",
+    webInfo4: "允許提取提問中的 URL，由 AI 決定需要查詢的資料，在總結數個網頁後給出結論。",
+    expFeat: "這需要更久。",
     tempInfo: "較高的值會增加隨機性和多樣性，而較低的值會降低隨機性並使輸出更具可預測性。"
   },
   settings: {
