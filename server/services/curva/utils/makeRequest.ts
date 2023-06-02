@@ -1,6 +1,10 @@
 // import { execQuery } from './mindsdb-web'
 import { getModel, defaultSequelize } from './mindsdb-sql'
 
+const sanitizeAnswer = (answer = '') => {
+  return answer?.replaceAll('�', '')
+}
+
 const getAnswerBySql = async (modelName: string, question: string, context = '', sequelize = defaultSequelize) => {
   try {
     const model = getModel(modelName, sequelize)
@@ -15,9 +19,8 @@ const getAnswerBySql = async (modelName: string, question: string, context = '',
     if (result === null) {
       throw Error('No Answer Found')
     }
-    return { answer: result.answer as string }
+    return { answer: sanitizeAnswer(result.answer) }
   } catch (err) {
-    console.log(88, err)
     const sqlMessage = (err as any)?.original?.sqlMessage as string | undefined
     return { answer: undefined, sqlMessage }
   }

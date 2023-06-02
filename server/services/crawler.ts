@@ -1,12 +1,12 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
+import TurndownService from 'turndown'
+// @ts-ignore
+import { gfm } from '@joplin/turndown-plugin-gfm'
 import { load as cheerioLoad } from 'cheerio'
 import googlethis from 'googlethis'
-import { load, extract } from '@node-rs/jieba'
 import { translateZh2En } from '~/server/services/sogouTranslate'
 import { log as logger } from '~/server/services/mongoose/index'
 import str from '~/utils/str'
-
-load()
 
 const trimText = (text: string) => {
   return text.split('\n')
@@ -28,29 +28,45 @@ const scrape = async (url: string) => {
       'Accept-Language': 'en-US,en;q=0.9',
     }
     const res = await axios.get(url, { headers, timeout: 10000 })
-    console.log('SCRAPE:', url)
-    if (typeof res.data === 'string') {
-      const $ = cheerioLoad(str(res.data))
-      const title = $('title').text()
-        || $('meta[name="title"]').attr()?.content
-        || $('meta[name="og:title"]').attr()?.content
-      const description = $('meta[name="description"]').attr()?.content
-        || $('meta[name="og:description"]').attr()?.content
-        return (title ? `title: ${title}\n` : '') +
-          (description ? `description: ${description}\n` : '') +
-          '---' + trimText($('body').prop('innerText') as string)
-    } else {
-      throw 'Page is not string'
+    const resContentType = str(res.headers['Content-Type'] || '')
+    if (resContentType.startsWith('image')) {
+      throw 'This is an image'
+    } else if (resContentType.startsWith('video')) {
+      throw 'This is a video'
+    } else if (resContentType.startsWith('audio')) {
+      throw 'This is a audio'
     }
+    if (typeof res.data !== 'string') {
+      res.data = JSON.stringify(res.data)
+    }
+    const $ = cheerioLoad(res.data)
+    $('style').remove()
+    $('script').remove()
+    $('a').replaceWith(function () {
+      return $('<span>').text($(this).prop('innerText') || $(this).text())
+    })
+    const td = new TurndownService()
+    td.use(gfm)
+    const markdown = td.turndown($('body').prop('innerHTML') as string).replaceAll('<br>', ' ')
+    const title = $('title').text()
+      || $('meta[name="title"]').attr()?.content
+      || $('meta[name="og:title"]').attr()?.content
+    const description = $('meta[name="description"]').attr()?.content
+      || $('meta[name="og:description"]').attr()?.content
+    return (title ? `title: ${title}\n` : '') +
+      (description ? `description: ${description.substring(0, 256)}\n` : '') +
+      '---\n' + trimText(markdown)
   } catch (err) {
-    console.log('SCRAPE FAILED:', url)
+    if (err instanceof Error) {
+      err = `${err.name}: ${err.message}`
+    } else if (typeof err !== 'string') {
+      err = 'Error: Unkonwn Error'
+    }
+    console.log(`SCRAPE FAILED (${err}): ${url}`)
     logger.create({ type: 'error.crawler.scrape', refer: url, text: str(err) })
-    return 'Error: Page fetch failed'
+    return err
   }
 }
-
-scrape('https://curva.onrender.com/c/')
-  .then((x) => console.log(x))
 
 const summarize = async (query: string, showUrl = false, translate = true) => {
   try {

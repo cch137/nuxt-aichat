@@ -55,8 +55,8 @@ new Promise((resolve, reject) => {
     's': sCode
   }).then(res => {
     const { data={} } = res.data
-    if (!data) return reject('no content')
-    if (!data?.sentencesData) return reject('no content')
+    if (!data) throw 'no content'
+    if (!data?.sentencesData) throw 'no content'
     const ts = Date.now()
     const apiResponse: any = {
       timeUsed: ts - t0,

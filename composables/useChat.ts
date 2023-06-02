@@ -144,6 +144,11 @@ export default function () {
   if (allowedWebBrowsingModes.includes(previousWebBrowsingMode)) {
     webBrowsingMode.value = previousWebBrowsingMode as string
   }
+  const previousTemperatureSuffix = cookie.get(temperatureSuffixCookieName) || ''
+  if (/_t(?:0[0-9]|10)/.test(previousTemperatureSuffix)) {
+    // @ts-ignore
+    temperatureSuffix.value = previousTemperatureSuffix
+  }
   watch(webBrowsingMode, (newValue) => {
     if (typeof newValue === 'string') {
       cookie.set(webBrowsingCookieName, newValue, {

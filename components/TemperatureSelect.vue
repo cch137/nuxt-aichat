@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-const temperature = ref(0.5)
 const { temperatureSuffix } = useChat()
-const handleChange = (value: number) => {
+const temperature = ref(+temperatureSuffix.value.substring(2) / 10)
+const handleChange = (value = 0.5) => {
   const temp = Math.round(value * 10) / 10
   temperature.value = temp
   // @ts-ignore
