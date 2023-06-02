@@ -3,10 +3,10 @@ export default function extractUrls(text: string) {
   const matches = text.match(urlRegex)
   if (matches) {
     return matches.map((url) => {
-      if (!/^(?:f|ht)tps?:\/\//i.test(url)) {
-        url = 'http://' + url
+      if (/^https?:\/\//i.test(url)) {
+        return url
       }
-      return url
+      return `http://${url}`
     })
   } else {
     return []
