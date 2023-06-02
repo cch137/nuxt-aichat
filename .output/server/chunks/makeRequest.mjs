@@ -74,6 +74,9 @@ const getModel = (modelName, sequelize = defaultSequelize) => {
 };
 allowedModelNames$1.forEach((modelName) => createModel(modelName));
 
+const sanitizeAnswer = (answer = "") => {
+  return answer == null ? void 0 : answer.replaceAll("\uFFFD", "");
+};
 const getAnswerBySql = async (modelName, question, context = "", sequelize = defaultSequelize) => {
   var _a;
   try {
@@ -88,9 +91,8 @@ const getAnswerBySql = async (modelName, question, context = "", sequelize = def
     if (result === null) {
       throw Error("No Answer Found");
     }
-    return { answer: result.answer };
+    return { answer: sanitizeAnswer(result.answer) };
   } catch (err) {
-    console.log(88, err);
     const sqlMessage = (_a = err == null ? void 0 : err.original) == null ? void 0 : _a.sqlMessage;
     return { answer: void 0, sqlMessage };
   }

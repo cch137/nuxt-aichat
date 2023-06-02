@@ -72,9 +72,9 @@ const translate = (text, from = "en", to = "zh-CHS", rawData = false, retry = 0)
   }).then((res) => {
     const { data = {} } = res.data;
     if (!data)
-      return reject("no content");
+      throw "no content";
     if (!(data == null ? void 0 : data.sentencesData))
-      return reject("no content");
+      throw "no content";
     const ts = Date.now();
     const apiResponse = {
       timeUsed: ts - t0,

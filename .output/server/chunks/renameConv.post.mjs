@@ -1,12 +1,14 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
-import { m as message } from './index.mjs';
+import './index.mjs';
+import { m as message } from './message.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import 'mongoose';
+import './str.mjs';
 import 'dotenv';
+import 'mongoose';
 
 const renameConv_post = defineEventHandler(async (event) => {
   var _a, _b, _c;

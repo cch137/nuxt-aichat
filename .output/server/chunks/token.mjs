@@ -1,17 +1,6 @@
 import sha3 from 'crypto-js/sha3.js';
 import md5 from 'crypto-js/md5.js';
-
-const str = (obj) => {
-  if ((obj == null ? void 0 : obj.toString) === void 0) {
-    return "";
-  } else {
-    return obj.toString();
-  }
-};
-const lower = (o) => {
-  return str(o).toLowerCase();
-};
-const str$1 = str;
+import { l as lower, s as str } from './str.mjs';
 
 function isIterable(obj) {
   try {
@@ -71,7 +60,7 @@ const getCharset$1 = (radix) => {
 };
 const convert$1 = (value, fromCharset, toCharset, minLen = 0) => {
   if (typeof value !== "string") {
-    value = str$1(value);
+    value = str(value);
   }
   let decimalValue = 0;
   if (+fromCharset === 10) {
@@ -392,7 +381,7 @@ function e(input, maskLevel = 1, seed) {
   if (typeof input === "object") {
     input = safeStringify(input);
   } else if (typeof input !== "string") {
-    input = str$1(input);
+    input = str(input);
   }
   return mask(secureBase64(textToBase64(input)), 64, maskLevel, seed);
 }
@@ -439,5 +428,5 @@ function read(token) {
   return null;
 }
 
-export { random$1 as a, generate as g, mask as m, pack as p, read as r, str$1 as s, troll$1 as t };
+export { random$1 as a, generate as g, mask as m, pack as p, read as r, troll$1 as t };
 //# sourceMappingURL=token.mjs.map

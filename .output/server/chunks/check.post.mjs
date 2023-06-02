@@ -2,12 +2,14 @@ import { defineEventHandler } from 'h3';
 import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
 import { r as read, p as pack, a as random, g as generate } from './token.mjs';
-import { m as message } from './index.mjs';
+import './index.mjs';
+import { m as message } from './message.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import 'mongoose';
+import './str.mjs';
 import 'dotenv';
+import 'mongoose';
 
 const check_post = defineEventHandler(async (event) => {
   var _a;

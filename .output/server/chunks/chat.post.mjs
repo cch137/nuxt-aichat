@@ -1,100 +1,24 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { v as version } from './server.mjs';
-import { m as message } from './index.mjs';
-import { s as str$1, t as troll, r as read } from './token.mjs';
-import axios from 'axios';
-import { load as load$1 } from 'cheerio';
-import googlethis from 'googlethis';
-import { load } from '@node-rs/jieba';
-import { t as translateZh2En, c as createAxiosSession } from './sogouTranslate.mjs';
-import { model, Schema } from 'mongoose';
+import './index.mjs';
+import { t as troll, r as read } from './token.mjs';
+import { l as logger, c as crawler } from './crawler.mjs';
+import { m as message } from './message.mjs';
 import { a as allowedModelNames, m as makeMindsDBRequest } from './makeRequest.mjs';
 import { config } from 'dotenv';
+import { c as createAxiosSession } from './sogouTranslate.mjs';
+import { s as str$1 } from './str.mjs';
 import { g as getIp } from './getIp.mjs';
+import 'mongoose';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
+import 'axios';
+import 'turndown';
+import '@joplin/turndown-plugin-gfm';
+import 'cheerio';
+import 'googlethis';
 import 'sequelize';
-
-const logger = model("Log", new Schema({
-  type: { type: String, required: true },
-  refer: { type: String },
-  text: { type: String, required: true }
-}, {
-  versionKey: false
-}), "logs");
-
-load();
-const trimText = (text) => {
-  return text.split("\n").map((ln) => ln.replace(/[\s]+/g, " ").trim()).filter((ln) => ln).join("\n");
-};
-const scrape = async (url) => {
-  try {
-    if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-      url = `http://${url}`;
-    }
-    const origin = new URL(url).origin;
-    const headers = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50",
-      "Referer": origin,
-      "Origin": origin,
-      "Accept-Language": "en-US,en;q=0.9"
-    };
-    const res = await axios.get(url, { headers, timeout: 1e4 });
-    console.log("SCRAPE:", url);
-    if (typeof res.data === "string") {
-      const $ = load$1(str$1(res.data));
-      const title = $("title").text() || $('meta[name="title"]').attr("content") || $('meta[name="og:title"]').attr("content");
-      const description = $('meta[name="description"]').attr("content") || $('meta[name="og:description"]').attr("content");
-      return title ? `title: ${title}
-` : "" + description ? `description: ${description}
-` : "" + trimText($("body").prop("innerText"));
-    } else {
-      throw "Page is not string";
-    }
-  } catch (err) {
-    console.log("SCRAPE FAILED:", url);
-    logger.create({ type: "error.crawler.scrape", refer: url, text: str$1(err) });
-    return "Error: Page fetch failed";
-  }
-};
-const summarize = async (query, showUrl = false, translate = true) => {
-  try {
-    query = query.replace(/[\s]+/g, " ").trim();
-    const searchQueries = /* @__PURE__ */ new Set([query.substring(0, 256)]);
-    if (translate) {
-      const translateResult = await translateZh2En(query.substring(0, 5e3));
-      if ((translateResult == null ? void 0 : translateResult.lang) !== "\u82F1\u8BED") {
-        const queryInEnglish = translateResult.text;
-        searchQueries.add(queryInEnglish);
-      }
-    }
-    const searcheds = await Promise.all([...searchQueries].map((query2) => {
-      console.log("SEARCH:", query2);
-      return googlethis.search(query2);
-    }));
-    const results = [];
-    for (const searched of searcheds) {
-      results.push(...searched.results);
-      results.push(...searched.top_stories);
-    }
-    const summarize2 = [
-      ...new Set(results.map((r) => `${showUrl ? decodeURIComponent(r.url) + "\n" : ""}${r.title ? "# " + r.title : ""}
-${r.description}`))
-    ].join("\n\n");
-    return summarize2;
-  } catch (err) {
-    err = str$1(err);
-    console.log("SUMMARIZE FAILED:", err);
-    logger.create({ type: "error.crawler.summarize", text: err });
-    return "";
-  }
-};
-const crawler = {
-  scrape,
-  summarize
-};
-const crawler$1 = crawler;
 
 function saveMessage(user, conv, Q, A, model) {
   return message.create({ user, conv, model, Q, A });
@@ -305,7 +229,7 @@ const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0, delay = 0) 
           "gpt4_summarizer",
           useExtractPage(
             question,
-            (await crawler$1.scrape(url)).substring(0, 16384),
+            (await crawler.scrape(url)).substring(0, 16384),
             userTimeZone
           )
         )) == null ? void 0 : _a.answer) || "";
@@ -330,7 +254,7 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
     const { urls: _urls, queries } = JSON.parse(answer1Json);
     const urls = makeSureUrlsStartsWithHttp(_urls);
     const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
-    const summary = (await Promise.all(queries.map((query) => crawler$1.summarize(query, true, false)))).join("\n\n");
+    const summary = (await Promise.all(queries.map((query) => crawler.summarize(query, true, false)))).join("\n\n");
     const question2 = useSelectSites(question, summary, userTimeZone);
     const answer2 = (_b = await makeMindsDBRequest("gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
     const answer2Json = answer2.substring(answer2.indexOf("["), answer2.lastIndexOf("]") + 1);
@@ -397,9 +321,9 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
     if (webBrowsing === "BASIC") {
       const urls = extractUrls(question);
       if (urls.length === 0) {
-        question = useDefaultTemplate(question, userTimeZone, "", _wrapSearchResult(await crawler$1.summarize(question)));
+        question = useDefaultTemplate(question, userTimeZone, "", _wrapSearchResult(await crawler.summarize(question)));
       } else {
-        const pages = await Promise.all(urls.map((url) => crawler$1.scrape(url)));
+        const pages = await Promise.all(urls.map((url) => crawler.scrape(url)));
         for (let i = 0; i < urls.length; i++) {
           pages[i] = `${urls[i]}
 ${pages[i]}`;

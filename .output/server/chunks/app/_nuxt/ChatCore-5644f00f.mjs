@@ -511,6 +511,10 @@ function useChat() {
   if (allowedWebBrowsingModes.includes(previousWebBrowsingMode)) {
     webBrowsingMode.value = previousWebBrowsingMode;
   }
+  const previousTemperatureSuffix = cookie.get(temperatureSuffix$1) || "";
+  if (/_t(?:0[0-9]|10)/.test(previousTemperatureSuffix)) {
+    temperatureSuffix.value = previousTemperatureSuffix;
+  }
   watch(webBrowsingMode, (newValue) => {
     if (typeof newValue === "string") {
       cookie.set(webBrowsing, newValue, {
@@ -585,4 +589,4 @@ _sfc_main.setup = (props, ctx) => {
 const __nuxt_component_0 = _sfc_main;
 
 export { __nuxt_component_0 as _ };
-//# sourceMappingURL=ChatCore-614fd3a1.mjs.map
+//# sourceMappingURL=ChatCore-5644f00f.mjs.map
