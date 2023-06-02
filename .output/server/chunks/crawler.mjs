@@ -3,7 +3,7 @@ import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
 import googlethis from 'googlethis';
-import { t as translateZh2En } from './sogouTranslate.mjs';
+import { t as translate } from './sogouTranslate.mjs';
 import './index.mjs';
 import { s as str } from './str.mjs';
 import { model, Schema } from 'mongoose';
@@ -69,12 +69,12 @@ const scrape = async (url) => {
     return err;
   }
 };
-const summarize = async (query, showUrl = false, translate = true) => {
+const summarize = async (query, showUrl = false, translate$1 = true) => {
   try {
     query = query.replace(/[\s]+/g, " ").trim();
     const searchQueries = /* @__PURE__ */ new Set([query.substring(0, 256)]);
-    if (translate) {
-      const translateResult = await translateZh2En(query.substring(0, 5e3));
+    if (translate$1) {
+      const translateResult = await translate(query.substring(0, 5e3));
       if ((translateResult == null ? void 0 : translateResult.lang) !== "\u82F1\u8BED") {
         const queryInEnglish = translateResult.text;
         searchQueries.add(queryInEnglish);

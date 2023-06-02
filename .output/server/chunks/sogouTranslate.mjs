@@ -56,7 +56,7 @@ const init = () => new Promise((resolve, reject) => {
     resolve(true);
   }).catch((e) => reject(e));
 });
-const translate = (text, from = "en", to = "zh-CHS", rawData = false, retry = 0) => new Promise((resolve, reject) => {
+const translate = (text, from = "auto", to = "en", rawData = false, retry = 0) => new Promise((resolve, reject) => {
   if (!text)
     return resolve({ text });
   const t0 = Date.now();
@@ -72,9 +72,9 @@ const translate = (text, from = "en", to = "zh-CHS", rawData = false, retry = 0)
   }).then((res) => {
     const { data = {} } = res.data;
     if (!data)
-      throw "no content";
+      return reject("no content");
     if (!(data == null ? void 0 : data.sentencesData))
-      throw "no content";
+      return reject("no content");
     const ts = Date.now();
     const apiResponse = {
       timeUsed: ts - t0,
@@ -110,5 +110,5 @@ const translateZh2En = async (text) => {
   }
 };
 
-export { createAxiosSession as c, translateZh2En as t };
+export { translateZh2En as a, createAxiosSession as c, translate as t };
 //# sourceMappingURL=sogouTranslate.mjs.map

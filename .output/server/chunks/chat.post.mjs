@@ -284,14 +284,14 @@ ${references.join("\n")}`;
 }
 
 function extractUrls(text) {
-  const urlRegex = /((?:(?:https?|ftp):\/\/)?(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g;
+  const urlRegex = /((?:https?:\/\/)(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g;
   const matches = text.match(urlRegex);
   if (matches) {
     return matches.map((url) => {
-      if (!/^(?:f|ht)tps?:\/\//i.test(url)) {
-        url = "http://" + url;
+      if (/^https?:\/\//i.test(url)) {
+        return url;
       }
-      return url;
+      return `http://${url}`;
     });
   } else {
     return [];

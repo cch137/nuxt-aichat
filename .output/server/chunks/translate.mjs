@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3';
-import { t as translateZh2En } from './sogouTranslate.mjs';
+import { a as translateZh2En } from './sogouTranslate.mjs';
 import qs from 'qs';
 import 'crypto-js/md5.js';
 import 'axios';
