@@ -1,10 +1,10 @@
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import TurndownService from 'turndown'
 // @ts-ignore
 import { gfm } from '@joplin/turndown-plugin-gfm'
 import { load as cheerioLoad } from 'cheerio'
 import googlethis from 'googlethis'
-import { translateZh2En } from '~/server/services/sogouTranslate'
+import { translate as translateToEnglish } from '~/server/services/sogouTranslate'
 import { log as logger } from '~/server/services/mongoose/index'
 import str from '~/utils/str'
 
@@ -73,7 +73,7 @@ const summarize = async (query: string, showUrl = false, translate = true) => {
     query = query.replace(/[\s]+/g, ' ').trim()
     const searchQueries = new Set([query.substring(0, 256)])
     if (translate) {
-      const translateResult = await translateZh2En(query.substring(0, 5000))
+      const translateResult = await translateToEnglish(query.substring(0, 5000))
       // @ts-ignore
       if (translateResult?.lang !== '英语') {
         const queryInEnglish = translateResult.text

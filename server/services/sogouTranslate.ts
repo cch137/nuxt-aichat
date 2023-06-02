@@ -33,7 +33,7 @@ const init = () => new Promise((resolve, reject) => {
   }).catch(e => reject(e))
 })
 
-const translate = (text: string, from='en', to='zh-CHS', rawData=false, retry=0): Promise<{
+const translate = (text: string, from='auto', to='en', rawData=false, retry=0): Promise<{
   timeUsed: number,
   timestamp: number,
   lang: string,
@@ -55,8 +55,8 @@ new Promise((resolve, reject) => {
     's': sCode
   }).then(res => {
     const { data={} } = res.data
-    if (!data) throw 'no content'
-    if (!data?.sentencesData) throw 'no content'
+    if (!data) return reject('no content')
+    if (!data?.sentencesData) return reject('no content')
     const ts = Date.now()
     const apiResponse: any = {
       timeUsed: ts - t0,
@@ -84,9 +84,10 @@ new Promise((resolve, reject) => {
   })
 })
 
-init().catch(err => {
-  console.error(`${apiName} API connection failed.`, err)
-})
+init()
+  .catch(err => {
+    console.error(`${apiName} API connection failed.`, err)
+  })
 
 const translateZh2En = async (text: string) => {
   try {

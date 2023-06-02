@@ -1,5 +1,5 @@
 export default function extractUrls(text: string) {
-  const urlRegex = /((?:(?:https?|ftp):\/\/)?(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g
+  const urlRegex = /((?:https?:\/\/)(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g
   const matches = text.match(urlRegex)
   if (matches) {
     return matches.map((url) => {
