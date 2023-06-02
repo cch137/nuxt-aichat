@@ -110,7 +110,6 @@ const reviewChat = async (message: Message<boolean>) => {
     return
   }
   Logger.typing()
-  console.log(content)
   if (content.includes(`<@${userId}>`) || content.includes(`<@${roleId}>`)) {
     message.channel.sendTyping()
   }
