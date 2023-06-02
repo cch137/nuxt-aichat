@@ -5,132 +5,123 @@
     direction="ltr"
     style="min-width: 320px; max-width: 100vw;"
   >
-    <!-- <h3 class="mt-0">{{ $t('menu.about') }}</h3>
     <div>
-      <el-text>{{ $t('menu.joinDcMessage') }}</el-text>
-    </div> -->
-    <el-form class="py-4" @submit.prevent>
-      <div class="flex justify-stretch">
-        <h3 class="flex-1 mt-0">{{ $t('settings.title') }}</h3>
-        <div class="px-1">
-          <el-text type="info" size="small" v-if="!versionPending">
-            v{{ versionData?.version }}
-          </el-text>
+      <el-form class="py-4" @submit.prevent>
+        <div class="flex justify-stretch">
+          <h3 class="flex-1 mt-0">{{ $t('settings.title') }}</h3>
+          <div class="px-1">
+            <el-text type="info" size="small" v-if="!versionPending">
+              v{{ versionData?.version }}
+            </el-text>
+          </div>
         </div>
-      </div>
-      <div class="flex flex-col gap-1">
-        <div class="flex gap-1">
-          <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
-          <ModelSelect class="flex-1" />
-        </div>
-        <div class="flex gap-1">
-          <el-text class="flex flex-1 items-center">
-            <span class="mr-2">{{ $t('settings.webBrowsing') }}</span>
-            <ClientOnly>
-              <el-popover
-                placement="bottom"
-                :width="240"
-                trigger="click"
-              >
-                <template #reference>
-                  <el-icon color="#409EFF" class="cursor-pointer" size="large">
-                    <InfoFilled />
-                  </el-icon>
-                </template>
-                <template #default>
-                  <div>
+        <div class="flex flex-col gap-1">
+          <div class="flex gap-1">
+            <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
+            <ModelSelect class="flex-1" />
+          </div>
+          <div class="flex gap-1">
+            <el-text class="flex flex-1 items-center">
+              <span class="mr-2">{{ $t('settings.webBrowsing') }}</span>
+              <ClientOnly>
+                <el-popover
+                  placement="bottom"
+                  :width="240"
+                  trigger="click"
+                >
+                  <template #reference>
+                    <el-icon color="#409EFF" class="cursor-pointer" size="large">
+                      <InfoFilled />
+                    </el-icon>
+                  </template>
+                  <template #default>
                     <div>
-                      <strong>{{ $t('menu.webInfo1') }}</strong>
-                      <span>{{ $t('menu.webInfo2') }}</span>
+                      <div>
+                        <strong>{{ $t('menu.webInfo1') }}</strong>
+                        <span>{{ $t('menu.webInfo2') }}</span>
+                      </div>
+                      <el-divider style="margin: .25rem 0;" />
+                      <div>
+                        <strong>{{ $t('menu.webInfo3') }}</strong>
+                        <span>{{ $t('menu.webInfo4') }}</span>
+                        <el-text type="warning">{{ $t('menu.expFeat') }}</el-text>
+                      </div>
                     </div>
-                    <el-divider style="margin: .25rem 0;" />
-                    <div>
-                      <strong>{{ $t('menu.webInfo3') }}</strong>
-                      <span>{{ $t('menu.webInfo4') }}</span>
-                      <el-text type="warning">{{ $t('menu.expFeat') }}</el-text>
-                    </div>
-                  </div>
-                </template>
-              </el-popover>
-            </ClientOnly>
-          </el-text>
-          <div class="flex-1">
-            <WebBrowsingSelect />
+                  </template>
+                </el-popover>
+              </ClientOnly>
+            </el-text>
+            <div class="flex-1">
+              <WebBrowsingSelect />
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <el-text class="flex flex-1 items-center">
+              <span class="mr-2">Temperature</span>
+              <ClientOnly>
+                <el-popover
+                  placement="bottom"
+                  :width="240"
+                  trigger="click"
+                >
+                  <template #reference>
+                    <el-icon color="#409EFF" class="cursor-pointer" size="large">
+                      <InfoFilled />
+                    </el-icon>
+                  </template>
+                  <template #default>
+                    <div>{{ $t('menu.tempInfo') }}</div>
+                  </template>
+                </el-popover>
+              </ClientOnly>
+            </el-text>
+            <div class="flex-1">
+              <TemperatureSelect class="flex-1" />
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <el-text class="flex-1">{{ $t('settings.context') }}</el-text>
+            <ContextSelect class="flex-1" />
+          </div>
+          <div class="flex gap-1">
+            <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>
+            <div class="flex-1">
+              <LanguageSelect />
+            </div>
           </div>
         </div>
-        <div class="flex gap-1">
-          <el-text class="flex flex-1 items-center">
-            <span class="mr-2">Temperature</span>
-            <ClientOnly>
-              <el-popover
-                placement="bottom"
-                :width="240"
-                trigger="click"
-              >
-                <template #reference>
-                  <el-icon color="#409EFF" class="cursor-pointer" size="large">
-                    <InfoFilled />
-                  </el-icon>
-                </template>
-                <template #default>
-                  <div>{{ $t('menu.tempInfo') }}</div>
-                </template>
-              </el-popover>
-            </ClientOnly>
-          </el-text>
-          <div class="flex-1">
-            <TemperatureSelect class="flex-1" />
-          </div>
-        </div>
-        <div class="flex gap-1">
-          <el-text class="flex-1">{{ $t('settings.context') }}</el-text>
-          <ContextSelect class="flex-1" />
-        </div>
-        <div class="flex gap-1">
-          <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>
-          <div class="flex-1">
-            <LanguageSelect />
-          </div>
-        </div>
-      </div>
-    </el-form>
-    <h3>{{ $t('chat.chats') }}</h3>
-    <div class="mt-2 border border-neutral-700 rounded">
-      <div class="border-b border-neutral-700">
-        <NuxtLink id="createNewChat" to="/c/" @click="goToChat(null)">
-          <el-button
-            :icon="Plus"
-            size="large"
-            class="ConversationLink w-full"
-          >
-            {{ $t('chat.newChat') }}
-          </el-button>
-        </NuxtLink>
-      </div>
-      <div class="max-h-[16rem] overflow-auto">
-        <div v-for="conv in conversations">
-          <NuxtLink :id="conv.id" :to="`/c/${conv.id}`" @click="goToChat(conv.id)">
+      </el-form>
+      <h3>{{ $t('chat.chats') }}</h3>
+      <div class="mt-2 border border-neutral-700 rounded">
+        <div class="border-b border-neutral-700">
+          <NuxtLink id="createNewChat" to="/c/" @click="goToChat(null)">
             <el-button
-              :type="conv.id === getCurrentConvId() ? 'primary' : 'default'"
-              :icon="ChatSquare"
+              :icon="Plus"
               size="large"
               class="ConversationLink w-full"
-              :plain="conv.id === getCurrentConvId()"
-              :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
             >
-              {{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}
+              {{ $t('chat.newChat') }}
             </el-button>
           </NuxtLink>
         </div>
+        <div class="max-h-[16rem] overflow-auto">
+          <div v-for="conv in conversations">
+            <NuxtLink :id="conv.id" :to="`/c/${conv.id}`" @click="goToChat(conv.id)">
+              <el-button
+                :type="conv.id === getCurrentConvId() ? 'primary' : 'default'"
+                :icon="ChatSquare"
+                size="large"
+                class="ConversationLink w-full"
+                :plain="conv.id === getCurrentConvId()"
+                :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
+              >
+                {{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}
+              </el-button>
+            </NuxtLink>
+          </div>
+        </div>
       </div>
     </div>
-    <!-- <div class="py-4">
-      <h3>{{ $t('auth.title') }}</h3>
-      <div>
-        <el-button @click="viewUserId">{{ $t('auth.login') }}</el-button>
-        <el-button @click="viewUserId">{{ $t('auth.signup') }}</el-button>
-      </div>
-    </div> -->
   </el-drawer>
 </template>
 

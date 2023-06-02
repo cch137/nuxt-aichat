@@ -32,13 +32,13 @@ const scrape = async (url: string) => {
     if (typeof res.data === 'string') {
       const $ = cheerioLoad(str(res.data))
       const title = $('title').text()
-        || $('meta[name="title"]').attr('content')
-        || $('meta[name="og:title"]').attr('content')
-      const description = $('meta[name="description"]').attr('content')
-        || $('meta[name="og:description"]').attr('content')
-      return title ? `title: ${title}\n` : '' +
-        description ? `description: ${description}\n` : '' +
-        trimText($('body').prop('innerText') as string)
+        || $('meta[name="title"]').attr()?.content
+        || $('meta[name="og:title"]').attr()?.content
+      const description = $('meta[name="description"]').attr()?.content
+        || $('meta[name="og:description"]').attr()?.content
+        return (title ? `title: ${title}\n` : '') +
+          (description ? `description: ${description}\n` : '') +
+          '---' + trimText($('body').prop('innerText') as string)
     } else {
       throw 'Page is not string'
     }
@@ -48,6 +48,9 @@ const scrape = async (url: string) => {
     return 'Error: Page fetch failed'
   }
 }
+
+scrape('https://curva.onrender.com/c/')
+  .then((x) => console.log(x))
 
 const summarize = async (query: string, showUrl = false, translate = true) => {
   try {

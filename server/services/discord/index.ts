@@ -157,7 +157,10 @@ const connect = async () => {
       reviewChat(message)
     }
   })
-  client.on('guildMemberUpdate', () => {
+  client.on('guildMemberAdd', () => {
+    store.updateMemberCount()
+  })
+  client.on('guildMemberRemove', () => {
     store.updateMemberCount()
   })
   return loggedIn
