@@ -1,4 +1,4 @@
-import { MindsDBClient } from './mindsdbClient'
+import type { MindsDBClient } from '../mindsdb'
 
 const sanitizeAnswer = (answer = '') => {
   return answer?.replaceAll('�', '')

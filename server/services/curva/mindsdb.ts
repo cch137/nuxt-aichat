@@ -20,6 +20,7 @@ class MindsDBClient {
   sqlClient: MindsDBSqlClient
   webClient: MindsDBWebClient
   connectMethod: 'SQL' | 'WEB' | undefined
+
   constructor (
     email: string,
     password: string,
@@ -34,6 +35,7 @@ class MindsDBClient {
     this.sqlClient = new MindsDBSqlClient(this)
     this.webClient = new MindsDBWebClient(this)
   }
+
   async execQuery (modelName: string, question = 'Hi', context = '') {
     const connMethod = this.connectMethod || defaultConnectMethod
     if (connMethod === 'WEB') {
@@ -41,6 +43,13 @@ class MindsDBClient {
     } else {
       return await this.sqlClient.execQuery(modelName, question, context)
     }
+  }
+
+  async restart () {
+    const killing = this.sqlClient.kill()
+    this.sqlClient = new MindsDBSqlClient(this)
+    this.webClient = new MindsDBWebClient(this)
+    return await killing
   }
 }
 
@@ -65,7 +74,7 @@ class MindsDBSqlClient extends MindsDBSubClient {
   }
 
   login () {
-    return new Sequelize(
+    const sequelize = new Sequelize(
       'mindsdb',
       this.email,
       this.password,
@@ -76,6 +85,11 @@ class MindsDBSqlClient extends MindsDBSubClient {
         pool: { min: 8, max: 512 }
       }
     )
+    return sequelize
+  }
+
+  async kill () {
+    return await this.sequelize.close()
   }
 
   createModel (tableName: string) {

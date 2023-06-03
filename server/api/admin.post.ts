@@ -1,5 +1,5 @@
 import discordBot from '~/server/services/discord/index'
-import { getConnectMethod, setConnectMethod } from '~/server/services/curva/utils/mindsdbClient'
+import curva from '~/server/services/curva/index'
 import { readBody } from 'h3'
 
 export default defineEventHandler(async (event) => {
@@ -18,14 +18,17 @@ export default defineEventHandler(async (event) => {
       await discordBot.connect()
       break
     case 'WEBCONN':
-      setConnectMethod('WEB')
+      curva.setConnectMethod('WEB')
       break
     case 'SQLCONN':
-      setConnectMethod('SQL')
+      curva.setConnectMethod('SQL')
+      break
+    case 'RESTART':
+      await curva.restart()
       break
   }
   return {
-    mdbConnectMethod: getConnectMethod(),
+    mdbConnectMethod: curva.getConnectMethod(),
     dcBotConnected: discordBot.connected,
     pass: true
   }

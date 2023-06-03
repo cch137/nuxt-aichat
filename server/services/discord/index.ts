@@ -1,16 +1,7 @@
-import { config } from 'dotenv'
 import type { Guild, Message, Role, TextBasedChannel, VoiceBasedChannel } from 'discord.js'
 import { Client, IntentsBitField } from 'discord.js'
 import makeMindsDBRequest from '~/server/services/curva/utils/makeRequest'
-import { MindsDBClient } from '~/server/services/curva/utils/mindsdbClient'
-
-config()
-
-const dcBotMdbClient = new MindsDBClient(
-  process.env.DC_BOT_MDB_EMAIL_ADDRESS as string,
-  process.env.DC_BOT_MDB_PASSWORD as string,
-  ['gpt4_dc_bot']
-)
+import { dcBotMdbClient } from '~/server/services/curva/index'
 
 const userId = '1056463118672351283'
 const roleId = '1056465043279052833'

@@ -3,18 +3,11 @@ import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
-import { MindsDBClient } from '~/server/services/curva/utils/mindsdbClient'
-import chatModelNames from '~/server/services/curva/utils/chatModelNames'
+import { chatMdbClient } from '~/server/services/curva/index'
 import curva from '~/server/services/curva/index'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
 import troll from '~/utils/troll'
-
-const chatMdbClient = new MindsDBClient(
-  process.env.CHAT_MDB_EMAIL_ADDRESS as string,
-  process.env.CHAT_MDB_PASSWORD as string,
-  chatModelNames
-)
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
