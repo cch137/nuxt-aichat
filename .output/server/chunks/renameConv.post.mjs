@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
-import './index.mjs';
+import './index2.mjs';
 import { m as message } from './message.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';

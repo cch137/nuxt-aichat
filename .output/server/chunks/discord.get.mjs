@@ -1,9 +1,15 @@
 import { defineEventHandler } from 'h3';
-import { d as discordBot } from './index2.mjs';
+import { d as discordBot } from './index.mjs';
 import 'dotenv';
 import 'discord.js';
-import './makeRequest.mjs';
+import './mindsdbClient.mjs';
 import 'sequelize';
+import './createAxiosSession.mjs';
+import 'axios';
+import 'cookie';
+import './index2.mjs';
+import 'mongoose';
+import './log.mjs';
 
 const discord_get = defineEventHandler(async () => {
   const { connected } = discordBot;

@@ -59,7 +59,7 @@ function createNuxtApp(options) {
     globalName: "nuxt",
     versions: {
       get nuxt() {
-        return "3.5.1";
+        return "3.5.2";
       },
       get vue() {
         return nuxtApp.vueApp.version;
@@ -503,12 +503,12 @@ const __nuxt_page_meta = {
 };
 const _routes = [
   {
-    name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "admin-dc-bot",
-    path: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.path) ?? "/admin/dc-bot",
+    name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "admin-cch137",
+    path: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.path) ?? "/admin/cch137",
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/dc-bot-848b0f7b.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/cch137-9760f2f4.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "c-conv",
@@ -516,7 +516,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-790e1c48.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-36d3159f.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c",
@@ -524,7 +524,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/index-941c715e.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-4a06d9ec.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -532,7 +532,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-36aa7a16.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-385e8dc8.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -540,7 +540,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-bf0656e3.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-61cb6668.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -3804,7 +3804,8 @@ const en = {
     webInfo2: "Allow extracting URLs from the question or directly use a search engine to query the question.",
     webInfo3: "Advanced: ",
     webInfo4: "Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ",
-    expFeat: "This will take longer.",
+    expFeat1: "This takes a little while.",
+    expFeat2: "This will take longer.",
     tempInfo: "With higher values increasing randomness and diversity, while lower values decrease randomness and make the output more predictable."
   },
   settings: {
@@ -3876,7 +3877,8 @@ const zhTW = {
     webInfo2: "允許提取提問中的 URL 或直接使用搜索引擎查詢提問。",
     webInfo3: "進階：",
     webInfo4: "允許提取提問中的 URL，由 AI 決定需要查詢的資料，在總結數個網頁後給出結論。",
-    expFeat: "這需要更久。",
+    expFeat1: "這需要一點時間。",
+    expFeat2: "這需要更久。",
     tempInfo: "較高的值會增加隨機性和多樣性，而較低的值會降低隨機性並使輸出更具可預測性。"
   },
   settings: {
@@ -4265,5 +4267,5 @@ const plugins = normalizePlugins(_plugins);
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useUniCookie as a, useNuxtApp as b, createError as c, useHead as d, entry$1 as default, useRouter as e, navigateTo as n, useState as u };
+export { _export_sfc as _, useState as a, useNuxtApp as b, createError as c, useHead as d, entry$1 as default, useRouter as e, navigateTo as n, useUniCookie as u };
 //# sourceMappingURL=server.mjs.map

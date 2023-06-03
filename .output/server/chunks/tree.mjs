@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3';
-import './index.mjs';
+import './index2.mjs';
 import { getAllKey, getDeletedKey } from './keys.mjs';
 import { m as message } from './message.mjs';
 import 'dotenv';

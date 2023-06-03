@@ -8,11 +8,13 @@ import 'cheerio';
 import 'googlethis';
 import './sogouTranslate.mjs';
 import 'crypto-js/md5.js';
+import './createAxiosSession.mjs';
 import 'cookie';
-import './index.mjs';
+import './index2.mjs';
 import 'dotenv';
 import 'mongoose';
 import './str.mjs';
+import './log.mjs';
 
 const summarize = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e;

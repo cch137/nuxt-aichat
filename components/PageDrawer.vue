@@ -13,7 +13,8 @@
 const { openSidebar, initPage } = useChat()
 const openDrawer = ref(openSidebar.value)
 watch(openSidebar, (newValue) => {
-  openDrawer.value = useDevice().isMobileScreen ? newValue : false
+  openDrawer.value = newValue
+  // openDrawer.value = useDevice().isMobileScreen ? newValue : false
 })
 watch(openDrawer, (newValue) => {
   if (openSidebar.value != newValue) {

@@ -1,24 +1,56 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { v as version } from './server.mjs';
-import './index.mjs';
+import './index2.mjs';
 import { t as troll, r as read } from './token.mjs';
-import { l as logger, c as crawler } from './crawler.mjs';
+import { m as makeRequest, a as getQuestionMaxLength, M as MindsDBClient } from './mindsdbClient.mjs';
+import { c as crawler } from './crawler.mjs';
 import { m as message } from './message.mjs';
-import { a as allowedModelNames, m as makeMindsDBRequest } from './makeRequest.mjs';
-import { config } from 'dotenv';
-import { c as createAxiosSession } from './sogouTranslate.mjs';
+import { l as logger } from './log.mjs';
 import { s as str$1 } from './str.mjs';
 import { g as getIp } from './getIp.mjs';
+import 'dotenv';
 import 'mongoose';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
+import 'sequelize';
+import './createAxiosSession.mjs';
 import 'axios';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
 import 'googlethis';
-import 'sequelize';
+import './sogouTranslate.mjs';
+
+const allowedModelNames = /* @__PURE__ */ new Set([
+  "gpt4",
+  "gpt4_t00",
+  "gpt4_t01",
+  "gpt4_t02",
+  "gpt4_t03",
+  "gpt4_t04",
+  "gpt4_t05",
+  "gpt4_t06",
+  "gpt4_t07",
+  "gpt4_t08",
+  "gpt4_t09",
+  "gpt4_t10",
+  "gpt3",
+  "gpt3_t00",
+  "gpt3_t01",
+  "gpt3_t02",
+  "gpt3_t03",
+  "gpt3_t04",
+  "gpt3_t05",
+  "gpt3_t06",
+  "gpt3_t07",
+  "gpt3_t08",
+  "gpt3_t09",
+  "gpt3_t10",
+  "gpt4_summarizer",
+  "gpt4_mixer"
+]);
+const chatModelNames = allowedModelNames;
 
 function saveMessage(user, conv, Q, A, model) {
   return message.create({ user, conv, model, Q, A });
@@ -35,33 +67,6 @@ async function makeResponse(answer, complete = true, props = {}) {
     return { error: "Request failed", complete, ...props };
   }
 }
-
-config();
-console.log("EMAIL:", process.env.EMAIL_ADDRESS);
-const fixModelName = (modelName) => {
-  if (allowedModelNames.has(modelName)) {
-    return modelName;
-  }
-  return "gpt4";
-};
-const getQuestionMaxLength = (modelName) => {
-  return fixModelName(modelName).startsWith("gpt3") ? 4096 : 8192;
-};
-let session;
-const login = async () => {
-  session = createAxiosSession({
-    "Referer": "https://cloud.mindsdb.com/editor"
-  });
-  return await session.post("https://cloud.mindsdb.com/cloud/login", {
-    email: process.env.EMAIL_ADDRESS,
-    password: process.env.PASSWORD,
-    rememberMe: true
-  });
-};
-login();
-setInterval(() => {
-  login();
-}, 7 * 24 * 60 * 60 * 1e3);
 
 const endSuffix = "\n-END-";
 const endsWithSuffix = (text) => {
@@ -220,12 +225,13 @@ The references: ${result}`;
 const makeSureUrlsStartsWithHttp = (urls) => {
   return urls.map((url) => url.startsWith("http://") || url.startsWith("https://") ? url : `http://${url}`);
 };
-const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0, delay = 0) => {
+const gpt4ScrapeAndSummary = async (client, question, url, userTimeZone = 0, delay = 0) => {
   try {
     return await new Promise(async (resolve, reject) => {
       setTimeout(async () => {
         var _a;
-        const answer = ((_a = await makeMindsDBRequest(
+        const answer = ((_a = await makeRequest(
+          client,
           "gpt4_summarizer",
           useExtractPage(
             question,
@@ -244,23 +250,23 @@ const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0, delay = 0) 
 const addtionalRules = `- Use references where possible and answer in detail.
 - Ensure the overall coherence and consistency of the responses.
 - Ensure that the release time of news is relevant to the responses, avoiding outdated information.`;
-async function advancedAsk(question, context = "", userTimeZone = 0) {
+async function advancedAsk(client, question, context = "", userTimeZone = 0) {
   var _a, _b;
   try {
     let i = 0;
     const question1 = useParseUrlsAndQueries(question, userTimeZone);
-    const answer1 = (_a = await makeMindsDBRequest("gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
+    const answer1 = (_a = await makeRequest(client, "gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
     const answer1Json = answer1.substring(answer1.indexOf("{"), answer1.lastIndexOf("}") + 1);
     const { urls: _urls, queries } = JSON.parse(answer1Json);
     const urls = makeSureUrlsStartsWithHttp(_urls);
-    const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
+    const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(client, question, url, userTimeZone, i += 1e3));
     const summary = (await Promise.all(queries.map((query) => crawler.summarize(query, true, false)))).join("\n\n");
     const question2 = useSelectSites(question, summary, userTimeZone);
-    const answer2 = (_b = await makeMindsDBRequest("gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
+    const answer2 = (_b = await makeRequest(client, "gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
     const answer2Json = answer2.substring(answer2.indexOf("["), answer2.lastIndexOf("]") + 1);
     const selectedSites = JSON.parse(answer2Json);
     const selectedSiteUrls = makeSureUrlsStartsWithHttp(selectedSites.map((site) => site.url));
-    const _pages2 = selectedSiteUrls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
+    const _pages2 = selectedSiteUrls.map((url) => gpt4ScrapeAndSummary(client, question, url, userTimeZone, i += 1e3));
     const pages = [..._pages1, ..._pages2];
     const references = await new Promise(async (resolve, reject) => {
       const results = [];
@@ -276,7 +282,7 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
     const _references = `Here are references from the internet:
 ${references.join("\n")}`;
     const finalQuestion = useDefaultTemplate(question, userTimeZone, addtionalRules, _references).substring(0, 16384);
-    return { queries, urls, ...await makeMindsDBRequest("gpt4", finalQuestion, context) };
+    return { queries, urls, ...await makeRequest(client, "gpt4", finalQuestion, context) };
   } catch (err) {
     logger.create({ type: "error.advanced", text: str$1(err) });
     return { queries: [], urls: [], answer: void 0 };
@@ -302,14 +308,14 @@ const _wrapSearchResult = (result) => {
   return result ? `Here are references from the internet. Use only when necessary:
 ${result}` : "";
 };
-async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", question, context = "", userTimeZone = 0) {
+async function ask(client, user, conv, modelName = "gpt4", webBrowsing = "BASIC", question, context = "", userTimeZone = 0) {
   var _a;
   let answer;
   let props = {};
   let complete = true;
   const originalQuestion = question;
   if (webBrowsing === "ADVANCED") {
-    const advResult = await advancedAsk(question, context, userTimeZone);
+    const advResult = await advancedAsk(client, question, context, userTimeZone);
     props = { queries: advResult.queries, urls: advResult.urls };
     answer = advResult == null ? void 0 : advResult.answer;
     if (!answer) {
@@ -339,7 +345,7 @@ ${pages[i]}`;
     if (complete) {
       question = removeEndSuffix(question);
     }
-    answer = (_a = await makeMindsDBRequest(modelName, question, context)) == null ? void 0 : _a.answer;
+    answer = (_a = await makeRequest(client, modelName, question, context)) == null ? void 0 : _a.answer;
   }
   props.web = webBrowsing;
   const response = await makeResponse(answer, complete, props);
@@ -353,6 +359,11 @@ const curva = {
   ask
 };
 
+const chatMdbClient = new MindsDBClient(
+  process.env.CHAT_MDB_EMAIL_ADDRESS,
+  process.env.CHAT_MDB_PASSWORD,
+  chatModelNames
+);
 const chat_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
   const body = await readBody(event);
@@ -377,7 +388,7 @@ const chat_post = defineEventHandler(async (event) => {
     return { error: 4 };
   }
   try {
-    const response = await curva.ask(user, conv, model, web, prompt, context, tz);
+    const response = await curva.ask(chatMdbClient, user, conv, model, web, prompt, context, tz);
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);
     }

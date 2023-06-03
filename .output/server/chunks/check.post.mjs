@@ -2,7 +2,7 @@ import { defineEventHandler } from 'h3';
 import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
 import { r as read, p as pack, a as random, g as generate } from './token.mjs';
-import './index.mjs';
+import './index2.mjs';
 import { m as message } from './message.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
