@@ -1,4 +1,4 @@
-// import { execQuery } from './mindsdb-web'
+// import MindsDBWebClient from './mindsdb-web'
 import { getModel, defaultSequelize } from './mindsdb-sql'
 
 const sanitizeAnswer = (answer = '') => {

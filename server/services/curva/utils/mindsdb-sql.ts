@@ -6,7 +6,7 @@ const models = new Map<Sequelize,Map<string, typeof Model>>()
 
 config()
 
-console.log('EMAIL:', process.env.EMAIL_ADDRESS)
+console.log('EMAIL(DB):', process.env.EMAIL_ADDRESS)
 
 const createClient = (email: string, password: string) => {
   return new Sequelize(
@@ -18,7 +18,7 @@ const createClient = (email: string, password: string) => {
       dialect: 'mysql',
       logging: false,
       pool: {
-        min: 64,
+        min: 2,
         max: 512
       }
     }

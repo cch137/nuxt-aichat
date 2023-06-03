@@ -63,8 +63,8 @@ const scrape = async (url: string) => {
       err = 'Error: Unkonwn Error'
     }
     console.log(`SCRAPE FAILED (${err}): ${url}`)
-    logger.create({ type: 'error.crawler.scrape', refer: url, text: str(err) })
-    return err
+    logger.create({ type: 'error.crawler.scrape', refer: url, text: err })
+    return err as string
   }
 }
 
