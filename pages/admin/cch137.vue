@@ -16,6 +16,13 @@
         </el-select>
       </div>
       <div v-else>You do not have permission.</div>
+      <div>
+        <NuxtLink to="/">
+          <el-button>
+            Back to Home
+          </el-button>
+        </NuxtLink>
+      </div>
     </div>
   </ClientOnly>
 </template>

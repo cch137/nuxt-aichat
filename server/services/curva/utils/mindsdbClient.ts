@@ -3,6 +3,7 @@ import { config } from 'dotenv'
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import createAxiosSession from '~/server/services/utils/createAxiosSession'
 import { log as logger } from '~/server/services/mongoose/index'
+import str from '~/utils/str'
 
 let defaultConnectMethod: 'SQL' | 'WEB' = 'SQL'
 
@@ -114,10 +115,10 @@ class MindsDBWebClient extends MindsDBSubClient {
   constructor(parent: MindsDBClient) {
     super(parent)
     this.login()
-    // Every 7 Days Login
+    // Every 24 hours Login
     setInterval(() => {
       this.login()
-    }, 7 * 24 * 60 * 60 * 1000)
+    }, 24 * 60 * 60 * 1000)
   }
 
   async login () {

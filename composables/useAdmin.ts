@@ -12,8 +12,7 @@ export default function () {
     cookie.set(adminPasswordCookieName, adminPassword.value, {
       path: '/',
       secure: true,
-      sameSite: true,
-      httpOnly: true
+      sameSite: true
     })
   }
   const adminAction = (action: string, loading?: Ref) => {

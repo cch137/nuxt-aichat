@@ -25,7 +25,7 @@ const getContext = () => {
   if (joinedContexts.length === 0) {
     return ''
   }
-  return `Conversation history (from newest to oldest)\n===\n${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH)
+  return `Conversation history (sorted from newest to oldest)\n===\n${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH)
 }
 
 const addContext = (question = '', answer = '', check = true) => {
@@ -119,6 +119,7 @@ const fetchHistory = (conv: string | null) => {
 
 const initPage = (conv: string | null, skipHistoryFetching = false) => {
   if (!skipHistoryFetching) {
+    context.clear()
     const loading = ElLoading.service()
     Promise.all([
       conv === null ? null : checkTokenAndGetConversations(),
