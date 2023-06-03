@@ -419,13 +419,13 @@ const getContext = () => {
     return "";
   }
   checkContext();
-  const joinedContexts = [...contexts].reverse().join("\n---\n");
+  const joinedContexts = contexts.join("\n---\n");
   if (joinedContexts.length === 0) {
     return "";
   }
-  return `Conversation history (from newest to oldest)
+  return `Conversation history
 ===
-${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH);
+${joinedContexts}`;
 };
 const addContext = (question = "", answer = "", check = true) => {
   contexts.push(`Question: ${question}
@@ -493,6 +493,7 @@ const fetchHistory = (conv) => {
 };
 const initPage = (conv, skipHistoryFetching = false) => {
   if (!skipHistoryFetching) {
+    context.clear();
     const loading = ElLoading.service();
     Promise.all([
       conv === null ? null : checkTokenAndGetConversations(),
@@ -594,4 +595,4 @@ _sfc_main.setup = (props, ctx) => {
 const __nuxt_component_0 = _sfc_main;
 
 export { __nuxt_component_0 as _ };
-//# sourceMappingURL=ChatCore-6e65ed50.mjs.map
+//# sourceMappingURL=ChatCore-65ccb927.mjs.map

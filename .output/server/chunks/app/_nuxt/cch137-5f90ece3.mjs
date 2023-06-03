@@ -43,8 +43,7 @@ function useAdmin() {
     cookie.set(adminPasswordCookieName, adminPassword.value, {
       path: "/",
       secure: true,
-      sameSite: true,
-      httpOnly: true
+      sameSite: true
     });
   };
   const adminAction = (action, loading) => {
@@ -102,4 +101,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=cch137-9760f2f4.mjs.map
+//# sourceMappingURL=cch137-5f90ece3.mjs.map

@@ -1,4 +1,4 @@
-import { _ as __nuxt_component_0 } from './ChatCore-6e65ed50.mjs';
+import { _ as __nuxt_component_0 } from './ChatCore-65ccb927.mjs';
 import { u as useTitle } from './useTitle-8d70f262.mjs';
 import { useSSRContext } from 'vue';
 import { a as useState } from '../server.mjs';
@@ -57,4 +57,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-4a06d9ec.mjs.map
+//# sourceMappingURL=index-73b562d7.mjs.map

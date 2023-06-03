@@ -9,6 +9,7 @@ import 'axios';
 import 'cookie';
 import './index2.mjs';
 import 'mongoose';
+import './str.mjs';
 import './log.mjs';
 
 const admin_post = defineEventHandler(async (event) => {

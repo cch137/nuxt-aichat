@@ -6,8 +6,8 @@ import { t as troll, r as read } from './token.mjs';
 import { m as makeRequest, a as getQuestionMaxLength, M as MindsDBClient } from './mindsdbClient.mjs';
 import { c as crawler } from './crawler.mjs';
 import { m as message } from './message.mjs';
+import { s as str } from './str.mjs';
 import { l as logger } from './log.mjs';
-import { s as str$1 } from './str.mjs';
 import { g as getIp } from './getIp.mjs';
 import 'dotenv';
 import 'mongoose';
@@ -111,7 +111,7 @@ function formatDate(date, format = "yyyy-MM-dd HH:mm:ss", isUTC = false) {
   const T = dateProperties.H < 12 ? "AM" : "PM";
   const _h = dateProperties.H % 12;
   const h = _h === 0 ? 12 : _h;
-  format = format.replace(/yyyy/g, str$1(dateProperties.y)).replace(/yy/g, `${dateProperties.y}`.substring(2, 4)).replace(/y/g, str$1(dateProperties.y)).replace(/HH/g, addLeadingZeros(dateProperties.H)).replace(/H/g, str$1(dateProperties.H)).replace(/hh/g, addLeadingZeros(h)).replace(/h/g, str$1(h)).replace(/mm/g, addLeadingZeros(dateProperties.m)).replace(/m/g, str$1(dateProperties.m)).replace(/ss/g, addLeadingZeros(dateProperties.s)).replace(/s/g, str$1(dateProperties.s)).replace(/fff/g, str$1(round(dateProperties.f))).replace(/ff/g, str$1(round(dateProperties.f / 10))).replace(/f/g, str$1(round(dateProperties.f / 100))).replace(/TT/gi, T).replace(/T/gi, T.charAt(0)).replace(/dddd/g, ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dateProperties.w]).replace(/ddd/g, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dateProperties.w]).replace(/dd/g, addLeadingZeros(dateProperties.d)).replace(/d/g, str$1(dateProperties.d));
+  format = format.replace(/yyyy/g, str(dateProperties.y)).replace(/yy/g, `${dateProperties.y}`.substring(2, 4)).replace(/y/g, str(dateProperties.y)).replace(/HH/g, addLeadingZeros(dateProperties.H)).replace(/H/g, str(dateProperties.H)).replace(/hh/g, addLeadingZeros(h)).replace(/h/g, str(h)).replace(/mm/g, addLeadingZeros(dateProperties.m)).replace(/m/g, str(dateProperties.m)).replace(/ss/g, addLeadingZeros(dateProperties.s)).replace(/s/g, str(dateProperties.s)).replace(/fff/g, str(round(dateProperties.f))).replace(/ff/g, str(round(dateProperties.f / 10))).replace(/f/g, str(round(dateProperties.f / 100))).replace(/TT/gi, T).replace(/T/gi, T.charAt(0)).replace(/dddd/g, ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dateProperties.w]).replace(/ddd/g, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dateProperties.w]).replace(/dd/g, addLeadingZeros(dateProperties.d)).replace(/d/g, str(dateProperties.d));
   const formatBefore = format;
   format = format.replace(/MMMM/g, [
     "January",
@@ -143,7 +143,7 @@ function formatDate(date, format = "yyyy-MM-dd HH:mm:ss", isUTC = false) {
   if (format !== formatBefore) {
     return format;
   }
-  return format.replace(/MM/g, addLeadingZeros(dateProperties.M)).replace(/M/g, str$1(dateProperties.M));
+  return format.replace(/MM/g, addLeadingZeros(dateProperties.M)).replace(/M/g, str(dateProperties.M));
 }
 
 function formatUserCurrentTime(userTimeZone = 0) {
@@ -243,7 +243,7 @@ const gpt4ScrapeAndSummary = async (client, question, url, userTimeZone = 0, del
       }, delay);
     });
   } catch (err) {
-    logger.create({ type: "error.advanced.summary", refer: `${question} ${url}`, text: str$1(err) });
+    logger.create({ type: "error.advanced.summary", refer: `${question} ${url}`, text: str(err) });
     return "";
   }
 };
@@ -284,7 +284,7 @@ ${references.join("\n")}`;
     const finalQuestion = useDefaultTemplate(question, userTimeZone, addtionalRules, _references).substring(0, 16384);
     return { queries, urls, ...await makeRequest(client, "gpt4", finalQuestion, context) };
   } catch (err) {
-    logger.create({ type: "error.advanced", text: str$1(err) });
+    logger.create({ type: "error.advanced", text: str(err) });
     return { queries: [], urls: [], answer: void 0 };
   }
 }
@@ -394,7 +394,7 @@ const chat_post = defineEventHandler(async (event) => {
     }
     return { version, ...response };
   } catch (err) {
-    logger.create({ type: "error.api.response", text: str$1(err) });
+    logger.create({ type: "error.api.response", text: str(err) });
     return { error: 5 };
   }
 });

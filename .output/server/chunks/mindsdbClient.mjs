@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import { Sequelize, DataTypes, Model } from 'sequelize';
 import { c as createAxiosSession } from './createAxiosSession.mjs';
 import './index2.mjs';
+import { s as str } from './str.mjs';
 import { l as logger } from './log.mjs';
 
 const sanitizeAnswer = (answer = "") => {
@@ -110,7 +111,7 @@ class MindsDBWebClient extends MindsDBSubClient {
     this.login();
     setInterval(() => {
       this.login();
-    }, 7 * 24 * 60 * 60 * 1e3);
+    }, 24 * 60 * 60 * 1e3);
   }
   async login() {
     this.session = createAxiosSession({
