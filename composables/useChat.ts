@@ -21,11 +21,11 @@ const getContext = () => {
     return ''
   }
   checkContext()
-  const joinedContexts = [...contexts].reverse().join('\n---\n')
+  const joinedContexts = contexts.join('\n---\n')
   if (joinedContexts.length === 0) {
     return ''
   }
-  return `Conversation history (sorted from newest to oldest)\n===\n${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH)
+  return `Conversation history\n===\n${joinedContexts}`
 }
 
 const addContext = (question = '', answer = '', check = true) => {
