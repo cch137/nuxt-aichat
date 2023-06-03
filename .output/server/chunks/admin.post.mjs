@@ -1,16 +1,22 @@
 import { defineEventHandler, readBody } from 'h3';
 import { d as discordBot } from './index.mjs';
-import { s as setConnectMethod, g as getConnectMethod } from './mindsdbClient.mjs';
-import 'dotenv';
+import { c as curva } from './index2.mjs';
 import 'discord.js';
+import 'dotenv';
 import 'sequelize';
-import './createAxiosSession.mjs';
+import './sogouTranslate.mjs';
+import 'crypto-js/md5.js';
 import 'axios';
 import 'cookie';
-import './index2.mjs';
+import './index3.mjs';
 import 'mongoose';
 import './str.mjs';
-import './log.mjs';
+import './crawler.mjs';
+import 'turndown';
+import '@joplin/turndown-plugin-gfm';
+import 'cheerio';
+import 'googlethis';
+import './message.mjs';
 
 const admin_post = defineEventHandler(async (event) => {
   const { ADMIN_PASSWORD } = process.env;
@@ -28,14 +34,17 @@ const admin_post = defineEventHandler(async (event) => {
       await discordBot.connect();
       break;
     case "WEBCONN":
-      setConnectMethod("WEB");
+      curva.setConnectMethod("WEB");
       break;
     case "SQLCONN":
-      setConnectMethod("SQL");
+      curva.setConnectMethod("SQL");
+      break;
+    case "RESTART":
+      await curva.restart();
       break;
   }
   return {
-    mdbConnectMethod: getConnectMethod(),
+    mdbConnectMethod: curva.getConnectMethod(),
     dcBotConnected: discordBot.connected,
     pass: true
   };

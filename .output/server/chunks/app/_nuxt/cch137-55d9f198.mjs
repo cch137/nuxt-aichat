@@ -86,6 +86,7 @@ const _sfc_main = {
     useAdmin();
     ref(false);
     ref(false);
+    ref(false);
     useTitle(`Admin - ${appName}`);
     return (_ctx, _push, _parent, _attrs) => {
       const _component_ClientOnly = __nuxt_component_0;
@@ -101,4 +102,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=cch137-5f90ece3.mjs.map
+//# sourceMappingURL=cch137-55d9f198.mjs.map

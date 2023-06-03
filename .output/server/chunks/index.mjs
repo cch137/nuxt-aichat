@@ -1,13 +1,6 @@
-import { config } from 'dotenv';
 import { Client, IntentsBitField } from 'discord.js';
-import { M as MindsDBClient, m as makeRequest } from './mindsdbClient.mjs';
+import { m as makeMindsDBRequest, d as dcBotMdbClient } from './index2.mjs';
 
-config();
-const dcBotMdbClient = new MindsDBClient(
-  process.env.DC_BOT_MDB_EMAIL_ADDRESS,
-  process.env.DC_BOT_MDB_PASSWORD,
-  ["gpt4_dc_bot"]
-);
 const userId = "1056463118672351283";
 const roleId = "1056465043279052833";
 const useAdminTemplate = (text) => {
@@ -90,7 +83,7 @@ const reviewChat = async (message) => {
   if (content.includes(`<@${userId}>`) || content.includes(`<@${roleId}>`)) {
     message.channel.sendTyping();
   }
-  const { answer } = await makeRequest(dcBotMdbClient, "gpt4_dc_bot", useAdminTemplate(content), "");
+  const { answer } = await makeMindsDBRequest(dcBotMdbClient, "gpt4_dc_bot", useAdminTemplate(content), "");
   if (typeof answer !== "string") {
     return;
   }

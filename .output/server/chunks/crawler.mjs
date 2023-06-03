@@ -4,9 +4,17 @@ import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
 import googlethis from 'googlethis';
 import { t as translate } from './sogouTranslate.mjs';
-import './index2.mjs';
+import './index3.mjs';
 import { s as str } from './str.mjs';
-import { l as logger } from './log.mjs';
+import { model, Schema } from 'mongoose';
+
+const logger = model("Log", new Schema({
+  type: { type: String, required: true },
+  refer: { type: String },
+  text: { type: String, required: true }
+}, {
+  versionKey: false
+}), "logs");
 
 const trimText = (text) => {
   return text.split("\n").map((ln) => ln.replace(/[\s]+/g, " ").trim()).filter((ln) => ln).join("\n");
@@ -99,5 +107,5 @@ const crawler = {
 };
 const crawler$1 = crawler;
 
-export { crawler$1 as c };
+export { crawler$1 as c, logger as l };
 //# sourceMappingURL=crawler.mjs.map

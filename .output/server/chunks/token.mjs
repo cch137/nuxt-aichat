@@ -1,5 +1,5 @@
 import sha3 from 'crypto-js/sha3.js';
-import md5 from 'crypto-js/md5.js';
+import _md5 from 'crypto-js/md5.js';
 import { l as lower, s as str } from './str.mjs';
 
 function isIterable(obj) {
@@ -399,7 +399,7 @@ function d(input, maskLevel = 1, seed, tryParseJSON = true) {
 function h(input, algorithm = 512, seed) {
   const encrypted = e(input, 1, seed).substring(1);
   if (algorithm === "MD5") {
-    return md5(encrypted).toString();
+    return _md5(encrypted).toString();
   }
   return sha3(encrypted, { outputLength: algorithm }).toString();
 }
