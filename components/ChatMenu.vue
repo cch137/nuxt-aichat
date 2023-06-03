@@ -126,7 +126,7 @@ import baseConverter from '~/utils/baseConverter'
 import { unmask } from '~/utils/masker'
 
 const version = useState('version', () => '')
-const { conversations, openDrawer, goToChat, initPage, getCurrentConvId } = useChat()
+const { conversations, goToChat, getCurrentConvId } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 
@@ -153,11 +153,6 @@ const viewUserId = () => {
     .catch(() => {
       loading.close()
     })
-}
-
-if (process.client) {
-  const conv = useNuxtApp()._route?.params?.conv
-  initPage(conv)
 }
 </script>
 

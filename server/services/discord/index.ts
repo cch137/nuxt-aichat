@@ -2,16 +2,15 @@ import { config } from 'dotenv'
 import type { Guild, Message, Role, TextBasedChannel, VoiceBasedChannel } from 'discord.js'
 import { Client, IntentsBitField } from 'discord.js'
 import makeMindsDBRequest from '~/server/services/curva/utils/makeRequest'
-import { createClient as createSequelizeClient, createModel } from '~/server/services/curva/utils/mindsdb-sql'
+import { MindsDBClient } from '~/server/services/curva/utils/mindsdbClient'
 
 config()
 
-const dcSequelize = createSequelizeClient(
+const dcBotMdbClient = new MindsDBClient(
   process.env.DC_BOT_MDB_EMAIL_ADDRESS as string,
-  process.env.DC_BOT_MDB_PASSWORD as string
+  process.env.DC_BOT_MDB_PASSWORD as string,
+  ['gpt4_dc_bot']
 )
-
-createModel('gpt4_dc_bot', dcSequelize)
 
 const userId = '1056463118672351283'
 const roleId = '1056465043279052833'
@@ -113,7 +112,8 @@ const reviewChat = async (message: Message<boolean>) => {
   if (content.includes(`<@${userId}>`) || content.includes(`<@${roleId}>`)) {
     message.channel.sendTyping()
   }
-  const { answer } = await makeMindsDBRequest('gpt4_dc_bot', useAdminTemplate(content), '', dcSequelize)
+  // @ts-ignore
+  const { answer } = await makeMindsDBRequest(dcBotMdbClient, 'gpt4_dc_bot', useAdminTemplate(content), '')
   if (typeof answer !== 'string') {
     return
   }

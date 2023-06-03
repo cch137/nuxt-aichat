@@ -1,7 +1,7 @@
 <template>
   <div class="PageHeader z-50 fixed w-full px-4 gap-4 flex items-stretch">
     <div>
-      <el-button style="padding: 8px;" @click="openDrawer = true">
+      <el-button style="padding: 8px;" @click="openSidebar = !openSidebar">
         <MenuIcon />
       </el-button>
     </div>
@@ -81,7 +81,7 @@ import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 const appName = useState('appName')
-const { conversations, messages, openDrawer, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
+const { conversations, messages, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 

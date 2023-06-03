@@ -25,12 +25,14 @@ const getContext = () => {
   if (joinedContexts.length === 0) {
     return ''
   }
-  return `Here are your replies, from newest to oldest:\n${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH)
+  return `Conversation history (from newest to oldest)\n===\n${joinedContexts}`.substring(0, CONTEXT_MAX_LENGTH)
 }
 
-const addContext = (...texts: string[]) => {
-  contexts.push(...texts)
-  checkContext()
+const addContext = (question = '', answer = '', check = true) => {
+  contexts.push(`Question: ${question}\nAnswer: ${answer}`)
+  if (check) {
+    checkContext()
+  }
 }
 
 const clearContext = () => {
@@ -99,12 +101,12 @@ const fetchHistory = (conv: string | null) => {
           navigateTo('/c/')
         }
         const _records = [] as Array<ChatMessage>
-        context.add(...records.map((record) => {
+        for (const record of records) {
           const { Q, A, t: _t } = record
           const t = new Date(_t)
           _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, t })
-          return A
-        }))
+          context.add(Q, A, false)
+        }
         messages.value.unshift(..._records)
         resolve(true)
       })
@@ -138,7 +140,7 @@ const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'
 
 const contextMode = ref(true)
 
-const openDrawer = ref(false)
+const openSidebar = ref(true)
 
 export default function () {
   const cookie = useUniCookie()
@@ -178,7 +180,7 @@ export default function () {
       messages.value = []
       initPage(conv, skipHistoryFetching)
     }
-    openDrawer.value = false
+    openSidebar.value = false
     focusInput()
   }
   return {
@@ -188,7 +190,7 @@ export default function () {
     webBrowsingMode,
     temperatureSuffix,
     contextMode,
-    openDrawer,
+    openSidebar,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,

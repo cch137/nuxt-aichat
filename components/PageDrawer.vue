@@ -10,10 +10,18 @@
 </template>
 
 <script setup>
-const { openDrawer } = useChat()
-if (process.client) {
-  if (!useDevice().isMobileScreen) {
-    openDrawer.value = true
+const { openSidebar, initPage } = useChat()
+const openDrawer = ref(openSidebar.value)
+watch(openSidebar, (newValue) => {
+  openDrawer.value = useDevice().isMobileScreen ? newValue : false
+})
+watch(openDrawer, (newValue) => {
+  if (openSidebar.value != newValue) {
+    openSidebar.value = newValue
   }
+})
+if (process.client) {
+  const conv = useNuxtApp()._route?.params?.conv
+  initPage(conv)
 }
 </script>

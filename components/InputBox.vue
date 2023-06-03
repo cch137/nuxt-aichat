@@ -147,7 +147,7 @@ const sendMessage = (): boolean => {
         throw _t('error.plzRefresh')
       }
       answerMessage.text = answer
-      context.add(`Question:\n${message}\nAnswer:${answer}`)
+      context.add(message, answer)
       if (_version !== version.value) {
         ElMessageBox.confirm(
           _t('action.newVersion'),

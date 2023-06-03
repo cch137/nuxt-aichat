@@ -3,10 +3,18 @@ import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
+import { MindsDBClient } from '~/server/services/curva/utils/mindsdbClient'
+import chatModelNames from '~/server/services/curva/utils/chatModelNames'
 import curva from '~/server/services/curva/index'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
 import troll from '~/utils/troll'
+
+const chatMdbClient = new MindsDBClient(
+  process.env.CHAT_MDB_EMAIL_ADDRESS as string,
+  process.env.CHAT_MDB_PASSWORD as string,
+  chatModelNames
+)
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -35,7 +43,7 @@ export default defineEventHandler(async (event) => {
     return { error: 4 }
   }
   try {
-    const response = await curva.ask(user, conv, model, web, prompt, context, tz)
+    const response = await curva.ask(chatMdbClient, user, conv, model, web, prompt, context, tz)
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }

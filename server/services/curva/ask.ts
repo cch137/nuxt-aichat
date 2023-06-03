@@ -2,7 +2,8 @@ import crawler from '~/server/services/crawler'
 import saveMessage from './utils/saveMessage'
 import makeRequest from './utils/makeRequest'
 import makeResponse from './utils/makeResponse'
-import { getQuestionMaxLength } from './utils/mindsdb-sql'
+import type { MindsDBClient } from './utils/mindsdbClient'
+import { getQuestionMaxLength } from './utils/mindsdbClient'
 import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
 import useDefaultTemplate from './templates/default'
 import advancedAsk from './advanced'
@@ -15,6 +16,7 @@ const _wrapSearchResult = (result: string) => {
 }
 
 async function ask (
+  client: MindsDBClient,
   user: string,
   conv: string,
   modelName = 'gpt4',
@@ -28,7 +30,7 @@ async function ask (
   let complete = true
   const originalQuestion = question
   if (webBrowsing === 'ADVANCED') {
-    const advResult = (await advancedAsk(question, context, userTimeZone))
+    const advResult = (await advancedAsk(client, question, context, userTimeZone))
     props = { queries: advResult.queries, urls: advResult.urls }
     answer = advResult?.answer
     if (!answer) {
@@ -57,7 +59,7 @@ async function ask (
     if (complete) {
       question = removeEndSuffix(question)
     }
-    answer = (await makeRequest(modelName, question, context))?.answer
+    answer = (await makeRequest(client, modelName, question, context))?.answer
   }
   props.web = webBrowsing
   const response = await makeResponse(answer, complete, props)
