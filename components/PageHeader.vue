@@ -80,9 +80,8 @@
 import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
-const openDrawer = useState('openDrawer', () => false)
 const appName = useState('appName')
-const { conversations, messages, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
+const { conversations, messages, openDrawer, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 

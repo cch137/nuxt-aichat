@@ -40,7 +40,8 @@ export default {
     webInfo2: '允許提取提問中的 URL 或直接使用搜索引擎查詢提問。',
     webInfo3: '進階：',
     webInfo4: '允許提取提問中的 URL，由 AI 決定需要查詢的資料，在總結數個網頁後給出結論。',
-    expFeat: '這需要更久。',
+    expFeat1: '這需要一點時間。',
+    expFeat2: '這需要更久。',
     tempInfo: '較高的值會增加隨機性和多樣性，而較低的值會降低隨機性並使輸出更具可預測性。',
   },
   settings: {

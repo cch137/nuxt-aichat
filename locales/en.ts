@@ -40,7 +40,8 @@ export default {
     webInfo2: 'Allow extracting URLs from the question or directly use a search engine to query the question.',
     webInfo3: 'Advanced: ',
     webInfo4: 'Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ',
-    expFeat: 'This will take longer.',
+    expFeat1: 'This takes a little while.',
+    expFeat2: 'This will take longer.',
     tempInfo: 'With higher values increasing randomness and diversity, while lower values decrease randomness and make the output more predictable.',
   },
   settings: {

@@ -39,7 +39,7 @@ const clearContext = () => {
 
 const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
 // const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC']
-const DEFAULT_WEB_BROWSING_MODE = 'BASIC'
+const DEFAULT_WEB_BROWSING_MODE = 'OFF'
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
 
 interface SavedChatMessage {
@@ -138,6 +138,8 @@ const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'
 
 const contextMode = ref(true)
 
+const openDrawer = ref(false)
+
 export default function () {
   const cookie = useUniCookie()
   const previousWebBrowsingMode = cookie.get(webBrowsingCookieName)
@@ -170,7 +172,6 @@ export default function () {
     return conversations.value
       .filter((conv) => conv.id === currentConvId)[0].name || ''
   }
-  const openDrawer = useState('openDrawer', () => false)
   const goToChat = (conv: string | null, force = false, skipHistoryFetching = false) => {
     const currentConvId = getCurrentConvId()
     if (force || (currentConvId !== conv || conv === null)) {
@@ -187,6 +188,7 @@ export default function () {
     webBrowsingMode,
     temperatureSuffix,
     contextMode,
+    openDrawer,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,
