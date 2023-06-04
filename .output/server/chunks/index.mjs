@@ -119,6 +119,9 @@ const Logger = {
   }
 };
 const reviewChat = async (message) => {
+  if (!message.content.trim()) {
+    return;
+  }
   Logger.typing();
   const { answer } = await makeMindsDBRequest(dcBotMdbClient, "gpt4_dc_bot", useAdminTemplate(message.content), "");
   if (typeof answer !== "string") {

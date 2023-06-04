@@ -1,5 +1,6 @@
 ├── assets
-│   └── css
+│   ├── css
+│   └── svg
 ├── components
 ├── composables
 ├── config
@@ -7,19 +8,23 @@
 ├── locales
 ├── middleware
 ├── pages
+│   ├── admin
 │   └── c
 ├── plugins
 ├── public
 ├── server
 │   ├── api
+│   │   ├── crawler
 │   │   ├── perspective
 │   │   └── token
 │   └── services
 │       ├── curva
 │       │   ├── templates
 │       │   └── utils
-│       └── mongoose
-│           └── models
+│       ├── discord
+│       ├── mongoose
+│       │   └── models
+│       └── utils
 └── utils
     └── zhConverter
         └── data
