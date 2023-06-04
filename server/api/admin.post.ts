@@ -2,13 +2,13 @@ import discordBot from '~/server/services/discord/index'
 import curva from '~/server/services/curva/index'
 import { readBody } from 'h3'
 
-export default defineEventHandler(async (event) => {
-  const { ADMIN_PASSWORD } = process.env
+export default defineEventHandler(async function (event) {
   const body = await readBody(event)
   const password = body?.passwd as string | undefined
-  if (password !== ADMIN_PASSWORD) {
+  if (password !== process.env.ADMIN_PASSWORD) {
     return null
   }
+  const t0 = Date.now()
   const action = body?.action as string | undefined
   switch (action) {
     case 'DC0':
@@ -27,9 +27,17 @@ export default defineEventHandler(async (event) => {
       await curva.restart()
       break
   }
-  return {
-    mdbConnectMethod: curva.getConnectMethod(),
-    dcBotConnected: discordBot.connected,
-    pass: true
-  }
+  return await new Promise<{
+    mdbConnectMethod: 'WEB' | 'SQL',
+    dcBotConnected: boolean,
+    pass: boolean,
+  }>((resolve) => {
+    setTimeout(() => {
+      resolve({
+        mdbConnectMethod: curva.getConnectMethod(),
+        dcBotConnected: discordBot.connected,
+        pass: true
+      })
+    }, Math.max(0, (t0 - Date.now()) + 500))
+  })
 })

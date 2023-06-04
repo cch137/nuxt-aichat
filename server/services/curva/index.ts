@@ -29,6 +29,8 @@ export {
 }
 
 export default {
+  chatMdbClient,
+  dcBotMdbClient,
   getConnectMethod,
   setConnectMethod,
   ask,

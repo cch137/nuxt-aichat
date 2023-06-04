@@ -4,7 +4,7 @@
       <h1>Admin Dashboard | {{appName}}</h1>
       <div class="flex gap-2 my-8">
         <el-input type="password" placeholder="Password" v-model="password"></el-input>
-        <el-button type="primary" @click="adminAction">GO</el-button>
+        <el-button type="primary" @click="goCheck" :loading="goIsLoading">GO</el-button>
       </div>
       <div v-if="haveAccess" class="grid grid-cols-2 gap-2 p-4">
         <div class="flex items-center">Discord Bot</div>
@@ -40,9 +40,14 @@ const appName = useState('appName').value
 
 const { haveAccess, password, dcBotConnected, mdbConnectMethod, adminAction } = useAdmin()
 
+const goIsLoading = ref(false)
 const dcBotIsLoading = ref(false)
 const mdbIsLoading = ref(false)
 const restartIsLoading = ref(false)
+
+const goCheck = () => {
+  adminAction('', goIsLoading)
+}
 
 const dcBotSwitch = () => {
   adminAction(dcBotConnected.value ? 'DC1' : 'DC0', dcBotIsLoading)

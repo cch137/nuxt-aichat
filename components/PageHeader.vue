@@ -6,7 +6,10 @@
       </el-button>
     </div>
     <NuxtLink to="/" @click="goToChat(null, false, true)" class="text-2xl font-medium">
-      {{ appName }}
+      <div class="flex-center">
+        <CurvaLogoSvg class="pointer-events-none" style="height: 32px; margin-right: 8px;" src="~/assets/svg/Curva.svg" />
+        <div>{{ appName }}</div>
+      </div>
     </NuxtLink>
     <div class="flex-1 flex items-center justify-end gap-2">
       <ClientOnly>

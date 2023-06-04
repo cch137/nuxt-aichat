@@ -96,6 +96,7 @@ const fetchHistory = (conv: string | null) => {
     }
     $fetch('/api/history', { method: 'POST', body: { id: conv } })
       .then((fetched) => {
+        // @ts-ignore
         const records = fetched as Array<SavedChatMessage>
         if (records.length === 0) {
           navigateTo('/c/')
