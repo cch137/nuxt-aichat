@@ -51,7 +51,7 @@ async function ask (
         question = useDefaultTemplate(question, userTimeZone, '', 'Here are the webpages:\n' + pages.join('\n\n---\n\n'))
       }
     } else {
-      useDefaultTemplate(question, userTimeZone)
+      question = useDefaultTemplate(question, userTimeZone)
     }
     question = addEndSuffix(question)
     question = question.substring(0, getQuestionMaxLength(modelName))
