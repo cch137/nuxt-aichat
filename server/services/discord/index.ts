@@ -104,6 +104,10 @@ const Logger = {
 } as ILogger
 
 const reviewChat = async (message: Message<boolean>) => {
+  // 必須要檢測訊息是否為空，因為 welcome 訊息是空的，welcome 並不需要被認證。
+  if (!message.content.trim()) {
+    return
+  }
   Logger.typing()
   // @ts-ignore
   const { answer } = await makeMindsDBRequest(dcBotMdbClient, 'gpt4_dc_bot', useAdminTemplate(message.content), '')
