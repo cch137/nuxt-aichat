@@ -19,10 +19,10 @@ import 'googlethis';
 import './message.mjs';
 import './deleteConversation.mjs';
 
-const discord_get = defineEventHandler(async () => {
+const discord = defineEventHandler(async () => {
   const { connected } = discordBot;
   return { connected };
 });
 
-export { discord_get as default };
-//# sourceMappingURL=discord.get.mjs.map
+export { discord as default };
+//# sourceMappingURL=discord.mjs.map
