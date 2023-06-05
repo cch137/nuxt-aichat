@@ -6,6 +6,7 @@ import './index3.mjs';
 import 'dotenv';
 import 'mongoose';
 import './message.mjs';
+import './deleteConversation.mjs';
 import 'sequelize';
 import './sogouTranslate.mjs';
 import 'crypto-js/md5.js';

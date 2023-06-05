@@ -17,6 +17,7 @@ import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
 import 'googlethis';
 import './message.mjs';
+import './deleteConversation.mjs';
 
 const discord_get = defineEventHandler(async () => {
   const { connected } = discordBot;
