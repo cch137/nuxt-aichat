@@ -142,6 +142,10 @@ const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'
 
 const contextMode = ref(true)
 
+const openMenu = ref(false)
+const openSidebar = ref(openMenu.value)
+const openDrawer = ref(openMenu.value)
+
 export default function () {
   const cookie = useUniCookie()
   const previousWebBrowsingMode = cookie.get(webBrowsingCookieName)
@@ -174,9 +178,6 @@ export default function () {
     return conversations.value
       .filter((conv) => conv.id === currentConvId)[0].name || ''
   }
-  const openMenu = ref(false)
-  const openSidebar = ref(false)
-  const openDrawer = ref(false)
   watch(openMenu, (value) => {
     if (useDevice().isMobileScreen) {
       openSidebar.value = false
@@ -192,7 +193,6 @@ export default function () {
   })
   watch(openDrawer, (value) => {openMenu.value = value})
   watch(openSidebar, (value) => {openMenu.value = value})
-  openMenu.value = true
   const goToChat = (conv: string | null, force = false, skipHistoryFetching = false) => {
     const currentConvId = getCurrentConvId()
     if (force || (currentConvId !== conv || conv === null)) {

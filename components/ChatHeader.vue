@@ -86,6 +86,8 @@ const { conversations, messages, openMenu, openSidebar, getCurrentConvId, getCur
 // @ts-ignore
 const _t = useLocale().t
 
+openMenu.value = true
+
 const refreshChat = () => {
   goToChat(getCurrentConvId(), true)
 }
