@@ -1,40 +1,45 @@
 <template>
   <ClientOnly>
-    <div class="mx-auto Messages pt-4 px-4 pb-10 mb-40">
-      <div class="text-center my-4">
-        <el-text type="info" size="large">{{ $t('chat.letsStart') }}</el-text>
-      </div>
-      <div
-        v-for="message in messages"
-        :key="message.text"
-        :class="message.type"
-        class="Message flex p-1"
-      >
-        <div class="InnerMessage p-2">
-          <div>
-            <span v-if="message.type === 'T'">
-              <span>Thinking</span>
-              <span>{{ loadingDots }}</span>
-            </span>
-            <span
-              v-else-if="message.type === 'A'"
-              v-html="marked.parse(message.text)"
-            />
-            <span v-else>{{ message.text }}</span>
+    <div class="flex w-full">
+      <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
+      <div class="flex-1 flex-center" :style="`max-width: ${openSidebar ? '75%' : '100%'}; transition: .3s;`">
+        <div class="Messages pt-4 px-4 pb-10 mb-40">
+          <div class="text-center my-4">
+            <el-text type="info" size="large">{{ $t('chat.letsStart') }}</el-text>
           </div>
-          <div v-if="message.type === 'A'" class="flex mt-2 gap-4">
-            <div class="flex-1">
-              <el-text type="info" size="small" class="opacity-75">
-                {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
-              </el-text>
+          <div
+            v-for="message in messages"
+            :key="message.text"
+            :class="message.type"
+            class="Message flex p-1"
+          >
+            <div class="InnerMessage p-2">
+              <div>
+                <span v-if="message.type === 'T'">
+                  <span>Thinking</span>
+                  <span>{{ loadingDots }}</span>
+                </span>
+                <span
+                  v-else-if="message.type === 'A'"
+                  v-html="marked.parse(message.text)"
+                />
+                <span v-else>{{ message.text }}</span>
+              </div>
+              <div v-if="message.type === 'A'" class="flex mt-2 gap-4">
+                <div class="flex-1">
+                  <el-text type="info" size="small" class="opacity-75">
+                    {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
+                  </el-text>
+                </div>
+                <el-button
+                  :icon="DocumentCopy"
+                  size="small"
+                  class="MessageActionButton"
+                  plain
+                  @click="useCopyToClipboard(message.text)"
+                >{{ $t('action.copy') }}</el-button>
+              </div>
             </div>
-            <el-button
-              :icon="DocumentCopy"
-              size="small"
-              class="MessageActionButton"
-              plain
-              @click="useCopyToClipboard(message.text)"
-            >{{ $t('action.copy') }}</el-button>
           </div>
         </div>
       </div>
@@ -47,7 +52,7 @@ import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import { DocumentCopy } from '@element-plus/icons-vue'
 
-const { messages } = useChat()
+const { messages, openSidebar } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -64,8 +69,8 @@ setInterval(() => {
 
 <style>
 .Messages {
-  width: 960px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 960px;
 }
 .InnerMessage {
   max-width: 78%;

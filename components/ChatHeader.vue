@@ -1,80 +1,79 @@
 <template>
-  <div class="PageHeader z-50 fixed w-full px-4 gap-4 flex items-stretch">
-    <div>
-      <el-button style="padding: 8px;" @click="openSidebar = !openSidebar">
-        <MenuIcon />
-      </el-button>
-    </div>
-    <NuxtLink to="/" @click="goToChat(null, false, true)" class="text-2xl font-medium">
-      <div class="flex-center">
-        <CurvaLogoSvg class="pointer-events-none" style="height: 32px; margin-right: 8px;" src="~/assets/svg/Curva.svg" />
-        <div>{{ appName }}</div>
-      </div>
-    </NuxtLink>
-    <div class="flex-1 flex items-center justify-end gap-2">
-      <ClientOnly>
-        <el-dropdown v-if="getCurrentConvId()" trigger="click" placement="bottom-start">
-          <el-button>
-            {{ $t('action.more') }}<el-icon class="el-icon--right"><ArrowDown /></el-icon>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <div class="flex flex-col gap-2 py-1 px-2">
-                <div>
-                  <el-button
-                    class="w-full"
-                    style="justify-content: start;"
-                    :icon="EditPen"
-                    @click="renameConversation"
-                  >
-                    {{ $t('action.renameConv') }}
-                  </el-button>
-                </div>
-                <div>
-                  <el-button
-                    class="w-full"
-                    style="justify-content: start;"
-                    :icon="Download"
-                    @click="exportAsMarkdown"
-                  >
-                    {{ $t('action.exportAs') }} .MD
-                  </el-button>
-                </div>
-                <div>
-                  <el-button
-                    class="w-full"
-                    style="justify-content: start;"
-                    :icon="RefreshRight"
-                    @click="refreshChat"
-                  >
-                    {{ $t('action.refresh') }}
-                  </el-button>
-                </div>
-                <div>
-                  <el-button
-                    type="danger"
-                    class="w-full"
-                    style="justify-content: start;"
-                    :icon="Delete"
-                    @click="deleteConversation"
-                    plain
-                  >
-                    {{ $t('action.deleteConv') }}
-                  </el-button>
-                </div>
-              </div>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </ClientOnly>
-    </div>
-    <div>
-      <a href="https://discord.gg/5v49JKKmzJ" target="_blank">
-        <el-button class="DCJoinButton" style="padding: 12px;">
-          <DiscordIconSvg style="height: 24px; width: 24px;" />
-          <span class="ml-2 DCJoinText">{{ $t('header.joinDc') }}</span>
+  <div class="fixed z-50 w-full flex">
+    <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
+    <ChatSidebar />
+    <div class="ChatHeader px-4 gap-4 flex items-stretch flex-1">
+      <div :style="openSidebar ? 'opacity: 0; pointer-events: none;' : ''">
+        <el-button style="padding: 8px;" @click="openMenu = !openMenu">
+          <MenuIcon />
         </el-button>
-      </a>
+      </div>
+      <HomeLink :style="openSidebar ? 'opacity: 0; pointer-events: none;' : ''" />
+      <div class="flex-1 flex items-center justify-end gap-2">
+        <ClientOnly>
+          <el-dropdown v-if="getCurrentConvId()" trigger="click" placement="bottom-start">
+            <el-button>
+              {{ $t('action.more') }}<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <div class="flex flex-col gap-2 py-1 px-2">
+                  <div>
+                    <el-button
+                      class="w-full"
+                      style="justify-content: start;"
+                      :icon="EditPen"
+                      @click="renameConversation"
+                    >
+                      {{ $t('action.renameConv') }}
+                    </el-button>
+                  </div>
+                  <div>
+                    <el-button
+                      class="w-full"
+                      style="justify-content: start;"
+                      :icon="Download"
+                      @click="exportAsMarkdown"
+                    >
+                      {{ $t('action.exportAs') }} .MD
+                    </el-button>
+                  </div>
+                  <div>
+                    <el-button
+                      class="w-full"
+                      style="justify-content: start;"
+                      :icon="RefreshRight"
+                      @click="refreshChat"
+                    >
+                      {{ $t('action.refresh') }}
+                    </el-button>
+                  </div>
+                  <div>
+                    <el-button
+                      type="danger"
+                      class="w-full"
+                      style="justify-content: start;"
+                      :icon="Delete"
+                      @click="deleteConversation"
+                      plain
+                    >
+                      {{ $t('action.deleteConv') }}
+                    </el-button>
+                  </div>
+                </div>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </ClientOnly>
+      </div>
+      <div>
+        <a href="https://discord.gg/5v49JKKmzJ" target="_blank">
+          <el-button class="ChatHeaderDCJoinButton" style="padding: 12px;">
+            <DiscordIconSvg style="height: 24px; width: 24px;" />
+            <span class="ml-2 ChatHeaderDCJoinText">{{ $t('header.joinDc') }}</span>
+          </el-button>
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -83,8 +82,7 @@
 import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
-const appName = useState('appName')
-const { conversations, messages, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
+const { conversations, messages, openMenu, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 
@@ -179,21 +177,24 @@ const exportAsMarkdown = () => {
 }
 </script>
 
-<style scoped>
-.PageHeader {
+<style>
+.ChatHeader {
   background: var(--el-bg-color);
   border-bottom: 1px solid var(--el-border-color);
   min-height: 56px;
 }
-.PageHeader > * {
+.ChatHeaderMenuButton i {
+  transform: scale(1.25);
+}
+.ChatHeader > * {
   display: flex;
   align-items: center;
 }
 @media screen and (max-width: 600px) {
-  .DCJoinButton {
+  .ChatHeaderDCJoinButton {
     padding: 12px 8px !important;
   }
-  .DCJoinText {
+  .ChatHeaderDCJoinText {
     display: none;
   }
 }

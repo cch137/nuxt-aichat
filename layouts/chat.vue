@@ -1,16 +1,15 @@
 <template>
   <ClientOnly>
-    <PageHeader />
+    <ChatHeader />
   </ClientOnly>
-  <div style="padding-top: 56px;">
+  <div style="padding-top: 56px;" class="w-full">
     <slot />
     <ClientOnly>
-      <InputBox />
-      <PageDrawer />
+      <ChatInputBox />
+      <ChatDrawer />
     </ClientOnly>
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<script setup>
+</script>

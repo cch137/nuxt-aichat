@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-full">
     <ChatCore />
   </div>
 </template>

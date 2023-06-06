@@ -14,6 +14,12 @@
 <script setup lang="ts">
 const { temperatureSuffix } = useChat()
 const temperature = ref(+temperatureSuffix.value.substring(2) / 10)
+watch(temperatureSuffix, (value) => {
+  const newTemp = +temperatureSuffix.value.substring(2) / 10
+  if (temperature.value != newTemp) {
+    temperature.value = newTemp
+  }
+})
 const handleChange = (value = 0.5) => {
   const temp = Math.round(value * 10) / 10
   temperature.value = temp

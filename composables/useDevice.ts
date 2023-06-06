@@ -1,6 +1,6 @@
 const device = {
   get isMobileScreen () {
-    return window.screen.width < 600
+    return window.innerWidth < 600
   },
   get isTouchScreen () {
     if (process.client) {
