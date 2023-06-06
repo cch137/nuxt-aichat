@@ -142,8 +142,6 @@ const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'
 
 const contextMode = ref(true)
 
-const openMenu = ref(false)
-
 export default function () {
   const cookie = useUniCookie()
   const previousWebBrowsingMode = cookie.get(webBrowsingCookieName)
@@ -176,8 +174,9 @@ export default function () {
     return conversations.value
       .filter((conv) => conv.id === currentConvId)[0].name || ''
   }
-  const openSidebar = ref(true)
-  const openDrawer = ref(true)
+  const openMenu = ref(false)
+  const openSidebar = ref(false)
+  const openDrawer = ref(false)
   watch(openMenu, (value) => {
     if (useDevice().isMobileScreen) {
       openSidebar.value = false
@@ -201,7 +200,7 @@ export default function () {
       initPage(conv, skipHistoryFetching)
     }
     if (useDevice().isMobileScreen) {
-      openSidebar.value = false
+      openMenu.value = false
     }
     focusInput()
   }

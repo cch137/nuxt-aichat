@@ -529,7 +529,6 @@ const initPage = (conv, skipHistoryFetching = false) => {
 const DEFAULT_TEMPERATURE = "_t05";
 const temperatureSuffix = ref(DEFAULT_TEMPERATURE);
 const contextMode = ref(true);
-const openMenu = ref(false);
 function useChat() {
   const cookie = useUniCookie();
   const previousWebBrowsingMode = cookie.get(webBrowsing);
@@ -561,8 +560,9 @@ function useChat() {
     const currentConvId = getCurrentConvId();
     return conversations.value.filter((conv) => conv.id === currentConvId)[0].name || "";
   };
-  const openSidebar = ref(true);
-  const openDrawer = ref(true);
+  const openMenu = ref(false);
+  const openSidebar = ref(false);
+  const openDrawer = ref(false);
   watch(openMenu, (value) => {
     if (useDevice().isMobileScreen) {
       openSidebar.value = false;
@@ -590,7 +590,7 @@ function useChat() {
       initPage(conv, skipHistoryFetching);
     }
     if (useDevice().isMobileScreen) {
-      openSidebar.value = false;
+      openMenu.value = false;
     }
     focusInput();
   };
@@ -640,4 +640,4 @@ _sfc_main.setup = (props, ctx) => {
 const __nuxt_component_0 = _sfc_main;
 
 export { __nuxt_component_0 as _ };
-//# sourceMappingURL=ChatCore-e4064928.mjs.map
+//# sourceMappingURL=ChatCore-2b438e3e.mjs.map
