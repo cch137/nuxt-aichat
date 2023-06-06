@@ -200,7 +200,9 @@ export default function () {
       messages.value = []
       initPage(conv, skipHistoryFetching)
     }
-    openSidebar.value = false
+    if (useDevice().isMobileScreen) {
+      openSidebar.value = false
+    }
     focusInput()
   }
   return {
