@@ -529,6 +529,9 @@ const initPage = (conv, skipHistoryFetching = false) => {
 const DEFAULT_TEMPERATURE = "_t05";
 const temperatureSuffix = ref(DEFAULT_TEMPERATURE);
 const contextMode = ref(true);
+const openMenu = ref(false);
+const openSidebar = ref(openMenu.value);
+const openDrawer = ref(openMenu.value);
 function useChat() {
   const cookie = useUniCookie();
   const previousWebBrowsingMode = cookie.get(webBrowsing);
@@ -560,9 +563,6 @@ function useChat() {
     const currentConvId = getCurrentConvId();
     return conversations.value.filter((conv) => conv.id === currentConvId)[0].name || "";
   };
-  const openMenu = ref(false);
-  const openSidebar = ref(false);
-  const openDrawer = ref(false);
   watch(openMenu, (value) => {
     if (useDevice().isMobileScreen) {
       openSidebar.value = false;
@@ -582,7 +582,6 @@ function useChat() {
   watch(openSidebar, (value) => {
     openMenu.value = value;
   });
-  openMenu.value = true;
   const goToChat = (conv, force = false, skipHistoryFetching = false) => {
     const currentConvId = getCurrentConvId();
     if (force || (currentConvId !== conv || conv === null)) {
@@ -640,4 +639,4 @@ _sfc_main.setup = (props, ctx) => {
 const __nuxt_component_0 = _sfc_main;
 
 export { __nuxt_component_0 as _ };
-//# sourceMappingURL=ChatCore-2b438e3e.mjs.map
+//# sourceMappingURL=ChatCore-da944715.mjs.map
