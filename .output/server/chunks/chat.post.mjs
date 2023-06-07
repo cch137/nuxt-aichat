@@ -3,7 +3,7 @@ import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index3.mjs';
 import { t as troll, r as read } from './token.mjs';
-import { c as curva, a as chatMdbClient } from './index2.mjs';
+import { c as curva } from './index2.mjs';
 import { g as getIp } from './getIp.mjs';
 import { s as str } from './str.mjs';
 import { l as logger } from './crawler.mjs';
@@ -44,7 +44,7 @@ const chat_post = defineEventHandler(async (event) => {
     return { error: 4 };
   }
   try {
-    const response = await curva.ask(chatMdbClient, user, conv, model, web, prompt, context, tz);
+    const response = await curva.ask(user, conv, model, web, prompt, context, tz);
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);
     }

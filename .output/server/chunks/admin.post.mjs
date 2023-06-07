@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody } from 'h3';
 import { d as discordBot } from './index.mjs';
-import { c as curva } from './index2.mjs';
+import { m as mindsdb } from './index2.mjs';
 import 'discord.js';
 import './index3.mjs';
 import 'dotenv';
@@ -35,19 +35,19 @@ const admin_post = defineEventHandler(async function(event) {
       await discordBot.connect();
       break;
     case "WEBCONN":
-      curva.setConnectMethod("WEB");
+      mindsdb.defaultConnectMethod = "WEB";
       break;
     case "SQLCONN":
-      curva.setConnectMethod("SQL");
+      mindsdb.defaultConnectMethod = "SQL";
       break;
     case "RESTART":
-      await curva.restart();
+      await mindsdb.restart();
       break;
   }
   return await new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        mdbConnectMethod: curva.getConnectMethod(),
+        mdbConnectMethod: mindsdb.defaultConnectMethod,
         dcBotConnected: discordBot.connected,
         pass: true
       });

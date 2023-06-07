@@ -1,5 +1,5 @@
 import { Client, IntentsBitField, EmbedBuilder } from 'discord.js';
-import { c as curva, m as makeMindsDBRequest, d as dcBotMdbClient } from './index2.mjs';
+import { m as mindsdb, c as curva } from './index2.mjs';
 import './index3.mjs';
 import { m as message } from './message.mjs';
 import { d as deleteConversation } from './deleteConversation.mjs';
@@ -46,6 +46,11 @@ async function getContext(user, conv) {
 ${joinedMessages}`;
 }
 
+const dcBotMdbClient = mindsdb.createClient(
+  process.env.DC_BOT_MDB_EMAIL_ADDRESS,
+  process.env.DC_BOT_MDB_PASSWORD,
+  ["gpt4_dc_bot"]
+);
 const useAdminTemplate = (text) => {
   return `
 Here are the translated commands for the AI assistant:
@@ -129,11 +134,12 @@ const Logger = {
   }
 };
 const reviewChat = async (message) => {
+  var _a;
   if (!message.content.trim()) {
     return;
   }
   Logger.typing();
-  const { answer } = await makeMindsDBRequest(dcBotMdbClient, "gpt4_dc_bot", useAdminTemplate(message.content), "");
+  const answer = (_a = await dcBotMdbClient.gpt("gpt4_dc_bot", useAdminTemplate(message.content), "")) == null ? void 0 : _a.answer;
   if (typeof answer !== "string") {
     return;
   }
@@ -182,34 +188,7 @@ const connect = async () => {
     }
     const { content } = message;
     if (content.includes(`<@${CURVA_CLIENT_ID}>`) || content.includes(`<@${CURVA_ROLE_ID}>`)) {
-      const user = `dc@${message.author.id}`;
-      const conv = message.channelId;
-      const interval = setInterval(() => {
-        var _a;
-        (_a = message.channel) == null ? void 0 : _a.sendTyping();
-      }, 3e3);
-      try {
-        const context = await getContext(user, conv);
-        const answer = (await curva.ask(
-          curva.chatMdbClient,
-          user,
-          conv,
-          "gpt4",
-          "OFF",
-          content,
-          context
-          // @ts-ignore
-        )).answer;
-        if (typeof answer === "string") {
-          clearInterval(interval);
-          message.reply(answer);
-        } else {
-          throw "No Answer";
-        }
-      } catch {
-        clearInterval(interval);
-        message.reply("Oops! Something went wrong.");
-      }
+      message.reply("Please use the `/chat` command to chat with me.");
     } else {
       reviewChat(message);
     }
@@ -239,7 +218,6 @@ const connect = async () => {
           const temperature = ((_d = interaction.options.get("temperature")) == null ? void 0 : _d.value) || "_t05";
           const context = await getContext(user, conv);
           const answer = ((_e = await curva.ask(
-            curva.chatMdbClient,
             user,
             conv,
             `gpt4${temperature}`,

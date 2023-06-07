@@ -40,7 +40,7 @@ const _sfc_main = {
   __name: "index",
   __ssrInlineRender: true,
   setup(__props) {
-    useTitle(`Chat - ${useState("appName").value}`);
+    useTitle(`New Chat - ${useState("appName").value}`);
     return (_ctx, _push, _parent, _attrs) => {
       const _component_ChatCore = __nuxt_component_0;
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "w-full" }, _attrs))}>`);
@@ -57,4 +57,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-4148db51.mjs.map
+//# sourceMappingURL=index-ccd9479d.mjs.map
