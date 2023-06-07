@@ -4,21 +4,20 @@ import { Sequelize, Model, DataTypes } from 'sequelize'
 import createAxiosSession from '~/server/services/utils/createAxiosSession'
 import { log as logger } from '~/server/services/mongoose/index'
 import str from '~/utils/str'
-
-let defaultConnectMethod: 'SQL' | 'WEB' = 'SQL'
+import { clientSet, defaultConnectMethod } from './utils'
 
 config()
 
-const getQuestionMaxLength = (modelName: string) => {
-  return modelName.startsWith('gpt3') ? 4096 : 8192
+const sanitizeAnswer = (answer = '') => {
+  return answer?.replaceAll('�', '')
 }
 
 class MindsDBClient {
   email
   password
   allowedModelNames
-  sqlClient: MindsDBSqlClient
-  webClient: MindsDBWebClient
+  sqlClient
+  webClient
   connectMethod: 'SQL' | 'WEB' | undefined
 
   constructor (
@@ -27,53 +26,75 @@ class MindsDBClient {
     allowedModelNames: string[] | Set<string> = [],
     connectMethod?: 'SQL' | 'WEB'
   ) {
-    console.log('EMAIL(MDB):', email)
+    console.log(`MindsDB logged in with ${email}`)
     this.email = email
     this.password = password
     this.allowedModelNames = new Set([...allowedModelNames])
     this.connectMethod = connectMethod
     this.sqlClient = new MindsDBSqlClient(this)
     this.webClient = new MindsDBWebClient(this)
+    clientSet.add(this)
   }
 
-  async execQuery (modelName: string, question = 'Hi', context = '') {
-    const connMethod = this.connectMethod || defaultConnectMethod
-    if (connMethod === 'WEB') {
-      return await this.webClient.execQuery(modelName, question, context)
-    } else {
-      return await this.sqlClient.execQuery(modelName, question, context)
+  get client () {
+    switch (this.connectMethod || defaultConnectMethod.get()) {
+      case 'WEB':
+        return this.webClient
+      case 'SQL':
+      default:
+        return this.sqlClient
     }
   }
 
+  async gpt (modelName: string, question = 'Hi', context = '') {
+    const result = await this.client.query(modelName, question, context)
+    if (typeof result?.answer === 'string') {
+      result.answer = sanitizeAnswer(result.answer)
+    }
+    return result
+  }
+
   async restart () {
-    const killing = this.sqlClient.kill()
-    this.sqlClient = new MindsDBSqlClient(this)
-    this.webClient = new MindsDBWebClient(this)
-    return await killing
+    return await new Promise(async (resolve, reject) => {
+      try {
+        await this.sqlClient.login()
+        await this.webClient.login()
+        resolve(null)
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
+  async kill () {
+    try {
+      await this.sqlClient.sequelize?.close()
+    } catch (err) {
+      clientSet.delete(this)
+    }
   }
 }
 
-class MindsDBSubClient {
+class _Client {
   parent
   get email () { return this.parent.email }
   get password () { return this.parent.password }
+  get allowedModelNames () { return this.parent.allowedModelNames }
   constructor(parent: MindsDBClient) {
     this.parent = parent
   }
-  get allowedModelNames () { return this.parent.allowedModelNames }
 }
 
-class MindsDBSqlClient extends MindsDBSubClient {
-  sequelize: Sequelize
+class MindsDBSqlClient extends _Client {
+  sequelize: Sequelize | undefined
   models = new Map<string, typeof Model>()
 
   constructor(parent: MindsDBClient) {
     super(parent)
-    this.sequelize = this.login()
-    this.allowedModelNames.forEach((modelName) => this.createModel(modelName))
+    this.login()
   }
 
-  login () {
+  async login () {
     const sequelize = new Sequelize(
       'mindsdb',
       this.email,
@@ -85,26 +106,32 @@ class MindsDBSqlClient extends MindsDBSubClient {
         pool: { min: 8, max: 512 }
       }
     )
-    return sequelize
+    if (this.sequelize) {
+      try {
+        await this.sequelize.close()
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    this.sequelize = sequelize
+    this.models.clear()
+    // Create models
+    this.allowedModelNames.forEach((tableName) => {
+      class _Model extends Model { public answer!: string }
+      _Model.init(
+        { answer: { type: DataTypes.STRING, allowNull: false } },
+        { sequelize, tableName }
+      )
+      this.models.set(tableName, _Model)
+    })
   }
 
-  async kill () {
-    return await this.sequelize.close()
-  }
-
-  createModel (tableName: string) {
-    class _Model extends Model { public answer!: string }
-    _Model.init(
-      { answer: { type: DataTypes.STRING, allowNull: false } },
-      { sequelize: this.sequelize, tableName }
-    )
-    this.models.set(tableName, _Model)
-    return _Model
-  }
-
-  async execQuery (modelName: string, question = 'Hi', context = '') {
+  async query (modelName: string, question = 'Hi', context = '') {
     try {
-      const model = this.models.get(modelName) as typeof Model
+      const model = this.models.get(modelName)
+      if (!model) {
+        throw 'Model Not Found'
+      }
       // @ts-ignore
       const result = await model.findOne({
         attributes: ['answer'],
@@ -114,7 +141,7 @@ class MindsDBSqlClient extends MindsDBSubClient {
         }
       }) as { answer: string }
       if (result === null) {
-        throw Error('No Answer Found')
+        throw Error('Answer Not Found')
       }
       return { answer: result.answer }
     } catch (err) {
@@ -124,8 +151,9 @@ class MindsDBSqlClient extends MindsDBSubClient {
   }
 }
 
-class MindsDBWebClient extends MindsDBSubClient {
+class MindsDBWebClient extends _Client {
   session: AxiosInstance | undefined
+
   constructor(parent: MindsDBClient) {
     super(parent)
     this.login()
@@ -136,17 +164,18 @@ class MindsDBWebClient extends MindsDBSubClient {
   }
 
   async login () {
-    this.session = createAxiosSession({
+    const session = createAxiosSession({
       'Referer': 'https://cloud.mindsdb.com/editor'
     })
-    return await this.session.post('https://cloud.mindsdb.com/cloud/login', {
+    await session.post('https://cloud.mindsdb.com/cloud/login', {
       email: this.email,
       password:  this.password,
       rememberMe: true
     })
+    this.session = session
   }
 
-  async execQuery (modelName: string, question = 'Hi', context = '') {
+  async query (modelName: string, question = 'Hi', context = '') {
     question = question.replaceAll('\'', '`')
     context = context.replaceAll('\'', '`')
     try {
@@ -167,18 +196,4 @@ class MindsDBWebClient extends MindsDBSubClient {
   }
 }
 
-const getConnectMethod = () => {
-  return defaultConnectMethod
-}
-
-const setConnectMethod = (method: 'SQL' | 'WEB') => {
-  console.log('SET MDB CONNECT METHOD:', method)
-  defaultConnectMethod = method
-}
-
-export {
-  getConnectMethod,
-  setConnectMethod,
-  MindsDBClient,
-  getQuestionMaxLength,
-}
+export default MindsDBClient

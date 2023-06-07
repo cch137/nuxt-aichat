@@ -18,10 +18,10 @@ if (process.client) {
   initPage(conv)
   window.onresize = () => {
     openMenu.value = false
-    if (!useDevice().isMobileScreen) {
+    if (!useDevice().isTouchScreen) {
       setTimeout(() => {
         openMenu.value = true
-      }, 100)
+      }, 0)
     }
   }
 }

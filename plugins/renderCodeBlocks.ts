@@ -34,6 +34,17 @@ const renderCodeBlocks = (preElements: Element[]) => {
   }
 }
 
+const renderLinks = (aElements: HTMLLinkElement[]) => {
+  const PROCESSED = '_BlankLink'
+  for (const aElement of aElements) {
+    if (aElement.classList.contains(PROCESSED)) {
+      continue
+    }
+    aElement.setAttribute('target', '_blank')
+    aElement.classList.add(PROCESSED)
+  }
+}
+
 if (process.client) {
   let rendering = false
   new MutationObserver((mutationsList) => {
@@ -44,6 +55,7 @@ if (process.client) {
       if (mutation.type === 'childList') {
         rendering = true
         renderCodeBlocks([...document.querySelectorAll('.InnerMessage pre')])
+        renderLinks([...document.querySelectorAll('.InnerMessage a')] as HTMLLinkElement[])
         rendering = false
       }
     }

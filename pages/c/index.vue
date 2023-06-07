@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-useTitle(`Chat - ${useState('appName').value}`)
+useTitle(`New Chat - ${useState('appName').value}`)
 definePageMeta({
   layout: 'chat'
 })

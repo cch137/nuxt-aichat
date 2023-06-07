@@ -1,5 +1,5 @@
 import discordBot from '~/server/services/discord/index'
-import curva from '~/server/services/curva/index'
+import mindsdb from '~/server/services/mindsdb'
 import { readBody } from 'h3'
 
 export default defineEventHandler(async function (event) {
@@ -18,13 +18,13 @@ export default defineEventHandler(async function (event) {
       await discordBot.connect()
       break
     case 'WEBCONN':
-      curva.setConnectMethod('WEB')
+      mindsdb.defaultConnectMethod = 'WEB'
       break
     case 'SQLCONN':
-      curva.setConnectMethod('SQL')
+      mindsdb.defaultConnectMethod = 'SQL'
       break
     case 'RESTART':
-      await curva.restart()
+      await mindsdb.restart()
       break
   }
   return await new Promise<{
@@ -34,7 +34,7 @@ export default defineEventHandler(async function (event) {
   }>((resolve) => {
     setTimeout(() => {
       resolve({
-        mdbConnectMethod: curva.getConnectMethod(),
+        mdbConnectMethod: mindsdb.defaultConnectMethod,
         dcBotConnected: discordBot.connected,
         pass: true
       })

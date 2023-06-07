@@ -3,7 +3,6 @@ import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
-import { chatMdbClient } from '~/server/services/curva/index'
 import curva from '~/server/services/curva/index'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
@@ -36,7 +35,7 @@ export default defineEventHandler(async (event) => {
     return { error: 4 }
   }
   try {
-    const response = await curva.ask(chatMdbClient, user, conv, model, web, prompt, context, tz)
+    const response = await curva.ask(user, conv, model, web, prompt, context, tz)
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }

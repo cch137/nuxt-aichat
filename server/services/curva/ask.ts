@@ -1,9 +1,8 @@
 import crawler from '~/server/services/crawler'
+import curva from '~/server/services/curva'
 import saveMessage from './utils/saveMessage'
-import makeRequest from './utils/makeRequest'
 import makeResponse from './utils/makeResponse'
-import type { MindsDBClient } from './mindsdb'
-import { getQuestionMaxLength } from './mindsdb'
+import mindsdb from '~/server/services/mindsdb'
 import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
 import useDefaultTemplate from './templates/default'
 import advancedAsk from './advanced'
@@ -16,7 +15,6 @@ const _wrapSearchResult = (result: string) => {
 }
 
 async function ask (
-  client: MindsDBClient,
   user: string,
   conv: string,
   modelName = 'gpt4',
@@ -30,7 +28,7 @@ async function ask (
   let complete = true
   const originalQuestion = question
   if (webBrowsing === 'ADVANCED') {
-    const advResult = (await advancedAsk(client, question, context, userTimeZone))
+    const advResult = (await advancedAsk(question, context, userTimeZone))
     props = { queries: advResult.queries, urls: advResult.urls }
     answer = advResult?.answer
     if (!answer) {
@@ -48,18 +46,18 @@ async function ask (
         for (let i = 0; i < urls.length; i++) {
           pages[i] = `${urls[i]}\n${pages[i]}`
         }
-        question = useDefaultTemplate(question, userTimeZone, '', 'Here are the webpages:\n' + pages.join('\n\n---\n\n'))
+        question = useDefaultTemplate(question, userTimeZone, '', 'Information from webpages:\n' + pages.join('\n\n---\n\n'))
       }
     } else {
       question = useDefaultTemplate(question, userTimeZone)
     }
     question = addEndSuffix(question)
-    question = question.substring(0, getQuestionMaxLength(modelName))
+    question = question.substring(0, mindsdb.getGptQuestionMaxLength(modelName))
     complete = endsWithSuffix(question)
     if (complete) {
       question = removeEndSuffix(question)
     }
-    answer = (await makeRequest(client, modelName, question, context))?.answer
+    answer = (await curva.client.gpt(modelName, question, context))?.answer
   }
   props.web = webBrowsing
   const response = await makeResponse(answer, complete, props)

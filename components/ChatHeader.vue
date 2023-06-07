@@ -3,12 +3,12 @@
     <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
     <ChatSidebar />
     <div class="ChatHeader px-4 gap-4 flex items-stretch flex-1">
-      <div :style="openSidebar ? 'opacity: 0; pointer-events: none;' : ''">
+      <div :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" style="transition: .3s;">
         <el-button style="padding: 8px;" @click="openMenu = !openMenu">
           <MenuIcon />
         </el-button>
       </div>
-      <HomeLink :style="openSidebar ? 'opacity: 0; pointer-events: none;' : ''" />
+      <HomeLink :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" />
       <div class="flex-1 flex items-center justify-end gap-2">
         <ClientOnly>
           <el-dropdown v-if="getCurrentConvId()" trigger="click" placement="bottom-start">

@@ -13,6 +13,6 @@ You must adhere to the following guidelines:
 
 Consider yourself an API and refrain from making additional comments. You only need to respond with a JSON object in the following format: \`{ "urls": [], "queries": [] }\`
 
-Here is the question:
+User question:
 ${question}`
 }

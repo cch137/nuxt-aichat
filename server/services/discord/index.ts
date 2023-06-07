@@ -1,7 +1,5 @@
 import type { Guild, Message, Role, TextBasedChannel, VoiceBasedChannel } from 'discord.js'
 import { Client, IntentsBitField, EmbedBuilder } from 'discord.js'
-import makeMindsDBRequest from '~/server/services/curva/utils/makeRequest'
-import { dcBotMdbClient } from '~/server/services/curva/index'
 import {
   CURVA_CLIENT_ID,
   CURVA_ROLE_ID,
@@ -11,8 +9,15 @@ import {
   CURVA_VERIFIED_ROLE_ID
 } from './ids'
 import curva from '~/server/services/curva'
+import mindsdb from '~/server/services/mindsdb'
 import getContext from '~/server/services/curva/getContext'
 import deleteConversation from '../curva/deleteConversation'
+
+const dcBotMdbClient = mindsdb.createClient(
+  process.env.DC_BOT_MDB_EMAIL_ADDRESS as string,
+  process.env.DC_BOT_MDB_PASSWORD as string,
+  ['gpt4_dc_bot']
+)
 
 const useAdminTemplate = (text: string) => {
   return `
@@ -120,7 +125,7 @@ const reviewChat = async (message: Message<boolean>) => {
   }
   Logger.typing()
   // @ts-ignore
-  const { answer } = await makeMindsDBRequest(dcBotMdbClient, 'gpt4_dc_bot', useAdminTemplate(message.content), '')
+  const answer = (await dcBotMdbClient.gpt('gpt4_dc_bot', useAdminTemplate(message.content), ''))?.answer
   if (typeof answer !== 'string') {
     return
   }
@@ -171,33 +176,7 @@ const connect = async () => {
     }
     const { content } = message
     if (content.includes(`<@${CURVA_CLIENT_ID}>`) || content.includes(`<@${CURVA_ROLE_ID}>`)) {
-      const user = `dc@${message.author.id}`
-      const conv = message.channelId
-      const interval = setInterval(() => {
-        message.channel?.sendTyping()
-      }, 3000)
-      try {
-        const context = await getContext(user, conv)
-        const answer = (await curva.ask(
-          curva.chatMdbClient,
-          user,
-          conv,
-          'gpt4', 
-          'OFF',
-          content,
-          context
-        // @ts-ignore
-        )).answer as string
-        if (typeof answer === 'string') {
-          clearInterval(interval)
-          message.reply(answer)
-        } else {
-          throw 'No Answer'
-        }
-      } catch {
-        clearInterval(interval)
-        message.reply('Oops! Something went wrong.')
-      }
+      message.reply('Please use the `/chat` command to chat with me.')
     } else {
       reviewChat(message)
     }
@@ -224,7 +203,6 @@ const connect = async () => {
           const temperature = interaction.options.get('temperature')?.value || '_t05'
           const context = await getContext(user, conv)
           const answer = (await curva.ask(
-            curva.chatMdbClient,
             user,
             conv,
             `gpt4${temperature}`,

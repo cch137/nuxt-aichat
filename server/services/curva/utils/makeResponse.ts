@@ -9,7 +9,7 @@ export default async function (
   try {
     // @ts-ignore
     if (!answer) {
-      return { error: 'No answer found', complete, ...props }
+      return { error: 'Answer Not Found', complete, ...props }
     }
     return { answer, complete, ...props }
   } catch (err) {

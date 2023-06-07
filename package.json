@@ -1,6 +1,7 @@
 {
   "version": "0.1.16",
   "name": "curva",
+  "description": "A free GPT-4 AI chatbot that can browse the web. This is for everyone.",
   "private": true,
   "scripts": {
     "build": "nuxt build",
@@ -45,7 +46,6 @@
     "vue": "^3.3.4",
     "vue-i18n": "^9.2.2"
   },
-  "description": "Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.",
   "main": ".output/server/index.mjs",
   "repository": {
     "type": "git",
