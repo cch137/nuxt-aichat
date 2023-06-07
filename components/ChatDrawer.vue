@@ -18,9 +18,11 @@ if (process.client) {
   initPage(conv)
   window.onresize = () => {
     openMenu.value = false
-    setTimeout(() => {
-      openMenu.value = true
-    }, 100)
+    if (!useDevice().isMobileScreen) {
+      setTimeout(() => {
+        openMenu.value = true
+      }, 100)
+    }
   }
 }
 </script>
