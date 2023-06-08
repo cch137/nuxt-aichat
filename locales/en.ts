@@ -37,7 +37,7 @@ export default {
     about: 'About',
     joinDcMessage: 'Join our Discord server to keep up with the latest news from Curva!',
     webInfo1: 'Basic: ',
-    webInfo2: 'Allow extracting URLs from the question or directly use a search engine to query the question.',
+    webInfo2: 'Allow extracting URLs from the question or directly use a search engine to query the question. ',
     webInfo3: 'Advanced: ',
     webInfo4: 'Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ',
     expFeat1: 'This takes a little while.',

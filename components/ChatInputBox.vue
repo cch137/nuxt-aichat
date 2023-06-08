@@ -118,7 +118,7 @@ const createRequest = (message: string) => {
 }
 
 const createMessage = (type = 'T', text = '') => {
-  return reactive({ type, text, t: new Date() })
+  return reactive({ type, text, t: new Date(), queries: [] as string[], urls: [] as string[] })
 }
 
 const sendMessage = (): boolean => {
@@ -138,6 +138,8 @@ const sendMessage = (): boolean => {
   createRequest(message)
     .then((res) => {
       const answer = (res as any).answer as string
+      const urls = (res as any).urls as string[]
+      const queries = (res as any).queries as string[]
       const isQuestionComplete = 'complete' in (res as any)
         ? (res as any).complete
         : true
@@ -150,6 +152,8 @@ const sendMessage = (): boolean => {
         throw _t('error.plzRefresh')
       }
       answerMessage.text = answer
+      answerMessage.urls = urls || []
+      answerMessage.queries = queries || []
       context.add(message, answer)
       if (_version !== version.value) {
         ElMessageBox.confirm(

@@ -24,13 +24,15 @@ async function ask (
   userTimeZone = 0
 ) {
   let answer: string | undefined
-  let props = {} as any
-  let complete = true
+  let isComplete = true
+  let queries = [] as string[]
+  let urls = [] as string[]
   const originalQuestion = question
   if (webBrowsing === 'ADVANCED') {
     const advResult = (await advancedAsk(question, context, userTimeZone))
-    props = { queries: advResult.queries, urls: advResult.urls }
     answer = advResult?.answer
+    queries = advResult?.queries || queries
+    urls = advResult?.urls || urls
     if (!answer) {
       webBrowsing = 'BASIC'
       console.log('DOWNGRADE: ADVANCED => BASE')
@@ -38,13 +40,17 @@ async function ask (
   }
   if (webBrowsing === 'BASIC' || webBrowsing === 'OFF') {
     if (webBrowsing === 'BASIC') {
-      const urls = extractUrls(question)
-      if (urls.length === 0) {
+      const _urls = extractUrls(question).slice(0, 4)
+      if (_urls.length === 0) {
         question = useDefaultTemplate(question, userTimeZone, '', _wrapSearchResult(await crawler.summarize(question)))
       } else {
-        const pages = await Promise.all(urls.map((url) => crawler.scrape(url)))
-        for (let i = 0; i < urls.length; i++) {
-          pages[i] = `${urls[i]}\n${pages[i]}`
+        const responses = await Promise.all(_urls.map((url) => crawler.scrape(url)))
+        const pages = [] as string[]
+        for (let i = 0; i < _urls.length; i++) {
+          if (!responses[i].error) {
+            urls.push(`${responses[i].title} ${new URL(_urls[i]).href}`)
+          }
+          pages.push(`${_urls[i]}\n${responses[i].response}`)
         }
         question = useDefaultTemplate(question, userTimeZone, '', 'Information from webpages:\n' + pages.join('\n\n---\n\n'))
       }
@@ -53,16 +59,27 @@ async function ask (
     }
     question = addEndSuffix(question)
     question = question.substring(0, mindsdb.getGptQuestionMaxLength(modelName))
-    complete = endsWithSuffix(question)
-    if (complete) {
+    isComplete = endsWithSuffix(question)
+    if (isComplete) {
       question = removeEndSuffix(question)
     }
     answer = (await curva.client.gpt(modelName, question, context))?.answer
   }
-  props.web = webBrowsing
-  const response = await makeResponse(answer, complete, props)
-  if (!((response as any).error) && answer) {
-    saveMessage(user, conv, originalQuestion, answer, modelName)
+  const response = answer ? {
+    answer,
+    complete: isComplete,
+    web: webBrowsing,
+    queries,
+    urls
+  } : {
+    error: 'Answer Not Found',
+    complete: isComplete,
+    web: webBrowsing,
+    queries,
+    urls
+  }
+  if (answer) {
+    saveMessage(user, conv, originalQuestion, answer, queries, urls)
   }
   return response
 }

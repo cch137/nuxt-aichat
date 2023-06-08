@@ -48,12 +48,16 @@ interface SavedChatMessage {
   Q: string;
   A: string;
   t: Date;
+  queries?: string[];
+  urls?: string[];
 }
 
 interface ChatMessage {
   type: string;
   text: string;
   t: Date;
+  queries?: string[];
+  urls?: string[];
 }
 
 const messages = ref<Array<ChatMessage>>([])
@@ -103,9 +107,9 @@ const fetchHistory = (conv: string | null) => {
         }
         const _records = [] as Array<ChatMessage>
         for (const record of records) {
-          const { Q, A, t: _t } = record
+          const { Q, A, urls, queries, t: _t } = record
           const t = new Date(_t)
-          _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, t })
+          _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, urls, queries, t })
           context.add(Q, A, false)
         }
         messages.value.unshift(..._records)

@@ -10,35 +10,61 @@
           <div
             v-for="message in messages"
             :key="message.text"
-            :class="message.type"
-            class="Message flex p-1"
+            class="p-1"
           >
-            <div class="InnerMessage p-2">
-              <div>
-                <span v-if="message.type === 'T'">
-                  <span>Thinking</span>
-                  <span>{{ loadingDots }}</span>
-                </span>
-                <span
-                  v-else-if="message.type === 'A'"
-                  v-html="marked.parse(message.text)"
-                />
-                <span v-else>{{ message.text }}</span>
-              </div>
-              <div v-if="message.type === 'A'" class="flex mt-2 gap-4">
-                <div class="flex-1">
-                  <el-text type="info" size="small" class="opacity-75">
-                    {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
-                  </el-text>
+            <div v-if="message.queries && message.queries.length > 0" class="mb-1 px-2">
+              <el-text class="flex justify-start items-center">
+                <el-icon size="large" style="transform: scale(0.9);">
+                  <Search />
+                </el-icon>
+                <el-tag
+                  v-for="query in message.queries"
+                  class="ml-1"
+                  style="color:
+                  inherit"
+                  type="info"
+                  effect="plain"
+                >
+                  <span>{{ query }}</span>
+                </el-tag>
+              </el-text>
+            </div>
+            <div class="Message flex" :class="message.type">
+              <div class="InnerMessage p-2">
+                <div>
+                  <span v-if="message.type === 'T'">
+                    <span>Thinking</span>
+                    <span>{{ loadingDots }}</span>
+                  </span>
+                  <span
+                    v-else-if="message.type === 'A'"
+                    v-html="marked.parse(message.text)"
+                  />
+                  <span v-else>{{ message.text }}</span>
                 </div>
-                <el-button
-                  :icon="DocumentCopy"
-                  size="small"
-                  class="MessageActionButton"
-                  plain
-                  @click="useCopyToClipboard(message.text)"
-                >{{ $t('action.copy') }}</el-button>
+                <div v-if="message.type === 'A'" class="flex mt-2 gap-4">
+                  <div class="flex-1">
+                    <el-text type="info" size="small" class="opacity-75">
+                      {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
+                    </el-text>
+                  </div>
+                  <el-button
+                    :icon="DocumentCopy"
+                    size="small"
+                    class="MessageActionButton"
+                    plain
+                    @click="useCopyToClipboard(message.text)"
+                  >{{ $t('action.copy') }}</el-button>
+                </div>
               </div>
+            </div>
+            <div v-if="message.urls && message.urls.length > 0" class="mt-1 flex flex-col items-start px-2">
+              <el-link v-for="url in message.urls" type="info" :href="url.split(' ').pop()" target="_blank" class="flex justify-start items-center">
+                <el-icon size="large" style="transform: scale(0.9);">
+                  <Paperclip />
+                </el-icon>
+                <span class="ml-1">{{ url.split(' ').slice(0, url.split(' ').length - 1).join(' ') || url.split(' ')[0] }}</span>
+              </el-link>
             </div>
           </div>
         </div>
@@ -50,7 +76,7 @@
 <script setup>
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
-import { DocumentCopy } from '@element-plus/icons-vue'
+import { DocumentCopy, Search, Paperclip } from '@element-plus/icons-vue'
 
 const { messages, openSidebar } = useChat()
 

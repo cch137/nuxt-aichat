@@ -10,10 +10,14 @@ export default async function (user: string, conv: string) {
   }, {
     _id: 1,
     Q: 1,
-    A: 1
+    A: 1,
+    queries: 1,
+    urls: 1,
   }).sort({ createdAt: 1 })).map((doc) => ({
     Q: doc.Q,
     A: doc.A,
+    queries: doc.queries,
+    urls: doc.urls,
     t: doc._id.getTimestamp().getTime()
   }))
 }
