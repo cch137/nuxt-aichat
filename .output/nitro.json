@@ -1,5 +1,5 @@
 {
-  "date": "2023-06-08T09:31:38.108Z",
+  "date": "2023-06-08T15:19:30.205Z",
   "preset": "node-server",
   "commands": {
     "preview": "node ./server/index.mjs"

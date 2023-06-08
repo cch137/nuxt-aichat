@@ -210,17 +210,52 @@ const manager = {
 };
 const mindsdb = manager;
 
-function saveMessage(user, conv, Q, A, queries = [], urls = []) {
+const chatModelNames = /* @__PURE__ */ new Set([
+  "gpt4",
+  "gpt4_t00",
+  "gpt4_t01",
+  "gpt4_t02",
+  "gpt4_t03",
+  "gpt4_t04",
+  "gpt4_t05",
+  "gpt4_t06",
+  "gpt4_t07",
+  "gpt4_t08",
+  "gpt4_t09",
+  "gpt4_t10",
+  "gpt3",
+  "gpt3_t00",
+  "gpt3_t01",
+  "gpt3_t02",
+  "gpt3_t03",
+  "gpt3_t04",
+  "gpt3_t05",
+  "gpt3_t06",
+  "gpt3_t07",
+  "gpt3_t08",
+  "gpt3_t09",
+  "gpt3_t10",
+  "gpt4_summarizer",
+  "gpt4_mixer"
+]);
+const client = mindsdb.createClient(
+  process.env.CHAT_MDB_EMAIL_ADDRESS,
+  process.env.CHAT_MDB_PASSWORD,
+  chatModelNames
+);
+
+function saveMessage(user, conv, Q, A, queries = [], urls = [], dt) {
+  const record = { user, conv, Q, A };
   if (queries.length > 0) {
-    if (urls.length > 0) {
-      return message.create({ user, conv, Q, A, queries, urls });
-    } else {
-      return message.create({ user, conv, Q, A, queries });
-    }
-  } else if (urls.length) {
-    return message.create({ user, conv, Q, A, urls });
+    record.queries = queries;
   }
-  return message.create({ user, conv, Q, A });
+  if (urls.length > 0) {
+    record.urls = urls;
+  }
+  if (dt) {
+    record.dt = dt;
+  }
+  return message.create(record);
 }
 
 const endSuffix = "\n-END-";
@@ -320,6 +355,21 @@ ${question}
 ${addAfter}`;
 }
 
+function extractUrls(text) {
+  const urlRegex = /((?:https?:\/\/)(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g;
+  const matches = text.match(urlRegex);
+  if (matches) {
+    return matches.map((url) => {
+      if (/^https?:\/\//i.test(url)) {
+        return url;
+      }
+      return `http://${url}`;
+    });
+  } else {
+    return [];
+  }
+}
+
 function useParseUrlsAndQueries(question, userTimeZone = 0) {
   const time = formatUserCurrentTime(userTimeZone);
   return `User current time: ${time}
@@ -344,7 +394,7 @@ Select the websites you need to visit from search engine results to answer user 
 You must adhere to the following guidelines:
 - You have a quota of 8 websites to choose from. Minimize the usage of quotas as much as possible. Select only the necessary websites.
 - If it is impossible to determine from the description of website whether it contains useful information, do not choose that website.
-- You can choose websites that are in a different language than the question.
+- English materials are preferred.
 - Ensure that the release time of the news is relevant to the question asked to avoid outdated information.
 Consider yourself an API and refrain from making additional comments. You only need to respond with a JSON array. Each element in the array should be an object with two properties: "url" (string) and "title" (string).
 
@@ -379,7 +429,7 @@ const makeSureUrlsStartsWithHttp = (urls) => {
 };
 const extractInfomation = async (question, result, userTimeZone = 0) => {
   var _a;
-  return ((_a = await curva.client.gpt(
+  return ((_a = await client.gpt(
     "gpt4_summarizer",
     useExtractPage(
       question,
@@ -414,7 +464,7 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
   try {
     let i = 0;
     const question1 = useParseUrlsAndQueries(question, userTimeZone);
-    const answer1 = (_a = await curva.client.gpt("gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
+    const answer1 = (_a = await client.gpt("gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
     const answer1Json = answer1.substring(answer1.indexOf("{"), answer1.lastIndexOf("}") + 1);
     const { urls: _urls, queries } = JSON.parse(answer1Json);
     const urls = [];
@@ -426,7 +476,7 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
     extractInfomation(question, summaryXShowUrl, userTimeZone).then((result) => results.unshift(result)).catch(() => {
     });
     const question2 = useSelectSites(question, summaryShowUrl, userTimeZone);
-    const answer2 = (_b = await curva.client.gpt("gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
+    const answer2 = (_b = await client.gpt("gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
     const answer2Json = answer2.substring(answer2.indexOf("["), answer2.lastIndexOf("]") + 1);
     const selectedSites = JSON.parse(answer2Json);
     const selectedSiteUrls = makeSureUrlsStartsWithHttp(selectedSites.map((site) => site.url));
@@ -450,25 +500,10 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
     const _references = `Here are references from the internet:
 ${references.join("\n")}`;
     const finalQuestion = useDefaultTemplate(question, userTimeZone, addtionalRules, _references).substring(0, 16384);
-    return { queries, urls, ...await curva.client.gpt("gpt4", finalQuestion, context) };
+    return { queries, urls, ...await client.gpt("gpt4", finalQuestion, context) };
   } catch (err) {
     logger.create({ type: "error.advanced", text: str(err) });
     return { queries: [], urls: [], answer: void 0 };
-  }
-}
-
-function extractUrls(text) {
-  const urlRegex = /((?:https?:\/\/)(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g;
-  const matches = text.match(urlRegex);
-  if (matches) {
-    return matches.map((url) => {
-      if (/^https?:\/\//i.test(url)) {
-        return url;
-      }
-      return `http://${url}`;
-    });
-  } else {
-    return [];
   }
 }
 
@@ -478,6 +513,7 @@ ${result}` : "";
 };
 async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", question, context = "", userTimeZone = 0) {
   var _a;
+  const t0 = Date.now();
   let answer;
   let isComplete = true;
   let queries = [];
@@ -519,64 +555,43 @@ ${responses[i].response}`);
     if (isComplete) {
       question = removeEndSuffix(question);
     }
-    answer = (_a = await curva.client.gpt(modelName, question, context)) == null ? void 0 : _a.answer;
+    answer = (_a = await client.gpt(modelName, question, context)) == null ? void 0 : _a.answer;
   }
+  const dt = Date.now() - t0;
   const response = answer ? {
     answer,
     complete: isComplete,
     web: webBrowsing,
     queries,
-    urls
+    urls,
+    dt
   } : {
     error: "Answer Not Found",
     complete: isComplete,
     web: webBrowsing,
     queries,
-    urls
+    urls,
+    dt
   };
   if (answer) {
-    saveMessage(user, conv, originalQuestion, answer, queries, urls);
+    saveMessage(user, conv, originalQuestion, answer, queries, urls, dt);
   }
   return response;
 }
 
-const chatModelNames = /* @__PURE__ */ new Set([
-  "gpt4",
-  "gpt4_t00",
-  "gpt4_t01",
-  "gpt4_t02",
-  "gpt4_t03",
-  "gpt4_t04",
-  "gpt4_t05",
-  "gpt4_t06",
-  "gpt4_t07",
-  "gpt4_t08",
-  "gpt4_t09",
-  "gpt4_t10",
-  "gpt3",
-  "gpt3_t00",
-  "gpt3_t01",
-  "gpt3_t02",
-  "gpt3_t03",
-  "gpt3_t04",
-  "gpt3_t05",
-  "gpt3_t06",
-  "gpt3_t07",
-  "gpt3_t08",
-  "gpt3_t09",
-  "gpt3_t10",
-  "gpt4_summarizer",
-  "gpt4_mixer"
-]);
-const client = mindsdb.createClient(
-  process.env.CHAT_MDB_EMAIL_ADDRESS,
-  process.env.CHAT_MDB_PASSWORD,
-  chatModelNames
-);
+async function more(question, amount) {
+  var _a;
+  const answer = (_a = await client.gpt("gpt4", `You are required to predict the user's next question based on their previous question (provide ${amount || 3} suggestions).
+  If the user's previous question doesn't have a specific topic, you need to anticipate potential topics the user might bring up and predict some principles or phenomena they might ask you to explain.
+  You don't need to answer the user's question. Consider yourself as an API and refrain from making any additional comments. Simply reply with a JSON format \`{ more: [] }\`. Here is the user's question: ${question}`, "")) == null ? void 0 : _a.answer;
+  return JSON.parse(answer.substring(answer.indexOf("{"), answer.lastIndexOf("}") + 1)).more;
+}
+
 const curva = {
   mindsdb,
   client,
-  ask
+  ask,
+  more
 };
 
 export { curva as c, mindsdb as m };

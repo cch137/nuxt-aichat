@@ -1,4 +1,4 @@
-import { hasInjectionContext, getCurrentInstance, version, toRef, isRef, inject, ref, watchEffect, watch, useSSRContext, createApp, reactive, unref, provide, onErrorCaptured, onServerPrefetch, createVNode, resolveDynamicComponent, shallowRef, computed, isReadonly, defineAsyncComponent, isShallow, isReactive, toRaw, withCtx, nextTick, defineComponent, h, Suspense, Transition } from 'vue';
+import { hasInjectionContext, getCurrentInstance, version, toRef, isRef, computed, unref, inject, ref, watchEffect, watch, useSSRContext, createApp, reactive, provide, onErrorCaptured, onServerPrefetch, createVNode, resolveDynamicComponent, shallowRef, isReadonly, defineAsyncComponent, isShallow, isReactive, toRaw, withCtx, nextTick, defineComponent, h, Suspense, Transition } from 'vue';
 import { $fetch } from 'ofetch';
 import { createHooks } from 'hookable';
 import { getContext, executeAsync } from 'unctx';
@@ -8,9 +8,9 @@ import { getActiveHead, createServerHead as createServerHead$1 } from 'unhead';
 import { defineHeadPlugin } from '@unhead/shared';
 import { createMemoryHistory, createRouter, START_LOCATION, useRoute as useRoute$1, RouterView } from 'vue-router';
 import { hasProtocol, parseURL, joinURL } from 'ufo';
+import { useNavigatorLanguage } from '@vueuse/core';
 import { parse, serialize } from 'cookie';
 import { createI18n } from 'vue-i18n';
-import { useNavigatorLanguage } from '@vueuse/core';
 import { ssrRenderSuspense, ssrRenderComponent, ssrRenderVNode } from 'vue/server-renderer';
 import { defu } from 'defu';
 import { a as useRuntimeConfig$1 } from '../nitro/node-server.mjs';
@@ -508,7 +508,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/cch137-94ca818e.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/cch137-3221c16e.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "c-conv",
@@ -516,7 +516,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-e54e6c61.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-17640c2e.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c",
@@ -524,7 +524,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/index-2628c20c.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-721b6306.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -532,7 +532,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-5372ad79.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-e98a8cdb.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -540,7 +540,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-bf0656e3.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-1de68295.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -787,7 +787,103 @@ function renderTeleports(teleports) {
   }, teleports.body || "");
   return { ...teleports, body };
 }
+class ElementPlusError extends Error {
+  constructor(m) {
+    super(m);
+    this.name = "ElementPlusError";
+  }
+}
+function throwError(scope, m) {
+  throw new ElementPlusError(`[${scope}] ${m}`);
+}
+function debugWarn(scope, message) {
+}
+const defaultNamespace = "el";
+const statePrefix = "is-";
+const _bem = (namespace, block, blockSuffix, element, modifier) => {
+  let cls = `${namespace}-${block}`;
+  if (blockSuffix) {
+    cls += `-${blockSuffix}`;
+  }
+  if (element) {
+    cls += `__${element}`;
+  }
+  if (modifier) {
+    cls += `--${modifier}`;
+  }
+  return cls;
+};
+const namespaceContextKey = Symbol("namespaceContextKey");
+const useGetDerivedNamespace = (namespaceOverrides) => {
+  const derivedNamespace = namespaceOverrides || inject(namespaceContextKey, ref(defaultNamespace));
+  const namespace = computed(() => {
+    return unref(derivedNamespace) || defaultNamespace;
+  });
+  return namespace;
+};
+const useNamespace = (block, namespaceOverrides) => {
+  const namespace = useGetDerivedNamespace(namespaceOverrides);
+  const b = (blockSuffix = "") => _bem(namespace.value, block, blockSuffix, "", "");
+  const e = (element) => element ? _bem(namespace.value, block, "", element, "") : "";
+  const m = (modifier) => modifier ? _bem(namespace.value, block, "", "", modifier) : "";
+  const be = (blockSuffix, element) => blockSuffix && element ? _bem(namespace.value, block, blockSuffix, element, "") : "";
+  const em = (element, modifier) => element && modifier ? _bem(namespace.value, block, "", element, modifier) : "";
+  const bm = (blockSuffix, modifier) => blockSuffix && modifier ? _bem(namespace.value, block, blockSuffix, "", modifier) : "";
+  const bem = (blockSuffix, element, modifier) => blockSuffix && element && modifier ? _bem(namespace.value, block, blockSuffix, element, modifier) : "";
+  const is = (name, ...args) => {
+    const state = args.length >= 1 ? args[0] : true;
+    return name && state ? `${statePrefix}${name}` : "";
+  };
+  const cssVar = (object) => {
+    const styles = {};
+    for (const key in object) {
+      if (object[key]) {
+        styles[`--${namespace.value}-${key}`] = object[key];
+      }
+    }
+    return styles;
+  };
+  const cssVarBlock = (object) => {
+    const styles = {};
+    for (const key in object) {
+      if (object[key]) {
+        styles[`--${namespace.value}-${block}-${key}`] = object[key];
+      }
+    }
+    return styles;
+  };
+  const cssVarName = (name) => `--${namespace.value}-${name}`;
+  const cssVarBlockName = (name) => `--${namespace.value}-${block}-${name}`;
+  return {
+    namespace,
+    b,
+    e,
+    m,
+    be,
+    em,
+    bm,
+    bem,
+    is,
+    cssVar,
+    cssVarName,
+    cssVarBlock,
+    cssVarBlockName
+  };
+};
+const defaultIdInjection = {
+  prefix: Math.floor(Math.random() * 1e4),
+  current: 0
+};
 const ID_INJECTION_KEY = Symbol("elIdInjection");
+const useIdInjection = () => {
+  return getCurrentInstance() ? inject(ID_INJECTION_KEY, defaultIdInjection) : defaultIdInjection;
+};
+const useId = (deterministicId) => {
+  const idInjection = useIdInjection();
+  const namespace = useGetDerivedNamespace();
+  const idRef = computed(() => unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`);
+  return idRef;
+};
 const element_plus_injection_plugin_1RNPi6ogby = /* @__PURE__ */ defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.provide(ID_INJECTION_KEY, { "prefix": 1024, "current": 0 });
 });
@@ -3778,6 +3874,7 @@ const en = {
     more: "More actions",
     renameConv: "Rename conversation",
     refresh: "Refresh conversation",
+    regenerate: "Regenerate",
     copy: "Copy",
     copySuccess: "Copied!",
     copyFailed: "Copy failed.",
@@ -3806,7 +3903,7 @@ const en = {
     webInfo4: "Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ",
     expFeat1: "This takes a little while.",
     expFeat2: "This will take longer.",
-    tempInfo: "With higher values increasing randomness and diversity, while lower values decrease randomness and make the output more predictable."
+    tempInfo: "With higher values increase randomness and diversity, while lower values decrease randomness and make the output more predictable."
   },
   settings: {
     title: "Settings",
@@ -3851,6 +3948,7 @@ const zhTW = {
     more: "更多操作",
     renameConv: "重命名對話",
     refresh: "刷新對話",
+    regenerate: "重新生成",
     copy: "複製",
     copySuccess: "已複製！",
     copyFailed: "複製失敗。",
@@ -4016,8 +4114,8 @@ const _wrapIf = (component, props, slots) => {
   } };
 };
 const layouts = {
-  chat: () => import('./_nuxt/chat-99d3e679.mjs').then((m) => m.default || m),
-  default: () => import('./_nuxt/default-f806e1b4.mjs').then((m) => m.default || m)
+  chat: () => import('./_nuxt/chat-a2105d9c.mjs').then((m) => m.default || m),
+  default: () => import('./_nuxt/default-4863b94e.mjs').then((m) => m.default || m)
 };
 const LayoutLoader = /* @__PURE__ */ defineComponent({
   name: "LayoutLoader",
@@ -4201,8 +4299,8 @@ const _sfc_main = {
   __name: "nuxt-root",
   __ssrInlineRender: true,
   setup(__props) {
-    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-1fa50fb9.mjs').then((r) => r.default || r));
-    const IslandRenderer = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/island-renderer-83392034.mjs').then((r) => r.default || r));
+    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-afa53b32.mjs').then((r) => r.default || r));
+    const IslandRenderer = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/island-renderer-715a7857.mjs').then((r) => r.default || r));
     const nuxtApp = useNuxtApp();
     nuxtApp.deferHydration();
     nuxtApp.ssrContext.url;
@@ -4267,5 +4365,5 @@ const plugins = normalizePlugins(_plugins);
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useHead as a, useUniCookie as b, createError as c, useNuxtApp as d, entry$1 as default, useRouter as e, navigateTo as n, useState as u };
+export { _export_sfc as _, useHead as a, useNamespace as b, createError as c, useId as d, entry$1 as default, debugWarn as e, useUniCookie as f, useNuxtApp as g, useLocale as h, defaultNamespace as i, namespaceContextKey as j, useRouter as k, navigateTo as n, throwError as t, useState as u };
 //# sourceMappingURL=server.mjs.map

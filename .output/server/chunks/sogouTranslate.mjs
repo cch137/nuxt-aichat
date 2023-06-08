@@ -1,4 +1,4 @@
-import _md5 from 'crypto-js/md5.js';
+import md5$1 from 'crypto-js/md5.js';
 import axios from 'axios';
 import { serialize, parse } from 'cookie';
 
@@ -35,7 +35,7 @@ function createAxiosSession(headers = {}) {
 }
 
 const md5 = (text) => {
-  return _md5(text).toString();
+  return md5$1(text).toString();
 };
 const apiName = "SogouTrans";
 let session;
