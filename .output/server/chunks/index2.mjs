@@ -210,20 +210,17 @@ const manager = {
 };
 const mindsdb = manager;
 
-function saveMessage(user, conv, Q, A, model) {
-  return message.create({ user, conv, model, Q, A });
-}
-
-async function makeResponse(answer, complete = true, props = {}) {
-  try {
-    if (!answer) {
-      return { error: "Answer Not Found", complete, ...props };
+function saveMessage(user, conv, Q, A, queries = [], urls = []) {
+  if (queries.length > 0) {
+    if (urls.length > 0) {
+      return message.create({ user, conv, Q, A, queries, urls });
+    } else {
+      return message.create({ user, conv, Q, A, queries });
     }
-    return { answer, complete, ...props };
-  } catch (err) {
-    logger.create({ type: "error.makeResponse", text: str(err) });
-    return { error: "Request failed", complete, ...props };
+  } else if (urls.length) {
+    return message.create({ user, conv, Q, A, urls });
   }
+  return message.create({ user, conv, Q, A });
 }
 
 const endSuffix = "\n-END-";
@@ -313,12 +310,10 @@ function formatUserCurrentTime(userTimeZone = 0) {
 
 function useDefaultTemplate(question, userTimeZone = 0, additionRules = "", addAfter = "") {
   const time = formatUserCurrentTime(userTimeZone);
-  return `Your developer: cch137
-User current time: ${time}
-Strictly adhere to the following rules:
-- Add spaces before and after the URL in your answer.
+  return `User current time: ${time}
+${additionRules ? `Strictly adhere to the following rules:
 ${additionRules}
-
+` : ""}
 User question:
 ${question}
 
@@ -381,26 +376,34 @@ ${result}`;
 const makeSureUrlsStartsWithHttp = (urls) => {
   return urls.map((url) => url.startsWith("http://") || url.startsWith("https://") ? url : `http://${url}`);
 };
-const gpt4ScrapeAndSummary = async (question, url, userTimeZone = 0, delay = 0) => {
-  try {
-    return await new Promise(async (resolve, reject) => {
-      setTimeout(async () => {
-        var _a;
-        const answer = ((_a = await curva.client.gpt(
-          "gpt4_summarizer",
-          useExtractPage(
-            question,
-            (await crawler.scrape(url)).substring(0, 16384),
-            userTimeZone
-          )
-        )) == null ? void 0 : _a.answer) || "";
-        resolve(answer);
-      }, delay);
-    });
-  } catch (err) {
-    logger.create({ type: "error.advanced.summary", refer: `${question} ${url}`, text: str(err) });
-    return "";
-  }
+const extractInfomation = async (question, result, userTimeZone = 0) => {
+  var _a;
+  return ((_a = await curva.client.gpt(
+    "gpt4_summarizer",
+    useExtractPage(
+      question,
+      result,
+      userTimeZone
+    )
+  )) == null ? void 0 : _a.answer) || "";
+};
+const scrapeAndSummary = async (question, url, userTimeZone = 0, delay = 0) => {
+  return await new Promise(async (resolve) => {
+    setTimeout(async () => {
+      const page = await crawler.scrape(url);
+      const source = `${page.title} ${new URL(page.url).href}`;
+      if (page.error) {
+        return page;
+      }
+      try {
+        const answer = await extractInfomation(question, page.response.substring(0, 16384), userTimeZone);
+        resolve({ source, result: answer });
+      } catch (err) {
+        logger.create({ type: "error.advanced.summary", refer: `${question} ${url}`, text: str(err) });
+        return resolve({ source, result: page.response, error: err || {} });
+      }
+    }, delay);
+  });
 };
 const addtionalRules = `- Use references where possible and answer in detail.
 - Ensure the overall coherence and consistency of the responses.
@@ -413,21 +416,30 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
     const answer1 = (_a = await curva.client.gpt("gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
     const answer1Json = answer1.substring(answer1.indexOf("{"), answer1.lastIndexOf("}") + 1);
     const { urls: _urls, queries } = JSON.parse(answer1Json);
-    const urls = makeSureUrlsStartsWithHttp(_urls);
-    const _pages1 = urls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
-    const summary = (await Promise.all(queries.map((query) => crawler.summarize(query, true, false)))).join("\n\n");
-    const question2 = useSelectSites(question, summary, userTimeZone);
+    const urls = [];
+    const results = [];
+    const _pages1 = makeSureUrlsStartsWithHttp(_urls).map((url) => scrapeAndSummary(question, url, userTimeZone, i += 1e3));
+    const searchs = await Promise.all(queries.map((query) => crawler.search(query, false)));
+    const summaryShowUrl = searchs.map((search) => crawler._outputSummarize(search, true)).join("\n\n");
+    const summaryXShowUrl = searchs.map((search) => crawler._outputSummarize(search, false)).join("\n\n");
+    extractInfomation(question, summaryXShowUrl, userTimeZone).then((result) => results.unshift(result)).catch(() => {
+    });
+    const question2 = useSelectSites(question, summaryShowUrl, userTimeZone);
     const answer2 = (_b = await curva.client.gpt("gpt4_summarizer", question2)) == null ? void 0 : _b.answer;
     const answer2Json = answer2.substring(answer2.indexOf("["), answer2.lastIndexOf("]") + 1);
     const selectedSites = JSON.parse(answer2Json);
     const selectedSiteUrls = makeSureUrlsStartsWithHttp(selectedSites.map((site) => site.url));
-    const _pages2 = selectedSiteUrls.map((url) => gpt4ScrapeAndSummary(question, url, userTimeZone, i += 1e3));
+    const _pages2 = selectedSiteUrls.map((url) => scrapeAndSummary(question, url, userTimeZone, i += 1e3));
     const pages = [..._pages1, ..._pages2];
-    const references = await new Promise(async (resolve, reject) => {
-      const results = [];
-      setTimeout(() => resolve(results), 5 * 6e4);
+    const references = await new Promise(async (resolve) => {
+      setTimeout(() => resolve(results), 300 * 1e3);
       for (const page of pages) {
-        page.then((result) => results.push(result)).catch(() => results.push("")).finally(() => {
+        page.then((result) => {
+          if (!result.error) {
+            urls.push(result.source);
+          }
+          results.push(result.result);
+        }).catch(() => results.push("")).finally(() => {
           if (results.length === pages.length) {
             resolve(results);
           }
@@ -466,13 +478,15 @@ ${result}` : "";
 async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", question, context = "", userTimeZone = 0) {
   var _a;
   let answer;
-  let props = {};
-  let complete = true;
+  let isComplete = true;
+  let queries = [];
+  let urls = [];
   const originalQuestion = question;
   if (webBrowsing === "ADVANCED") {
     const advResult = await advancedAsk(question, context, userTimeZone);
-    props = { queries: advResult.queries, urls: advResult.urls };
     answer = advResult == null ? void 0 : advResult.answer;
+    queries = (advResult == null ? void 0 : advResult.queries) || queries;
+    urls = (advResult == null ? void 0 : advResult.urls) || urls;
     if (!answer) {
       webBrowsing = "BASIC";
       console.log("DOWNGRADE: ADVANCED => BASE");
@@ -480,14 +494,18 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
   }
   if (webBrowsing === "BASIC" || webBrowsing === "OFF") {
     if (webBrowsing === "BASIC") {
-      const urls = extractUrls(question);
-      if (urls.length === 0) {
+      const _urls = extractUrls(question).slice(0, 4);
+      if (_urls.length === 0) {
         question = useDefaultTemplate(question, userTimeZone, "", _wrapSearchResult(await crawler.summarize(question)));
       } else {
-        const pages = await Promise.all(urls.map((url) => crawler.scrape(url)));
-        for (let i = 0; i < urls.length; i++) {
-          pages[i] = `${urls[i]}
-${pages[i]}`;
+        const responses = await Promise.all(_urls.map((url) => crawler.scrape(url)));
+        const pages = [];
+        for (let i = 0; i < _urls.length; i++) {
+          if (!responses[i].error) {
+            urls.push(`${responses[i].title} ${new URL(_urls[i]).href}`);
+          }
+          pages.push(`${_urls[i]}
+${responses[i].response}`);
         }
         question = useDefaultTemplate(question, userTimeZone, "", "Information from webpages:\n" + pages.join("\n\n---\n\n"));
       }
@@ -496,16 +514,27 @@ ${pages[i]}`;
     }
     question = addEndSuffix(question);
     question = question.substring(0, mindsdb.getGptQuestionMaxLength(modelName));
-    complete = endsWithSuffix(question);
-    if (complete) {
+    isComplete = endsWithSuffix(question);
+    if (isComplete) {
       question = removeEndSuffix(question);
     }
     answer = (_a = await curva.client.gpt(modelName, question, context)) == null ? void 0 : _a.answer;
   }
-  props.web = webBrowsing;
-  const response = await makeResponse(answer, complete, props);
-  if (!response.error && answer) {
-    saveMessage(user, conv, originalQuestion, answer, modelName);
+  const response = answer ? {
+    answer,
+    complete: isComplete,
+    web: webBrowsing,
+    queries,
+    urls
+  } : {
+    error: "Answer Not Found",
+    complete: isComplete,
+    web: webBrowsing,
+    queries,
+    urls
+  };
+  if (answer) {
+    saveMessage(user, conv, originalQuestion, answer, queries, urls);
   }
   return response;
 }

@@ -508,7 +508,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/cch137-2cdf2413.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/cch137-94ca818e.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "c-conv",
@@ -516,7 +516,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-477f454d.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-e54e6c61.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c",
@@ -524,7 +524,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/index-ccd9479d.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-2628c20c.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -532,7 +532,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-36aa7a16.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-5372ad79.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -3801,7 +3801,7 @@ const en = {
     about: "About",
     joinDcMessage: "Join our Discord server to keep up with the latest news from Curva!",
     webInfo1: "Basic: ",
-    webInfo2: "Allow extracting URLs from the question or directly use a search engine to query the question.",
+    webInfo2: "Allow extracting URLs from the question or directly use a search engine to query the question. ",
     webInfo3: "Advanced: ",
     webInfo4: "Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ",
     expFeat1: "This takes a little while.",
@@ -4201,7 +4201,7 @@ const _sfc_main = {
   __name: "nuxt-root",
   __ssrInlineRender: true,
   setup(__props) {
-    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-b4f02466.mjs').then((r) => r.default || r));
+    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-1fa50fb9.mjs').then((r) => r.default || r));
     const IslandRenderer = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/island-renderer-83392034.mjs').then((r) => r.default || r));
     const nuxtApp = useNuxtApp();
     nuxtApp.deferHydration();
@@ -4267,5 +4267,5 @@ const plugins = normalizePlugins(_plugins);
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useUniCookie as a, useNuxtApp as b, createError as c, useHead as d, entry$1 as default, useRouter as e, navigateTo as n, useState as u };
+export { _export_sfc as _, useHead as a, useUniCookie as b, createError as c, useNuxtApp as d, entry$1 as default, useRouter as e, navigateTo as n, useState as u };
 //# sourceMappingURL=server.mjs.map

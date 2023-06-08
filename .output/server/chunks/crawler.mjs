@@ -21,10 +21,10 @@ const trimText = (text) => {
 };
 const scrape = async (url) => {
   var _a, _b, _c, _d;
+  if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+    url = `http://${url}`;
+  }
   try {
-    if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-      url = `http://${url}`;
-    }
     const origin = new URL(url).origin;
     const headers = {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50",
@@ -55,21 +55,31 @@ const scrape = async (url) => {
     const markdown = td.turndown($("body").prop("innerHTML")).replaceAll("<br>", " ");
     const title = $("title").text() || ((_a = $('meta[name="title"]').attr()) == null ? void 0 : _a.content) || ((_b = $('meta[name="og:title"]').attr()) == null ? void 0 : _b.content);
     const description = ((_c = $('meta[name="description"]').attr()) == null ? void 0 : _c.content) || ((_d = $('meta[name="og:description"]').attr()) == null ? void 0 : _d.content);
-    return (title ? `title: ${title}
+    return {
+      title: title || url,
+      url,
+      response: (title ? `title: ${title}
 ` : "") + (description ? `description: ${description.substring(0, 256)}
-` : "") + "---\n" + trimText(markdown);
+` : "") + "---\n" + trimText(markdown)
+    };
   } catch (err) {
+    let message = "";
     if (err instanceof Error) {
-      err = `${err.name}: ${err.message}`;
+      message = `${err.name}: ${err.message}`;
     } else if (typeof err !== "string") {
-      err = "Error: Unkonwn Error";
+      message = "Error: Unkonwn Error";
     }
-    console.log(`SCRAPE FAILED (${err}): ${url}`);
-    logger.create({ type: "error.crawler.scrape", refer: url, text: err });
-    return err;
+    console.log(`SCRAPE FAILED (${message}): ${url}`);
+    logger.create({ type: "error.crawler.scrape", refer: url, text: message });
+    return {
+      title: url,
+      url,
+      error: err || {},
+      response: message
+    };
   }
 };
-const summarize = async (query, showUrl = false, translate$1 = true) => {
+const search = async (query, translate$1 = true) => {
   try {
     query = query.replace(/[\s]+/g, " ").trim();
     const searchQueries = /* @__PURE__ */ new Set([query.substring(0, 256)]);
@@ -89,21 +99,29 @@ const summarize = async (query, showUrl = false, translate$1 = true) => {
       results.push(...searched.results);
       results.push(...searched.top_stories);
     }
-    const summarize2 = [
-      ...new Set(results.map((r) => `${showUrl ? decodeURIComponent(r.url) + "\n" : ""}${r.title ? "# " + r.title : ""}
-${r.description}`))
-    ].join("\n\n");
-    return summarize2;
+    return results;
   } catch (err) {
     err = str(err);
     console.log("SUMMARIZE FAILED:", err);
     logger.create({ type: "error.crawler.summarize", text: err });
-    return "";
+    return [];
   }
+};
+const _outputSummarize = (results, showUrl = false) => {
+  return [
+    ...new Set(results.map((r) => `${showUrl ? r.url : ""}
+${r.title ? r.title : ""}
+${r.description}`))
+  ].join("\n\n");
+};
+const summarize = async (query, showUrl = false, translate = true) => {
+  return _outputSummarize(await search(query, translate), showUrl);
 };
 const crawler = {
   scrape,
-  summarize
+  search,
+  summarize,
+  _outputSummarize
 };
 const crawler$1 = crawler;
 
