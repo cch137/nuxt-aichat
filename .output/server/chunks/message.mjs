@@ -12,7 +12,7 @@ const schema = new Schema({
   versionKey: false,
   strict: "throw"
 });
-const message = model("Message", schema, "_messages");
+const message = model("Message", schema, "messages");
 
 export { message as m };
 //# sourceMappingURL=message.mjs.map

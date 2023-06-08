@@ -13,4 +13,4 @@ const schema = new Schema({
   strict: 'throw'
 })
 
-export default model('Message', schema, '_messages')
+export default model('Message', schema, 'messages')
