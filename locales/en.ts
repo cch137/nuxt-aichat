@@ -14,6 +14,7 @@ export default {
     more: 'More actions',
     renameConv: 'Rename conversation',
     refresh: 'Refresh conversation',
+    regenerate: 'Regenerate',
     copy: 'Copy',
     copySuccess: 'Copied!',
     copyFailed: 'Copy failed.',
@@ -42,7 +43,7 @@ export default {
     webInfo4: 'Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ',
     expFeat1: 'This takes a little while.',
     expFeat2: 'This will take longer.',
-    tempInfo: 'With higher values increasing randomness and diversity, while lower values decrease randomness and make the output more predictable.',
+    tempInfo: 'With higher values increase randomness and diversity, while lower values decrease randomness and make the output more predictable.',
   },
   settings: {
     title: 'Settings',

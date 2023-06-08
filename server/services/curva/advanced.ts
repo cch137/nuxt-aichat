@@ -1,18 +1,18 @@
 import crawler from '~/server/services/crawler'
-import curva from '~/server/services/curva'
 import useParseUrlsAndQueries from './templates/parseUrlsAndQueries'
 import useSelectSites from './templates/selectSites'
 import useExtractPage from './templates/extractPage'
 import useDefaultTemplate from './templates/default'
 import { log as logger } from '~/server/services/mongoose/index'
 import str from '~/utils/str'
+import client from './client'
 
 const makeSureUrlsStartsWithHttp = (urls: string[]) => {
   return urls.map((url) => (url.startsWith('http://') || url.startsWith('https://')) ? url : `http://${url}`)
 }
 
 const extractInfomation = async (question: string, result: string, userTimeZone = 0) => {
-  return (await curva.client.gpt(
+  return (await client.gpt(
     'gpt4_summarizer',
     useExtractPage(
       question,
@@ -49,7 +49,7 @@ export default async function (question: string, context = '', userTimeZone = 0)
   try {
     let i = 0
     const question1 = useParseUrlsAndQueries(question, userTimeZone)
-    const answer1 = (await curva.client.gpt('gpt4_summarizer', question1))?.answer as string
+    const answer1 = (await client.gpt('gpt4_summarizer', question1))?.answer as string
     const answer1Json = answer1.substring(answer1.indexOf('{'), answer1.lastIndexOf('}') + 1)
     const { urls: _urls, queries } = JSON.parse(answer1Json) as { urls: string[], queries: string[] }
     const urls = [] as string[]
@@ -62,7 +62,7 @@ export default async function (question: string, context = '', userTimeZone = 0)
       .then((result) => results.unshift(result))
       .catch(() => {})
     const question2 = useSelectSites(question, summaryShowUrl, userTimeZone)
-    const answer2 = (await curva.client.gpt('gpt4_summarizer', question2))?.answer as string
+    const answer2 = (await client.gpt('gpt4_summarizer', question2))?.answer as string
     const answer2Json = answer2.substring(answer2.indexOf('['), answer2.lastIndexOf(']') + 1)
     const selectedSites = JSON.parse(answer2Json) as Array<{ url: string, title:string }>
     const selectedSiteUrls = makeSureUrlsStartsWithHttp(selectedSites.map((site) => site.url))
@@ -88,7 +88,7 @@ export default async function (question: string, context = '', userTimeZone = 0)
     })
     const _references = `Here are references from the internet:\n${references.join('\n')}`
     const finalQuestion = useDefaultTemplate(question, userTimeZone, addtionalRules, _references).substring(0, 16384)
-    return { queries, urls, ...(await curva.client.gpt('gpt4', finalQuestion, context)) }
+    return { queries, urls, ...(await client.gpt('gpt4', finalQuestion, context)) }
   } catch (err) {
     logger.create({ type: 'error.advanced', text: str(err) })
     return { queries: [], urls: [], answer: undefined }

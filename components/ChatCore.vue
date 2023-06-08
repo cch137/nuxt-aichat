@@ -13,8 +13,8 @@
             class="p-1"
           >
             <div v-if="message.queries && message.queries.length > 0" class="mb-1 px-2">
-              <el-text class="flex justify-start items-center">
-                <el-icon size="large" style="transform: scale(0.9);">
+              <el-text class="flex flex-wrap justify-start items-center">
+                <el-icon size="larger">
                   <Search />
                 </el-icon>
                 <el-tag
@@ -42,29 +42,55 @@
                   />
                   <span v-else>{{ message.text }}</span>
                 </div>
-                <div v-if="message.type === 'A'" class="flex mt-2 gap-4">
-                  <div class="flex-1">
-                    <el-text type="info" size="small" class="opacity-75">
-                      {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
+                <div v-if="message.type === 'A'" class="flex mt-2 gap-2">
+                  <div class="flex-1 flex gap-2">
+                    <el-text type="info" size="small">
+                      <span class="flex gap-2">
+                        <span>
+                          {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
+                        </span>
+                        <span>
+                          {{ message.dt === undefined ? '' : `Δt: ${Math.round(message.dt / 100) / 10}s` }}
+                        </span>
+                      </span>
                     </el-text>
                   </div>
-                  <el-button
-                    :icon="DocumentCopy"
-                    size="small"
-                    class="MessageActionButton"
-                    plain
-                    @click="useCopyToClipboard(message.text)"
-                  >{{ $t('action.copy') }}</el-button>
+                  <el-button-group class="ml-4">
+                    <el-button
+                      :icon="DocumentCopy"
+                      size="small"
+                      class="MessageActionButton"
+                      plain
+                      @click="useCopyToClipboard(message.text)"
+                    >
+                      {{ $t('action.copy') }}
+                    </el-button>
+                  </el-button-group>
                 </div>
               </div>
             </div>
             <div v-if="message.urls && message.urls.length > 0" class="mt-1 flex flex-col items-start px-2">
-              <el-link v-for="url in message.urls" type="info" :href="url.split(' ').pop()" target="_blank" class="flex justify-start items-center">
-                <el-icon size="large" style="transform: scale(0.9);">
+              <el-link
+              v-for="url in message.urls"
+              type="info"
+              :href="url.split(' ').pop()"
+              target="_blank"
+              class="flex justify-start items-center"
+              style="font-size: small;"
+            >
+                <el-icon size="larger">
                   <Paperclip />
                 </el-icon>
                 <span class="ml-1">{{ url.split(' ').slice(0, url.split(' ').length - 1).join(' ') || url.split(' ')[0] }}</span>
               </el-link>
+            </div>
+            <div v-if="message === messages.at(-1) && message.type === 'A' && message.more && message.more.length > 0" :key="message.more" class="flex flex-wrap items-center gap-2 mt-4">
+              <el-icon size="x-large">
+                <ChatDotRound />
+              </el-icon>
+              <el-button v-for="q in message.more" style="margin: 0;" @click="sendMessage(q)">
+                {{ q }}
+              </el-button>
             </div>
           </div>
         </div>
@@ -76,9 +102,9 @@
 <script setup>
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
-import { DocumentCopy, Search, Paperclip } from '@element-plus/icons-vue'
+import { DocumentCopy, ChatDotRound, Search, Paperclip } from '@element-plus/icons-vue'
 
-const { messages, openSidebar } = useChat()
+const { messages, openSidebar, sendMessage } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 

@@ -14,6 +14,7 @@ export default {
     more: '更多操作',
     renameConv: '重命名對話',
     refresh: '刷新對話',
+    regenerate: '重新生成',
     copy: '複製',
     copySuccess: '已複製！',
     copyFailed: '複製失敗。',

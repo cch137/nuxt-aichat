@@ -1,9 +1,14 @@
-import { ElMessage, ElLoading } from 'element-plus'
+import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
 import {
   webBrowsing as webBrowsingCookieName,
   temperatureSuffix as temperatureSuffixCookieName,
 } from '~/config/cookieNames'
 import baseConverter from '~/utils/baseConverter'
+import random from '~/utils/random'
+import troll from '~/utils/troll'
+import str from '~/utils/str'
+
+const model = ref('gpt4')
 
 const CONTEXT_MAX_TOKENS = 1024
 const CONTEXT_MAX_LENGTH = 2048
@@ -50,6 +55,8 @@ interface SavedChatMessage {
   t: Date;
   queries?: string[];
   urls?: string[];
+  dt?: number;
+  more?: string[];
 }
 
 interface ChatMessage {
@@ -58,6 +65,8 @@ interface ChatMessage {
   t: Date;
   queries?: string[];
   urls?: string[];
+  dt?: number;
+  more?: string[];
 }
 
 const messages = ref<Array<ChatMessage>>([])
@@ -73,6 +82,10 @@ const currentConv = ref('')
 
 const focusInput = () => {
   (document.querySelector('.InputBox textarea') as HTMLElement).focus()
+}
+
+const predictMoreQuestions = async (question: string) => {
+  return await $fetch('/api/more', { method: 'POST', body: { question } }) as string[]
 }
 
 const checkTokenAndGetConversations = () => {
@@ -99,7 +112,7 @@ const fetchHistory = (conv: string | null) => {
       return resolve(true)
     }
     $fetch('/api/history', { method: 'POST', body: { id: conv } })
-      .then((fetched) => {
+      .then(async (fetched) => {
         // @ts-ignore
         const records = fetched as Array<SavedChatMessage>
         if (records.length === 0) {
@@ -107,13 +120,16 @@ const fetchHistory = (conv: string | null) => {
         }
         const _records = [] as Array<ChatMessage>
         for (const record of records) {
-          const { Q, A, urls, queries, t: _t } = record
+          const { Q, A, urls, queries, dt, t: _t } = record
           const t = new Date(_t)
-          _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, urls, queries, t })
+          _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, urls, queries, dt, t })
           context.add(Q, A, false)
         }
         messages.value.unshift(..._records)
         resolve(true)
+        const lastQuestion = messages.value.at(-2) as ChatMessage
+        const lastAnswer = messages.value.at(-1) as ChatMessage
+        lastAnswer.more = await predictMoreQuestions(lastQuestion.text)
       })
       .catch((err) => {
         ElMessage.error('There was an error loading the conversation.')
@@ -149,6 +165,58 @@ const contextMode = ref(true)
 const openMenu = ref(false)
 const openSidebar = ref(openMenu.value)
 const openDrawer = ref(openMenu.value)
+
+const inputValue = ref('')
+
+const { h: createHash } = troll
+
+const getModel = () => {
+  return `${model.value}${temperatureSuffix.value}`
+}
+
+const getWebBrowsing = () => {
+  return webBrowsingMode.value as string
+}
+
+const getHashType = () => {
+  return [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
+}
+
+const createHeaders = (message: string, context: string, t: number) => {
+  const hash = createHash(`${message}${context}`, getHashType(), t)
+  const timestamp = str(t)
+  return { hash, timestamp }
+}
+
+const createBody = (message: string, model: string, web: string, t: number, tz: number) => {
+  let conv = useNuxtApp()._route?.params?.conv as string
+  if (!conv) {
+    conv = random.base64(8)
+    conversations.value.push({ id: conv, name: undefined })
+    navigateTo(`/c/${conv}`)
+  }
+  return { conv, context: context.get(), prompt: message, model, web, t, tz }
+}
+
+const createRequest = (message: string) => {
+  const date = new Date()
+  const t = date.getTime()
+  const tz = (date.getTimezoneOffset() / 60) * -1
+  const body = createBody(message, getModel(), getWebBrowsing(), t, tz)
+  const headers = createHeaders(message, body.context, t)
+  return $fetch('/api/chat', { method: 'POST', headers, body })
+}
+
+const createMessage = (type = 'T', text = '') => {
+  return reactive<ChatMessage>({
+    type,
+    text,
+    queries: [] as string[],
+    urls: [] as string[],
+    dt: undefined as undefined | number,
+    t: new Date(),
+  })
+}
 
 export default function () {
   const cookie = useUniCookie()
@@ -208,7 +276,82 @@ export default function () {
     }
     focusInput()
   }
+  // @ts-ignore
+  const _t = useLocale().t
+  const version = useState('version')
+  const sendMessage = (forceMessage?: string): boolean => {
+    const loadingMessagesAmount = document.querySelectorAll('.Message.T').length
+    if (loadingMessagesAmount > 1) {
+      ElMessage.info('Thinking too many questions.')
+      return false
+    }
+    const _message = forceMessage ? forceMessage : inputValue.value
+    const message = _message.trim()
+    if (_message === inputValue.value) {
+      inputValue.value = ''
+    }
+    if (message === '') {
+      return false
+    }
+    const answerMessage = createMessage()
+    messages.value.push(createMessage('Q', message))
+    messages.value.push(answerMessage)
+    useScrollToBottom()
+    createRequest(message)
+      .then((res) => {
+        const answer = (res as any).answer as string
+        const urls = (res as any).urls as string[]
+        const queries = (res as any).queries as string[]
+        const dt = (res as any).dt as number
+        const isQuestionComplete = 'complete' in (res as any)
+          ? (res as any).complete
+          : true
+        const _version = (res as any).version as string
+        if (!isQuestionComplete) {
+          ElMessage.warning(_t('error.qTooLong'))
+        }
+        // @ts-ignore
+        if (!answer) {
+          throw _t('error.plzRefresh')
+        }
+        answerMessage.text = answer
+        answerMessage.urls = urls || []
+        answerMessage.queries = queries || []
+        answerMessage.dt = dt || undefined
+        context.add(message, answer)
+        if (_version !== version.value) {
+          ElMessageBox.confirm(
+            _t('action.newVersion'),
+            _t('message.notice'), {
+              confirmButtonText: _t('message.ok'),
+              cancelButtonText: _t('message.cancel'),
+              type: 'warning'
+            })
+            .then(() => {
+              location.reload()
+            })
+            .finally(() => {
+              focusInput()
+            })
+        }
+      })
+      .catch((err) => {
+        ElMessage.error(err || 'Oops! Something went wrong!' as string)
+        answerMessage.text = 'Oops! Something went wrong!'
+      })
+      .finally(() => {
+        answerMessage.type = 'A'
+        answerMessage.t = new Date()
+      })
+    predictMoreQuestions(message)
+      .then((more) => {
+        answerMessage.more = more
+      })
+      .catch(() => {})
+    return true
+  }
   return {
+    model,
     conversations,
     messages,
     context,
@@ -218,10 +361,14 @@ export default function () {
     openMenu,
     openSidebar,
     openDrawer,
+    inputValue,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,
     initPage,
-    goToChat
+    goToChat,
+    sendMessage,
+    focusInput,
+    predictMoreQuestions
   }
 }

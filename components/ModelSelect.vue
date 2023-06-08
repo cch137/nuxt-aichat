@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-const model = useState('model', () => 'gpt4')
+const { model } = useChat()
 const options = [
   {
     label: 'GPT-4',

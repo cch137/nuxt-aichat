@@ -1,14 +1,15 @@
 import { message as messageCollection } from '~/server/services/mongoose/index'
 
-export default function (user: string, conv: string, Q: string, A: string, queries: string[] = [], urls: string[] = []) {
+export default function (user: string, conv: string, Q: string, A: string, queries: string[] = [], urls: string[] = [], dt?: number) {
+  const record = { user, conv, Q, A } as { user: string, conv: string, Q: string, A: string, queries?: string[], urls?: string[], dt?: number }
   if (queries.length > 0) {
-    if (urls.length > 0) {
-      return messageCollection.create({ user, conv, Q, A, queries, urls })
-    } else {
-      return messageCollection.create({ user, conv, Q, A, queries })
-    }
-  } else if (urls.length) {
-    return messageCollection.create({ user, conv, Q, A, urls })
+    record.queries = queries
   }
-  return messageCollection.create({ user, conv, Q, A })
+  if (urls.length > 0) {
+    record.urls = urls
+  }
+  if (dt) {
+    record.dt = dt
+  }
+  return messageCollection.create(record)
 }

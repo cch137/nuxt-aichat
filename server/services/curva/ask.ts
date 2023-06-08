@@ -1,12 +1,11 @@
 import crawler from '~/server/services/crawler'
-import curva from '~/server/services/curva'
 import saveMessage from './utils/saveMessage'
-import makeResponse from './utils/makeResponse'
 import mindsdb from '~/server/services/mindsdb'
 import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
 import useDefaultTemplate from './templates/default'
-import advancedAsk from './advanced'
 import extractUrls from '~/utils/extractURLs'
+import advancedAsk from './advanced'
+import client from './client'
 
 const _wrapSearchResult = (result: string) => {
   return result
@@ -23,6 +22,7 @@ async function ask (
   context: string = '',
   userTimeZone = 0
 ) {
+  const t0 = Date.now()
   let answer: string | undefined
   let isComplete = true
   let queries = [] as string[]
@@ -63,23 +63,26 @@ async function ask (
     if (isComplete) {
       question = removeEndSuffix(question)
     }
-    answer = (await curva.client.gpt(modelName, question, context))?.answer
+    answer = (await client.gpt(modelName, question, context))?.answer
   }
+  const dt = Date.now() - t0
   const response = answer ? {
     answer,
     complete: isComplete,
     web: webBrowsing,
     queries,
-    urls
+    urls,
+    dt 
   } : {
     error: 'Answer Not Found',
     complete: isComplete,
     web: webBrowsing,
     queries,
-    urls
+    urls,
+    dt
   }
   if (answer) {
-    saveMessage(user, conv, originalQuestion, answer, queries, urls)
+    saveMessage(user, conv, originalQuestion, answer, queries, urls, dt)
   }
   return response
 }
