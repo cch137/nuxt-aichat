@@ -1,5 +1,5 @@
 <template>
-  <div class="InputBoxOuter flex fixed w-full">
+  <div class="InputBoxOuter flex fixed w-full z-50">
     <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
     <div class="InputBox pt-20 pb-1 px-4 flex-1">
       <el-form ref="inputForm" class="mx-auto max-w-full" @submit.prevent>

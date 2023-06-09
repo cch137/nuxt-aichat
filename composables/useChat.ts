@@ -152,6 +152,7 @@ const initPage = (conv: string | null, skipHistoryFetching = false) => {
         if (loading !== null) {
           setTimeout(() => {
             loading.close()
+            useScrollToBottom()
           }, 500)
         }
       })
