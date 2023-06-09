@@ -525,6 +525,8 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
     queries = (advResult == null ? void 0 : advResult.queries) || queries;
     urls = (advResult == null ? void 0 : advResult.urls) || urls;
     if (!answer) {
+      queries = [];
+      urls = [];
       webBrowsing = "BASIC";
       console.log("DOWNGRADE: ADVANCED => BASE");
     }
@@ -581,7 +583,7 @@ ${responses[i].response}`);
 
 async function more(question, amount) {
   var _a;
-  const answer = (_a = await client.gpt("gpt4", `You are required to predict the user's next question based on their previous question (provide ${amount || 3} suggestions).
+  const answer = (_a = await client.gpt("gpt4", `You are required to predict the user's next question based on their previous question (provide ${amount || 8} suggestions).
   If the user's previous question doesn't have a specific topic, you need to anticipate potential topics the user might bring up and predict some principles or phenomena they might ask you to explain.
   You don't need to answer the user's question. Consider yourself as an API and refrain from making any additional comments. Simply reply with a JSON format \`{ more: [] }\`. Here is the user's question: ${question}`, "")) == null ? void 0 : _a.answer;
   return JSON.parse(answer.substring(answer.indexOf("{"), answer.lastIndexOf("}") + 1)).more;

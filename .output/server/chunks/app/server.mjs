@@ -508,7 +508,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/cch137-3221c16e.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/cch137-39529ba9.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "c-conv",
@@ -516,7 +516,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-17640c2e.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-82804cd2.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c",
@@ -524,7 +524,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/index-721b6306.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-3919590b.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -532,7 +532,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/index-e98a8cdb.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-a2e33861.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -540,7 +540,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-1de68295.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-dca15fc0.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -4114,8 +4114,8 @@ const _wrapIf = (component, props, slots) => {
   } };
 };
 const layouts = {
-  chat: () => import('./_nuxt/chat-a2105d9c.mjs').then((m) => m.default || m),
-  default: () => import('./_nuxt/default-4863b94e.mjs').then((m) => m.default || m)
+  chat: () => import('./_nuxt/chat-81cd1a7f.mjs').then((m) => m.default || m),
+  default: () => import('./_nuxt/default-9ac5c1e3.mjs').then((m) => m.default || m)
 };
 const LayoutLoader = /* @__PURE__ */ defineComponent({
   name: "LayoutLoader",
@@ -4299,8 +4299,8 @@ const _sfc_main = {
   __name: "nuxt-root",
   __ssrInlineRender: true,
   setup(__props) {
-    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-afa53b32.mjs').then((r) => r.default || r));
-    const IslandRenderer = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/island-renderer-715a7857.mjs').then((r) => r.default || r));
+    const ErrorComponent = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-component-20ca1a6c.mjs').then((r) => r.default || r));
+    const IslandRenderer = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/island-renderer-e0a4f4a8.mjs').then((r) => r.default || r));
     const nuxtApp = useNuxtApp();
     nuxtApp.deferHydration();
     nuxtApp.ssrContext.url;

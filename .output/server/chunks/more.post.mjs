@@ -18,8 +18,8 @@ import './message.mjs';
 
 const more_post = defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const question = body.question;
-  const amout = body.amout || 3;
+  const question = body == null ? void 0 : body.question;
+  const amout = (body == null ? void 0 : body.amout) || void 0;
   if (typeof question !== "string") {
     return { error: 1 };
   }
