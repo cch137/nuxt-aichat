@@ -3,8 +3,8 @@ import curva from '~/server/services/curva'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event) as any
-  const question = body.question as string
-  const amout = body.amout as number || 3
+  const question = body?.question as string
+  const amout = body?.amout as number || undefined
   if (typeof question !== 'string') {
     return { error: 1 }
   }

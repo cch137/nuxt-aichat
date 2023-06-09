@@ -84,8 +84,9 @@ const focusInput = () => {
   (document.querySelector('.InputBox textarea') as HTMLElement).focus()
 }
 
-const predictMoreQuestions = async (question: string) => {
-  return await $fetch('/api/more', { method: 'POST', body: { question } }) as string[]
+const predictMoreQuestions = async function (question: string) {
+  // @ts-ignore
+  return (await $fetch('/api/more', { method: 'POST', body: { question } })) as string[]
 }
 
 const checkTokenAndGetConversations = () => {

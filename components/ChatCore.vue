@@ -85,12 +85,12 @@
               </el-link>
             </div>
             <div v-if="message === messages.at(-1) && message.type === 'A' && message.more && message.more.length > 0" :key="message.more" class="flex flex-wrap items-center gap-2 mt-4">
-              <el-icon size="x-large">
-                <ChatDotRound />
-              </el-icon>
-              <el-button v-for="q in message.more" style="margin: 0;" @click="sendMessage(q)">
+              <el-button size="x-large" class="MoreQuestionsButton cursor-pointer" @click="(more.end >= message.more.length ? (more.reset(), message.more = random.shuffle(message.more)) : more.run(message.more.length))" :icon="ChatDotRound" style="padding: 0">
+              </el-button>
+              <el-button v-for="q in message.more.slice(more.start, more.end)" style="margin: 0;" @click="sendMessage(q)">
                 {{ q }}
               </el-button>
+              <el-text type="info" class="select-none cursor-pointer" @click="more.run()">...</el-text>
             </div>
           </div>
         </div>
@@ -102,11 +102,32 @@
 <script setup>
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
+import random from '~/utils/random'
 import { DocumentCopy, ChatDotRound, Search, Paperclip } from '@element-plus/icons-vue'
 
 const { messages, openSidebar, sendMessage } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
+
+const more = reactive({
+  start: 0,
+  end: 3,
+  step: 3,
+  run (maxLength = 8) {
+    if (more.end >= maxLength) {
+      more.reset()
+    } else {
+      more.start += more.step
+      more.end += more.step
+    }
+  },
+  reset () {
+    more.start = 0
+    more.end = more.step
+  }
+})
+
+watch(messages, () => more.reset())
 
 const loadingDots = ref('.')
 
@@ -120,6 +141,13 @@ setInterval(() => {
 </script>
 
 <style>
+.MoreQuestionsButton {
+  height: 2rem !important;
+  width: 2rem !important;
+}
+.MoreQuestionsButton svg {
+  transform: scale(1.5);
+}
 .Messages {
   width: 100%;
   max-width: 960px;

@@ -1,8 +1,8 @@
 <template>
   <div class="InputBoxOuter flex fixed w-full">
     <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
-    <div class="InputBox pt-20 pb-2 px-4 flex-1">
-      <el-form ref="inputForm" class="mx-auto mb-2 max-w-full" @submit.prevent>
+    <div class="InputBox pt-20 pb-1 px-4 flex-1">
+      <el-form ref="inputForm" class="mx-auto max-w-full" @submit.prevent>
         <el-form-item style="margin: 0;">
           <div class="flex gap-3 w-full">
             <div class="w-full">
@@ -28,8 +28,8 @@
           </div>
         </el-form-item>
       </el-form>
-      <div class="text-center">
-        <el-text type="info">
+      <div class="text-center mt-1" style="line-height: 1em;">
+        <el-text type="info" size="small">
           {{ $t('footer.patient') }}
         </el-text>
       </div>

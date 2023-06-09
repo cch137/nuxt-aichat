@@ -34,6 +34,8 @@ async function ask (
     queries = advResult?.queries || queries
     urls = advResult?.urls || urls
     if (!answer) {
+      queries = []
+      urls = []
       webBrowsing = 'BASIC'
       console.log('DOWNGRADE: ADVANCED => BASE')
     }
