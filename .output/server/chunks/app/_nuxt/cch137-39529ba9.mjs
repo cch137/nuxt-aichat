@@ -15,6 +15,7 @@ import 'vue-router';
 import 'ufo';
 import 'cookie';
 import 'vue-i18n';
+import 'prismjs';
 import 'defu';
 import '../../nitro/node-server.mjs';
 import 'node-fetch-native/polyfill';

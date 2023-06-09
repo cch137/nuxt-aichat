@@ -1,4 +1,4 @@
-import { _ as __nuxt_component_0 } from './ChatCore-933e70b7.mjs';
+import { _ as __nuxt_component_0 } from './ChatCore-1a307443.mjs';
 import { u as useTitle } from './useTitle-dc6f5342.mjs';
 import { mergeProps, useSSRContext } from 'vue';
 import { u as useState } from '../server.mjs';
@@ -24,6 +24,7 @@ import 'vue-router';
 import 'ufo';
 import 'cookie';
 import 'vue-i18n';
+import 'prismjs';
 import 'defu';
 import '../../nitro/node-server.mjs';
 import 'node-fetch-native/polyfill';
@@ -61,4 +62,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-3919590b.mjs.map
+//# sourceMappingURL=index-da60a2e6.mjs.map

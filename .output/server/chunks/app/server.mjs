@@ -11,6 +11,7 @@ import { hasProtocol, parseURL, joinURL } from 'ufo';
 import { useNavigatorLanguage } from '@vueuse/core';
 import { parse, serialize } from 'cookie';
 import { createI18n } from 'vue-i18n';
+import Prism from 'prismjs';
 import { ssrRenderSuspense, ssrRenderComponent, ssrRenderVNode } from 'vue/server-renderer';
 import { defu } from 'defu';
 import { a as useRuntimeConfig$1 } from '../nitro/node-server.mjs';
@@ -516,7 +517,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-82804cd2.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-4690f978.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c",
@@ -524,7 +525,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/index-3919590b.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-da60a2e6.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -4093,6 +4094,7 @@ const composables_BevcPrpBa3 = /* @__PURE__ */ defineNuxtPlugin(() => {
     }
   };
 });
+Prism.manual = false;
 const renderCodeBlocks_qIyVp6jM6U = /* @__PURE__ */ defineNuxtPlugin(() => {
   return {};
 });

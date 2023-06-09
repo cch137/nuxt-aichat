@@ -12,6 +12,7 @@ import 'ufo';
 import '@vueuse/core';
 import 'cookie';
 import 'vue-i18n';
+import 'prismjs';
 import 'vue/server-renderer';
 import 'defu';
 import '../../nitro/node-server.mjs';

@@ -15,6 +15,7 @@ import 'ufo';
 import '@vueuse/core';
 import 'cookie';
 import 'vue-i18n';
+import 'prismjs';
 import 'defu';
 import '../../nitro/node-server.mjs';
 import 'node-fetch-native/polyfill';
