@@ -99,7 +99,7 @@ const renameConversation = () => {
     inputValue: getCurrentConvName()
   })
     .then(({ value: name }) => {
-      $fetch('/api/conv', { method: 'PUT', body: { id: getCurrentConvId(), name } })
+      $fetch('/api/chat/conv', { method: 'PUT', body: { id: getCurrentConvId(), name } })
         .then(() => {
           ElMessage({
             type: 'success',

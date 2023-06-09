@@ -195,6 +195,7 @@ setInterval(() => {
 }
 .CodeBlockHeader {
   width: 100%;
+  color: var(--el-text-color-regular);
   background: #3b3b3b;
   padding: .25rem .75rem;
   border-radius: .75rem .75rem 0 0;
@@ -211,15 +212,16 @@ setInterval(() => {
   padding: 0 .5rem;
   border: 1px solid grey;
   border-radius: .35rem;
-  background: #686868;
+  background: #ffffff0f;
   color: #ddd;
-  transition: .15s;
+  transition: .1s;
   cursor: pointer;
   line-height: 1.2rem;
   user-select: none;
+  font-size: small;
 }
 .CopyCodeButton:hover {
-  background: #707070;
-  color: #fff;
+  color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
 }
 </style>
