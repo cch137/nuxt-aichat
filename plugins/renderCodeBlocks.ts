@@ -1,5 +1,7 @@
 import Prism from 'prismjs'
 
+Prism.manual = false
+
 const CODE_PROCESSED_CLASS = 'CodeBlockAddedCopyButton'
 const LINK_PROCESSED_CLASS = '_BlankLink'
 
@@ -12,6 +14,7 @@ const getAllLinks = () => {
 }
 
 const emptyLanguage = 'plain text'
+const scriptLoadings = new Map<string, Promise<any>>()
 const loadedLanguages = new Set(['javascript', 'html', 'css', emptyLanguage])
 
 const renderCodeBlock = async (preElement: HTMLPreElement) => {
@@ -23,7 +26,7 @@ const renderCodeBlock = async (preElement: HTMLPreElement) => {
     let language = emptyLanguage
     for (const className of codeElement.classList) {
       if (className.startsWith('language-')) {
-        language = className.replace('language-', '')
+        language = className.replace('language-', '').toLowerCase()
         break
       }
     }
@@ -37,7 +40,7 @@ const renderCodeBlock = async (preElement: HTMLPreElement) => {
     const languageNameTag = document.createElement('span')
     languageNameTag.classList.add('flex-1')
     languageNameTag.innerText = language
-    preElement.style.marginTop = '0'
+    preElement.style.margin = '0'
     preElement.classList.add(CODE_PROCESSED_CLASS);
     (preElement.parentElement as HTMLElement).insertBefore(codeBlockWrapper, preElement)
     codeBlockWrapper.appendChild(codeBlockHeader)
@@ -52,17 +55,21 @@ const renderCodeBlock = async (preElement: HTMLPreElement) => {
       useCopyToClipboard((preElement as HTMLElement).innerText)
     })
     setTimeout(async () => {
-      await new Promise((resolve) => {
-        if (loadedLanguages.has(language)) {
-          resolve(true)
-          return
+      if (!loadedLanguages.has(language)) {
+        if (!scriptLoadings.has(language)) {
+          scriptLoadings.set(language, new Promise((resolve) => {
+            const script = document.createElement('script')
+            script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-${language}.min.js`
+            script.addEventListener('load', () => resolve(true))
+            script.addEventListener('error', () => resolve(true))
+            document.head.appendChild(script)
+            loadedLanguages.add(language)
+          }))
         }
-        const script = document.createElement('script')
-        script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-${language}.min.js`
-        script.addEventListener('load', () => resolve(true))
-        script.addEventListener('error', () => resolve(true))
-        document.head.appendChild(script)
-      })
+      }
+      try {
+        await scriptLoadings.get(language)
+      } catch {}
       Prism.highlightElement(codeElement, false)
       resolve(true)
     }, 0)
@@ -99,8 +106,12 @@ const mutationHandler = () => {
     renderLinks(getAllLinks())
   ])
     .finally(() => {
-      tasks.pop()
-      setTimeout(() => mutationHandler(), 0)
+      if (tasks.length > 0) {
+        setTimeout(() => {
+          mutationHandler()
+          tasks.pop()
+        }, 100)
+      }
     })
 }
 

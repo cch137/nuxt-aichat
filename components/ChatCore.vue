@@ -176,13 +176,13 @@ setInterval(() => {
   justify-content: right;
 }
 .Message.Q .InnerMessage {
-  background-color: #2A375B;
+  background-color: #2a375b;
 }
 .Message.T,.Message.A {
   justify-content: left;
 }
 .Message.T .InnerMessage, .Message.A .InnerMessage {
-  background-color: #3E3E3E;
+  background-color: #303032;
 }
 .Message.Q .InnerMessage {
   white-space: pre-wrap;
@@ -195,12 +195,11 @@ setInterval(() => {
 }
 .CodeBlockHeader {
   width: 100%;
-  background: #4b4b4b;
+  background: #3b3b3b;
   padding: .25rem .75rem;
   border-radius: .75rem .75rem 0 0;
 }
 .CodeBlockWrapper pre {
-  background: #262626;
   color: lightgrey;
   padding: .75rem;
   border-radius: 0 0 .75rem .75rem;
