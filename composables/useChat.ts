@@ -84,9 +84,9 @@ const focusInput = () => {
   (document.querySelector('.InputBox textarea') as HTMLElement).focus()
 }
 
-const predictMoreQuestions = async function (question: string) {
+const getQuestionSuggestions = async function (question: string) {
   // @ts-ignore
-  return (await $fetch('/api/more', { method: 'POST', body: { question } })) as string[]
+  return (await $fetch('/api/chat/suggestions', { method: 'POST', body: { question } })) as string[]
 }
 
 const checkTokenAndGetConversations = () => {
@@ -112,7 +112,7 @@ const fetchHistory = (conv: string | null) => {
       context.clear()
       return resolve(true)
     }
-    $fetch('/api/history', { method: 'POST', body: { id: conv } })
+    $fetch('/api/chat/history', { method: 'POST', body: { id: conv } })
       .then(async (fetched) => {
         // @ts-ignore
         const records = fetched as Array<SavedChatMessage>
@@ -130,7 +130,7 @@ const fetchHistory = (conv: string | null) => {
         resolve(true)
         const lastQuestion = messages.value.at(-2) as ChatMessage
         const lastAnswer = messages.value.at(-1) as ChatMessage
-        lastAnswer.more = await predictMoreQuestions(lastQuestion.text)
+        lastAnswer.more = await getQuestionSuggestions(lastQuestion.text)
       })
       .catch((err) => {
         ElMessage.error('There was an error loading the conversation.')
@@ -206,7 +206,7 @@ const createRequest = (message: string) => {
   const tz = (date.getTimezoneOffset() / 60) * -1
   const body = createBody(message, getModel(), getWebBrowsing(), t, tz)
   const headers = createHeaders(message, body.context, t)
-  return $fetch('/api/chat', { method: 'POST', headers, body })
+  return $fetch('/api/chat/answer', { method: 'POST', headers, body })
 }
 
 const createMessage = (type = 'T', text = '') => {
@@ -345,7 +345,7 @@ export default function () {
         answerMessage.type = 'A'
         answerMessage.t = new Date()
       })
-    predictMoreQuestions(message)
+    getQuestionSuggestions(message)
       .then((more) => {
         answerMessage.more = more
       })
@@ -370,7 +370,6 @@ export default function () {
     initPage,
     goToChat,
     sendMessage,
-    focusInput,
-    predictMoreQuestions
+    focusInput
   }
 }

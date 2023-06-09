@@ -99,7 +99,7 @@ const renameConversation = () => {
     inputValue: getCurrentConvName()
   })
     .then(({ value: name }) => {
-      $fetch('/api/renameConv', { method: 'POST', body: { id: getCurrentConvId(), name } })
+      $fetch('/api/conv', { method: 'PUT', body: { id: getCurrentConvId(), name } })
         .then(() => {
           ElMessage({
             type: 'success',
@@ -146,7 +146,7 @@ const deleteConversation = () => {
     })
     .then(() => {
       const loading = ElLoading.service()
-      $fetch('/api/deleteConv', {
+      $fetch('/api/chat/conv', {
         method: 'DELETE',
         body: { id: currentConvId }
       })

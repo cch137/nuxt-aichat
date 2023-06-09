@@ -8,5 +8,5 @@ export default defineEventHandler(async (event) => {
   if (typeof question !== 'string') {
     return { error: 1 }
   }
-  return await curva.more(question, amout)
+  return await curva.suggestions(question, amout)
 })
