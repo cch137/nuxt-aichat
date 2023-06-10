@@ -26,10 +26,11 @@ async function getHistory(user, conv) {
   }).sort({ createdAt: 1 })).map((doc) => ({
     Q: doc.Q,
     A: doc.A,
+    id: doc._id.toString("base64"),
+    t: doc._id.getTimestamp().getTime(),
     queries: doc.queries,
     urls: doc.urls,
-    dt: doc.dt,
-    t: doc._id.getTimestamp().getTime()
+    dt: doc.dt
   }));
 }
 

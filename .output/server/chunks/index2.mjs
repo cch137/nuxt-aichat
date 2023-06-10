@@ -581,19 +581,19 @@ ${responses[i].response}`);
   return response;
 }
 
-async function more(question, amount) {
+async function suggestions(question, amount) {
   var _a;
-  const answer = (_a = await client.gpt("gpt4", `You are required to predict the user's next question based on their previous question (provide ${amount || 8} suggestions).
-  If the user's previous question doesn't have a specific topic, you need to anticipate potential topics the user might bring up and predict some principles or phenomena they might ask you to explain.
-  You don't need to answer the user's question. Consider yourself as an API and refrain from making any additional comments. Simply reply with a JSON format \`{ more: [] }\`. Here is the user's question: ${question}`, "")) == null ? void 0 : _a.answer;
-  return JSON.parse(answer.substring(answer.indexOf("{"), answer.lastIndexOf("}") + 1)).more;
+  const answer = (_a = await client.gpt("gpt4_t00", `You are required to predict the user's next question based on their previous question (provide ${amount || 8} suggestions).
+If the user's previous question doesn't have a specific topic, you need to anticipate potential topics the user might bring up and predict some principles or phenomena they might ask you to explain.
+You don't need to answer the user's question. Consider yourself as an API and refrain from making any additional comments. Simply reply with a JSON format \`{ "suggestions": [] }\`. Here is the user's question: ${question}`, "")) == null ? void 0 : _a.answer;
+  return JSON.parse(answer.substring(answer.indexOf("{"), answer.lastIndexOf("}") + 1)).suggestions;
 }
 
 const curva = {
   mindsdb,
   client,
   ask,
-  more
+  suggestions
 };
 
 export { curva as c, mindsdb as m };
