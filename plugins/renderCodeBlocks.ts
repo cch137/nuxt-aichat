@@ -14,8 +14,12 @@ const getAllLinks = () => {
 }
 
 const emptyLanguage = 'plain text'
-const scriptLoadings = new Map<string, Promise<any>>()
-const loadedLanguages = new Set(['javascript', 'html', 'css', emptyLanguage])
+const scriptLoadings = new Map<string, (Promise<any> | null)>([
+  [emptyLanguage, null],
+  ['javascript', null],
+  ['html', null],
+  ['css', null],
+])
 
 const renderCodeBlock = async (preElement: HTMLPreElement) => {
   if (preElement.classList.contains(CODE_PROCESSED_CLASS)) {
@@ -55,17 +59,14 @@ const renderCodeBlock = async (preElement: HTMLPreElement) => {
       useCopyToClipboard((preElement as HTMLElement).innerText)
     })
     setTimeout(async () => {
-      if (!loadedLanguages.has(language)) {
-        if (!scriptLoadings.has(language)) {
-          scriptLoadings.set(language, new Promise((resolve) => {
-            const script = document.createElement('script')
-            script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-${language}.min.js`
-            script.addEventListener('load', () => resolve(true))
-            script.addEventListener('error', () => resolve(true))
-            document.head.appendChild(script)
-            loadedLanguages.add(language)
-          }))
-        }
+      if (!scriptLoadings.has(language)) {
+        scriptLoadings.set(language, new Promise((resolve) => {
+          const script = document.createElement('script')
+          script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-${language}.min.js`
+          script.addEventListener('load', () => resolve(true))
+          script.addEventListener('error', () => resolve(true))
+          document.head.appendChild(script)
+        }))
       }
       try {
         await scriptLoadings.get(language)

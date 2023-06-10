@@ -81,8 +81,7 @@
 <script setup>
 import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
-import baseConverter from '~/utils/baseConverter'
-const { conversations, messages, openMenu, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations } = useChat()
+const { conversations, openMenu, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations, exportAsMarkdown } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 
@@ -155,27 +154,6 @@ const deleteConversation = () => {
           document.getElementById(nextConvId).click()
         })
     })
-}
-
-const exportAsMarkdown = () => {
-  let i = 1
-  const markdownContent = messages.value.map((msg) => {
-    if (msg.type === 'Q') {
-      return `QUESTION ${i}:\n\n${msg.text.replaceAll('\n', '\n\n')}`
-    }
-    if (msg.type === 'A') {
-      return `ANSWER ${i++}:\n\n${msg.text}`
-    }
-    return '(Unknown message)'
-  }).join('\n\n---\n\n') + '\n\n---\n\n'
-  const a = document.createElement('a')
-  const filename = `${baseConverter.convert(getCurrentConvId(), '64w', 10)}.md`
-  a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(markdownContent))
-  a.setAttribute('download', filename)
-  a.style.display = 'none'
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
 }
 </script>
 

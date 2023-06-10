@@ -7,41 +7,28 @@ import baseConverter from '~/utils/baseConverter'
 import random from '~/utils/random'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
+import { getScrollTop } from '~/utils/client'
+import type { AchivedChatMessage } from '~/server/services/curva/getHistory'
 
 const model = ref('gpt4')
 
-const CONTEXT_MAX_TOKENS = 1024
-const CONTEXT_MAX_LENGTH = 2048
-
-const contexts: string[] = []
-
-const checkContext = () => {
-  while (contexts.length > 1 && contexts.slice(1, contexts.length).join('').length > CONTEXT_MAX_LENGTH) {
-    contexts.shift()
-  }
-}
+const CONTEXT_MAX_LENGTH = 3000
 
 const getContext = () => {
   if (!contextMode.value) {
     return ''
   }
-  checkContext()
+  const contexts = messages.value.filter((msg) => msg.done)
+    .map((msg) => `Question: ${msg.Q}\nAnswer: ${msg.A}`)
+  while (contexts.length > 1 && contexts.slice(1, contexts.length).join('').length > CONTEXT_MAX_LENGTH) {
+    contexts.shift()
+  }
   const joinedContexts = contexts.join('\n---\n')
   if (joinedContexts.length === 0) {
     return ''
   }
+  contexts.push()
   return `Conversation history\n===\n${joinedContexts}`
-}
-
-const addContext = (question = '', answer = '', check = true) => {
-  contexts.push(`Question: ${question}\nAnswer: ${answer}`)
-  if (check) {
-    checkContext()
-  }
-}
-
-const clearContext = () => {
-  contexts.splice(0, contexts.length)
 }
 
 const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
@@ -49,35 +36,18 @@ const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
 const DEFAULT_WEB_BROWSING_MODE = 'OFF'
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
 
-interface SavedChatMessage {
-  Q: string;
-  A: string;
+// @ts-ignore
+interface DisplayChatMessage extends AchivedChatMessage {
+  done: boolean;
   t: Date;
-  queries?: string[];
-  urls?: string[];
-  dt?: number;
+  id?: string;
   more?: string[];
 }
 
-interface ChatMessage {
-  type: string;
-  text: string;
-  t: Date;
-  queries?: string[];
-  urls?: string[];
-  dt?: number;
-  more?: string[];
-}
-
-const messages = ref<Array<ChatMessage>>([])
+const messages = ref<DisplayChatMessage[]>([])
 
 const conversations = ref<Array<{ id: string, name: string | undefined }>>([])
 
-const context = {
-  add: addContext,
-  get: getContext,
-  clear: clearContext
-}
 const currentConv = ref('')
 
 const focusInput = () => {
@@ -109,28 +79,23 @@ const fetchHistory = (conv: string | null) => {
     const convIdDemical = baseConverter.convert(conv as string, '64w', 10)
     currentConv.value = convIdDemical
     if (conv === undefined || conv === null) {
-      context.clear()
       return resolve(true)
     }
     $fetch('/api/chat/history', { method: 'POST', body: { id: conv } })
       .then(async (fetched) => {
         // @ts-ignore
-        const records = fetched as Array<SavedChatMessage>
-        if (records.length === 0) {
+        const archived = fetched as AchivedChatMessage[]
+        if (!archived || archived.length === 0) {
           navigateTo('/c/')
         }
-        const _records = [] as Array<ChatMessage>
-        for (const record of records) {
-          const { Q, A, urls, queries, dt, t: _t } = record
-          const t = new Date(_t)
-          _records.push({ type: 'Q', text: Q, t }, { type: 'A', text: A, urls, queries, dt, t })
-          context.add(Q, A, false)
-        }
-        messages.value.unshift(..._records)
+        messages.value.unshift(...archived.map((msg) => reactive({
+          ...msg,
+          t: new Date(msg.t),
+          done: Boolean(msg.A),
+        })))
         resolve(true)
-        const lastQuestion = messages.value.at(-2) as ChatMessage
-        const lastAnswer = messages.value.at(-1) as ChatMessage
-        lastAnswer.more = await getQuestionSuggestions(lastQuestion.text)
+        const lastMessage = messages.value.at(-1) as DisplayChatMessage
+        lastMessage.more = await getQuestionSuggestions(lastMessage.Q)
       })
       .catch((err) => {
         ElMessage.error('There was an error loading the conversation.')
@@ -141,7 +106,6 @@ const fetchHistory = (conv: string | null) => {
 
 const initPage = (conv: string | null, skipHistoryFetching = false) => {
   if (!skipHistoryFetching) {
-    context.clear()
     const loading = ElLoading.service()
     Promise.all([
       conv === null ? null : checkTokenAndGetConversations(),
@@ -150,10 +114,8 @@ const initPage = (conv: string | null, skipHistoryFetching = false) => {
       .finally(() => {
         useScrollToBottom()
         if (loading !== null) {
-          setTimeout(() => {
-            loading.close()
-            useScrollToBottom()
-          }, 500)
+          useScrollToBottom(500)
+            .finally(() => loading.close())
         }
       })
   }
@@ -197,7 +159,7 @@ const createBody = (message: string, model: string, web: string, t: number, tz: 
     conversations.value.push({ id: conv, name: undefined })
     navigateTo(`/c/${conv}`)
   }
-  return { conv, context: context.get(), prompt: message, model, web, t, tz }
+  return { conv, context: getContext(), prompt: message, model, web, t, tz }
 }
 
 const createRequest = (message: string) => {
@@ -209,10 +171,11 @@ const createRequest = (message: string) => {
   return $fetch('/api/chat/answer', { method: 'POST', headers, body })
 }
 
-const createMessage = (type = 'T', text = '') => {
-  return reactive<ChatMessage>({
-    type,
-    text,
+const createMessage = (Q = '', A = '', done = false) => {
+  return reactive<DisplayChatMessage>({
+    done,
+    Q,
+    A,
     queries: [] as string[],
     urls: [] as string[],
     dt: undefined as undefined | number,
@@ -245,7 +208,7 @@ export default function () {
   })
   const nuxtApp = useNuxtApp()
   const getCurrentConvId = () => {
-    return nuxtApp._route?.params?.conv
+    return nuxtApp._route?.params?.conv as string
   }
   const getCurrentConvName = () => {
     const currentConvId = getCurrentConvId()
@@ -287,20 +250,20 @@ export default function () {
       ElMessage.info('Thinking too many questions.')
       return false
     }
-    const _message = forceMessage ? forceMessage : inputValue.value
-    const message = _message.trim()
-    if (_message === inputValue.value) {
+    const _messageText = forceMessage ? forceMessage : inputValue.value
+    const messageText = _messageText.trim()
+    if (_messageText === inputValue.value) {
       inputValue.value = ''
     }
-    if (message === '') {
+    if (messageText === '') {
       return false
     }
-    const answerMessage = createMessage()
-    messages.value.push(createMessage('Q', message))
-    messages.value.push(answerMessage)
+    const message = createMessage(messageText, '', false)
+    messages.value.push(message)
     useScrollToBottom()
-    createRequest(message)
+    createRequest(messageText)
       .then((res) => {
+        const id = (res as any).id as string
         const answer = (res as any).answer as string
         const urls = (res as any).urls as string[]
         const queries = (res as any).queries as string[]
@@ -316,11 +279,11 @@ export default function () {
         if (!answer) {
           throw _t('error.plzRefresh')
         }
-        answerMessage.text = answer
-        answerMessage.urls = urls || []
-        answerMessage.queries = queries || []
-        answerMessage.dt = dt || undefined
-        context.add(message, answer)
+        message.id = id
+        message.A = answer
+        message.urls = urls || []
+        message.queries = queries || []
+        message.dt = dt || undefined
         if (_version !== version.value) {
           ElMessageBox.confirm(
             _t('action.newVersion'),
@@ -339,24 +302,48 @@ export default function () {
       })
       .catch((err) => {
         ElMessage.error(err || 'Oops! Something went wrong!' as string)
-        answerMessage.text = 'Oops! Something went wrong!'
+        message.A = 'Oops! Something went wrong!'
       })
       .finally(() => {
-        answerMessage.type = 'A'
-        answerMessage.t = new Date()
+        message.done = true
+        message.t = new Date()
       })
-    getQuestionSuggestions(message)
+    getQuestionSuggestions(messageText)
       .then((more) => {
-        answerMessage.more = more
+        const isAtBottom = getScrollTop() >= document.body.clientHeight
+        message.more = more
+        if (isAtBottom) {
+          useScrollToBottom()
+        }
       })
       .catch(() => {})
     return true
+  }
+  const exportAsMarkdown = () => {
+    ElMessage.info('This feature is not available yet.')
+    // let i = 1
+    // const markdownContent = messages.value.map((msg) => {
+    //   if (msg.type === 'Q') {
+    //     return `QUESTION ${i}:\n\n${msg.text.replaceAll('\n', '\n\n')}`
+    //   }
+    //   if (msg.type === 'A') {
+    //     return `ANSWER ${i++}:\n\n${msg.text}`
+    //   }
+    //   return '(Unknown message)'
+    // }).join('\n\n---\n\n') + '\n\n---\n\n'
+    // const a = document.createElement('a')
+    // const filename = `${baseConverter.convert(getCurrentConvId(), '64w', 10)}.md`
+    // a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(markdownContent))
+    // a.setAttribute('download', filename)
+    // a.style.display = 'none'
+    // document.body.appendChild(a)
+    // a.click()
+    // a.remove()
   }
   return {
     model,
     conversations,
     messages,
-    context,
     webBrowsingMode,
     temperatureSuffix,
     contextMode,
@@ -370,6 +357,7 @@ export default function () {
     initPage,
     goToChat,
     sendMessage,
-    focusInput
+    focusInput,
+    exportAsMarkdown,
   }
 }

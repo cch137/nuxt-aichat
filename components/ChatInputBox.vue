@@ -4,7 +4,7 @@
     <div class="InputBox pt-20 pb-1 px-4 flex-1">
       <el-form ref="inputForm" class="mx-auto max-w-full" @submit.prevent>
         <el-form-item style="margin: 0;">
-          <div class="flex gap-3 w-full">
+          <div class="flex gap-3 w-full mx-auto justify-center px-4" style="max-width: 960px;">
             <div class="w-full">
               <el-input
                 v-model="inputValue"
@@ -20,7 +20,9 @@
               <el-button
                 type="primary"
                 size="large"
+                :icon="Position"
                 @click="clickSendMessage"
+                style="padding: 12px;"
               >
                 {{ $t('chat.send') }}
               </el-button>
@@ -38,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { Position } from '@element-plus/icons-vue'
 const { model, sendMessage, focusInput, openSidebar, inputValue } = useChat()
 
 const keyboardSendMessage = (evt: KeyboardEvent) => {

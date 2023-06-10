@@ -16,6 +16,11 @@ const copyToClipboard = (text: string) => new Promise((resolve, reject) => {
     })
 })
 
+const getScrollTop = () => {
+  return Math.ceil(document.documentElement.scrollTop || document.body.scrollTop) + window.innerHeight
+}
+
 export {
+  getScrollTop,
   copyToClipboard
 }

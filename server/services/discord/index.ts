@@ -62,7 +62,6 @@ Actions not violating server rules to maintain freedom of speech:
 - Using vulgar language to express personal emotions or engage in discussions, but without insulting others.
 
 Instances where you should reply to the messages you are reviewing:
-- When a member mentions a user ID or role ID.
 - When a member violates server rules.
 
 Strict rules to follow:

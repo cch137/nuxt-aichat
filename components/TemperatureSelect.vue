@@ -5,7 +5,7 @@
       :min="0"
       :max="1"
       :step="0.1"
-      style="width: 96%;"
+      style="width: 100%"
       @change="handleChange"
     />
   </div>

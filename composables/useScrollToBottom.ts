@@ -1,4 +1,4 @@
-export default async function () {
+export default async function (delayMs = 0) {
   return await new Promise((resolve, reject) => {
     if (process.client) {
       setTimeout(() => {
@@ -8,7 +8,7 @@ export default async function () {
         } catch (err) {
           reject(err)
         }
-      })
+      }, +delayMs || 0)
     } else {
       resolve(null)
     }

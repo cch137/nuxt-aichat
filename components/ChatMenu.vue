@@ -9,7 +9,7 @@
           </el-text>
         </div>
       </div>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 pr-1">
         <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
           <ModelSelect class="flex-1" />
@@ -70,8 +70,8 @@
               </el-popover>
             </ClientOnly>
           </el-text>
-          <div class="flex-1">
-            <TemperatureSelect class="flex-1" />
+          <div class="flex-1" style="width: calc(50% - 0.25rem)">
+            <TemperatureSelect class="w-full" />
           </div>
         </div>
         <div class="flex gap-1">

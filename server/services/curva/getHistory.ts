@@ -1,6 +1,20 @@
 import { message as messagesCollection } from '~/server/services/mongoose'
 
-export default async function (user: string, conv: string) {
+interface AchivedChatMessage {
+  Q: string;
+  A: string;
+  id: string;
+  t: number;
+  queries?: string[];
+  urls?: string[];
+  dt?: number;
+}
+
+export type {
+  AchivedChatMessage
+}
+
+export default async function (user: string, conv: string): Promise<AchivedChatMessage[]> {
   if (!(user && conv)) {
     return []
   }
@@ -17,9 +31,10 @@ export default async function (user: string, conv: string) {
   }).sort({ createdAt: 1 })).map((doc) => ({
     Q: doc.Q,
     A: doc.A,
+    id: doc._id.toString('base64'),
+    t: doc._id.getTimestamp().getTime(),
     queries: doc.queries,
     urls: doc.urls,
     dt: doc.dt,
-    t: doc._id.getTimestamp().getTime()
   }))
 }
