@@ -4,7 +4,7 @@
       <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
       <div class="flex-1 flex-center" :style="`max-width: ${openSidebar ? 'calc(100% - 280px)' : '100%'}; transition: .3s;`">
         <div class="w-full mx-auto">
-          <div class="Messages pt-4 px-2 pb-10 mb-40 mx-auto">
+          <div class="Messages flex flex-col gap-2 pt-4 px-2 pb-10 mb-40 mx-auto">
             <div class="text-center my-4">
               <el-text type="info" size="large">{{ $t('chat.letsStart') }}</el-text>
             </div>
@@ -13,7 +13,7 @@
               :key="message.A"
               class="px-1 flex flex-col gap-2"
             >
-              <div class="QMessagePadding"></div>
+              <div></div>
               <div class="flex MessageContainer">
                 <div class="MessageAvatar">
                   <div class="QMessageAvatar flex-center">
@@ -22,14 +22,8 @@
                     </el-icon>
                   </div>
                 </div>
-                <div class="flex flex-1 flex-col gap-1" style="width: calc(100% - 32px - 4.5rem)">
-                  <div class="Message flex Q">
-                    <div class="InnerMessage p-4 shadow-2xl rounded-lg w-full">
-                      <div>
-                        <span class="flex-1">{{ message.Q }}</span>
-                      </div>
-                    </div>
-                  </div>
+                <div class="Message Q p-4 flex-1 gap-1 shadow-2xl rounded-lg" style="width: calc(100% - 32px - 4.5rem)">
+                  <span>{{ message.Q }}</span>
                 </div>
               </div>
               <div class="flex MessageContainer">
@@ -62,48 +56,46 @@
                     </el-icon>
                   </div>
                 </div>
-                <div class="flex flex-1 flex-col gap-1" style="width: calc(100% - 32px - 4.5rem)">
-                  <div class="Message flex A">
-                    <div class="InnerMessage p-4 shadow-2xl rounded-lg w-full">
-                      <div>
-                        <el-text
-                          v-if="message.done"
-                          v-html="marked.parse(message.A)"
-                          size="large"
-                        />
-                        <span v-else>
-                          <el-text size="large">Thinking</el-text>
-                          <el-text size="large">{{ loadingDots }}</el-text>
-                        </span>
-                      </div>
-                      <div v-if="message.done" class="flex mt-2 gap-2 -mb-2">
-                        <div class="flex-1 flex gap-2">
-                          <el-text type="info" size="small">
-                            <span class="flex gap-2">
-                              <span>
-                                {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
-                              </span>
-                              <span>
-                                {{ message.dt === undefined ? '' : `Δt: ${Math.round(message.dt / 100) / 10}s` }}
-                              </span>
+                <div class="flex-1" style="width: calc(100% - 32px - 4.5rem)">
+                  <div class="Message A p-4 shadow-2xl rounded-lg">
+                    <div>
+                      <el-text
+                        v-if="message.done"
+                        v-html="marked.parse(message.A)"
+                        size="large"
+                      />
+                      <span v-else>
+                        <el-text size="large">Thinking</el-text>
+                        <el-text size="large">{{ loadingDots }}</el-text>
+                      </span>
+                    </div>
+                    <div v-if="message.done" class="flex mt-1 gap-2 -mb-2">
+                      <div class="flex-1 flex gap-2">
+                        <el-text type="info" size="small">
+                          <span class="flex gap-2">
+                            <span>
+                              {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
                             </span>
-                          </el-text>
-                        </div>
-                        <el-button-group class="ml-4">
-                          <el-button
-                            :icon="DocumentCopy"
-                            size="small"
-                            class="MessageActionButton"
-                            plain
-                            @click="useCopyToClipboard(message.A)"
-                          >
-                            {{ $t('action.copy') }}
-                          </el-button>
-                        </el-button-group>
+                            <span>
+                              {{ message.dt === undefined ? '' : `Δt: ${Math.round(message.dt / 100) / 10}s` }}
+                            </span>
+                          </span>
+                        </el-text>
                       </div>
+                      <el-button-group class="ml-4">
+                        <el-button
+                          :icon="DocumentCopy"
+                          size="small"
+                          class="MessageActionButton"
+                          plain
+                          @click="useCopyToClipboard(message.A)"
+                        >
+                          {{ $t('action.copy') }}
+                        </el-button>
+                      </el-button-group>
                     </div>
                   </div>
-                  <div v-if="message.urls && message.urls.length > 0" class="flex flex-col items-start pl-2 w-full">
+                  <div v-if="message.urls && message.urls.length > 0" class="flex flex-col items-start pt-1 pl-2 w-full">
                     <el-link
                       v-for="url in message.urls"
                       :key="url"
@@ -121,19 +113,17 @@
                   </div>
                 </div>
               </div>
-              <div class="flex-center">
-                <div
-                  v-if="message === messages.at(-1) && message.more && message.more.length > 0"
-                  :key="message.more"
-                  class="flex flex-wrap items-center gap-2 pt-8"
-                >
-                  <el-button size="x-large" class="MoreQuestionsButton shadow-md cursor-pointer" @click="(more.end >= message.more.length ? (more.reset(), message.more = random.shuffle(message.more)) : more.run(message.more.length))" :icon="ChatDotRound" style="padding: 0">
-                  </el-button>
-                  <el-button v-for="q in message.more.slice(more.start, more.end)" style="margin: 0;" class="shadow-md" @click="sendMessage(q)">
-                    {{ q }}
-                  </el-button>
-                  <el-text type="info" class="select-none cursor-pointer" @click="more.run()">...</el-text>
-                </div>
+              <div
+                v-if="message === messages.at(-1) && message.more && message.more.length > 0"
+                :key="message.more"
+                class="flex flex-wrap items-center gap-2 pt-8"
+              >
+                <el-button size="x-large" class="MoreQuestionsButton shadow-md cursor-pointer" @click="(more.end >= message.more.length ? (more.reset(), message.more = random.shuffle(message.more)) : more.run(message.more.length))" :icon="ChatDotRound" style="padding: 0">
+                </el-button>
+                <el-button v-for="q in message.more.slice(more.start, more.end)" style="margin: 0;" class="shadow-md" @click="sendMessage(q)">
+                  {{ q }}
+                </el-button>
+                <el-text type="info" class="select-none cursor-pointer" @click="more.run()">...</el-text>
               </div>
             </div>
           </div>
@@ -195,9 +185,9 @@ setInterval(() => {
 }
 .Messages {
   width: 100%;
-  max-width: 810px;
+  max-width: 840px;
 }
-.InnerMessage a {
+.Message a {
   word-break: break-all;
   text-decoration: underline;
 }
@@ -222,30 +212,28 @@ setInterval(() => {
 .AMessageAvatar {
   background: hsl(150, 30%, 30%);
 }
-.Message.Q .InnerMessage {
-  background: #60608240;
+.Message {
   backdrop-filter: blur(8px);
-  white-space: pre-wrap;
 }
-.Message.A .InnerMessage {
+.Message .el-text {
+  word-break: break-word;
+}
+.Message.Q {
+  background: #60608240;
+  /* white-space: pre-wrap; */
+}
+.Message.A {
   background: #60606240;
-  backdrop-filter: blur(8px);
 }
 .MessageActionButton {
   background: #ffffff0f !important;
 }
 .MessageContainer {
-  gap: 1rem;
-}
-.QMessagePadding {
-  padding: .5rem 0;
+  gap: .75rem;
 }
 @media screen and (max-width: 600px) {
   .MessageContainer {
     gap: .5rem;
-  }
-  .QMessagePadding {
-    padding: 0;
   }
 }
 .CodeBlockWrapper {

@@ -6,11 +6,11 @@ const CODE_PROCESSED_CLASS = 'CodeBlockAddedCopyButton'
 const LINK_PROCESSED_CLASS = '_BlankLink'
 
 const getAllPreBlocks = () => {
-  return [...document.querySelectorAll('.InnerMessage pre')] as HTMLPreElement[]
+  return [...document.querySelectorAll('.Message pre')] as HTMLPreElement[]
 }
 
 const getAllLinks = () => {
-  return [...document.querySelectorAll('.InnerMessage a')] as HTMLLinkElement[]
+  return [...document.querySelectorAll('.Message a')] as HTMLLinkElement[]
 }
 
 const emptyLanguage = 'plain text'
