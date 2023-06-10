@@ -95,7 +95,14 @@ const fetchHistory = (conv: string | null) => {
         })))
         resolve(true)
         const lastMessage = messages.value.at(-1) as DisplayChatMessage
-        lastMessage.more = await getQuestionSuggestions(lastMessage.Q)
+        getQuestionSuggestions(lastMessage.Q)
+          .then((more) => {
+            const isAtBottom = getScrollTop() >= document.body.clientHeight
+            lastMessage.more = more
+            if (isAtBottom) {
+              useScrollToBottom()
+            }
+          })
       })
       .catch((err) => {
         ElMessage.error('There was an error loading the conversation.')
