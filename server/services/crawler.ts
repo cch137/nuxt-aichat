@@ -78,28 +78,34 @@ const scrape = async (url: string) => {
   }
 }
 
+interface GoogleSearchResult {
+  title?: string;
+  description: string;
+  url: string;
+}
+
+const getGoogleSearchResults = async (query: string) => {
+  console.log('SEARCH:', query)
+  const searched = await googlethis.search(query)
+  return [...searched.results, ...searched.top_stories] as GoogleSearchResult[]
+}
+
 const search = async (query: string, translate = true) => {
   try {
     query = query.replace(/[\s]+/g, ' ').trim()
-    const searchQueries = new Set([query.substring(0, 256)])
+    const query1 = query.substring(0, 256)
+    const searchings = [getGoogleSearchResults(query1)]
     if (translate) {
       const translateResult = await translateToEnglish(query.substring(0, 5000))
       // @ts-ignore
       if (translateResult?.lang !== '英语') {
-        const queryInEnglish = translateResult.text
-        searchQueries.add(queryInEnglish)
+        const query2 = translateResult.text.substring(0, 256)
+        if (query1 === query2) {
+          searchings.push(getGoogleSearchResults(query2))
+        }
       }
     }
-    const searcheds = (await Promise.all([...searchQueries].map((query) => {
-      console.log('SEARCH:', query)
-      return googlethis.search(query)
-    })))
-    const results: Array<{url: string, title?: string, description: string}> = []
-    for (const searched of searcheds) {
-      results.push(...searched.results)
-      results.push(...searched.top_stories)
-    }
-    return results
+    return (await Promise.all(searchings)).flat()
   } catch (err) {
     err = str(err)
     console.log('SUMMARIZE FAILED:', err)
@@ -108,21 +114,26 @@ const search = async (query: string, translate = true) => {
   }
 }
 
-const _outputSummarize = (results: Array<{ url: string, title?: string, description: string }>, showUrl = false) => {
-  return [...new Set(results
-    .map((r) => `${showUrl ? r.url : ''}\n${r.title ? r.title : ''}\n${r.description}`))
-  ].join('\n\n')
+const _search = async (query: string, translate = true) => {
+  const results = await search(query, translate)
+  return {
+    pipe (showUrl: boolean) {
+      return [...new Set(results
+        .map((r) => `${showUrl ? r.url : ''}\n${r.title ? r.title : ''}\n${r.description}`))
+      ].join('\n\n')
+    }
+  }
 }
 
 const summarize = async (query: string, showUrl = false, translate = true) => {
-  return _outputSummarize(await search(query, translate), showUrl)
+  return (await _search(query, translate)).pipe(showUrl)
 }
 
 const crawler = {
   scrape,
+  _search,
   search,
   summarize,
-  _outputSummarize
 }
 
 export default crawler

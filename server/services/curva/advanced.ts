@@ -55,9 +55,9 @@ export default async function (question: string, context = '', userTimeZone = 0)
     const urls = [] as string[]
     const results: string[] = []
     const _pages1 = makeSureUrlsStartsWithHttp(_urls).map((url) => scrapeAndSummary(question, url, userTimeZone, i += 1000))
-    const searchs = await Promise.all(queries.map((query) => crawler.search(query, false)))
-    const summaryShowUrl = (searchs.map((search) => crawler._outputSummarize(search, true))).join('\n\n')
-    const summaryXShowUrl = (searchs.map((search) => crawler._outputSummarize(search, false))).join('\n\n')
+    const searchings = await Promise.all(queries.map((query) => crawler._search(query, false)))
+    const summaryShowUrl = searchings.map((searched) => searched.pipe(true)).join('\n\n')
+    const summaryXShowUrl = searchings.map((searched) => searched.pipe(false)).join('\n\n')
     extractInfomation(question, summaryXShowUrl, userTimeZone)
       .then((result) => results.unshift(result))
       .catch(() => {})
