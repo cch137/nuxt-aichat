@@ -42,16 +42,16 @@ const convert = (
   if (typeof value !== 'string') {
     value = str(value)
   }
-  let decimalValue = 0
+  let decimalValue = BigInt(0)
   if (+fromCharset === 10) {
-    decimalValue = +Number(value)
+    decimalValue = BigInt(+Number(value))
   } else if (+fromCharset < 37) {
-    decimalValue = parseInt(value, +fromCharset)
+    decimalValue = BigInt(parseInt(value, +fromCharset))
   } else {
     fromCharset = getCharset(fromCharset)
     const baseFrom = fromCharset.length
     for (let i = 0; i < value.length; i++) {
-      decimalValue += fromCharset.indexOf(value[i]) * Math.pow(baseFrom, value.length - 1 - i)
+      decimalValue += BigInt(fromCharset.indexOf(value[i]) * Math.pow(baseFrom, value.length - 1 - i))
     }
   }
   let result = ''
@@ -63,10 +63,10 @@ const convert = (
   }
   toCharset = getCharset(toCharset)
   if (result === '') {
-    const baseTo = toCharset.length
+    const baseTo = BigInt(toCharset.length)
     while (decimalValue > 0) {
-      result = toCharset.charAt(decimalValue % baseTo) + result
-      decimalValue = Math.floor(decimalValue / baseTo)
+      result = toCharset.charAt(+BigInt(decimalValue % baseTo).toString()) + result
+      decimalValue = BigInt(decimalValue / baseTo)
     }
   }
   return (result === '' ? toCharset.charAt(0) : result).padStart(minLen, toCharset[0])

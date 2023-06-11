@@ -1,10 +1,10 @@
 <template>
   <div class="InputBoxOuter flex fixed w-full z-50">
-    <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
-    <div class="InputBox pt-20 pb-1 px-4 flex-1">
+    <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
+    <div class="InputBox pt-20 pb-1 px-2 flex-1">
       <el-form ref="inputForm" class="mx-auto max-w-full" @submit.prevent>
         <el-form-item style="margin: 0;">
-          <div class="flex gap-3 w-full mx-auto justify-center px-4" style="max-width: 960px;">
+          <div class="flex gap-3 w-full mx-auto justify-center px-2" style="max-width: 900px;">
             <div class="w-full">
               <el-input
                 v-model="inputValue"

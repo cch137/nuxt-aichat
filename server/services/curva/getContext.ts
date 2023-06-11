@@ -1,9 +1,11 @@
-import { message, message as messagesCollection } from '~/server/services/mongoose'
+import { message as messagesCollection } from '~/server/services/mongoose'
 
-const getJoinedMessages = (messages: { Q: string, A: string, t: number }[]) => {
+const getJoinedMessages = (messages: { Q: string, A: string }[]) => {
   return messages.map((message) => {
-    return `Question: ${message.Q}\nAnswer: ${message.A}`
-  }).join('\n---\n')
+    return (message.Q ? `Question:\n${message.Q}` : '')
+      + (message.Q && message.A ? '\n\n' : '')
+      + (message.A ? `Answer:\n${message.A}` : '')
+  }).filter((m) => m).join('\n---\n')
 }
 
 export default async function (user: string, conv: string) {

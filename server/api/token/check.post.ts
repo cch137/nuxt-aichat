@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       { $match: { user } },
       { $group: { _id: '$user', conv: { $addToSet: '$conv' } } },
       { $project: { _id: 0, conv: 1 } }
-    ]).exec())[0]?.conv
+    ]).exec())[0]?.conv as string[]
     if (Array.isArray(conversations)) {
       const record: Record<string, string>  = {}
       const items = await conversation.find(
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
         }
       }
       return {
-        list: conversations as string[],
+        list: conversations.filter((c) => !c.startsWith('~')),
         named: record
       }
     }

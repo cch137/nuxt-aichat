@@ -1,9 +1,9 @@
 <template>
   <div class="fixed z-50 w-full flex">
-    <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
+    <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
     <ChatSidebar />
     <div class="ChatHeader px-4 gap-4 flex items-stretch flex-1">
-      <div :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" style="transition: .3s;">
+      <div :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" style="transition: .1s;">
         <el-button style="padding: 8px;" @click="openMenu = !openMenu">
           <MenuIcon />
         </el-button>
@@ -36,6 +36,16 @@
                       @click="exportAsMarkdown"
                     >
                       {{ $t('action.exportAs') }} .MD
+                    </el-button>
+                  </div>
+                  <div>
+                    <el-button
+                      class="w-full"
+                      style="justify-content: start;"
+                      :icon="Download"
+                      @click="exportAsJson"
+                    >
+                      {{ $t('action.exportAs') }} .JSON
                     </el-button>
                   </div>
                   <div>
@@ -81,7 +91,7 @@
 <script setup>
 import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
-const { conversations, openMenu, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations, exportAsMarkdown } = useChat()
+const { conversations, openMenu, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations, exportAsMarkdown, exportAsJson } = useChat()
 // @ts-ignore
 const _t = useLocale().t
 

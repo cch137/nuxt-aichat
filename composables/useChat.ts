@@ -19,7 +19,11 @@ const getContext = () => {
     return ''
   }
   const contexts = messages.value.filter((msg) => msg.done)
-    .map((msg) => `Question: ${msg.Q}\nAnswer: ${msg.A}`)
+    .map((message) => {
+      return (message.Q ? `Question:\n${message.Q}` : '')
+        + (message.Q && message.A ? '\n\n' : '')
+        + (message.A ? `Answer:\n${message.A}` : '')
+    })
   while (contexts.length > 1 && contexts.slice(1, contexts.length).join('').length > CONTEXT_MAX_LENGTH) {
     contexts.shift()
   }
@@ -88,11 +92,11 @@ const fetchHistory = (conv: string | null) => {
         if (!archived || archived.length === 0) {
           navigateTo('/c/')
         }
-        messages.value.unshift(...archived.map((msg) => reactive({
+        messages.value = archived.map((msg) => reactive({
           ...msg,
           t: new Date(msg.t),
           done: Boolean(msg.A),
-        })))
+        }))
         resolve(true)
         const lastMessage = messages.value.at(-1) as DisplayChatMessage
         getQuestionSuggestions(lastMessage.Q)
@@ -111,21 +115,27 @@ const fetchHistory = (conv: string | null) => {
   })
 }
 
-const initPage = (conv: string | null, skipHistoryFetching = false) => {
-  if (!skipHistoryFetching) {
-    const loading = ElLoading.service()
-    Promise.all([
-      conv === null ? null : checkTokenAndGetConversations(),
-      fetchHistory(conv)
-    ])
-      .finally(() => {
-        useScrollToBottom()
-        if (loading !== null) {
-          useScrollToBottom(500)
-            .finally(() => loading.close())
-        }
-      })
-  }
+const initPage = async (conv: string | null, skipHistoryFetching = false) => {
+  return await new Promise((resolve) => {
+    messages.value = []
+    if (!skipHistoryFetching) {
+      const loading = ElLoading.service()
+      Promise.all([
+        conv === null ? null : checkTokenAndGetConversations(),
+        fetchHistory(conv)
+      ])
+        .finally(() => {
+          useScrollToBottom()
+          if (loading !== null) {
+            useScrollToBottom(500)
+              .finally(() => {
+                loading.close()
+                resolve(true)
+              })
+          }
+        })
+    }    
+  })
 }
 
 const DEFAULT_TEMPERATURE = '_t05'
@@ -237,16 +247,15 @@ export default function () {
   })
   watch(openDrawer, (value) => {openMenu.value = value})
   watch(openSidebar, (value) => {openMenu.value = value})
-  const goToChat = (conv: string | null, force = false, skipHistoryFetching = false) => {
+  const goToChat = async (conv: string | null, force = false, skipHistoryFetching = false) => {
     const currentConvId = getCurrentConvId()
-    if (force || (currentConvId !== conv || conv === null)) {
-      messages.value = []
-      initPage(conv, skipHistoryFetching)
-    }
     if (useDevice().isMobileScreen) {
       openMenu.value = false
     }
-    focusInput()
+    if (force || (currentConvId !== conv || conv === null)) {
+      await initPage(conv, skipHistoryFetching)
+    }
+    setTimeout(() => focusInput(), 500)
   }
   // @ts-ignore
   const _t = useLocale().t
@@ -268,8 +277,10 @@ export default function () {
     const message = createMessage(messageText, '', false)
     messages.value.push(message)
     useScrollToBottom()
+    const more = getQuestionSuggestions(messageText)
     createRequest(messageText)
       .then((res) => {
+        const isAtBottom = getScrollTop() >= document.body.clientHeight
         const id = (res as any).id as string
         const answer = (res as any).answer as string
         const urls = (res as any).urls as string[]
@@ -306,6 +317,18 @@ export default function () {
               focusInput()
             })
         }
+        if (isAtBottom) {
+          useScrollToBottom()
+        }
+        more
+          .then((more) => {
+            const isAtBottom = getScrollTop() >= document.body.clientHeight
+            message.more = more
+            if (isAtBottom) {
+              useScrollToBottom()
+            }
+          })
+          .catch(() => {})
       })
       .catch((err) => {
         ElMessage.error(err || 'Oops! Something went wrong!' as string)
@@ -315,37 +338,54 @@ export default function () {
         message.done = true
         message.t = new Date()
       })
-    getQuestionSuggestions(messageText)
-      .then((more) => {
-        const isAtBottom = getScrollTop() >= document.body.clientHeight
-        message.more = more
-        if (isAtBottom) {
-          useScrollToBottom()
-        }
-      })
-      .catch(() => {})
     return true
   }
+  const deleteMessage = (base64MessageId: string) => {
+    messages.value = messages.value.filter((msg) => msg.id !== base64MessageId)
+    $fetch('/api/chat/answer', {
+      method: 'DELETE',
+      body: {
+        conv: getCurrentConvId(),
+        id: base64MessageId
+      }
+    })
+      .then(() => ElMessage.info('The message has been deleted.'))
+      .catch(() => ElMessage.error('An error occurred while deleting the message.'))
+  }
+  const downloadTextFile = (filename: string, content: string) => {
+    const a = document.createElement('a')
+    a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content))
+    a.setAttribute('download', filename)
+    a.style.display = 'none'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
   const exportAsMarkdown = () => {
-    ElMessage.info('This feature is not available yet.')
-    // let i = 1
-    // const markdownContent = messages.value.map((msg) => {
-    //   if (msg.type === 'Q') {
-    //     return `QUESTION ${i}:\n\n${msg.text.replaceAll('\n', '\n\n')}`
-    //   }
-    //   if (msg.type === 'A') {
-    //     return `ANSWER ${i++}:\n\n${msg.text}`
-    //   }
-    //   return '(Unknown message)'
-    // }).join('\n\n---\n\n') + '\n\n---\n\n'
-    // const a = document.createElement('a')
-    // const filename = `${baseConverter.convert(getCurrentConvId(), '64w', 10)}.md`
-    // a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(markdownContent))
-    // a.setAttribute('download', filename)
-    // a.style.display = 'none'
-    // document.body.appendChild(a)
-    // a.click()
-    // a.remove()
+    let i = 0
+    const filename = `${baseConverter.convert(getCurrentConvId(), '64w', 10)}.md`
+    const markdownContent = messages.value.map((message) => {
+      i++
+      try {
+        return (message.t ? `${new Date(message.t.getTime() - (message.dt || 0)).toLocaleString()}${message.dt === undefined ? '' : ' (Δt: ' + message.dt.toString() + 'ms)'}\n\n` : '')
+          + (message.Q ? `QUESTION ${i}:\n\n${message.Q.replaceAll('\n', '\n\n')}` : '')
+          + (message.Q && message.A ? '\n\n' : '')
+          + (message.A ? `ANSWER ${i}:\n\n${message.A}` : '')
+      } catch {
+        return '(Unknown message)'
+      }
+    }).join('\n\n---\n\n') + '\n\n---\n\n'
+    downloadTextFile(filename, markdownContent)
+  }
+  const exportAsJson = () => {
+    downloadTextFile(`${baseConverter.convert(getCurrentConvId(), '64w', 10)}.json`, JSON.stringify(messages.value.map((msg) => ({
+      question: msg.Q,
+      answer: msg.A,
+      sentAt: new Date(msg.t.getTime() - (msg.dt || 0)).toUTCString(),
+      timeUsed: msg.dt || undefined,
+      queries: msg.queries || undefined,
+      urls: msg.urls || undefined,
+    })), null, 4))
   }
   return {
     model,
@@ -364,7 +404,9 @@ export default function () {
     initPage,
     goToChat,
     sendMessage,
+    deleteMessage,
     focusInput,
     exportAsMarkdown,
+    exportAsJson,
   }
 }

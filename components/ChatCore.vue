@@ -1,8 +1,8 @@
 <template>
   <ClientOnly>
     <div class="flex w-full">
-      <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .3s;`"></div>
-      <div class="flex-1 flex-center" :style="`max-width: ${openSidebar ? 'calc(100% - 280px)' : '100%'}; transition: .3s;`">
+      <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
+      <div class="flex-1 flex-center" :style="`max-width: ${openSidebar ? 'calc(100% - 280px)' : '100%'}; transition: .1s;`">
         <div class="w-full mx-auto">
           <div class="Messages flex flex-col gap-2 pt-4 px-2 pb-10 mb-40 mx-auto">
             <div class="text-center my-4">
@@ -13,21 +13,50 @@
               :key="message.A"
               class="px-1 flex flex-col gap-2"
             >
-              <div></div>
-              <div class="flex MessageContainer">
-                <div class="MessageAvatar">
+              <div class="flex MessageContainer pt-2">
+                <div class="MessageLeft">
                   <div class="QMessageAvatar flex-center">
                     <el-icon size="larger" class="opacity-75">
                       <User />
                     </el-icon>
                   </div>
                 </div>
-                <div class="Message Q p-4 flex-1 gap-1 shadow-2xl rounded-lg" style="width: calc(100% - 32px - 4.5rem)">
-                  <span>{{ message.Q }}</span>
+                <div class="Message Q p-4 flex-1 gap-1 shadow rounded-lg" style="width: calc(100% - 32px - 4.5rem)">
+                  <div>
+                    <span>{{ message.Q }}</span>
+                  </div>
+                  <div v-if="message.done" class="flex mt-1 gap-2 -mb-2">
+                    <div class="flex-1 flex gap-2">
+                      <el-text type="info" size="small">
+                        <span class="flex gap-2">
+                          <span>
+                            {{ formatDate(new Date(message.t.getTime() - (message.dt || 0)), 'yyyy/MM/dd HH:mm') }}
+                          </span>
+                        </span>
+                      </el-text>
+                    </div>
+                    <div class="flex gap-2">
+                      <ChatMessageDeleteButton :confirm="() => deleteMessage(message.id)" />
+                      <el-tooltip
+                        :content="$t('action.copy')"
+                        placement="bottom"
+                      >
+                        <el-text
+                          type="info"
+                          class="MessageActionButton flex-center w-full cursor-pointer"
+                          @click="useCopyToClipboard(message.Q)"
+                        >
+                          <el-icon size="large">
+                            <CopyDocument />
+                          </el-icon>
+                        </el-text>
+                      </el-tooltip>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="flex MessageContainer">
-                <div class="MessageAvatar"></div>
+                <div class="MessageLeft"></div>
                 <div class="flex flex-1 flex-col gap-1" style="width: calc(100% - 32px - 4.5rem)">
                   <div v-if="message.queries && message.queries.length > 0">
                     <el-text class="flex flex-wrap justify-start items-center">
@@ -49,7 +78,7 @@
                 </div>
               </div>
               <div class="flex MessageContainer">
-                <div class="MessageAvatar">
+                <div class="MessageLeft">
                   <div class="AMessageAvatar flex-center">
                     <el-icon size="larger" class="opacity-75">
                       <Cpu />
@@ -57,7 +86,7 @@
                   </div>
                 </div>
                 <div class="flex-1" style="width: calc(100% - 32px - 4.5rem)">
-                  <div class="Message A p-4 shadow-2xl rounded-lg">
+                  <div class="Message A p-4 shadow rounded-lg">
                     <div>
                       <el-text
                         v-if="message.done"
@@ -74,25 +103,27 @@
                         <el-text type="info" size="small">
                           <span class="flex gap-2">
                             <span>
-                              {{ formatDate(message.t, 'yyyy/MM/dd HH:mm') }}
-                            </span>
-                            <span>
-                              {{ message.dt === undefined ? '' : `Δt: ${Math.round(message.dt / 100) / 10}s` }}
+                              {{ message.dt === undefined ? formatDate(message.t, 'yyyy/MM/dd HH:mm') : `Δt: ${Math.round(message.dt / 10) / 100}s` }}
                             </span>
                           </span>
                         </el-text>
                       </div>
-                      <el-button-group class="ml-4">
-                        <el-button
-                          :icon="DocumentCopy"
-                          size="small"
-                          class="MessageActionButton"
-                          plain
-                          @click="useCopyToClipboard(message.A)"
+                      <div class="flex gap-2">
+                        <el-tooltip
+                          :content="$t('action.copy')"
+                          placement="bottom"
                         >
-                          {{ $t('action.copy') }}
-                        </el-button>
-                      </el-button-group>
+                          <el-text
+                            type="info"
+                            class="MessageActionButton flex-center w-full cursor-pointer"
+                            @click="useCopyToClipboard(message.A)"
+                          >
+                            <el-icon size="large">
+                              <CopyDocument />
+                            </el-icon>
+                          </el-text>
+                        </el-tooltip>
+                      </div>
                     </div>
                   </div>
                   <div v-if="message.urls && message.urls.length > 0" class="flex flex-col items-start pt-1 pl-2 w-full">
@@ -118,9 +149,9 @@
                 :key="message.more"
                 class="flex flex-wrap items-center gap-2 pt-8"
               >
-                <el-button size="x-large" class="MoreQuestionsButton shadow-md cursor-pointer" @click="(more.end >= message.more.length ? (more.reset(), message.more = random.shuffle(message.more)) : more.run(message.more.length))" :icon="ChatDotRound" style="padding: 0">
+                <el-button size="x-large" class="MoreQuestionsButton shadow cursor-pointer" @click="(more.end >= message.more.length ? (more.reset(), message.more = random.shuffle(message.more)) : more.run(message.more.length))" :icon="ChatDotRound" style="padding: 0">
                 </el-button>
-                <el-button v-for="q in message.more.slice(more.start, more.end)" style="margin: 0;" class="shadow-md" @click="sendMessage(q)">
+                <el-button v-for="q in message.more.slice(more.start, more.end)" style="margin: 0;" class="shadow" @click="sendMessage(q)">
                   {{ q }}
                 </el-button>
                 <el-text type="info" class="select-none cursor-pointer" @click="more.run()">...</el-text>
@@ -137,10 +168,21 @@
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import random from '~/utils/random'
-import { DocumentCopy, ChatDotRound, User, Cpu, Search, Paperclip } from '@element-plus/icons-vue'
+import { CopyDocument, ChatDotRound, User, Cpu, Search, Paperclip } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
 
-const { messages, openSidebar, sendMessage } = useChat()
+const popoverVisibles = {
+  map: new Map(),
+  /** @returns {Ref<boolean>} */
+  get (id = Date.now().toString()) {
+    if (!popoverVisibles.map.has(id)) {
+      popoverVisibles.map.set(id, ref(false))
+    }
+    return popoverVisibles.map.get(id)
+  }
+}
+
+const { messages, openSidebar, sendMessage, deleteMessage } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -185,7 +227,7 @@ setInterval(() => {
 }
 .Messages {
   width: 100%;
-  max-width: 840px;
+  max-width: 780px;
 }
 .Message a {
   word-break: break-all;
@@ -199,7 +241,7 @@ setInterval(() => {
 .Messages code:not(pre code)::before, .Messages code:not(pre code)::after {
   content: '`';
 }
-.MessageAvatar {
+.MessageLeft {
   width: 2rem;
 }
 .QMessageAvatar, .AMessageAvatar {
@@ -226,14 +268,24 @@ setInterval(() => {
   background: #60606240;
 }
 .MessageActionButton {
-  background: #ffffff0f !important;
+  height: 20px;
+  transition: .1s;
+}
+.MessageActionButton svg {
+  transform: scale(0.9);
+}
+.MessageActionButton:hover {
+  color: var(--el-text-color-primary);
+}
+.MessageLeft {
+  margin-right: .25rem;
 }
 .MessageContainer {
-  gap: .75rem;
+  gap: .35rem;
 }
 @media screen and (max-width: 600px) {
   .MessageContainer {
-    gap: .5rem;
+    gap: .25rem;
   }
 }
 .CodeBlockWrapper {
