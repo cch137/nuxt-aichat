@@ -1,4 +1,5 @@
 import { config } from 'dotenv'
+import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
 import log from './models/log'
 import message from './models/message'
@@ -18,6 +19,7 @@ export default mongoose
 // })
 
 export {
+  ObjectId,
   log,
   message,
   conversation

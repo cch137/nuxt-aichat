@@ -7,6 +7,7 @@ import curva from '~/server/services/curva/index'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
 import troll from '~/utils/troll'
+import baseConverter from '~/utils/baseConverter'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -14,7 +15,8 @@ export default defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 }
   }
-  const { conv, prompt, context = '', model, web, t, tz = 0 } = body
+  const { conv, prompt, context = '', model, web, t, tz = 0, id } = body
+  const _id = id ? baseConverter.convert(id, '64w', 16) : id
   // @ts-ignore
   if (!conv || !prompt ||!model || !t) {
     return { error: 2 }
@@ -35,7 +37,10 @@ export default defineEventHandler(async (event) => {
     return { error: 4 }
   }
   try {
-    const response = await curva.ask(user, conv, model, web, prompt, context, tz)
+    const response = await curva.ask(user, conv, model, web, prompt, context, tz, _id)
+    if (typeof response.id === 'string') {
+      response.id = baseConverter.convert(response.id, 16, '64w')
+    }
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }

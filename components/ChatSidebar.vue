@@ -1,6 +1,6 @@
 <template>
   <div
-    class="ChatSidebar h-full z-50"
+    class="ChatSidebar flex flex-col z-50"
     :style="`transform: translateX(${openSidebar ? '0' : '-100%'});`"
   >
     <div class="flex">
@@ -10,7 +10,7 @@
       <el-button class="ChatHeaderMenuButton" :icon="DArrowLeft" style="padding: 8px;" @click="openSidebar = false">
       </el-button>
     </div>
-    <ChatMenu />
+    <ChatMenu class="flex-1 mt-4" />
   </div>
 </template>
 
@@ -28,7 +28,8 @@ const { openSidebar } = useChat()
   width: 25%;
   min-width: 280px;
   height: 100vh;
-  padding: 1rem 1rem 4rem;
+  max-height: 100vh;
+  padding: 1rem;
   background: var(--el-bg-color);
   overflow-y: auto;
   overflow-x: hidden;

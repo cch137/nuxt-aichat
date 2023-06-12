@@ -43,7 +43,7 @@
                       >
                         <el-text
                           type="info"
-                          class="MessageActionButton flex-center w-full cursor-pointer"
+                          class="MessageActionButton flex-center"
                           @click="useCopyToClipboard(message.Q)"
                         >
                           <el-icon size="large">
@@ -110,12 +110,28 @@
                       </div>
                       <div class="flex gap-2">
                         <el-tooltip
+                          v-if="message === messages.at(-1)"
+                          :key="messages"
+                          :content="$t('action.regenerate')"
+                          placement="bottom"
+                        >
+                          <el-text
+                            type="info"
+                            class="MessageActionButton flex-center"
+                            @click="regenerateMessage()"
+                          >
+                            <el-icon size="large">
+                              <Refresh />
+                            </el-icon>
+                          </el-text>
+                        </el-tooltip>
+                        <el-tooltip
                           :content="$t('action.copy')"
                           placement="bottom"
                         >
                           <el-text
                             type="info"
-                            class="MessageActionButton flex-center w-full cursor-pointer"
+                            class="MessageActionButton flex-center"
                             @click="useCopyToClipboard(message.A)"
                           >
                             <el-icon size="large">
@@ -168,7 +184,7 @@
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import random from '~/utils/random'
-import { CopyDocument, ChatDotRound, User, Cpu, Search, Paperclip } from '@element-plus/icons-vue'
+import { Refresh, CopyDocument, ChatDotRound, User, Cpu, Search, Paperclip } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
 
 const popoverVisibles = {
@@ -182,7 +198,7 @@ const popoverVisibles = {
   }
 }
 
-const { messages, openSidebar, sendMessage, deleteMessage } = useChat()
+const { messages, openSidebar, sendMessage, deleteMessage, regenerateMessage } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -269,7 +285,9 @@ setInterval(() => {
 }
 .MessageActionButton {
   height: 20px;
+  width: 100%;
   transition: .1s;
+  cursor: pointer;
 }
 .MessageActionButton svg {
   transform: scale(0.9);

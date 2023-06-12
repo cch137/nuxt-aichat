@@ -9,73 +9,7 @@
         </el-button>
       </div>
       <HomeLink :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" />
-      <div class="flex-1 flex items-center justify-end gap-2">
-        <ClientOnly>
-          <el-dropdown v-if="getCurrentConvId()" trigger="click" placement="bottom-start">
-            <el-button>
-              {{ $t('action.more') }}<el-icon class="el-icon--right"><ArrowDown /></el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <div class="flex flex-col gap-2 py-1 px-2">
-                  <div>
-                    <el-button
-                      class="w-full"
-                      style="justify-content: start;"
-                      :icon="EditPen"
-                      @click="renameConversation"
-                    >
-                      {{ $t('action.renameConv') }}
-                    </el-button>
-                  </div>
-                  <div>
-                    <el-button
-                      class="w-full"
-                      style="justify-content: start;"
-                      :icon="Download"
-                      @click="exportAsMarkdown"
-                    >
-                      {{ $t('action.exportAs') }} .MD
-                    </el-button>
-                  </div>
-                  <div>
-                    <el-button
-                      class="w-full"
-                      style="justify-content: start;"
-                      :icon="Download"
-                      @click="exportAsJson"
-                    >
-                      {{ $t('action.exportAs') }} .JSON
-                    </el-button>
-                  </div>
-                  <div>
-                    <el-button
-                      class="w-full"
-                      style="justify-content: start;"
-                      :icon="RefreshRight"
-                      @click="refreshChat"
-                    >
-                      {{ $t('action.refresh') }}
-                    </el-button>
-                  </div>
-                  <div>
-                    <el-button
-                      type="danger"
-                      class="w-full"
-                      style="justify-content: start;"
-                      :icon="Delete"
-                      @click="deleteConversation"
-                      plain
-                    >
-                      {{ $t('action.deleteConv') }}
-                    </el-button>
-                  </div>
-                </div>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </ClientOnly>
-      </div>
+      <div class="flex-1 flex items-center justify-end gap-2"></div>
       <div>
         <a href="https://discord.gg/5v49JKKmzJ" target="_blank">
           <el-button class="ChatHeaderDCJoinButton" style="padding: 12px;">
@@ -89,82 +23,8 @@
 </template>
 
 <script setup>
-import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
-import { EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
-const { conversations, openMenu, openSidebar, getCurrentConvId, getCurrentConvName, goToChat, checkTokenAndGetConversations, exportAsMarkdown, exportAsJson } = useChat()
-// @ts-ignore
-const _t = useLocale().t
-
+const { openMenu, openSidebar } = useChat()
 openMenu.value = true
-
-const refreshChat = () => {
-  goToChat(getCurrentConvId(), true)
-}
-
-const renameConversation = () => {
-  ElMessageBox.prompt(_t('message.renameConvHint'), _t('message.setting'), {
-    confirmButtonText: _t('message.ok'),
-    cancelButtonText: _t('message.cancel'),
-    inputValue: getCurrentConvName()
-  })
-    .then(({ value: name }) => {
-      $fetch('/api/chat/conv', { method: 'PUT', body: { id: getCurrentConvId(), name } })
-        .then(() => {
-          ElMessage({
-            type: 'success',
-            message: _t('message.renameSuccess'),
-          })
-          checkTokenAndGetConversations()
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'error',
-            message: 'Oops! Something went wrong!',
-          })
-        })
-    })
-    .catch(() => {})
-}
-
-const deleteConversation = () => {
-  const currentConvId = getCurrentConvId()
-  const _conversations = [...conversations.value]
-  let currentConvIndex = -1
-  let nextConvId = 'createNewChat'
-  for (let i = 0; i < _conversations.length; i++) {
-    if (_conversations[i].id === currentConvId) {
-      currentConvIndex = i
-      break
-    }
-  }
-  if (currentConvIndex !== -1) {
-    const beforeConv = _conversations[currentConvIndex - 1]?.id
-    const afterConv = _conversations[currentConvIndex + 1]?.id
-    if (beforeConv !== undefined) {
-      nextConvId = beforeConv 
-    } else if (afterConv !== undefined) {
-      nextConvId = afterConv
-    }
-  }
-  ElMessageBox.confirm(
-    _t('message.deleteConvConfirm'),
-    _t('message.warning'), {
-      confirmButtonText: _t('message.ok'),
-      cancelButtonText: _t('message.cancel'),
-      type: 'warning'
-    })
-    .then(() => {
-      const loading = ElLoading.service()
-      $fetch('/api/chat/conv', {
-        method: 'DELETE',
-        body: { id: currentConvId }
-      })
-        .finally(() => {
-          loading.close()
-          document.getElementById(nextConvId).click()
-        })
-    })
-}
 </script>
 
 <style>

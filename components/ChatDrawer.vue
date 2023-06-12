@@ -6,7 +6,9 @@
       direction="ltr"
       style="min-width: 320px; max-width: 100vw;"
     >
-      <ChatMenu />
+      <div style="margin-top: -1.5rem; height: calc(100% + 2.5rem);">
+        <ChatMenu />
+      </div>
     </el-drawer>
   </ClientOnly>
 </template>

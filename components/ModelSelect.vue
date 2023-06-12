@@ -4,7 +4,6 @@
       v-model="model"
       placeholder="Select model"
       class="ModelSelect"
-     
     >
       <el-option
         v-for="item in options"

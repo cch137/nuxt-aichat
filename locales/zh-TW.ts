@@ -27,7 +27,7 @@ export default {
     renameConvHint: '請輸入對話標題：',
     renameSuccess: '對話已重命名。',
     deleteConvConfirm: '你確定要刪除當前對話嗎？此操作將無法撤消！',
-    deleteMsgConfirm: '是否刪除此消息？',
+    deleteMsgConfirm: '是否刪除此問答？',
     notice: '通告',
     warning: '警告',
     setting: '設置',

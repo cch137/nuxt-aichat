@@ -20,7 +20,8 @@ async function ask (
   webBrowsing: 'OFF' | 'BASIC' | 'ADVANCED' = 'BASIC',
   question: string,
   context: string = '',
-  userTimeZone = 0
+  userTimeZone = 0,
+  regenerateId?: string
 ) {
   const t0 = Date.now()
   let answer: string | undefined
@@ -74,7 +75,8 @@ async function ask (
     web: webBrowsing,
     queries,
     urls,
-    dt 
+    dt,
+    id: (await saveMessage(user, conv, originalQuestion, answer, queries, urls, dt, regenerateId))
   } : {
     error: 'Answer Not Found',
     complete: isComplete,
@@ -82,9 +84,6 @@ async function ask (
     queries,
     urls,
     dt
-  }
-  if (answer) {
-    saveMessage(user, conv, originalQuestion, answer, queries, urls, dt)
   }
   return response
 }

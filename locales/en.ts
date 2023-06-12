@@ -27,7 +27,7 @@ export default {
     renameConvHint: 'Please enter a conversation title: ',
     renameSuccess: 'Conversation has been renamed.',
     deleteConvConfirm: 'Are you certain you want to delete the current conversation? This action cannot be undone!',
-    deleteMsgConfirm: 'Do you want to delete this message?',
+    deleteMsgConfirm: 'Delete this question and its answers?',
     notice: 'Notice',
     warning: 'Warning',
     setting: 'Setting',

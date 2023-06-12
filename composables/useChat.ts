@@ -115,29 +115,6 @@ const fetchHistory = (conv: string | null) => {
   })
 }
 
-const initPage = async (conv: string | null, skipHistoryFetching = false) => {
-  return await new Promise((resolve) => {
-    messages.value = []
-    if (!skipHistoryFetching) {
-      const loading = ElLoading.service()
-      Promise.all([
-        conv === null ? null : checkTokenAndGetConversations(),
-        fetchHistory(conv)
-      ])
-        .finally(() => {
-          useScrollToBottom()
-          if (loading !== null) {
-            useScrollToBottom(500)
-              .finally(() => {
-                loading.close()
-                resolve(true)
-              })
-          }
-        })
-    }    
-  })
-}
-
 const DEFAULT_TEMPERATURE = '_t05'
 const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'_t07'|'_t08'|'_t09'|'_t10'>(DEFAULT_TEMPERATURE)
 
@@ -169,21 +146,21 @@ const createHeaders = (message: string, context: string, t: number) => {
   return { hash, timestamp }
 }
 
-const createBody = (message: string, model: string, web: string, t: number, tz: number) => {
+const createBody = (message: string, model: string, web: string, t: number, tz: number, regenerateId?: string) => {
   let conv = useNuxtApp()._route?.params?.conv as string
   if (!conv) {
     conv = random.base64(8)
     conversations.value.push({ id: conv, name: undefined })
     navigateTo(`/c/${conv}`)
   }
-  return { conv, context: getContext(), prompt: message, model, web, t, tz }
+  return { conv, context: getContext(), prompt: message, model, web, t, tz, id: regenerateId }
 }
 
-const createRequest = (message: string) => {
+const createRequest = (message: string, regenerateId?: string) => {
   const date = new Date()
   const t = date.getTime()
   const tz = (date.getTimezoneOffset() / 60) * -1
-  const body = createBody(message, getModel(), getWebBrowsing(), t, tz)
+  const body = createBody(message, getModel(), getWebBrowsing(), t, tz, regenerateId)
   const headers = createHeaders(message, body.context, t)
   return $fetch('/api/chat/answer', { method: 'POST', headers, body })
 }
@@ -244,7 +221,37 @@ export default function () {
         openSidebar.value = value
       }
     }
+    setTimeout(() => {
+      try {
+        focusInput()
+      } catch {}
+    }, 0)
   })
+  const initPage = async (conv: string | null, skipHistoryFetching = false) => {
+    return await new Promise((resolve) => {
+      messages.value = []
+      if (!skipHistoryFetching) {
+        const loading = ElLoading.service()
+        Promise.all([
+          conv === null ? null : checkTokenAndGetConversations(),
+          fetchHistory(conv)
+        ])
+          .finally(() => {
+            try {
+              useTitle(`${getCurrentConvName() || 'Chat'} - ${useState('appName').value}`)
+            } catch { useTitle('Chat - Curva') }
+            useScrollToBottom()
+            if (loading !== null) {
+              useScrollToBottom(500)
+                .finally(() => {
+                  loading.close()
+                  resolve(true)
+                })
+            }
+          })
+      }    
+    })
+  }
   watch(openDrawer, (value) => {openMenu.value = value})
   watch(openSidebar, (value) => {openMenu.value = value})
   const goToChat = async (conv: string | null, force = false, skipHistoryFetching = false) => {
@@ -260,7 +267,7 @@ export default function () {
   // @ts-ignore
   const _t = useLocale().t
   const version = useState('version')
-  const sendMessage = (forceMessage?: string): boolean => {
+  const sendMessage = (forceMessage?: string, regenerateId?: string): boolean => {
     const loadingMessagesAmount = document.querySelectorAll('.Message.T').length
     if (loadingMessagesAmount > 1) {
       ElMessage.info('Thinking too many questions.')
@@ -278,7 +285,7 @@ export default function () {
     messages.value.push(message)
     useScrollToBottom()
     const more = getQuestionSuggestions(messageText)
-    createRequest(messageText)
+    createRequest(messageText, regenerateId)
       .then((res) => {
         const isAtBottom = getScrollTop() >= document.body.clientHeight
         const id = (res as any).id as string
@@ -340,6 +347,15 @@ export default function () {
       })
     return true
   }
+  const regenerateMessage = async () => {
+    const lastMessage = messages.value.pop()
+    if (lastMessage === undefined) {
+      return
+    }
+    if (!sendMessage(lastMessage.Q, lastMessage.id)) {
+      messages.value.push(lastMessage)
+    }
+  }
   const deleteMessage = (base64MessageId: string) => {
     messages.value = messages.value.filter((msg) => msg.id !== base64MessageId)
     $fetch('/api/chat/answer', {
@@ -351,6 +367,75 @@ export default function () {
     })
       .then(() => ElMessage.info('The message has been deleted.'))
       .catch(() => ElMessage.error('An error occurred while deleting the message.'))
+  }
+  const refreshConversation = () => {
+    goToChat(getCurrentConvId(), true)
+  }
+  const renameConversation = () => {
+    ElMessageBox.prompt(_t('message.renameConvHint'), _t('message.setting'), {
+      confirmButtonText: _t('message.ok'),
+      cancelButtonText: _t('message.cancel'),
+      inputValue: getCurrentConvName()
+    })
+      .then(({ value: name }) => {
+        $fetch('/api/chat/conv', { method: 'PUT', body: { id: getCurrentConvId(), name } })
+          .then(async () => {
+            ElMessage({
+              type: 'success',
+              message: _t('message.renameSuccess'),
+            })
+            await checkTokenAndGetConversations()
+            try {
+              useTitle(`${getCurrentConvName() || 'Chat'} - ${useState('appName').value}`)
+            } catch { useTitle('Chat - Curva') }
+          })
+          .catch(() => {
+            ElMessage({
+              type: 'error',
+              message: 'Oops! Something went wrong!',
+            })
+          })
+      })
+      .catch(() => {})
+  }
+  const deleteConversation = () => {
+    const currentConvId = getCurrentConvId()
+    const _conversations = [...conversations.value]
+    let currentConvIndex = -1
+    let nextConvId = 'createNewChat'
+    for (let i = 0; i < _conversations.length; i++) {
+      if (_conversations[i].id === currentConvId) {
+        currentConvIndex = i
+        break
+      }
+    }
+    if (currentConvIndex !== -1) {
+      const beforeConv = _conversations[currentConvIndex - 1]?.id
+      const afterConv = _conversations[currentConvIndex + 1]?.id
+      if (beforeConv !== undefined) {
+        nextConvId = beforeConv 
+      } else if (afterConv !== undefined) {
+        nextConvId = afterConv
+      }
+    }
+    ElMessageBox.confirm(
+      _t('message.deleteConvConfirm'),
+      _t('message.warning'), {
+        confirmButtonText: _t('message.ok'),
+        cancelButtonText: _t('message.cancel'),
+        type: 'warning'
+      })
+      .then(() => {
+        const loading = ElLoading.service()
+        $fetch('/api/chat/conv', {
+          method: 'DELETE',
+          body: { id: currentConvId }
+        })
+          .finally(() => {
+            loading.close()
+            document.getElementById(nextConvId)?.click()
+          })
+      })
   }
   const downloadTextFile = (filename: string, content: string) => {
     const a = document.createElement('a')
@@ -405,7 +490,11 @@ export default function () {
     goToChat,
     sendMessage,
     deleteMessage,
+    regenerateMessage,
     focusInput,
+    refreshConversation,
+    renameConversation,
+    deleteConversation,
     exportAsMarkdown,
     exportAsJson,
   }

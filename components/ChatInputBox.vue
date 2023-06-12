@@ -1,5 +1,5 @@
 <template>
-  <div class="InputBoxOuter flex fixed w-full z-50">
+  <div class="InputBoxOuter flex fixed w-full z-40">
     <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
     <div class="InputBox pt-20 pb-1 px-2 flex-1">
       <el-form ref="inputForm" class="mx-auto max-w-full" @submit.prevent>
@@ -19,12 +19,16 @@
             <div class="InputBoxActionButtonGroup flex flex-col gap-1">
               <el-button
                 type="primary"
-                size="large"
-                :icon="Position"
                 @click="clickSendMessage"
                 style="padding: 12px;"
+                size="large"
               >
-                {{ $t('chat.send') }}
+                <el-icon>
+                  <Position />
+                </el-icon>
+                <span style="margin-left: .25rem;">
+                  {{ $t('chat.send') }}
+                </span>
               </el-button>
             </div>
           </div>

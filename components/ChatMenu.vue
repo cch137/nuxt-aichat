@@ -1,15 +1,15 @@
 <template>
-  <div>
-    <el-form class="py-4" @submit.prevent>
+  <div class="h-full max-h-full flex flex-col">
+    <el-form class="flex-1" @submit.prevent>
       <div class="flex justify-stretch">
-        <h3 class="flex-1 mt-0">{{ $t('settings.title') }}</h3>
+        <h4 class="flex-1 mt-0">{{ $t('settings.title') }}</h4>
         <div class="px-1">
           <el-text type="info" size="small" v-if="!versionPending">
             v{{ versionData?.version }}
           </el-text>
         </div>
       </div>
-      <div class="flex flex-col gap-1 pr-1">
+      <div class="flex flex-col pr-1 gap-1">
         <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
           <ModelSelect class="flex-1" />
@@ -31,14 +31,18 @@
                 <template #default>
                   <div>
                     <div class="info">
-                      <strong>{{ $t('menu.webInfo1') }}</strong>
-                      <span>{{ $t('menu.webInfo2') }}</span>
+                      <el-text>
+                        <strong>{{ $t('menu.webInfo1') }}</strong>
+                        <span>{{ $t('menu.webInfo2') }}</span>
+                      </el-text>
                       <el-text type="warning" class="info">{{ $t('menu.expFeat1') }}</el-text>
                     </div>
                     <el-divider style="margin: .25rem 0;" />
                     <div class="info">
-                      <strong>{{ $t('menu.webInfo3') }}</strong>
-                      <span>{{ $t('menu.webInfo4') }}</span>
+                      <el-text>
+                        <strong>{{ $t('menu.webInfo3') }}</strong>
+                        <span>{{ $t('menu.webInfo4') }}</span>
+                      </el-text>
                       <el-text type="warning" class="info">{{ $t('menu.expFeat2') }}</el-text>
                     </div>
                   </div>
@@ -65,7 +69,9 @@
                   </el-icon>
                 </template>
                 <template #default>
-                  <div class="info">{{ $t('menu.tempInfo') }}</div>
+                  <div class="info">
+                    <el-text>{{ $t('menu.tempInfo') }}</el-text>
+                  </div>
                 </template>
               </el-popover>
             </ClientOnly>
@@ -84,28 +90,35 @@
             <LanguageSelect />
           </div>
         </div>
+        <div v-if="getCurrentConvId()" class="flex gap-1">
+          <div class="flex-1"></div>
+          <div class="flex flex-1">
+            <div class="flex-1 text-right pr-2">
+              <el-text size="small" type="info">{{ $t('action.more') }}</el-text>
+            </div>
+            <ChatMoreActions />
+          </div>
+        </div>
       </div>
     </el-form>
-    <h3>{{ $t('chat.chats') }}</h3>
-    <div class="mt-2 border border-neutral-700 rounded">
+    <h4 class="m-0">{{ $t('chat.chats') }}</h4>
+    <div class="mt-1 border border-neutral-700 rounded overflow-hidden" style="height: 50vh;">
       <div class="border-b border-neutral-700">
         <NuxtLink id="createNewChat" to="/c/" @click="goToChat(null)">
           <el-button
             :icon="Plus"
-            size="large"
             class="ConversationLink w-full"
           >
             {{ $t('chat.newChat') }}
           </el-button>
         </NuxtLink>
       </div>
-      <div class="max-h-[16rem] overflow-auto">
+      <div class="ConversationList overflow-y-auto overflow-x-hidden flex-1" style="max-height: calc(100% - 32px);">
         <div v-for="conv in conversations">
           <NuxtLink :id="conv.id" :to="`/c/${conv.id}`" @click="goToChat(conv.id)">
             <el-button
               :type="conv.id === getCurrentConvId() ? 'primary' : 'default'"
               :icon="ChatSquare"
-              size="large"
               class="ConversationLink w-full"
               :plain="conv.id === getCurrentConvId()"
               :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
@@ -157,8 +170,27 @@ const viewUserId = () => {
 </script>
 
 <style scoped>
+.ConversationList::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.ConversationList::-webkit-scrollbar-corner {
+  background: #4448;
+}
+.ConversationList::-webkit-scrollbar-track {
+  background: #0000;
+  border-left: 1px solid #4444;
+}
+.ConversationList::-webkit-scrollbar-thumb {
+  background: #8888;
+  border-radius: 12px;
+}
+.ConversationList::-webkit-scrollbar-thumb:hover {
+  background: #aaa8;
+}
 .ConversationLink {
   border: none;
+  border-radius: 0 !important;
   justify-content: start !important;
 }
 .info {

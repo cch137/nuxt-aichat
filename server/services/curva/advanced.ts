@@ -49,7 +49,7 @@ export default async function (question: string, context = '', userTimeZone = 0)
   try {
     let i = 0
     const question1 = useParseUrlsAndQueries(question, userTimeZone)
-    const answer1 = (await client.gpt('gpt4_summarizer', question1))?.answer as string
+    const answer1 = (await client.gpt('gpt4_summarizer', question1, context))?.answer as string
     const answer1Json = answer1.substring(answer1.indexOf('{'), answer1.lastIndexOf('}') + 1)
     const { urls: _urls, queries } = JSON.parse(answer1Json) as { urls: string[], queries: string[] }
     const urls = [] as string[]

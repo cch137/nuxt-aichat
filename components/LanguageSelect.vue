@@ -4,7 +4,6 @@
       v-model="i18n.locale"
       placeholder="Select"
       @change="(value) => i18n.locale = value"
-     
     >
       <el-option
         v-for="item in options"
