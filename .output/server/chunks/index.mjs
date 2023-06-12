@@ -12,10 +12,11 @@ const CURVA_LOG_CHANNEL_ID = "1113752420623851602";
 const CURVA_VERIFIED_ROLE_ID = "1106198793935917106";
 
 const getJoinedMessages = (messages) => {
-  return messages.map((message2) => {
-    return `Question: ${message2.Q}
-Answer: ${message2.A}`;
-  }).join("\n---\n");
+  return messages.map((message) => {
+    return (message.Q ? `Question:
+${message.Q}` : "") + (message.Q && message.A ? "\n\n" : "") + (message.A ? `Answer:
+${message.A}` : "");
+  }).filter((m) => m).join("\n---\n");
 };
 async function getContext(user, conv) {
   if (!(user && conv)) {

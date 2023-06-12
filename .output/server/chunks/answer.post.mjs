@@ -2,12 +2,29 @@ import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index3.mjs';
-import { t as troll, r as read } from './token.mjs';
+import { b as baseConverter, t as troll, r as read } from './token.mjs';
 import { c as curva } from './index2.mjs';
 import { g as getIp } from './getIp.mjs';
 import { s as str } from './str.mjs';
 import { l as logger } from './crawler.mjs';
 import 'dotenv';
+import 'crypto';
+import 'url';
+import 'bson';
+import 'timers';
+import 'util';
+import 'stream';
+import 'events';
+import 'dns';
+import 'fs';
+import 'mongodb-connection-string-url';
+import 'os';
+import 'process';
+import 'zlib';
+import 'net';
+import 'socks';
+import 'tls';
+import 'http';
 import 'mongoose';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
@@ -26,7 +43,8 @@ const answer_post = defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 };
   }
-  const { conv, prompt, context = "", model, web, t, tz = 0 } = body;
+  const { conv, prompt, context = "", model, web, t, tz = 0, id } = body;
+  const _id = id ? baseConverter.convert(id, "64w", 16) : id;
   if (!conv || !prompt || !model || !t) {
     return { error: 2 };
   }
@@ -44,7 +62,10 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: 4 };
   }
   try {
-    const response = await curva.ask(user, conv, model, web, prompt, context, tz);
+    const response = await curva.ask(user, conv, model, web, prompt, context, tz, _id);
+    if (typeof response.id === "string") {
+      response.id = baseConverter.convert(response.id, 16, "64w");
+    }
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);
     }

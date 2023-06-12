@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { Sequelize, DataTypes, Model } from 'sequelize';
 import { c as createAxiosSession } from './sogouTranslate.mjs';
-import './index3.mjs';
+import { l as libExports } from './index3.mjs';
 import { s as str } from './str.mjs';
 import { l as logger, c as crawler } from './crawler.mjs';
 import { m as message } from './message.mjs';
@@ -244,7 +244,7 @@ const client = mindsdb.createClient(
   chatModelNames
 );
 
-function saveMessage(user, conv, Q, A, queries = [], urls = [], dt) {
+async function saveMessage(user, conv, Q, A, queries = [], urls = [], dt, regenerateId) {
   const record = { user, conv, Q, A };
   if (queries.length > 0) {
     record.queries = queries;
@@ -255,7 +255,18 @@ function saveMessage(user, conv, Q, A, queries = [], urls = [], dt) {
   if (dt) {
     record.dt = dt;
   }
-  return message.create(record);
+  if (regenerateId) {
+    await message.updateOne({
+      _id: new libExports.ObjectId(regenerateId),
+      user,
+      conv
+    }, {
+      $set: record
+    });
+    return regenerateId;
+  } else {
+    return (await message.create(record))._id.toString();
+  }
 }
 
 const endSuffix = "\n-END-";
@@ -464,15 +475,15 @@ async function advancedAsk(question, context = "", userTimeZone = 0) {
   try {
     let i = 0;
     const question1 = useParseUrlsAndQueries(question, userTimeZone);
-    const answer1 = (_a = await client.gpt("gpt4_summarizer", question1)) == null ? void 0 : _a.answer;
+    const answer1 = (_a = await client.gpt("gpt4_summarizer", question1, context)) == null ? void 0 : _a.answer;
     const answer1Json = answer1.substring(answer1.indexOf("{"), answer1.lastIndexOf("}") + 1);
     const { urls: _urls, queries } = JSON.parse(answer1Json);
     const urls = [];
     const results = [];
     const _pages1 = makeSureUrlsStartsWithHttp(_urls).map((url) => scrapeAndSummary(question, url, userTimeZone, i += 1e3));
-    const searchs = await Promise.all(queries.map((query) => crawler.search(query, false)));
-    const summaryShowUrl = searchs.map((search) => crawler._outputSummarize(search, true)).join("\n\n");
-    const summaryXShowUrl = searchs.map((search) => crawler._outputSummarize(search, false)).join("\n\n");
+    const searchings = await Promise.all(queries.map((query) => crawler._search(query, false)));
+    const summaryShowUrl = searchings.map((searched) => searched.pipe(true)).join("\n\n");
+    const summaryXShowUrl = searchings.map((searched) => searched.pipe(false)).join("\n\n");
     extractInfomation(question, summaryXShowUrl, userTimeZone).then((result) => results.unshift(result)).catch(() => {
     });
     const question2 = useSelectSites(question, summaryShowUrl, userTimeZone);
@@ -511,7 +522,7 @@ const _wrapSearchResult = (result) => {
   return result ? `Here are references from the internet. Use only when necessary:
 ${result}` : "";
 };
-async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", question, context = "", userTimeZone = 0) {
+async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", question, context = "", userTimeZone = 0, regenerateId) {
   var _a;
   const t0 = Date.now();
   let answer;
@@ -566,7 +577,8 @@ ${responses[i].response}`);
     web: webBrowsing,
     queries,
     urls,
-    dt
+    dt,
+    id: await saveMessage(user, conv, originalQuestion, answer, queries, urls, dt, regenerateId)
   } : {
     error: "Answer Not Found",
     complete: isComplete,
@@ -575,9 +587,6 @@ ${responses[i].response}`);
     urls,
     dt
   };
-  if (answer) {
-    saveMessage(user, conv, originalQuestion, answer, queries, urls, dt);
-  }
   return response;
 }
 

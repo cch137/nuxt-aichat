@@ -79,27 +79,26 @@ const scrape = async (url) => {
     };
   }
 };
+const getGoogleSearchResults = async (query) => {
+  console.log("SEARCH:", query);
+  const searched = await googlethis.search(query);
+  return [...searched.results, ...searched.top_stories];
+};
 const search = async (query, translate$1 = true) => {
   try {
     query = query.replace(/[\s]+/g, " ").trim();
-    const searchQueries = /* @__PURE__ */ new Set([query.substring(0, 256)]);
+    const query1 = query.substring(0, 256);
+    const searchings = [getGoogleSearchResults(query1)];
     if (translate$1) {
       const translateResult = await translate(query.substring(0, 5e3));
       if ((translateResult == null ? void 0 : translateResult.lang) !== "\u82F1\u8BED") {
-        const queryInEnglish = translateResult.text;
-        searchQueries.add(queryInEnglish);
+        const query2 = translateResult.text.substring(0, 256);
+        if (query1 === query2) {
+          searchings.push(getGoogleSearchResults(query2));
+        }
       }
     }
-    const searcheds = await Promise.all([...searchQueries].map((query2) => {
-      console.log("SEARCH:", query2);
-      return googlethis.search(query2);
-    }));
-    const results = [];
-    for (const searched of searcheds) {
-      results.push(...searched.results);
-      results.push(...searched.top_stories);
-    }
-    return results;
+    return (await Promise.all(searchings)).flat();
   } catch (err) {
     err = str(err);
     console.log("SUMMARIZE FAILED:", err);
@@ -107,21 +106,26 @@ const search = async (query, translate$1 = true) => {
     return [];
   }
 };
-const _outputSummarize = (results, showUrl = false) => {
-  return [
-    ...new Set(results.map((r) => `${showUrl ? r.url : ""}
+const _search = async (query, translate = true) => {
+  const results = await search(query, translate);
+  return {
+    pipe(showUrl) {
+      return [
+        ...new Set(results.map((r) => `${showUrl ? r.url : ""}
 ${r.title ? r.title : ""}
 ${r.description}`))
-  ].join("\n\n");
+      ].join("\n\n");
+    }
+  };
 };
 const summarize = async (query, showUrl = false, translate = true) => {
-  return _outputSummarize(await search(query, translate), showUrl);
+  return (await _search(query, translate)).pipe(showUrl);
 };
 const crawler = {
   scrape,
+  _search,
   search,
-  summarize,
-  _outputSummarize
+  summarize
 };
 const crawler$1 = crawler;
 

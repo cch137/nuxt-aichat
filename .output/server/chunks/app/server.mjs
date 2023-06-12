@@ -509,7 +509,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/cch137-39529ba9.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/cch137-116f4795.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "c-conv",
@@ -517,7 +517,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-be65d57e.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-e249fb0f.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "c",
@@ -525,7 +525,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/index-80cd58b6.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-ab76dfd4.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "index",
@@ -3888,11 +3888,14 @@ const en = {
     renameConvHint: "Please enter a conversation title: ",
     renameSuccess: "Conversation has been renamed.",
     deleteConvConfirm: "Are you certain you want to delete the current conversation? This action cannot be undone!",
+    deleteMsgConfirm: "Delete this question and its answers?",
     notice: "Notice",
     warning: "Warning",
     setting: "Setting",
     ok: "OK",
-    cancel: "Cancel"
+    cancel: "Cancel",
+    yes: "Yes",
+    no: "No"
   },
   menu: {
     title: "Menu",
@@ -3962,11 +3965,14 @@ const zhTW = {
     renameConvHint: "請輸入對話標題：",
     renameSuccess: "對話已重命名。",
     deleteConvConfirm: "你確定要刪除當前對話嗎？此操作將無法撤消！",
+    deleteMsgConfirm: "是否刪除此問答？",
     notice: "通告",
     warning: "警告",
     setting: "設置",
     ok: "確認",
-    cancel: "取消"
+    cancel: "取消",
+    yes: "是",
+    no: "否"
   },
   menu: {
     title: "菜單",

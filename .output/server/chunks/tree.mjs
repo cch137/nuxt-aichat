@@ -3,6 +3,23 @@ import './index3.mjs';
 import { getAllKey, getDeletedKey } from './keys.mjs';
 import { m as message } from './message.mjs';
 import 'dotenv';
+import 'crypto';
+import 'url';
+import 'bson';
+import 'timers';
+import 'util';
+import 'stream';
+import 'events';
+import 'dns';
+import 'fs';
+import 'mongodb-connection-string-url';
+import 'os';
+import 'process';
+import 'zlib';
+import 'net';
+import 'socks';
+import 'tls';
+import 'http';
 import 'mongoose';
 
 const tree = defineEventHandler(async (event) => {

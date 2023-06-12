@@ -9,6 +9,23 @@ import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './str.mjs';
 import 'dotenv';
+import 'crypto';
+import 'url';
+import 'bson';
+import 'timers';
+import 'util';
+import 'stream';
+import 'events';
+import 'dns';
+import 'fs';
+import 'mongodb-connection-string-url';
+import 'os';
+import 'process';
+import 'zlib';
+import 'net';
+import 'socks';
+import 'tls';
+import 'http';
 import 'mongoose';
 
 const check_post = defineEventHandler(async (event) => {
@@ -51,7 +68,7 @@ const check_post = defineEventHandler(async (event) => {
         }
       }
       return {
-        list: conversations,
+        list: conversations.filter((c) => !c.startsWith("~")),
         named: record
       };
     }
