@@ -1,6 +1,7 @@
 <template>
-  <NuxtLink to="/"
-    @click="goToChat(null, false, true)" class="text-2xl font-medium"
+  <NuxtLink
+    to="/"
+    class="text-2xl font-medium"
     style="transition: .3s;"
   >
     <div class="flex-center">
@@ -12,5 +13,4 @@
 
 <script setup>
 const appName = useState('appName')
-const { goToChat } = useChat()
 </script>

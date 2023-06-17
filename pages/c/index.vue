@@ -7,6 +7,7 @@
 <script setup>
 useTitle(`New Chat - ${useState('appName').value}`)
 definePageMeta({
-  layout: 'chat'
+  layout: 'chat',
+  middleware: ['chat']
 })
 </script>

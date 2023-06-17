@@ -4,6 +4,7 @@
       v-model="i18n.locale"
       placeholder="Select"
       @change="(value) => i18n.locale = value"
+      :size="_size"
     >
       <el-option
         v-for="item in options"
@@ -32,4 +33,18 @@ const options = [
     value: 'zh-TW'
   }
 ]
+</script>
+
+<script>
+export default {
+  props: ['size'],
+  data () {
+    return {}
+  },
+  computed: {
+    _size () {
+      return this.size || ''
+    }
+  }
+}
 </script>

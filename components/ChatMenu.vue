@@ -31,7 +31,7 @@
                 <template #default>
                   <div>
                     <div class="info">
-                      <el-text>
+                      <el-text class="info">
                         <strong>{{ $t('menu.webInfo1') }}</strong>
                         <span>{{ $t('menu.webInfo2') }}</span>
                       </el-text>
@@ -39,11 +39,11 @@
                     </div>
                     <el-divider style="margin: .25rem 0;" />
                     <div class="info">
-                      <el-text>
+                      <el-text class="info">
                         <strong>{{ $t('menu.webInfo3') }}</strong>
                         <span>{{ $t('menu.webInfo4') }}</span>
                       </el-text>
-                      <el-text type="warning" class="info">{{ $t('menu.expFeat2') }}</el-text>
+                      <el-text type="error" class="info">{{ $t('menu.expFeat2') }}</el-text>
                     </div>
                   </div>
                 </template>
@@ -70,7 +70,7 @@
                 </template>
                 <template #default>
                   <div class="info">
-                    <el-text>{{ $t('menu.tempInfo') }}</el-text>
+                    <el-text class="info">{{ $t('menu.tempInfo') }}</el-text>
                   </div>
                 </template>
               </el-popover>
@@ -104,7 +104,7 @@
     <h4 class="m-0">{{ $t('chat.chats') }}</h4>
     <div class="mt-1 border border-neutral-700 rounded overflow-hidden" style="height: 50vh;">
       <div class="border-b border-neutral-700">
-        <NuxtLink id="createNewChat" to="/c/" @click="goToChat(null)">
+        <NuxtLink id="createNewChat" to="/c/" @click="focusInput">
           <el-button
             :icon="Plus"
             class="ConversationLink w-full"
@@ -115,16 +115,17 @@
       </div>
       <div class="ConversationList overflow-y-auto overflow-x-hidden flex-1" style="max-height: calc(100% - 32px);">
         <div v-for="conv in conversations">
-          <NuxtLink :id="conv.id" :to="`/c/${conv.id}`" @click="goToChat(conv.id)">
-            <el-button
-              :type="conv.id === getCurrentConvId() ? 'primary' : 'default'"
-              :icon="ChatSquare"
-              class="ConversationLink w-full"
-              :plain="conv.id === getCurrentConvId()"
-              :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
-            >
-              {{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}
-            </el-button>
+          <NuxtLink
+            :id="conv.id"
+            :to="`/c/${conv.id}`"
+            class="ConversationLink flex-center gap-1 py-1 px-4 w-full"
+            :active="conv.id === getCurrentConvId()"
+            :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
+          >
+            <el-icon>
+              <ChatSquare />
+            </el-icon>
+            <span>{{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}</span>
           </NuxtLink>
         </div>
       </div>
@@ -133,15 +134,11 @@
 </template>
 
 <script setup>
-import { ElLoading, ElMessageBox } from 'element-plus'
 import { InfoFilled, Plus, ChatSquare } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
-import { unmask } from '~/utils/masker'
 
 const version = useState('version', () => '')
-const { conversations, goToChat, getCurrentConvId } = useChat()
-// @ts-ignore
-const _t = useLocale().t
+const { conversations, getCurrentConvId, focusInput } = useChat()
 
 const {
   data: versionData,
@@ -151,22 +148,6 @@ const {
 watch(versionData, (newValue) => {
   version.value = newValue.version
 })
-
-const viewUserId = () => {
-  const loading = ElLoading.service()
-  $fetch('/api/user', {
-    method: 'POST'
-  })
-    .then((encryptedUid) => {
-      loading.close()
-      ElMessageBox.alert(unmask(`0${encryptedUid}`, '64w', 1, 4896), _t('auth.uid'), {
-        confirmButtonText: _t('message.ok'),
-      })
-    })
-    .catch(() => {
-      loading.close()
-    })
-}
 </script>
 
 <style scoped>
@@ -192,6 +173,17 @@ const viewUserId = () => {
   border: none;
   border-radius: 0 !important;
   justify-content: start !important;
+  color: var(--el-text-color-regular);
+  font-weight: 400;
+  font-size: 14px;
+  transition: .3s ease;
+}
+.ConversationLink:hover, .ConversationLink[active="true"] {
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+}
+.ConversationLink[active="true"] {
+  font-weight: 500;
 }
 .info {
   word-break: break-word !important;

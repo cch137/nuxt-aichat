@@ -1,5 +1,5 @@
-const appName = 'Curva'
-const author = 'DAN'
+const appName = 'EvoGPT'
+const author = 'cch137'
 
 export {
   author,

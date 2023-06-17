@@ -14,14 +14,24 @@ function pack (tokenObj: any) {
   return troll.e(tokenObj, 1, seed)
 }
 
+interface TokenObject {
+  user: string;
+  ip: string;
+  checked: number;
+}
+
 function read (token: string) {
   try {
     const encrypted = troll.d(token, 1, seed)
     if (typeof encrypted === 'object' && encrypted !== null) {
-      return encrypted as { user: string, ip: string, checked: number }
+      return encrypted as TokenObject
     }
   } catch {}
   return null
+}
+
+export type {
+  TokenObject
 }
 
 export {

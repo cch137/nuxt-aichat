@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <div class="flex-col flex-center">
-      <h1>Welcome to Curva!</h1>
+      <h1>Welcome to {{ appName }}</h1>
       <NuxtLink to="/c/">
         <el-button type="primary">
           New Chat
@@ -12,7 +12,8 @@
 </template>
 
 <script setup>
-useTitle(`Home - ${useState('appName').value}`)
+const appName = useState('appName').value
+useTitle(`Home - ${appName}`)
 definePageMeta({
   layout: 'default'
 })

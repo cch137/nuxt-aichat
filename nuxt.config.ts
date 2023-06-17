@@ -1,7 +1,7 @@
 import { author, appName } from "./config/app"
 
 const description = `A free GPT-4 AI chatbot that can browse the web. This is for everyone.`
-const image = 'https://voodex.netlify.app/img/curva.png'
+const image = 'https://voodex.netlify.app/EVO/EVO-full.png'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({

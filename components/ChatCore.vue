@@ -22,7 +22,7 @@
                   </div>
                 </div>
                 <div class="Message Q p-4 flex-1 gap-1 shadow rounded-lg" style="width: calc(100% - 32px - 4.5rem)">
-                  <div>
+                  <div style="white-space: pre-wrap;">
                     <span>{{ message.Q }}</span>
                   </div>
                   <div v-if="message.done" class="flex mt-1 gap-2 -mb-2">
@@ -286,7 +286,7 @@ setInterval(() => {
 .MessageActionButton {
   height: 20px;
   width: 100%;
-  transition: .1s;
+  transition: .1s ease;
   cursor: pointer;
 }
 .MessageActionButton svg {
@@ -334,7 +334,7 @@ setInterval(() => {
   border-radius: .35rem;
   background: #ffffff0f;
   color: #ddd;
-  transition: .1s;
+  transition: .1s ease;
   cursor: pointer;
   line-height: 1.2rem;
   user-select: none;

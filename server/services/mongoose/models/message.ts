@@ -9,7 +9,6 @@ export default model('Message', new Schema({
   urls: { type: [String], default: undefined },
   more: { type: [String], default: undefined },
   dt: { type: Number, default: undefined },
-  model: { type: String, default: undefined }, // deprecated!
 }, {
   versionKey: false,
   strict: 'throw'

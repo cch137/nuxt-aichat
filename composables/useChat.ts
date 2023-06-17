@@ -12,7 +12,7 @@ import type { AchivedChatMessage } from '~/server/services/curva/getHistory'
 
 const model = ref('gpt4')
 
-const CONTEXT_MAX_LENGTH = 3000
+const CONTEXT_MAX_LENGTH = 4000
 
 const getContext = () => {
   if (!contextMode.value) {
@@ -52,20 +52,15 @@ const messages = ref<DisplayChatMessage[]>([])
 
 const conversations = ref<Array<{ id: string, name: string | undefined }>>([])
 
-const currentConv = ref('')
-
 const focusInput = () => {
-  (document.querySelector('.InputBox textarea') as HTMLElement).focus()
-}
-
-const getQuestionSuggestions = async function (question: string) {
-  // @ts-ignore
-  return (await $fetch('/api/chat/suggestions', { method: 'POST', body: { question } })) as string[]
+  try {
+    (document.querySelector('.InputBox textarea') as HTMLElement).focus()
+  } catch {}
 }
 
 const checkTokenAndGetConversations = () => {
   return new Promise((resolve, reject) => {
-    $fetch('/api/token/check', { method: 'POST' })
+    $fetch('/api/chat/check', { method: 'POST' })
       .then((_conversations) => {
         const { list, named } = _conversations
         conversations.value = list.sort().map((id) => ({ id, name: named[id] as string | undefined }))
@@ -78,41 +73,48 @@ const checkTokenAndGetConversations = () => {
   })
 }
 
-const fetchHistory = (conv: string | null) => {
-  return new Promise((resolve, reject) => {
-    const convIdDemical = baseConverter.convert(conv as string, '64w', 10)
-    currentConv.value = convIdDemical
-    if (conv === undefined || conv === null) {
-      return resolve(true)
+const _fetchHistory = (conv: string | null) => {
+  return new Promise<DisplayChatMessage[]>(async (resolve, reject) => {
+    if (conv === null || conv === undefined) {
+      return resolve([])
     }
-    $fetch('/api/chat/history', { method: 'POST', body: { id: conv } })
-      .then(async (fetched) => {
-        // @ts-ignore
-        const archived = fetched as AchivedChatMessage[]
-        if (!archived || archived.length === 0) {
-          navigateTo('/c/')
-        }
-        messages.value = archived.map((msg) => reactive({
-          ...msg,
-          t: new Date(msg.t),
-          done: Boolean(msg.A),
-        }))
-        resolve(true)
-        const lastMessage = messages.value.at(-1) as DisplayChatMessage
-        getQuestionSuggestions(lastMessage.Q)
-          .then((more) => {
-            const isAtBottom = getScrollTop() >= document.body.clientHeight
-            lastMessage.more = more
-            if (isAtBottom) {
-              useScrollToBottom()
-            }
-          })
-      })
-      .catch((err) => {
-        ElMessage.error('There was an error loading the conversation.')
-        reject(err)
-      })
+    const archived = await $fetch('/api/chat/history', {
+      method: 'POST',
+      body: { id: conv }
+    }) as AchivedChatMessage[]
+    if (!archived || archived.length === 0) {
+      navigateTo('/c/')
+    }
+    try {
+      resolve(archived.map((msg) => reactive({
+        ...msg,
+        t: new Date(msg.t),
+        done: Boolean(msg.A),
+      })))
+    } catch {
+      navigateTo('/c/')
+      resolve([])
+    }
   })
+}
+
+const _fetchSuggestions = async function (question: string) {
+  // @ts-ignore
+  return (await $fetch('/api/chat/suggestions', { method: 'POST', body: { question } })) as string[]
+}
+
+const _loadSuggestions = async () => {
+  try {
+    const lastMessage = messages.value.at(-1) as DisplayChatMessage
+    const suggestions = await _fetchSuggestions(lastMessage.Q)
+    const isAtBottom = getScrollTop() >= document.body.clientHeight
+    lastMessage.more = suggestions
+    if (isAtBottom) {
+      useScrollToBottom()
+    }
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 const DEFAULT_TEMPERATURE = '_t05'
@@ -126,44 +128,36 @@ const openDrawer = ref(openMenu.value)
 
 const inputValue = ref('')
 
-const { h: createHash } = troll
+const createRequest = (() => {
+  const { h: createHash } = troll
+  const getModel = () => `${model.value}${temperatureSuffix.value}`
+  const getWebBrowsing = () => webBrowsingMode.value as string
+  const getHashType = () => [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
 
-const getModel = () => {
-  return `${model.value}${temperatureSuffix.value}`
-}
+  const createHeaders = (message: string, context: string, t: number) => ({
+    hash: createHash(`${message}${context}`, getHashType(), t),
+    timestamp: str(t)
+  })
 
-const getWebBrowsing = () => {
-  return webBrowsingMode.value as string
-}
-
-const getHashType = () => {
-  return [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
-}
-
-const createHeaders = (message: string, context: string, t: number) => {
-  const hash = createHash(`${message}${context}`, getHashType(), t)
-  const timestamp = str(t)
-  return { hash, timestamp }
-}
-
-const createBody = (message: string, model: string, web: string, t: number, tz: number, regenerateId?: string) => {
-  let conv = useNuxtApp()._route?.params?.conv as string
-  if (!conv) {
-    conv = random.base64(8)
-    conversations.value.push({ id: conv, name: undefined })
-    navigateTo(`/c/${conv}`)
+  const createBody = (message: string, model: string, web: string, t: number, tz: number, regenerateId?: string) => {
+    let conv = useNuxtApp()._route?.params?.conv as string
+    if (!conv) {
+      conv = random.base64(8)
+      conversations.value.push({ id: conv, name: undefined })
+      navigateTo(`/c/${conv}?feature=new`)
+    }
+    return { conv, context: getContext(), prompt: message, model, web, t, tz, id: regenerateId }
   }
-  return { conv, context: getContext(), prompt: message, model, web, t, tz, id: regenerateId }
-}
 
-const createRequest = (message: string, regenerateId?: string) => {
-  const date = new Date()
-  const t = date.getTime()
-  const tz = (date.getTimezoneOffset() / 60) * -1
-  const body = createBody(message, getModel(), getWebBrowsing(), t, tz, regenerateId)
-  const headers = createHeaders(message, body.context, t)
-  return $fetch('/api/chat/answer', { method: 'POST', headers, body })
-}
+  return (message: string, regenerateId?: string) => {
+    const date = new Date()
+    const t = date.getTime()
+    const tz = (date.getTimezoneOffset() / 60) * -1
+    const body = createBody(message, getModel(), getWebBrowsing(), t, tz, regenerateId)
+    const headers = createHeaders(message, body.context, t)
+    return $fetch('/api/chat/answer', { method: 'POST', headers, body })
+  }
+})()
 
 const createMessage = (Q = '', A = '', done = false) => {
   return reactive<DisplayChatMessage>({
@@ -177,7 +171,18 @@ const createMessage = (Q = '', A = '', done = false) => {
   })
 }
 
+let chatLoadings = new Set<Promise<any>>()
+
+const clear = () => {
+  conversations.value = []
+  messages.value = []
+  navigateTo('/c/')
+}
+
+let first = true
+
 export default function () {
+  const appName = useState('appName').value
   const cookie = useUniCookie()
   const previousWebBrowsingMode = cookie.get(webBrowsingCookieName)
   if (allowedWebBrowsingModes.includes(previousWebBrowsingMode)) {
@@ -227,42 +232,58 @@ export default function () {
       } catch {}
     }, 0)
   })
-  const initPage = async (conv: string | null, skipHistoryFetching = false) => {
-    return await new Promise((resolve) => {
-      messages.value = []
-      if (!skipHistoryFetching) {
-        const loading = ElLoading.service()
-        Promise.all([
-          conv === null ? null : checkTokenAndGetConversations(),
-          fetchHistory(conv)
-        ])
-          .finally(() => {
-            try {
-              useTitle(`${getCurrentConvName() || 'Chat'} - ${useState('appName').value}`)
-            } catch { useTitle('Chat - Curva') }
-            useScrollToBottom()
-            if (loading !== null) {
-              useScrollToBottom(500)
-                .finally(() => {
-                  loading.close()
-                  resolve(true)
-                })
-            }
-          })
-      }    
-    })
-  }
   watch(openDrawer, (value) => {openMenu.value = value})
   watch(openSidebar, (value) => {openMenu.value = value})
-  const goToChat = async (conv: string | null, force = false, skipHistoryFetching = false) => {
-    const currentConvId = getCurrentConvId()
+  const _loadChat = async (conv: string | null) => {
     if (useDevice().isMobileScreen) {
       openMenu.value = false
     }
-    if (force || (currentConvId !== conv || conv === null)) {
-      await initPage(conv, skipHistoryFetching)
+    messages.value = []
+    const loading = ElLoading.service()
+    try {
+      const archived = await Promise.all([
+        (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations(),
+        (conv === null) ? null : _fetchHistory(conv)
+      ])
+      const displayChatMessages = archived[1]
+      if (displayChatMessages !== null && getCurrentConvId() === conv) {
+        messages.value = displayChatMessages
+        _loadSuggestions()
+      }
+    } finally {
+      try {
+        useTitle(`${getCurrentConvName() || 'Chat'} - ${appName}`)
+      } catch {
+        useTitle(`Chat - ${appName}`)
+      }
+      useScrollToBottom()
+      if (loading !== null) {
+        try {
+          await useScrollToBottom(500)
+        } finally {
+          loading.close()
+        }
+      }
     }
     setTimeout(() => focusInput(), 500)
+  }
+  const loadChat = async (conv: string | null, isNew = false) => {
+    const promise = Promise.all([...chatLoadings])
+    const chat = first && isNew
+      ? new Promise((resolve) => resolve(navigateTo('/c/')))
+      : isNew
+        ? new Promise((resolve) => resolve(null))
+        : _loadChat(conv)
+    first = false
+    chatLoadings.add(chat)
+    try {
+      await promise
+    } catch {}
+    try {
+      await chat
+    } finally {
+      chatLoadings.delete(chat)
+    }
   }
   // @ts-ignore
   const _t = useLocale().t
@@ -284,7 +305,10 @@ export default function () {
     const message = createMessage(messageText, '', false)
     messages.value.push(message)
     useScrollToBottom()
-    const more = getQuestionSuggestions(messageText)
+    setTimeout(() => {
+      focusInput()
+    }, 500)
+    const more = _fetchSuggestions(messageText)
     createRequest(messageText, regenerateId)
       .then((res) => {
         const isAtBottom = getScrollTop() >= document.body.clientHeight
@@ -369,7 +393,7 @@ export default function () {
       .catch(() => ElMessage.error('An error occurred while deleting the message.'))
   }
   const refreshConversation = () => {
-    goToChat(getCurrentConvId(), true)
+    loadChat(getCurrentConvId())
   }
   const renameConversation = () => {
     ElMessageBox.prompt(_t('message.renameConvHint'), _t('message.setting'), {
@@ -386,8 +410,8 @@ export default function () {
             })
             await checkTokenAndGetConversations()
             try {
-              useTitle(`${getCurrentConvName() || 'Chat'} - ${useState('appName').value}`)
-            } catch { useTitle('Chat - Curva') }
+              useTitle(`${getCurrentConvName() || 'Chat'} - ${appName}`)
+            } catch { useTitle(`Chat - ${appName}`) }
           })
           .catch(() => {
             ElMessage({
@@ -466,7 +490,7 @@ export default function () {
     downloadTextFile(`${baseConverter.convert(getCurrentConvId(), '64w', 10)}.json`, JSON.stringify(messages.value.map((msg) => ({
       question: msg.Q,
       answer: msg.A,
-      sentAt: new Date(msg.t.getTime() - (msg.dt || 0)).toUTCString(),
+      created: new Date(msg.t.getTime()).toUTCString(),
       timeUsed: msg.dt || undefined,
       queries: msg.queries || undefined,
       urls: msg.urls || undefined,
@@ -486,8 +510,7 @@ export default function () {
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,
-    initPage,
-    goToChat,
+    loadChat,
     sendMessage,
     deleteMessage,
     regenerateMessage,
@@ -497,5 +520,6 @@ export default function () {
     deleteConversation,
     exportAsMarkdown,
     exportAsJson,
+    clear
   }
 }

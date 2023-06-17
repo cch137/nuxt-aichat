@@ -14,10 +14,8 @@
 </template>
 
 <script setup>
-const { openMenu, openDrawer, initPage } = useChat()
+const { openMenu, openDrawer } = useChat()
 if (process.client) {
-  const conv = useNuxtApp()._route?.params?.conv
-  initPage(conv)
   window.onresize = () => {
     openMenu.value = false
     if (!useDevice().isTouchScreen) {

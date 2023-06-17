@@ -11,7 +11,7 @@
                 :autosize="{ minRows: 2, maxRows: 16 }"
                 type="textarea"
                 size="large"
-                :maxlength="model === 'gpt4' ? 4096 : 2048"
+                :maxlength="8000"
                 :autofocus="true"
                 @keydown="(evt) => keyboardSendMessage(evt as KeyboardEvent)"
               />
@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { Position } from '@element-plus/icons-vue'
-const { model, sendMessage, focusInput, openSidebar, inputValue } = useChat()
+const { sendMessage, focusInput, openSidebar, inputValue } = useChat()
 
 const keyboardSendMessage = (evt: KeyboardEvent) => {
   if (evt.key === 'Enter' && !evt.shiftKey) {

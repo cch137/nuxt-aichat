@@ -52,7 +52,7 @@ svg {
 }
 
 html.dark {
-  --grid-pattern-bg-color: rgba(159,219,252,.035);
+  --grid-pattern-bg-color: rgba(159,219,252,.05);
 }
 
 .grid-pattern-bg {

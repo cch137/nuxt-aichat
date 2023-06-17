@@ -10,7 +10,15 @@
       </div>
       <HomeLink :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" />
       <div class="flex-1 flex items-center justify-end gap-2"></div>
-      <div>
+      <div class="flex-center gap-2">
+        <el-button v-if="isLoggedIn" style="padding: 12px;" @click="logout" :loading="isLoading">
+          {{ $t('auth.logout') }}
+        </el-button>
+        <NuxtLink v-else to="/login" :class="isLoading ? 'pointer-events-none' : ''">
+          <el-button style="padding: 12px;" :loading="isLoading">
+            {{ $t('auth.login') }}
+          </el-button>
+        </NuxtLink>
         <a href="https://discord.gg/5v49JKKmzJ" target="_blank">
           <el-button class="ChatHeaderDCJoinButton" style="padding: 12px;">
             <DiscordIconSvg style="height: 24px; width: 24px;" />
@@ -24,6 +32,7 @@
 
 <script setup>
 const { openMenu, openSidebar } = useChat()
+const { isLoggedIn, isLoading, logout } = useAuth()
 openMenu.value = true
 </script>
 

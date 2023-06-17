@@ -1,6 +1,6 @@
 {
   "version": "0.2.1",
-  "name": "curva",
+  "name": "evogpt",
   "description": "A free GPT-4 AI chatbot that can browse the web. This is for everyone.",
   "private": true,
   "scripts": {
@@ -20,6 +20,7 @@
     "@types/crypto-js": "^4.1.1",
     "@types/marked": "^5.0.0",
     "@types/node": "^20.2.5",
+    "@types/nodemailer": "^6.4.8",
     "@types/prismjs": "^1.26.0",
     "@types/qs": "^6.9.7",
     "@types/turndown": "^5.0.1",
@@ -36,6 +37,7 @@
     "marked": "^5.0.4",
     "mongoose": "^7.2.2",
     "mysql2": "^3.3.3",
+    "nodemailer": "^6.9.3",
     "nuxt": "^3.5.2",
     "postcss": "^8.4.24",
     "prismjs": "^1.29.0",
@@ -51,10 +53,10 @@
   "main": ".output/server/index.mjs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cch137/curva.git"
+    "url": "git+https://github.com/cch137/evogpt.git"
   },
   "keywords": [
-    "curva",
+    "evogpt",
     "chat",
     "ai",
     "gpt"
@@ -65,7 +67,7 @@
   "author": "cch137",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/cch137/curva/issues"
+    "url": "https://github.com/cch137/evogpt/issues"
   },
-  "homepage": "https://github.com/cch137/curva#readme"
+  "homepage": "https://github.com/cch137/evogpt#readme"
 }
