@@ -5,7 +5,7 @@
     style="transition: .3s;"
   >
     <div class="flex-center">
-      <CurvaLogoSvg class="pointer-events-none" style="height: 32px; margin-right: 8px;" src="~/assets/svg/Curva.svg" />
+      <SiteLogoSvg class="pointer-events-none" style="height: 32px; margin-right: 8px;" />
       <div>{{ appName }}</div>
     </div>
   </NuxtLink>
