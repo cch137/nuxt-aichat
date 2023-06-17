@@ -6,7 +6,6 @@ export default {
   auth: {
     title: '帳號',
     uid: '用戶 ID',
-    viewUid: '查看用戶 ID',
     login: '登錄',
     logout: '登出',
     signup: '註冊',

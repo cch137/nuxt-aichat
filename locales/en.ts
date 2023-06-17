@@ -6,7 +6,6 @@ export default {
   auth: {
     title: 'Account',
     uid: 'User ID',
-    viewUid: 'View User ID',
     login: 'Log In',
     logout: 'Log Out',
     signup: 'Sign Up',
