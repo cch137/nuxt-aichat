@@ -3,6 +3,7 @@ import { useNavigatorLanguage } from '@vueuse/core'
 import zhConverter from '~/utils/zhConverter'
 import en from '~/locales/en'
 import zhTW from '~/locales/zh-TW'
+import ru from '~/locales/ru'
 
 const zhCN = JSON.parse(zhConverter.t2s(JSON.stringify(zhTW)))
 
@@ -68,11 +69,13 @@ const i18n = createI18n({
   messages: {
     en,
     'zh-TW': zhTW,
-    'zh-CN': zhCN
+    'zh-CN': zhCN,
+    ru,
   },
   fallbackLocale: {
     'zh-TW': ['zh-CN', 'en'],
-    'zh-CN': ['zh-TW', 'en']
+    'zh-CN': ['zh-TW', 'en'],
+    'ru': ['en']
   }
 }).global
 
@@ -80,7 +83,7 @@ const checkLocale = (code: string | undefined | null) => {
   if (code === null || code === undefined) {
     return DEFAULT_LOCALE
   } else if ((i18n.availableLocales as string[]).includes(code)) {
-    return code as 'en' | 'zh-TW' | 'zh-CN'
+    return code as 'en' | 'zh-TW' | 'zh-CN' | 'ru'
   } else if (code.startsWith('en-')) {
     return 'en'
   } else if (code === 'zh-Hant' || code === 'zh-hant') {

@@ -1,5 +1,5 @@
 import { readBody } from 'h3'
-import curva from '~/server/services/curva'
+import evo from '~/server/services/evo'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event) as any
@@ -8,5 +8,5 @@ export default defineEventHandler(async (event) => {
   if (typeof question !== 'string') {
     return { error: 1 }
   }
-  return await curva.suggestions(question, amout)
+  return await evo.suggestions(question, amout)
 })

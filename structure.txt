@@ -14,14 +14,17 @@
 ├── public
 ├── server
 │   ├── api
+│   │   ├── auth
+│   │   ├── chat
 │   │   ├── crawler
 │   │   ├── perspective
 │   │   └── token
 │   └── services
-│       ├── curva
+│       ├── evo
 │       │   ├── templates
 │       │   └── utils
 │       ├── discord
+│       ├── mindsdb
 │       ├── mongoose
 │       │   └── models
 │       └── utils

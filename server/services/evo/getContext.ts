@@ -32,5 +32,5 @@ export default async function (user: string, conv: string) {
     messages.shift()
     joinedMessages = getJoinedMessages(messages)
   }
-  return `Conversation history\n===\n${joinedMessages}`
+  return `Conversation History\n===\n${joinedMessages}`
 }

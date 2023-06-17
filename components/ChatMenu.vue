@@ -91,7 +91,6 @@
           </div>
         </div>
         <div v-if="getCurrentConvId()" class="flex gap-1">
-          <div class="flex-1"></div>
           <div class="flex flex-1">
             <div class="flex-1 text-right pr-2">
               <el-text size="small" type="info">{{ $t('action.more') }}</el-text>

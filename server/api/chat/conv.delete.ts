@@ -1,7 +1,7 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
 import { read as tokenReader } from '~/server/services/token'
-import deleteConversation from '~/server/services/curva/deleteConversation'
+import deleteConversation from '~/server/services/evo/deleteConversation'
 
 export default defineEventHandler(async (event) => {
   const conv = (await readBody(event))?.id as string | undefined

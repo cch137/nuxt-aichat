@@ -1,4 +1,4 @@
-import formatUserCurrentTime from '~/server/services/curva/utils/formatUserCurrentTime'
+import formatUserCurrentTime from '~/server/services/evo/utils/formatUserCurrentTime'
 
 export default function (question: string, userTimeZone = 0, additionRules = '', addAfter = '') {
   const time = formatUserCurrentTime(userTimeZone)

@@ -8,7 +8,7 @@ import random from '~/utils/random'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
-import type { AchivedChatMessage } from '~/server/services/curva/getHistory'
+import type { AchivedChatMessage } from '~/server/services/evo/getHistory'
 
 const model = ref('gpt4')
 
@@ -32,7 +32,7 @@ const getContext = () => {
     return ''
   }
   contexts.push()
-  return `Conversation history\n===\n${joinedContexts}`
+  return `Conversation History\n===\n${joinedContexts}`
 }
 
 const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
@@ -290,17 +290,14 @@ export default function () {
   const version = useState('version')
   const sendMessage = (forceMessage?: string, regenerateId?: string): boolean => {
     const loadingMessagesAmount = document.querySelectorAll('.Message.T').length
-    if (loadingMessagesAmount > 1) {
+    if (loadingMessagesAmount > 0) {
       ElMessage.info('Thinking too many questions.')
       return false
     }
-    const _messageText = forceMessage ? forceMessage : inputValue.value
+    const _messageText = forceMessage === undefined ? inputValue.value : forceMessage
     const messageText = _messageText.trim()
     if (_messageText === inputValue.value) {
       inputValue.value = ''
-    }
-    if (messageText === '') {
-      return false
     }
     const message = createMessage(messageText, '', false)
     messages.value.push(message)

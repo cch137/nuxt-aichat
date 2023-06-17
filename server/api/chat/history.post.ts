@@ -1,7 +1,7 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
 import { read as tokenReader } from '~/server/services/token'
-import getHistory from '~/server/services/curva/getHistory'
+import getHistory from '~/server/services/evo/getHistory'
 
 export default defineEventHandler(async (event) => {
   const conv = (await readBody(event))?.id as string

@@ -36,6 +36,7 @@ export default {
     renameConv: 'Rename conversation',
     refresh: 'Refresh conversation',
     regenerate: 'Regenerate',
+    continueGenerate: 'Continue generate',
     resend: 'Resend',
     change: 'Change',
     copy: 'Copy',

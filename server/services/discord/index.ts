@@ -1,17 +1,17 @@
 import type { Guild, Message, Role, TextBasedChannel, VoiceBasedChannel } from 'discord.js'
 import { Client, IntentsBitField, EmbedBuilder } from 'discord.js'
 import {
-  CURVA_CLIENT_ID,
-  CURVA_ROLE_ID,
-  CURVA_GUILD_ID,
-  CURVA_TOTAL_MEMBERS_CHANNERL_ID,
-  CURVA_LOG_CHANNEL_ID,
-  CURVA_VERIFIED_ROLE_ID
+  EVO_CLIENT_ID,
+  EVO_ROLE_ID,
+  EVO_GUILD_ID,
+  EVO_TOTAL_MEMBERS_CHANNERL_ID,
+  EVO_LOG_CHANNEL_ID,
+  EVO_VERIFIED_ROLE_ID
 } from './ids'
-import curva from '~/server/services/curva'
+import evo from '~/server/services/evo'
 import mindsdb from '~/server/services/mindsdb'
-import getContext from '~/server/services/curva/getContext'
-import deleteConversation from '../curva/deleteConversation'
+import getContext from '~/server/services/evo/getContext'
+import deleteConversation from '~/server/services/evo/deleteConversation'
 
 const dcBotMdbClient = mindsdb.createClient(
   process.env.DC_BOT_MDB_EMAIL_ADDRESS as string,
@@ -30,7 +30,7 @@ Note: Do not use abbreviations, for example, write "do not" instead of "don't."
 Here are the commands you need to translate:
 
 Introduction:
-- Your name is Evo.
+- Your are EvoGPT.
 - You are currently an administrator in a Discord community created by your user group.
 - Your other identity is an AI assistant based on GPT-4.
 - Your developers are the DAN team.
@@ -91,7 +91,7 @@ const store = {
   connected: false,
   updateMemberCount() {
     const { guild } = store
-    const memberChannelPromise = guild.channels.fetch(CURVA_TOTAL_MEMBERS_CHANNERL_ID)
+    const memberChannelPromise = guild.channels.fetch(EVO_TOTAL_MEMBERS_CHANNERL_ID)
     guild.members.fetch({})
       .then(async () => {
         const totalMembers = guild.members.cache.size
@@ -129,7 +129,7 @@ const reviewChat = async (message: Message<boolean>) => {
     return
   }
   const { guild } = store
-  guild.roles.fetch(CURVA_VERIFIED_ROLE_ID)
+  guild.roles.fetch(EVO_VERIFIED_ROLE_ID)
     .then((verifiedRole) => {
       guild.members.addRole({
         user: message.author,
@@ -141,7 +141,7 @@ const reviewChat = async (message: Message<boolean>) => {
   }
   const reply = await message.reply(answer)
   const embed = new EmbedBuilder()
-  embed.setTitle('Violation of rules or misconduct | Curva')
+  embed.setTitle('Violation of rules or misconduct | Evo')
     .setColor(0x409EFF)
     .setFields(
       { name: 'MESSAGE', value: `${message.url}\n${message.content}` },
@@ -165,8 +165,8 @@ const connect = async () => {
   })
   store.client = client
   const loggedIn = await client.login(process.env.DC_BOT_TOKEN)
-  store.guild = await client.guilds.fetch(CURVA_GUILD_ID)
-  Logger.channel = await client.channels.fetch(CURVA_LOG_CHANNEL_ID) as TextBasedChannel
+  store.guild = await client.guilds.fetch(EVO_GUILD_ID)
+  Logger.channel = await client.channels.fetch(EVO_LOG_CHANNEL_ID) as TextBasedChannel
   store.updateMemberCount()
   store.connected = true
   client.on('messageCreate', async (message) => {
@@ -174,7 +174,7 @@ const connect = async () => {
       return
     }
     const { content } = message
-    if (content.includes(`<@${CURVA_CLIENT_ID}>`) || content.includes(`<@${CURVA_ROLE_ID}>`)) {
+    if (content.includes(`<@${EVO_CLIENT_ID}>`) || content.includes(`<@${EVO_ROLE_ID}>`)) {
       message.reply('Please use the `/chat` command to chat with me.')
     } else {
       reviewChat(message)
@@ -201,7 +201,7 @@ const connect = async () => {
           const webBrowsing = interaction.options.get('web-browsing')?.value || 'OFF'
           const temperature = interaction.options.get('temperature')?.value || '_t05'
           const context = await getContext(user, conv)
-          const answer = (await curva.ask(
+          const answer = (await evo.ask(
             user,
             conv,
             `gpt4${temperature}`,
@@ -245,13 +245,13 @@ if (+(process.env.RUN_DC_BOT as string)) {
     // .then(() => {
     //   (store.client as Client<boolean>).application?.commands.create({
     //     name: 'forget',
-    //     description: 'To clear the conversation history between Curva and you in the current channel.'
+    //     description: 'To clear the conversation history between EvoGPT and you in the current channel.'
     //   })
     // })
     // .then(() => {
     //   (store.client as Client<boolean>).application?.commands.create({
     //     name: 'chat',
-    //     description: 'Chat with Curva.',
+    //     description: 'Chat with EvoGPT.',
     //     options: [
     //       {
     //         name: 'prompt',

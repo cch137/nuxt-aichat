@@ -13,7 +13,7 @@
               :key="message.A"
               class="px-1 flex flex-col gap-2"
             >
-              <div class="flex MessageContainer pt-2">
+              <div v-if="message.Q" class="flex MessageContainer pt-2">
                 <div class="MessageLeft">
                   <div class="QMessageAvatar flex-center">
                     <el-icon size="larger" class="opacity-75">
@@ -35,7 +35,7 @@
                         </span>
                       </el-text>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-3">
                       <ChatMessageDeleteButton :confirm="() => deleteMessage(message.id)" />
                       <el-tooltip
                         :content="$t('action.copy')"
@@ -86,7 +86,7 @@
                   </div>
                 </div>
                 <div class="flex-1" style="width: calc(100% - 32px - 4.5rem)">
-                  <div class="Message A p-4 shadow rounded-lg">
+                  <div class="Message A p-4 shadow rounded-lg" :class="message.done ? '' : 'T'">
                     <div>
                       <el-text
                         v-if="message.done"
@@ -108,7 +108,23 @@
                           </span>
                         </el-text>
                       </div>
-                      <div class="flex gap-2">
+                      <div class="flex gap-3">
+                        <el-tooltip
+                          v-if="message === messages.at(-1)"
+                          :key="messages"
+                          :content="$t('action.continueGenerate')"
+                          placement="bottom"
+                        >
+                          <el-text
+                            type="info"
+                            class="MessageActionButton flex-center"
+                            @click="sendMessage('')"
+                          >
+                            <el-icon size="large">
+                              <VideoPlay />
+                            </el-icon>
+                          </el-text>
+                        </el-tooltip>
                         <el-tooltip
                           v-if="message === messages.at(-1)"
                           :key="messages"
@@ -184,7 +200,7 @@
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import random from '~/utils/random'
-import { Refresh, CopyDocument, ChatDotRound, User, Cpu, Search, Paperclip } from '@element-plus/icons-vue'
+import { CopyDocument, Refresh, VideoPlay, ChatDotRound, User, Cpu, Search, Paperclip } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
 
 const popoverVisibles = {

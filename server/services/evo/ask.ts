@@ -28,7 +28,11 @@ async function ask (
   let isComplete = true
   let queries = [] as string[]
   let urls = [] as string[]
-  const originalQuestion = question
+  const isEmptyQuestion = !Boolean(question.trim())
+  const originalQuestion = isEmptyQuestion ? '' : question
+  if (isEmptyQuestion) {
+    question = '[[Continue Generate]]'
+  }
   if (webBrowsing === 'ADVANCED') {
     const advResult = (await advancedAsk(question, context, userTimeZone))
     answer = advResult?.answer

@@ -3,7 +3,7 @@ import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
-import curva from '~/server/services/curva/index'
+import evo from '~/server/services/evo/index'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
 import troll from '~/utils/troll'
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   const { conv, prompt, context = '', model, web, t, tz = 0, id } = body
   const _id = id ? baseConverter.convert(id, '64w', 16) : id
   // @ts-ignore
-  if (!conv || !prompt ||!model || !t) {
+  if (!conv || typeof prompt !== 'string' || !model || !t) {
     return { error: 2 }
   }
   const stdHash = troll.h(`${prompt}${context}`, 'MD5', t)
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     return { error: 4 }
   }
   try {
-    const response = await curva.ask(user, conv, model, web, prompt, context, tz, _id)
+    const response = await evo.ask(user, conv, model, web, prompt, context, tz, _id)
     if (typeof response.id === 'string') {
       response.id = baseConverter.convert(response.id, 16, '64w')
     }

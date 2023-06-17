@@ -36,6 +36,7 @@ export default {
     renameConv: '重命名對話',
     refresh: '刷新對話',
     regenerate: '重新生成',
+    continueGenerate: '繼續生成',
     resend: '重新發送',
     change: '更換',
     copy: '複製',

@@ -31,6 +31,10 @@ const options = [
   {
     label: '繁體中文',
     value: 'zh-TW'
+  },
+  {
+    label: 'Русский',
+    value: 'ru'
   }
 ]
 </script>
