@@ -529,7 +529,11 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
   let isComplete = true;
   let queries = [];
   let urls = [];
-  const originalQuestion = question;
+  const isEmptyQuestion = !Boolean(question.trim());
+  const originalQuestion = isEmptyQuestion ? "" : question;
+  if (isEmptyQuestion) {
+    question = "[[Continue Generate]]";
+  }
   if (webBrowsing === "ADVANCED") {
     const advResult = await advancedAsk(question, context, userTimeZone);
     answer = advResult == null ? void 0 : advResult.answer;
@@ -592,18 +596,16 @@ ${responses[i].response}`);
 
 async function suggestions(question, amount) {
   var _a;
-  const answer = (_a = await client.gpt("gpt4_t00", `You are required to predict the user's next question based on their previous question (provide ${amount || 8} suggestions).
-If the user's previous question doesn't have a specific topic, you need to anticipate potential topics the user might bring up and predict some principles or phenomena they might ask you to explain.
-You don't need to answer the user's question. Consider yourself as an API and refrain from making any additional comments. Simply reply with a JSON format \`{ "suggestions": [] }\`. Here is the user's question: ${question}`, "")) == null ? void 0 : _a.answer;
+  const answer = (_a = await client.gpt("gpt4_t00", `Consider yourself as an API and refrain from making any additional comments. Simply reply with a JSON format \`{ "suggestions": [] }\`. You are required to predict the user's next question based on their previous question (provide ${amount || 8} suggestions). If the question doesn't have a specific topic, you need to anticipate potential topics the user might bring up and predict some principles or phenomena they might ask you to explain. You do not need to answer the question. Here is the question: ${question}`, "")) == null ? void 0 : _a.answer;
   return JSON.parse(answer.substring(answer.indexOf("{"), answer.lastIndexOf("}") + 1)).suggestions;
 }
 
-const curva = {
+const evo = {
   mindsdb,
   client,
   ask,
   suggestions
 };
 
-export { curva as c, mindsdb as m };
+export { evo as e, mindsdb as m };
 //# sourceMappingURL=index2.mjs.map

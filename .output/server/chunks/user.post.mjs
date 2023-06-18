@@ -4,6 +4,7 @@ import { r as read, m as mask } from './token.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './str.mjs';
+import './random.mjs';
 
 const user_post = defineEventHandler(async (event) => {
   var _a, _b, _c;

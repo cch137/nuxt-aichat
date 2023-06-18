@@ -2,10 +2,11 @@ import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index3.mjs';
-import { b as baseConverter, t as troll, r as read } from './token.mjs';
-import { c as curva } from './index2.mjs';
+import { t as troll, r as read } from './token.mjs';
+import { e as evo } from './index2.mjs';
 import { g as getIp } from './getIp.mjs';
 import { s as str } from './str.mjs';
+import { b as baseConverter } from './random.mjs';
 import { l as logger } from './crawler.mjs';
 import 'dotenv';
 import 'crypto';
@@ -45,7 +46,7 @@ const answer_post = defineEventHandler(async (event) => {
   }
   const { conv, prompt, context = "", model, web, t, tz = 0, id } = body;
   const _id = id ? baseConverter.convert(id, "64w", 16) : id;
-  if (!conv || !prompt || !model || !t) {
+  if (!conv || typeof prompt !== "string" || !model || !t) {
     return { error: 2 };
   }
   const stdHash = troll.h(`${prompt}${context}`, "MD5", t);
@@ -62,7 +63,7 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: 4 };
   }
   try {
-    const response = await curva.ask(user, conv, model, web, prompt, context, tz, _id);
+    const response = await evo.ask(user, conv, model, web, prompt, context, tz, _id);
     if (typeof response.id === "string") {
       response.id = baseConverter.convert(response.id, 16, "64w");
     }

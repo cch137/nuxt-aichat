@@ -1,15 +1,15 @@
 import { Client, IntentsBitField, EmbedBuilder } from 'discord.js';
-import { m as mindsdb, c as curva } from './index2.mjs';
+import { m as mindsdb, e as evo } from './index2.mjs';
 import './index3.mjs';
 import { m as message } from './message.mjs';
 import { d as deleteConversation } from './deleteConversation.mjs';
 
-const CURVA_CLIENT_ID = "1056463118672351283";
-const CURVA_ROLE_ID = "1056465043279052833";
-const CURVA_GUILD_ID = "730345526360539197";
-const CURVA_TOTAL_MEMBERS_CHANNERL_ID = "1113758792430145547";
-const CURVA_LOG_CHANNEL_ID = "1113752420623851602";
-const CURVA_VERIFIED_ROLE_ID = "1106198793935917106";
+const EVO_CLIENT_ID = "1056463118672351283";
+const EVO_ROLE_ID = "1056465043279052833";
+const EVO_GUILD_ID = "730345526360539197";
+const EVO_TOTAL_MEMBERS_CHANNERL_ID = "1113758792430145547";
+const EVO_LOG_CHANNEL_ID = "1113752420623851602";
+const EVO_VERIFIED_ROLE_ID = "1106198793935917106";
 
 const getJoinedMessages = (messages) => {
   return messages.map((message) => {
@@ -42,7 +42,7 @@ async function getContext(user, conv) {
     messages.shift();
     joinedMessages = getJoinedMessages(messages);
   }
-  return `Conversation history
+  return `Conversation History
 ===
 ${joinedMessages}`;
 }
@@ -63,7 +63,7 @@ Note: Do not use abbreviations, for example, write "do not" instead of "don't."
 Here are the commands you need to translate:
 
 Introduction:
-- Your name is Curva.
+- Your are EvoGPT.
 - You are currently an administrator in a Discord community created by your user group.
 - Your other identity is an AI assistant based on GPT-4.
 - Your developers are the DAN team.
@@ -116,7 +116,7 @@ const store = {
   connected: false,
   updateMemberCount() {
     const { guild } = store;
-    const memberChannelPromise = guild.channels.fetch(CURVA_TOTAL_MEMBERS_CHANNERL_ID);
+    const memberChannelPromise = guild.channels.fetch(EVO_TOTAL_MEMBERS_CHANNERL_ID);
     guild.members.fetch({}).then(async () => {
       const totalMembers = guild.members.cache.size;
       const memberChannel = await memberChannelPromise;
@@ -144,7 +144,7 @@ const reviewChat = async (message) => {
     return;
   }
   const { guild } = store;
-  guild.roles.fetch(CURVA_VERIFIED_ROLE_ID).then((verifiedRole) => {
+  guild.roles.fetch(EVO_VERIFIED_ROLE_ID).then((verifiedRole) => {
     guild.members.addRole({
       user: message.author,
       role: verifiedRole
@@ -155,7 +155,7 @@ const reviewChat = async (message) => {
   }
   const reply = await message.reply(answer);
   const embed = new EmbedBuilder();
-  embed.setTitle("Violation of rules or misconduct | Curva").setColor(4235007).setFields(
+  embed.setTitle("Violation of rules or misconduct | Evo").setColor(4235007).setFields(
     { name: "MESSAGE", value: `${message.url}
 ${message.content}` },
     { name: "REPLY", value: `${reply.url}
@@ -178,8 +178,8 @@ const connect = async () => {
   });
   store.client = client;
   const loggedIn = await client.login(process.env.DC_BOT_TOKEN);
-  store.guild = await client.guilds.fetch(CURVA_GUILD_ID);
-  Logger.channel = await client.channels.fetch(CURVA_LOG_CHANNEL_ID);
+  store.guild = await client.guilds.fetch(EVO_GUILD_ID);
+  Logger.channel = await client.channels.fetch(EVO_LOG_CHANNEL_ID);
   store.updateMemberCount();
   store.connected = true;
   client.on("messageCreate", async (message) => {
@@ -187,7 +187,7 @@ const connect = async () => {
       return;
     }
     const { content } = message;
-    if (content.includes(`<@${CURVA_CLIENT_ID}>`) || content.includes(`<@${CURVA_ROLE_ID}>`)) {
+    if (content.includes(`<@${EVO_CLIENT_ID}>`) || content.includes(`<@${EVO_ROLE_ID}>`)) {
       message.reply("Please use the `/chat` command to chat with me.");
     } else {
       reviewChat(message);
@@ -217,7 +217,7 @@ const connect = async () => {
           const webBrowsing = ((_c = interaction.options.get("web-browsing")) == null ? void 0 : _c.value) || "OFF";
           const temperature = ((_d = interaction.options.get("temperature")) == null ? void 0 : _d.value) || "_t05";
           const context = await getContext(user, conv);
-          const answer = ((_e = await curva.ask(
+          const answer = ((_e = await evo.ask(
             user,
             conv,
             `gpt4${temperature}`,

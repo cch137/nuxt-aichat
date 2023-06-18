@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3';
-import { c as curva } from './index2.mjs';
+import { e as evo } from './index2.mjs';
 import 'dotenv';
 import 'sequelize';
 import './sogouTranslate.mjs';
@@ -40,7 +40,7 @@ const suggestions_post = defineEventHandler(async (event) => {
   if (typeof question !== "string") {
     return { error: 1 };
   }
-  return await curva.suggestions(question, amout);
+  return await evo.suggestions(question, amout);
 });
 
 export { suggestions_post as default };

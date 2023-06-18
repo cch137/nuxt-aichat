@@ -7,6 +7,7 @@ import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './str.mjs';
+import './random.mjs';
 import 'dotenv';
 import 'crypto';
 import 'url';
