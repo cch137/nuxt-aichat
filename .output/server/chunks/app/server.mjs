@@ -3930,7 +3930,8 @@ const en = {
     veriCodeRequired: "The verification code is required.",
     confirmChangeEmail: "Are you sure you want to change the email address?",
     notReceiveVeriCode: "Did not receive the verification code?",
-    formIncomplete: "Form incomplete!"
+    formIncomplete: "Form incomplete!",
+    loginTip1: "After logging in or signing up, ownership of the conversations on this device will be transferred to the associated account."
   },
   action: {
     more: "More actions",
@@ -4034,7 +4035,8 @@ const zhTW = {
     veriCodeRequired: "需要驗證碼",
     confirmChangeEmail: "是否確認更換電子郵件地址？",
     notReceiveVeriCode: "未收到驗證碼？",
-    formIncomplete: "表單未完成！"
+    formIncomplete: "表單未完成！",
+    loginTip1: "在登錄或註冊後，此設備上的對話的所有權會轉移至相關帳號。"
   },
   action: {
     more: "更多操作",
@@ -4138,13 +4140,14 @@ const ru = {
     veriCodeRequired: "Требуется код подтверждения.",
     confirmChangeEmail: "Вы уверены, что хотите изменить адрес электронной почты?",
     notReceiveVeriCode: "Не получили код подтверждения?",
-    formIncomplete: "Форма заполнена неполностью!"
+    formIncomplete: "Форма заполнена неполностью!",
+    loginTip1: "После входа в систему или регистрации, владение беседами на этом устройстве будет передано на связанный аккаунт."
   },
   action: {
     more: "Дополнительные действия",
     rename: "Переименовать",
-    renameConv: "Переименовать разговор",
-    refresh: "Обновить разговор",
+    renameConv: "Переименовать диалог",
+    refresh: "Обновить диалог",
     regenerate: "Сгенерировать заново",
     continueGenerate: "Продолжить генерацию",
     resend: "Повторно отправить",
@@ -4153,20 +4156,20 @@ const ru = {
     copySuccess: "Скопировано!",
     copyFailed: "Не удалось скопировать.",
     delete: "Удалить",
-    deleteConv: "Удалить разговор",
+    deleteConv: "Удалить диалог",
     exportAs: "Экспортировать как",
     newVersion: "Вышла новая версия! Хотите перезагрузить страницу?",
     opCanceled: "Операция отменена.",
     opExecuted: "Операция выполнена."
   },
   message: {
-    renameConvHint: "Пожалуйста, введите заголовок разговора:",
-    renameSuccess: "Разговор был переименован.",
+    renameConvHint: "Пожалуйста, введите новое название диалога:",
+    renameSuccess: "Диалог был переименован.",
     deleteConvConfirm: "Вы уверены, что хотите удалить этот диалог? Это действие нельзя отменить!",
     deleteMsgConfirm: "Удалить этот вопрос и его ответы?",
     notice: "Уведомление",
     warning: "Предупреждение",
-    setting: "Настройка",
+    setting: "Настройки",
     ok: "OK",
     cancel: "Отмена",
     yes: "Да",
@@ -4177,12 +4180,12 @@ const ru = {
     about: "О программе",
     joinDcMessage: "Присоединяйтесь к нашему серверу Discord, чтобы быть в курсе последних новостей от EvoGPT!",
     webInfo1: "Базовый: ",
-    webInfo2: "Разрешить извлечение URL-адресов из вопроса или использовать поисковую систему для запроса вопроса. ",
+    webInfo2: "Разрешить извлечение URL-адресов из вопроса или использовать поисковую систему для поиска информации по вопросу. ",
     webInfo3: "Расширенный: ",
-    webInfo4: "Разрешить извлечение URL-адресов из вопроса, позволить ИИ определить данные для поиска и предоставить заключение после суммирования нескольких веб-страниц. ",
+    webInfo4: "Разрешить извлечение URL-адресов из вопроса, позволить ИИ определить данные для поиска и предоставить вывод после суммирования нескольких веб-страниц. ",
     expFeat1: "Это занимает некоторое время.",
     expFeat2: "Это займет больше времени.",
-    tempInfo: "При более высоких значениях увеличивается случайность и разнообразие, а при более низких значениях уменьшается случайность и вывод становится более предсказуемым."
+    tempInfo: "При более высоких значениях увеличивается случайность и разнообразие, а при более низких значениях случайность уменьшается и вывод становится более предсказуемым."
   },
   settings: {
     title: "Настройки",
@@ -4198,8 +4201,8 @@ const ru = {
     context: "Контекст"
   },
   chat: {
-    chats: "Разговоры",
-    newChat: "Новый разговор",
+    chats: "Диалоги",
+    newChat: "Новый диалог",
     letsStart: "Давайте начнем!",
     send: "Отправить"
   },
@@ -4242,7 +4245,8 @@ const es = {
     veriCodeRequired: "Se requiere el código de verificación.",
     confirmChangeEmail: "¿Estás seguro de que quieres cambiar la dirección de correo electrónico?",
     notReceiveVeriCode: "¿No recibiste el código de verificación?",
-    formIncomplete: "¡Formulario incompleto!"
+    formIncomplete: "¡Formulario incompleto!",
+    loginTip1: "Después de iniciar sesión o registrarse, la propiedad de las conversaciones en este dispositivo se transferirá a la cuenta asociada."
   },
   action: {
     more: "Más acciones",
