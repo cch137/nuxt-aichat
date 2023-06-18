@@ -527,7 +527,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-86803d12.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-beeb18f2.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "c",
@@ -535,7 +535,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-ae4036bb.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-3d38d5b2.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "index",
@@ -551,7 +551,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/login-69d4c5eb.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-4bb2f495.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -567,7 +567,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/signup-fc189699.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/signup-9326485e.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -648,8 +648,8 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-c02e705a.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-6151521f.mjs')
+  chat: () => import('./_nuxt/chat-764773f9.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-e4318ba6.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",

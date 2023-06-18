@@ -62,24 +62,12 @@ const convert = (value, fromCharset, toCharset, minLen = 0) => {
     value = str(value);
   }
   let decimalValue = BigInt(0);
-  if (+fromCharset === 10) {
-    decimalValue = BigInt(+Number(value));
-  } else if (+fromCharset < 37) {
-    decimalValue = BigInt(parseInt(value, +fromCharset));
-  } else {
-    fromCharset = getCharset(fromCharset);
-    const baseFrom = fromCharset.length;
-    for (let i = 0; i < value.length; i++) {
-      decimalValue += BigInt(fromCharset.indexOf(value[i]) * Math.pow(baseFrom, value.length - 1 - i));
-    }
+  fromCharset = getCharset(fromCharset);
+  const baseFrom = fromCharset.length;
+  for (let i = 0; i < value.length; i++) {
+    decimalValue += BigInt(fromCharset.indexOf(value[i]) * Math.pow(baseFrom, value.length - 1 - i));
   }
   let result = "";
-  if (+toCharset < 37) {
-    result = decimalValue.toString(+toCharset);
-    if (minLen <= 1) {
-      return result;
-    }
-  }
   toCharset = getCharset(toCharset);
   if (result === "") {
     const baseTo = BigInt(toCharset.length);
