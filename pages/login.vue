@@ -37,12 +37,15 @@
       </div>
       <div class="p-2"></div>
       <div class="flex-center flex-col gap-1">
-        <div class="flex-center gap-1">
-          <el-text type="info">{{ $t('auth.createNewAcc') }} </el-text>
+        <div class="flex-center flex-wrap gap-1" style="line-height: 1rem;">
+          <el-text type="info">{{ $t('auth.createNewAcc') }}</el-text>
           <el-link type="primary">
             <NuxtLink to="/signup">{{ $t('auth.signup') }}</NuxtLink>
           </el-link>
         </div>
+      </div>
+      <div style="line-height: 1rem;" class="mt-2 text-center">
+        <el-text size="small" type="info">{{ $t('auth.loginTip1') }}</el-text>
       </div>
       <div class="p-8" />
     </el-form>
