@@ -101,25 +101,30 @@
       </div>
     </el-form>
     <h4 class="mt-4 mb-0">{{ $t('chat.chats') }}</h4>
-    <div class="mt-1 border border-neutral-700 rounded overflow-hidden" style="height: 45vh;">
-      <div class="border-b border-neutral-700">
+    <div class="mt-1 border rounded overflow-hidden" style="height: 45vh; border-color: var(--el-border-color);">
+      <div class="border-b" style="border-color: var(--el-border-color);">
         <NuxtLink id="createNewChat" to="/c/" @click="focusInput">
           <el-button
             :icon="Plus"
             class="ConversationLink w-full"
+            style="border: none;"
           >
             {{ $t('chat.newChat') }}
           </el-button>
         </NuxtLink>
       </div>
       <div class="ConversationList overflow-y-auto overflow-x-hidden flex-1" style="max-height: calc(100% - 32px);">
-        <div v-for="conv in conversations" class="ConversationLink flex items-center" :active="conv.id === getCurrentConvId()">
+        <div
+          v-for="conv in conversations"
+          class="ConversationLink flex items-center"
+          :class="conv.moreActionsExpanded ? 'MoreOptionsExpended' : ''"
+          :active="conv.id === getCurrentConvId()"
+        >
           <NuxtLink
             :id="conv.id"
             :to="`/c/${conv.id}`"
             class="justify-start items-center flex gap-1 py-1 px-4 w-full"
-            :active="conv.id === getCurrentConvId()"
-            :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
+            :class="conv.id === getCurrentConvId() ? 'pointer-events-none' : ''"
           >
             <el-icon>
               <ChatSquare />
@@ -128,26 +133,39 @@
           </NuxtLink>
           <div class="ConversationLinkButtons px-1 flex-center">
             <el-text type="info" class="flex gap-2">
-              <el-tooltip
-                :content="$t('action.renameConv')"
-                placement="top"
-              >
+              <el-dropdown trigger="click" placement="bottom" @visible-change="(isVisible) => conv.moreActionsExpanded = isVisible">
                 <el-text>
                   <el-icon class="cursor-pointer">
-                    <EditPen />
+                    <More />
                   </el-icon>
                 </el-text>
-              </el-tooltip>
-              <el-tooltip
-                :content="$t('action.deleteConv')"
-                placement="top"
-              >
-                <el-text type="danger">
-                  <el-icon class="cursor-pointer">
-                    <Delete />
-                  </el-icon>
-                </el-text>
-              </el-tooltip>
+                <template #dropdown>
+                  <el-dropdown-menu style="overflow: hidden;">
+                    <div class="flex flex-col py-1 px-2 -m-2 -mx-3" style="margin-bottom: -10px;">
+                      <div>
+                        <el-button
+                          class="MoreOptionButton"
+                          :icon="EditPen"
+                          @click="renameConversation(conv.id, conv.name)"
+                        >
+                          {{ $t('action.rename') }}
+                        </el-button>
+                      </div>
+                      <div>
+                        <el-button
+                          type="danger"
+                          class="MoreOptionButton"
+                          :icon="Delete"
+                          @click="deleteConversation(conv.id)"
+                          plain
+                        >
+                          {{ $t('action.delete') }}
+                        </el-button>
+                      </div>
+                    </div>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </el-text>
           </div>
         </div>
@@ -157,11 +175,11 @@
 </template>
 
 <script setup>
-import { InfoFilled, Plus, ChatSquare, EditPen, Delete } from '@element-plus/icons-vue'
+import { InfoFilled, Plus, ChatSquare, More, EditPen, Delete } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 
 const version = useState('version', () => '')
-const { conversations, getCurrentConvId, focusInput } = useChat()
+const { conversations, getCurrentConvId, focusInput, renameConversation, deleteConversation } = useChat()
 
 const {
   data: versionData,
@@ -183,7 +201,7 @@ watch(versionData, (newValue) => {
 }
 .ConversationList::-webkit-scrollbar-track {
   background: #0000;
-  border-left: 1px solid #4444;
+  border-left: 1px solid var(--el-border-color);
 }
 .ConversationList::-webkit-scrollbar-thumb {
   background: #8888;
@@ -199,12 +217,13 @@ watch(versionData, (newValue) => {
   font-size: 14px;
   transition: .3s ease;
 }
-.ConversationLink:hover, .ConversationLink[active="true"] {
+.ConversationLink:hover, .ConversationLink[active="true"], .ConversationLink.MoreOptionsExpended {
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
 }
 .ConversationLink[active="true"] {
   font-weight: 500;
+  filter: brightness(1.25);
 }
 .ConversationLinkButtons {
   opacity: 0;
@@ -216,5 +235,12 @@ watch(versionData, (newValue) => {
 .info {
   word-break: break-word !important;
   text-align: left !important;
+}
+
+.MoreOptionButton {
+  width: 100%;
+  justify-content: start;
+  border: none;
+  border-radius: 0;
 }
 </style>

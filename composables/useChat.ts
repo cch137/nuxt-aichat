@@ -269,6 +269,7 @@ export default function () {
   }
   const loadChat = async (conv: string | null, isNew = false) => {
     const promise = Promise.all([...chatLoadings])
+    console.log(first, isNew)
     const chat = first && isNew
       ? new Promise((resolve) => resolve(navigateTo('/c/')))
       : isNew
@@ -392,14 +393,19 @@ export default function () {
   const refreshConversation = () => {
     loadChat(getCurrentConvId())
   }
-  const renameConversation = () => {
+  const renameConversation = (id?: string, defaultName = '') => {
+    if (!id) {
+      id = getCurrentConvId()
+      defaultName = getCurrentConvName()
+    }
     ElMessageBox.prompt(_t('message.renameConvHint'), _t('message.setting'), {
       confirmButtonText: _t('message.ok'),
       cancelButtonText: _t('message.cancel'),
-      inputValue: getCurrentConvName()
+      inputValue: defaultName,
+      inputPlaceholder: baseConverter.convert(id, '64w', 10)
     })
       .then(({ value: name }) => {
-        $fetch('/api/chat/conv', { method: 'PUT', body: { id: getCurrentConvId(), name } })
+        $fetch('/api/chat/conv', { method: 'PUT', body: { id, name } })
           .then(async () => {
             ElMessage({
               type: 'success',
@@ -419,13 +425,13 @@ export default function () {
       })
       .catch(() => {})
   }
-  const deleteConversation = () => {
-    const currentConvId = getCurrentConvId()
+  const deleteConversation = (targetConvId?: string) => {
+    const id = targetConvId ? targetConvId : getCurrentConvId()
     const _conversations = [...conversations.value]
     let currentConvIndex = -1
     let nextConvId = 'createNewChat'
     for (let i = 0; i < _conversations.length; i++) {
-      if (_conversations[i].id === currentConvId) {
+      if (_conversations[i].id === id) {
         currentConvIndex = i
         break
       }
@@ -450,11 +456,15 @@ export default function () {
         const loading = ElLoading.service()
         $fetch('/api/chat/conv', {
           method: 'DELETE',
-          body: { id: currentConvId }
+          body: { id }
         })
-          .finally(() => {
+          .finally(async () => {
             loading.close()
-            document.getElementById(nextConvId)?.click()
+            if (targetConvId === getCurrentConvId()) {
+              document.getElementById(nextConvId)?.click()
+            } else {
+              await checkTokenAndGetConversations()
+            }
           })
       })
   }

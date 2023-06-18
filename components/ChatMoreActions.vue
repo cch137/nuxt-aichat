@@ -11,7 +11,7 @@
               <el-button
                 class="MoreOptionButton"
                 :icon="EditPen"
-                @click="renameConversation"
+                @click="renameConversation()"
               >
                 {{ $t('action.renameConv') }}
               </el-button>
@@ -20,7 +20,7 @@
               <el-button
                 class="MoreOptionButton"
                 :icon="Download"
-                @click="exportAsMarkdown"
+                @click="exportAsMarkdown()"
               >
                 {{ $t('action.exportAs') }} .MD
               </el-button>
@@ -29,7 +29,7 @@
               <el-button
                 class="MoreOptionButton"
                 :icon="Download"
-                @click="exportAsJson"
+                @click="exportAsJson()"
               >
                 {{ $t('action.exportAs') }} .JSON
               </el-button>
@@ -38,7 +38,7 @@
               <el-button
                 class="MoreOptionButton"
                 :icon="RefreshRight"
-                @click="refreshConversation"
+                @click="refreshConversation()"
               >
                 {{ $t('action.refresh') }}
               </el-button>
@@ -48,7 +48,7 @@
                 type="danger"
                 class="MoreOptionButton"
                 :icon="Delete"
-                @click="deleteConversation"
+                @click="deleteConversation()"
                 plain
               >
                 {{ $t('action.deleteConv') }}
