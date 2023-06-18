@@ -1,6 +1,6 @@
 <template>
   <div class="h-full max-h-full flex flex-col">
-    <el-form class="flex-1" @submit.prevent>
+    <el-form @submit.prevent>
       <div class="flex justify-stretch">
         <h4 class="flex-1 mt-0">{{ $t('settings.title') }}</h4>
         <div class="px-1">
@@ -100,8 +100,8 @@
         </div>
       </div>
     </el-form>
-    <h4 class="m-0">{{ $t('chat.chats') }}</h4>
-    <div class="mt-1 border border-neutral-700 rounded overflow-hidden" style="height: 50vh;">
+    <h4 class="mt-4 mb-0">{{ $t('chat.chats') }}</h4>
+    <div class="mt-1 border border-neutral-700 rounded overflow-hidden" style="height: 45vh;">
       <div class="border-b border-neutral-700">
         <NuxtLink id="createNewChat" to="/c/" @click="focusInput">
           <el-button
@@ -113,11 +113,11 @@
         </NuxtLink>
       </div>
       <div class="ConversationList overflow-y-auto overflow-x-hidden flex-1" style="max-height: calc(100% - 32px);">
-        <div v-for="conv in conversations">
+        <div v-for="conv in conversations" class="ConversationLink flex items-center" :active="conv.id === getCurrentConvId()">
           <NuxtLink
             :id="conv.id"
             :to="`/c/${conv.id}`"
-            class="ConversationLink flex-center gap-1 py-1 px-4 w-full"
+            class="justify-start items-center flex gap-1 py-1 px-4 w-full"
             :active="conv.id === getCurrentConvId()"
             :class="conv.id === getCurrentConvId() ? 'pointer-events-none brightness-125' : ''"
           >
@@ -126,6 +126,30 @@
             </el-icon>
             <span>{{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}</span>
           </NuxtLink>
+          <div class="ConversationLinkButtons px-1 flex-center">
+            <el-text type="info" class="flex gap-2">
+              <el-tooltip
+                :content="$t('action.renameConv')"
+                placement="top"
+              >
+                <el-text>
+                  <el-icon class="cursor-pointer">
+                    <EditPen />
+                  </el-icon>
+                </el-text>
+              </el-tooltip>
+              <el-tooltip
+                :content="$t('action.deleteConv')"
+                placement="top"
+              >
+                <el-text type="danger">
+                  <el-icon class="cursor-pointer">
+                    <Delete />
+                  </el-icon>
+                </el-text>
+              </el-tooltip>
+            </el-text>
+          </div>
         </div>
       </div>
     </div>
@@ -133,7 +157,7 @@
 </template>
 
 <script setup>
-import { InfoFilled, Plus, ChatSquare } from '@element-plus/icons-vue'
+import { InfoFilled, Plus, ChatSquare, EditPen, Delete } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 
 const version = useState('version', () => '')
@@ -169,8 +193,6 @@ watch(versionData, (newValue) => {
   background: #aaa8;
 }
 .ConversationLink {
-  border: none;
-  border-radius: 0 !important;
   justify-content: start !important;
   color: var(--el-text-color-regular);
   font-weight: 400;
@@ -183,6 +205,13 @@ watch(versionData, (newValue) => {
 }
 .ConversationLink[active="true"] {
   font-weight: 500;
+}
+.ConversationLinkButtons {
+  opacity: 0;
+  transition: .3s ease;
+}
+.ConversationLink:hover > .ConversationLinkButtons {
+  opacity: 1;
 }
 .info {
   word-break: break-word !important;

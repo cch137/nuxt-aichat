@@ -109,6 +109,7 @@
                         </el-text>
                       </div>
                       <div class="flex gap-3">
+                        <ChatMessageDeleteButton v-if="!message.Q" :confirm="() => deleteMessage(message.id)" />
                         <el-tooltip
                           v-if="message === messages.at(-1)"
                           :key="messages"
