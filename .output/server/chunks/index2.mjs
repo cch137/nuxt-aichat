@@ -547,7 +547,7 @@ async function ask(user, conv, modelName = "gpt4", webBrowsing = "BASIC", questi
     }
   }
   if (webBrowsing === "BASIC" || webBrowsing === "OFF") {
-    if (webBrowsing === "BASIC") {
+    if (webBrowsing === "BASIC" && !isEmptyQuestion) {
       const _urls = extractUrls(question).slice(0, 4);
       if (_urls.length === 0) {
         question = useDefaultTemplate(question, userTimeZone, "", _wrapSearchResult(await crawler.summarize(question)));
