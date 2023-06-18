@@ -1,7 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import { useNavigatorLanguage } from '@vueuse/core'
 import zhConverter from '~/utils/zhConverter'
-import en from '~/locales/en'
+import en from '~/layouts/en'
 import zhTW from '~/locales/zh-TW'
 import ru from '~/locales/ru'
 
