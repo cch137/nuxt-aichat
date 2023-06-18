@@ -1,9 +1,10 @@
 import { createI18n } from 'vue-i18n'
 import { useNavigatorLanguage } from '@vueuse/core'
 import zhConverter from '~/utils/zhConverter'
-import en from '~/layouts/en'
+import en from '~/locales/en'
 import zhTW from '~/locales/zh-TW'
 import ru from '~/locales/ru'
+import es from '~/locales/es'
 
 const zhCN = JSON.parse(zhConverter.t2s(JSON.stringify(zhTW)))
 
@@ -71,11 +72,13 @@ const i18n = createI18n({
     'zh-TW': zhTW,
     'zh-CN': zhCN,
     ru,
+    es
   },
   fallbackLocale: {
     'zh-TW': ['zh-CN', 'en'],
     'zh-CN': ['zh-TW', 'en'],
-    'ru': ['en']
+    'ru': ['en'],
+    'es': ['en'],
   }
 }).global
 

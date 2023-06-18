@@ -35,7 +35,11 @@ const options = [
   {
     label: 'Русский',
     value: 'ru'
-  }
+  },
+  {
+    label: 'Español',
+    value: 'es'
+  },
 ]
 </script>
 
