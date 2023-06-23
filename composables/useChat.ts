@@ -177,6 +177,7 @@ const clear = () => {
   conversations.value = []
   messages.value = []
   navigateTo('/c/')
+  first = true
 }
 
 let first = true

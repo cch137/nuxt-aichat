@@ -41,11 +41,12 @@ const checkIsLoggedIn = async () => {
 }
 
 (async () => {
-  const loading = ElLoading.service()
-  try {
-    await checkIsLoggedIn()
-  } finally {
-    loading.close()
+  if (process.client) {
+    try {
+      await checkIsLoggedIn()
+    } catch (err) {
+      console.error(err)
+    } finally {}
   }
 })()
 
