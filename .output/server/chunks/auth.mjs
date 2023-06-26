@@ -17,7 +17,7 @@ const userCollection = model("User", new Schema({
 }), "users");
 
 config();
-const MY_EMAIL_ADDRESS = process.env.CHAT_MDB_EMAIL_ADDRESS;
+const MY_EMAIL_ADDRESS = process.env.NODEMAILER_EMAIL;
 const transporter = nodemailer.createTransport({
   service: "gmail",
   secure: true,
