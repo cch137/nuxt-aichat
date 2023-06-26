@@ -13,11 +13,11 @@ import mindsdb from '~/server/services/mindsdb'
 import getContext from '~/server/services/evo/getContext'
 import deleteConversation from '~/server/services/evo/deleteConversation'
 
-const dcBotMdbClient = mindsdb.createClient(
-  process.env.DC_BOT_MDB_EMAIL_ADDRESS as string,
-  process.env.DC_BOT_MDB_PASSWORD as string,
-  ['gpt4_dc_bot']
-)
+// const dcBotMdbClient = mindsdb.createClient(
+//   process.env.DC_BOT_MDB_EMAIL_ADDRESS as string,
+//   process.env.DC_BOT_MDB_PASSWORD as string,
+//   ['gpt4_dc_bot']
+// )
 
 const useAdminTemplate = (text: string) => {
   return `
