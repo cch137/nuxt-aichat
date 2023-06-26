@@ -117,6 +117,8 @@ const Logger = {
   }
 } as ILogger
 
+const DEPRECATED_MESSAGE = 'This service has been deprecated.'
+
 const reviewChat = async (message: Message<boolean>) => {
   // 必須要檢測訊息是否為空，因為 welcome 訊息是空的，welcome 並不需要被認證。
   if (!message.content.trim()) {
@@ -124,7 +126,7 @@ const reviewChat = async (message: Message<boolean>) => {
   }
   Logger.typing()
   // @ts-ignore
-  const answer = (await dcBotMdbClient.gpt('gpt4_dc_bot', useAdminTemplate(message.content), ''))?.answer
+  // const answer = (await dcBotMdbClient.gpt('gpt4_dc_bot', useAdminTemplate(message.content), ''))?.answer
   if (typeof answer !== 'string') {
     return
   }
@@ -136,19 +138,19 @@ const reviewChat = async (message: Message<boolean>) => {
         role: verifiedRole as Role
       })
     })
-  if (answer.trim() === '' || answer.includes('NO-REPLY')) {
-    return
-  }
-  const reply = await message.reply(answer)
-  const embed = new EmbedBuilder()
-  embed.setTitle('Violation of rules or misconduct | Evo')
-    .setColor(0x409EFF)
-    .setFields(
-      { name: 'MESSAGE', value: `${message.url}\n${message.content}` },
-      { name: 'REPLY', value: `${reply.url}\n${answer}` },
-    )
-  Logger.log({ embeds: [embed] })
-  return reply
+  // if (answer.trim() === '' || answer.includes('NO-REPLY')) {
+  //   return
+  // }
+  // const reply = await message.reply(answer)
+  // const embed = new EmbedBuilder()
+  // embed.setTitle('Violation of rules or misconduct | Evo')
+  //   .setColor(0x409EFF)
+  //   .setFields(
+  //     { name: 'MESSAGE', value: `${message.url}\n${message.content}` },
+  //     { name: 'REPLY', value: `${reply.url}\n${answer}` },
+  //   )
+  // Logger.log({ embeds: [embed] })
+  // return reply
 }
 
 const connect = async () => {
@@ -175,7 +177,8 @@ const connect = async () => {
     }
     const { content } = message
     if (content.includes(`<@${EVO_CLIENT_ID}>`) || content.includes(`<@${EVO_ROLE_ID}>`)) {
-      message.reply('Please use the `/chat` command to chat with me.')
+      // message.reply('Please use the `/chat` command to chat with me.')
+      message.reply(DEPRECATED_MESSAGE)
     } else {
       reviewChat(message)
     }
@@ -201,16 +204,17 @@ const connect = async () => {
           const webBrowsing = interaction.options.get('web-browsing')?.value || 'OFF'
           const temperature = interaction.options.get('temperature')?.value || '_t05'
           const context = await getContext(user, conv)
-          const answer = (await evo.ask(
-            user,
-            conv,
-            `gpt4${temperature}`,
-            webBrowsing as 'OFF' | 'BASIC' | 'ADVANCED',
-            question,
-            context,
-            0
-          // @ts-ignore
-          ))?.answer as string || 'Oops! Something went wrong.'
+          const answer = DEPRECATED_MESSAGE
+          // const answer = (await evo.ask(
+          //   user,
+          //   conv,
+          //   `gpt4${temperature}`,
+          //   webBrowsing as 'OFF' | 'BASIC' | 'ADVANCED',
+          //   question,
+          //   context,
+          //   0
+          // // @ts-ignore
+          // ))?.answer as string || 'Oops! Something went wrong.'
           clearInterval(interval)
           const embed = new EmbedBuilder()
           embed.addFields(
