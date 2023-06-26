@@ -6,15 +6,7 @@ import googlethis from 'googlethis';
 import { t as translate } from './sogouTranslate.mjs';
 import './index3.mjs';
 import { s as str } from './str.mjs';
-import { model, Schema } from 'mongoose';
-
-const logger = model("Log", new Schema({
-  type: { type: String, required: true },
-  refer: { type: String },
-  text: { type: String, required: true }
-}, {
-  versionKey: false
-}), "logs");
+import { l as logger } from './log.mjs';
 
 const trimText = (text) => {
   return text.split("\n").map((ln) => ln.replace(/[\s]+/g, " ").trim()).filter((ln) => ln).join("\n");
@@ -129,5 +121,5 @@ const crawler = {
 };
 const crawler$1 = crawler;
 
-export { crawler$1 as c, logger as l };
+export { crawler$1 as c };
 //# sourceMappingURL=crawler.mjs.map

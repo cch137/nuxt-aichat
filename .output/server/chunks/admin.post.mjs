@@ -25,16 +25,11 @@ import 'mongoose';
 import './message.mjs';
 import './deleteConversation.mjs';
 import 'sequelize';
-import './sogouTranslate.mjs';
-import 'crypto-js/md5.js';
+import './createAxiosSession.mjs';
 import 'axios';
 import 'cookie';
 import './str.mjs';
-import './crawler.mjs';
-import 'turndown';
-import '@joplin/turndown-plugin-gfm';
-import 'cheerio';
-import 'googlethis';
+import './log.mjs';
 
 const admin_post = defineEventHandler(async function(event) {
   const body = await readBody(event);
