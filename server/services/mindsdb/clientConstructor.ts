@@ -47,7 +47,7 @@ class MindsDBClient {
   }
 
   async gpt (modelName: string, question = 'Hi', context = '') {
-    const result = await this.client.query(modelName, question, context)
+    const result = await this.client.select(modelName, question, context)
     if (typeof result?.answer === 'string') {
       result.answer = sanitizeAnswer(result.answer)
     }
@@ -126,7 +126,7 @@ class MindsDBSqlClient extends _Client {
     })
   }
 
-  async query (modelName: string, question = 'Hi', context = '') {
+  async select (modelName: string, question = 'Hi', context = '') {
     try {
       const model = this.models.get(modelName)
       if (!model) {
@@ -175,7 +175,7 @@ class MindsDBWebClient extends _Client {
     this.session = session
   }
 
-  async query (modelName: string, question = 'Hi', context = '') {
+  async select (modelName: string, question = 'Hi', context = '') {
     question = question.replaceAll('\'', '`')
     context = context.replaceAll('\'', '`')
     try {

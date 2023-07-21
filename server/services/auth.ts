@@ -12,7 +12,7 @@ interface EmailAddressVerifier {
   resend: () => Promise<boolean>;
 }
 
-const appName = 'EvoGPT'
+const appName = 'CH4'
 
 const verificationVerifierMap = new Map<string, EmailAddressVerifier>()
 
