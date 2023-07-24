@@ -1,8 +1,9 @@
-import MindsDbGPTChatbotEngine from './engines/MindsdbGPT'
+import type { MindsDbGPTChatbotEngine } from './engines/MindsdbGPT'
 import formatUserCurrentTime from './utils/formatUserCurrentTime'
 import search from '../webBrowsing/search'
 import crawl from '../webBrowsing/crawl'
 import type { WebCrawlerResult } from '../webBrowsing/crawl'
+import estimateTokens from './utils/estimateTokens'
 
 async function estimateQueriesAndUrls (engine: MindsDbGPTChatbotEngine, question: string, options: {timezone?: number } = {}) {
   const { timezone = 0 } = options
@@ -19,43 +20,52 @@ Think of yourself as an API, do not make other descriptions, just reply a JSON: 
   }
 }
 
-function calculateAlphanumericLength(text: string) {
-  const regex = /[\p{L}\p{N}]/gu
-  const matches = text.match(regex)
-  const length = matches ? matches.length : 0
-  return length
-}
-
-function chunkParagraphs (article: string, chunkMaxLength = 2000) {
+function chunkParagraphs (article: string, chunkMaxTokens = 2000) {
   const lines = article.split('\n')
-  let temp = 0
+  let cursorChunkLength = 0, cursorIndex = 0
   const chunks: string [] = []
-  for (const line of lines) {
-    if (temp + )
+  lines.forEach((line, index, array) => {
+    const lineTokens = estimateTokens(line)
+    cursorChunkLength += lineTokens
+    if (cursorChunkLength > chunkMaxTokens) {
+      chunks.push(array.slice(cursorIndex, cursorIndex = index).join('\n'))
+      cursorChunkLength = lineTokens
+    }
+  })
+  if (cursorChunkLength > 0) {
+    chunks.push(lines.slice(cursorIndex, lines.length).join('\n'))
   }
+  return chunks
 }
 
-async function summaryPage (engine: MindsDbGPTChatbotEngine, question: string, result: WebCrawlerResult, options: {timezone?: number } = {}) {
-  const { timezone = 0 } = options
-  const prompt = `User curent time: ${formatUserCurrentTime(timezone)}
+async function summaryArticle (engine: MindsDbGPTChatbotEngine, question: string, article: string, options: {timezone?: number, maxTries?: number } = {}): Promise<string> {
+  const { timezone = 0, maxTries = 8 } = options
+  const chunks = chunkParagraphs(article, 2500)
+  const summary = (await Promise.all(chunks.map(async (chunk) => {
+    const prompt = `User curent time: ${formatUserCurrentTime(timezone)}
 Your user need to know: ${question}
 There is no need to answer the question, you just need to summarize useful information from the following content to the question.
 Ensure overall coherence and consistency of the responses, and provide clear conclusions.
 Content is sourced from webpages, and only summarize the articles, disregarding potential navigation bars, advertisements, and other non-relevant information.
 Use the language of the webpage for summarization.
 Here is the webpage:
-${result.markdown}`
-  engine.ask(prompt, { modelName: 'gpt3_t00_3072' })
+${chunk}`
+    return await engine.ask(prompt, { modelName: 'gpt3_t00_3072' })
+  }))).join('\n')
+  if (estimateTokens(summary) > 6000) {
+    return await summaryArticle(engine, question, summary, options)
+  }
+  return summary
 }
 
 class GptWeb2Chatbot {
   engine: MindsDbGPTChatbotEngine
-  constructor (options: { email: string, password: string }) {
-    this.engine = new MindsDbGPTChatbotEngine(options)
+  constructor (engine: MindsDbGPTChatbotEngine) {
+    this.engine = engine
   }
   async ask (question: string, options: { timezone?: number } = {}) {
     const { queries, urls } = await estimateQueriesAndUrls(this.engine, question, options)
     const queriesSummary = (await search(...queries)).summary()
-    const pages1 = urls.map(async (url) => summaryPage(this.engine, crawl(url)))
+    const pages1 = urls.map(async (url) => summaryArticle(this.engine, crawl(url)))
   }
 }

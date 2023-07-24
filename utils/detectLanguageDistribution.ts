@@ -1,15 +1,15 @@
-function detectLanguageDistribution(text: string): { [languageCode: string]: number } {
+function detectLanguageDistribution(text: string, sampleMinSize = 100, sampleProportion = 0.1): { [languageCode: string]: number } {
   // Step 1: Remove whitespace characters from the text
   const cleanedText = text.replace(/\s/g, '');
 
   // Step 2: Determine the number of characters to select based on the text length
   let sampleSize: number;
-  if (cleanedText.length < 1000) {
+  if (cleanedText.length < sampleMinSize) {
     sampleSize = cleanedText.length;
-  } else if (cleanedText.length < 10000) {
-    sampleSize = 1000;
+  } else if (cleanedText.length < sampleMinSize / sampleProportion) {
+    sampleSize = sampleMinSize;
   } else {
-    sampleSize = Math.floor(cleanedText.length * 0.1);
+    sampleSize = Math.floor(cleanedText.length * sampleProportion);
   }
 
   // Step 3: Randomly select the characters' indices
@@ -86,4 +86,4 @@ function detectLanguageDistribution(text: string): { [languageCode: string]: num
   return languageDistribution;
 }
 
-export default detectLanguageDistribution
+export default detectLanguageDistribution;

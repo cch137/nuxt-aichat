@@ -20,3 +20,4 @@ class BardChatbotEngine implements ChatbotEngine {
 }
 
 export default BardChatbotEngine
+export type { BardChatbotEngine }

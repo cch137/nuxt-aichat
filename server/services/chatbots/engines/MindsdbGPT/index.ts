@@ -21,3 +21,4 @@ class MindsDbGPTChatbotEngine implements ChatbotEngine {
 }
 
 export default MindsDbGPTChatbotEngine
+export type { MindsDbGPTChatbotEngine }
