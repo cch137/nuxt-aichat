@@ -1,11 +1,14 @@
-import crawler from '~/server/services/crawler'
+import crawler from '~/server/services/_crawler'
 import saveMessage from './utils/saveMessage'
-import mindsdb from '~/server/services/mindsdb'
 import { endsWithSuffix, addEndSuffix, removeEndSuffix } from './utils/endSuffix'
 import useDefaultTemplate from './templates/default'
 import extractUrls from '~/utils/extractURLs'
 import advancedAsk from './advanced'
 import client from './client'
+
+const getGptQuestionMaxLength = (modelName: string) => {
+  return modelName.startsWith('gpt3') ? 4096 : 8192
+}
 
 const _wrapSearchResult = (result: string) => {
   return result
@@ -65,7 +68,7 @@ async function ask (
       question = useDefaultTemplate(question, userTimeZone)
     }
     question = addEndSuffix(question)
-    question = question.substring(0, mindsdb.getGptQuestionMaxLength(modelName))
+    question = question.substring(0, getGptQuestionMaxLength(modelName))
     isComplete = endsWithSuffix(question)
     if (isComplete) {
       question = removeEndSuffix(question)

@@ -1,5 +1,5 @@
 import discordBot from '~/server/services/discord/index'
-import mindsdb from '~/server/services/mindsdb'
+import mindsdb from '~/server/services/mindsdbGPT'
 import { readBody } from 'h3'
 
 export default defineEventHandler(async function (event) {

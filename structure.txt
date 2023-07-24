@@ -1,6 +1,5 @@
 ├── assets
-│   ├── css
-│   └── svg
+│   └── css
 ├── components
 ├── composables
 ├── config
@@ -20,11 +19,14 @@
 │   │   ├── perspective
 │   │   └── token
 │   └── services
+│       ├── chatbots
+│       │   └── engines
+│       │       ├── Bard
+│       │       └── MindsdbGPT
+│       ├── discord
 │       ├── evo
 │       │   ├── templates
 │       │   └── utils
-│       ├── discord
-│       ├── mindsdb
 │       ├── mongoose
 │       │   └── models
 │       └── utils

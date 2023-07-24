@@ -263,6 +263,9 @@ export default function () {
           await useScrollToBottom(500)
         } finally {
           loading.close()
+          try {
+            await useScrollToBottom(500)
+          } finally {}
         }
       }
     }
@@ -300,6 +303,9 @@ export default function () {
     const messageText = _messageText.trim()
     if (_messageText === inputValue.value) {
       inputValue.value = ''
+      if (messageText === '') {
+        return false
+      }
     }
     const message = createMessage(messageText, '', false)
     messages.value.push(message)

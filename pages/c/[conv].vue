@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full">
+  <div class="w-full grid-pattern-bg" style="min-height: calc(100vh - 56px);">
     <ChatCore />
   </div>
 </template>

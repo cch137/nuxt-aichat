@@ -1,4 +1,4 @@
-import mindsdb from '~/server/services/mindsdb'
+import mindsdb from '~/server/services/mindsdbGPT'
 
 const chatModelNames = new Set([
   'gpt4',

@@ -1,4 +1,4 @@
-import crawler from '~/server/services/crawler'
+import crawler from '~/server/services/_crawler'
 import useParseUrlsAndQueries from './templates/parseUrlsAndQueries'
 import useSelectSites from './templates/selectSites'
 import useExtractPage from './templates/extractPage'

@@ -69,5 +69,8 @@
   "bugs": {
     "url": "https://github.com/cch137/evogpt/issues"
   },
-  "homepage": "https://github.com/cch137/evogpt#readme"
+  "homepage": "https://github.com/cch137/evogpt#readme",
+  "dependencies": {
+    "googlebard": "^1.0.7"
+  }
 }

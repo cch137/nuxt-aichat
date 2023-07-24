@@ -57,8 +57,8 @@ const scrape = async (url: string) => {
       title: title || url,
       url,
       response: (title ? `title: ${title}\n` : '') +
-      (description ? `description: ${description.substring(0, 256)}\n` : '') +
-      '---\n' + trimText(markdown)
+        (description ? `description: ${description.substring(0, 256)}\n` : '') +
+        '---\n' + trimText(markdown)
     }
   } catch (err) {
     let message = ''

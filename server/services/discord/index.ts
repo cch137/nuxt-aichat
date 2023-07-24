@@ -9,7 +9,7 @@ import {
   EVO_VERIFIED_ROLE_ID
 } from './ids'
 import evo from '~/server/services/evo'
-import mindsdb from '~/server/services/mindsdb'
+import mindsdb from '~/server/services/mindsdbGPT'
 import getContext from '~/server/services/evo/getContext'
 import deleteConversation from '~/server/services/evo/deleteConversation'
 
