@@ -1,7 +1,7 @@
 import MindsDBClient from './client'
 import type { ChatbotEngine } from '../types'
 
-class MindsDbGPTChatbotEngine implements ChatbotEngine {
+class MindsDbGPTChatbotCore implements ChatbotEngine {
   client: MindsDBClient
 
   constructor (options: { email: string, password: string }) {
@@ -9,7 +9,11 @@ class MindsDbGPTChatbotEngine implements ChatbotEngine {
     this.client = new MindsDBClient(email, password)
   }
 
-  init () {}
+  init (): Promise<true> {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(true), 1000)
+    })
+  }
 
   async ask (question: string, options: { modelName: string, context?: string}) {
     return await this.client.askGPT(options.modelName, question, options.context)
@@ -20,5 +24,5 @@ class MindsDbGPTChatbotEngine implements ChatbotEngine {
   }
 }
 
-export default MindsDbGPTChatbotEngine
-export type { MindsDbGPTChatbotEngine }
+export default MindsDbGPTChatbotCore
+export type { MindsDbGPTChatbotCore }

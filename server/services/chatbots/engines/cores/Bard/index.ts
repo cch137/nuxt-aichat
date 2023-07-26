@@ -2,16 +2,18 @@ import random from '~/utils/random'
 import { Bard } from 'googlebard'
 import type { ChatbotEngine } from '../types'
 
-class BardChatbotEngine implements ChatbotEngine {
+class BardChatbotCore implements ChatbotEngine {
   client: Bard
 
   constructor (options: { cookies: string }) {
     this.client = new Bard(options.cookies)
   }
 
-  init () {}
+  init (): Promise<true> {
+    return new Promise((resolve) => resolve(true))
+  }
 
-  ask (question: string, options: { conversationId: string }) {
+  ask (question: string, options: { conversationId?: string }) {
     const { conversationId = random.base64(64) } = options
     return this.client.ask(question, conversationId)
   }
@@ -19,5 +21,5 @@ class BardChatbotEngine implements ChatbotEngine {
   kill () {}
 }
 
-export default BardChatbotEngine
-export type { BardChatbotEngine }
+export default BardChatbotCore
+export type { BardChatbotCore }

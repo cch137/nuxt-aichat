@@ -54,7 +54,7 @@ class WebCrawlerResult {
 
   constructor (res: AxiosResponse) {
     try {
-      this.url = res.config.url || res.config.baseURL || ''
+      this.url = res?.config?.url || res?.config?.baseURL || ''
       this.contentType = str(res.headers['Content-Type'] || '')
       if (this.contentType.startsWith('image')) {
         throw 'Error: This is an image'
@@ -89,11 +89,16 @@ async function crawl (url: string) {
     'Origin': origin,
     'Accept-Language': 'en-US,en;q=0.9',
   }
-  return new WebCrawlerResult(await axios.get(url, {
-    headers,
-    timeout: 10000,
-    validateStatus: (_) => true
-  }))
+  try {
+    const request = await axios.get(url, {
+      headers,
+      timeout: 10000,
+      validateStatus: (_) => true
+    })
+    return new WebCrawlerResult(request)
+  } catch {
+    return new WebCrawlerResult({} as AxiosResponse)
+  }
 }
 
 export default crawl

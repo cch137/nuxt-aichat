@@ -114,6 +114,20 @@ class MindsDBSqlClient extends _Client {
   }
 }
 
+function wrapPromptTextParam (text: string) {
+  const hasSingleQuotes = text.includes("'")
+  const hasDoubleQuotes = text.includes('"')
+  if (hasSingleQuotes) {
+    if (hasDoubleQuotes) {
+      return `'${text.replaceAll('\'', '`')}'`
+    } else {
+      return `"${text}"`
+    }
+  } else {
+    return `'${text}'`
+  }
+}
+
 class MindsDBWebClient extends _Client {
   lastLoggedIn = Date.now()
   session: AxiosInstance
@@ -150,7 +164,7 @@ class MindsDBWebClient extends _Client {
     context = context.replaceAll('\'', '`')
     try {
       const res = await this.session.post('https://cloud.mindsdb.com/api/sql/query', {
-        query: `SELECT answer FROM mindsdb.${modelName}\r\nWHERE question = '${question}' AND context = '${context}'`,
+        query: `SELECT answer FROM mindsdb.${modelName}\r\nWHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`,
         context: { db: 'mindsdb' }
       })
       const data = res.data as { column_names: string[], data: string[][] }

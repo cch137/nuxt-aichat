@@ -7,17 +7,23 @@ interface SearcherResultItem {
 }
 
 const googleSearch = async (...queries: string[]) => {
-  const searchings = await Promise.all(queries.map((query) => googlethis.search(query)))
-  return searchings.map((searching) => {
-    return [...searching.results, ...searching.top_stories] as SearcherResultItem[]
-  }).flat()
+  return (await Promise.all(queries.map(async (query) => {
+    try {
+      const searching = await googlethis.search(query)
+      return [...searching.results, ...searching.top_stories] as SearcherResultItem[]
+    } catch {
+      return []
+    }
+  }))).flat()
 }
 
 class WebSearcherResult {
   items: SearcherResultItem[]
 
   constructor (items: SearcherResultItem[]) {
-    this.items = items
+    const pages = new Map<string, SearcherResultItem>()
+    items.forEach((value) => pages.set(value.url, value))
+    this.items = [...pages.values()]
   }
 
   summary (showUrl: boolean = true) {
@@ -32,3 +38,4 @@ async function search (...queries: string[]) {
 }
 
 export default search
+export type { WebSearcherResult }

@@ -1,6 +1,6 @@
 interface ChatbotEngine {
   client?: any
-  init (): void
+  init (): Promise<true>
   ask (question: string, options: Record<string, any>): Promise<{
     answer: string,
     error?: string,
