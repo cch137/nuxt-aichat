@@ -8,16 +8,6 @@ import {
   EVO_LOG_CHANNEL_ID,
   EVO_VERIFIED_ROLE_ID
 } from './ids'
-import evo from '~/server/services/evo'
-import mindsdb from '~/server/services/mindsdbGPT'
-import getContext from '~/server/services/evo/getContext'
-import deleteConversation from '~/server/services/evo/deleteConversation'
-
-// const dcBotMdbClient = mindsdb.createClient(
-//   process.env.DC_BOT_MDB_EMAIL_ADDRESS as string,
-//   process.env.DC_BOT_MDB_PASSWORD as string,
-//   ['gpt4_dc_bot']
-// )
 
 const useAdminTemplate = (text: string) => {
   return `
@@ -180,57 +170,57 @@ const connect = async () => {
   client.on('guildMemberRemove', () => {
     store.updateMemberCount()
   })
-  client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isChatInputCommand()) return
-    const user = `dc@${interaction.member?.user.id}`
-    const conv = interaction.channelId
-    switch (interaction.commandName) {
-      case 'chat':
-        const reply = await interaction.reply('Thinking...')
-        const interval = setInterval(() => {
-          interaction.channel?.sendTyping()
-        }, 3000)
-        try {
-          const question = (interaction.options.get('prompt')?.value || 'Hi') as string
-          const webBrowsing = interaction.options.get('web-browsing')?.value || 'OFF'
-          const temperature = interaction.options.get('temperature')?.value || '_t05'
-          const context = await getContext(user, conv)
-          const answer = DEPRECATED_MESSAGE
-          // const answer = (await evo.ask(
-          //   user,
-          //   conv,
-          //   `gpt4${temperature}`,
-          //   webBrowsing as 'OFF' | 'BASIC' | 'ADVANCED',
-          //   question,
-          //   context,
-          //   0
-          // // @ts-ignore
-          // ))?.answer as string || 'Oops! Something went wrong.'
-          clearInterval(interval)
-          const embed = new EmbedBuilder()
-          embed.addFields(
-            { name: 'Reply to:', value: `<@${interaction.member?.user.id}>` },
-            { name: 'Prompt:', value: question },
-          )
-          reply.edit({ content: answer, embeds: [embed] })
-        } catch (err) {
-          clearInterval(interval)
-          console.error(err)
-          await reply.edit('Oops! Something went wrong.')
-        }
-        break
-      case 'forget':
-        const response = interaction.reply('Deleting conversation...')
-        deleteConversation(user, conv)
-          .then(async () => {
-            (await response).edit('The conversation has been reset.')
-          })
-          .catch(async () => {
-            (await response).edit('Oops! Something went wrong.')
-          })
-        break
-    }
-  })
+  // client.on('interactionCreate', async (interaction) => {
+  //   if (!interaction.isChatInputCommand()) return
+  //   const user = `dc@${interaction.member?.user.id}`
+  //   const conv = interaction.channelId
+  //   switch (interaction.commandName) {
+  //     case 'chat':
+  //       const reply = await interaction.reply('Thinking...')
+  //       const interval = setInterval(() => {
+  //         interaction.channel?.sendTyping()
+  //       }, 3000)
+  //       try {
+  //         const question = (interaction.options.get('prompt')?.value || 'Hi') as string
+  //         const webBrowsing = interaction.options.get('web-browsing')?.value || 'OFF'
+  //         const temperature = interaction.options.get('temperature')?.value || '_t05'
+  //         const context = await getContext(user, conv)
+  //         const answer = DEPRECATED_MESSAGE
+  //         // const answer = (await evo.ask(
+  //         //   user,
+  //         //   conv,
+  //         //   `gpt4${temperature}`,
+  //         //   webBrowsing as 'OFF' | 'BASIC' | 'ADVANCED',
+  //         //   question,
+  //         //   context,
+  //         //   0
+  //         // // @ts-ignore
+  //         // ))?.answer as string || 'Oops! Something went wrong.'
+  //         clearInterval(interval)
+  //         const embed = new EmbedBuilder()
+  //         embed.addFields(
+  //           { name: 'Reply to:', value: `<@${interaction.member?.user.id}>` },
+  //           { name: 'Prompt:', value: question },
+  //         )
+  //         reply.edit({ content: answer, embeds: [embed] })
+  //       } catch (err) {
+  //         clearInterval(interval)
+  //         console.error(err)
+  //         await reply.edit('Oops! Something went wrong.')
+  //       }
+  //       break
+  //     case 'forget':
+  //       const response = interaction.reply('Deleting conversation...')
+  //       deleteConversation(user, conv)
+  //         .then(async () => {
+  //           (await response).edit('The conversation has been reset.')
+  //         })
+  //         .catch(async () => {
+  //           (await response).edit('Oops! Something went wrong.')
+  //         })
+  //       break
+  //   }
+  // })
   console.log(`DC BOT conneted.`)
   return loggedIn
 }

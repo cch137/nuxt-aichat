@@ -1,14 +1,15 @@
 import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
 import {
-  webBrowsing as webBrowsingCookieName,
   temperatureSuffix as temperatureSuffixCookieName,
+  temperature as temperatureCookieName,
+  webBrowsing as webBrowsingCookieName
 } from '~/config/cookieNames'
 import baseConverter from '~/utils/baseConverter'
 import random from '~/utils/random'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
-import type { ArchivedChatMessage } from '~/server/services/evo/getHistory'
+import type { ArchivedChatMessage } from '~/server/services/chatbots/curva/types'
 
 const model = ref('gpt4')
 
@@ -35,11 +36,6 @@ const getContext = () => {
   return `Conversation History\n===\n${joinedContexts}`
 }
 
-const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC', 'ADVANCED']
-// const allowedWebBrowsingModes: any[] = ['OFF', 'BASIC']
-const DEFAULT_WEB_BROWSING_MODE = 'OFF'
-const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
-
 // @ts-ignore
 interface DisplayChatMessage extends ArchivedChatMessage {
   done: boolean;
@@ -60,7 +56,7 @@ const focusInput = () => {
 
 const checkTokenAndGetConversations = () => {
   return new Promise((resolve, reject) => {
-    $fetch('/api/chat/check', { method: 'POST' })
+    $fetch('/api/curva/check', { method: 'POST' })
       .then((_conversations) => {
         const { list, named } = _conversations
         conversations.value = list.sort().map((id) => ({ id, name: named[id] as string | undefined }))
@@ -78,7 +74,7 @@ const _fetchHistory = (conv: string | null) => {
     if (conv === null || conv === undefined) {
       return resolve([])
     }
-    const archived = await $fetch('/api/chat/history', {
+    const archived = await $fetch('/api/curva/history', {
       method: 'POST',
       body: { id: conv }
     }) as ArchivedChatMessage[]
@@ -100,7 +96,7 @@ const _fetchHistory = (conv: string | null) => {
 
 const _fetchSuggestions = async function (question: string) {
   // @ts-ignore
-  return (await $fetch('/api/chat/suggestions', { method: 'POST', body: { question } })) as string[]
+  return (await $fetch('/api/curva/suggestions', { method: 'POST', body: { question } })) as string[]
 }
 
 const _loadSuggestions = async () => {
@@ -117,8 +113,7 @@ const _loadSuggestions = async () => {
   }
 }
 
-const DEFAULT_TEMPERATURE = '_t05'
-const temperatureSuffix = ref<'_t00'|'_t01'|'_t02'|'_t03'|'_t04'|'_t05'|'_t06'|'_t07'|'_t08'|'_t09'|'_t10'>(DEFAULT_TEMPERATURE)
+const temperature = ref<number>(0.5)
 
 const contextMode = ref(true)
 
@@ -130,8 +125,6 @@ const inputValue = ref('')
 
 const createRequest = (() => {
   const { h: createHash } = troll
-  const getModel = () => `${model.value}${temperatureSuffix.value}`
-  const getWebBrowsing = () => webBrowsingMode.value as string
   const getHashType = () => [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
 
   const createHeaders = (message: string, context: string, t: number) => ({
@@ -139,23 +132,25 @@ const createRequest = (() => {
     timestamp: str(t)
   })
 
-  const createBody = (message: string, model: string, web: string, t: number, tz: number, regenerateId?: string) => {
+  const createBody = (message: string, model: string, temperature: number, t: number, tz: number, regenerateId?: string) => {
     let conv = useNuxtApp()._route?.params?.conv as string
     if (!conv) {
       conv = random.base64(8)
       conversations.value.push({ id: conv, name: undefined })
       navigateTo(`/c/${conv}?feature=new`)
+    } else if (useNuxtApp()._route.query.feature === 'new') {
+      navigateTo(`/c/${conv}`)
     }
-    return { conv, context: getContext(), prompt: message, model, web, t, tz, id: regenerateId }
+    return { conv, context: getContext(), prompt: message, model, temperature, t, tz, id: regenerateId }
   }
 
   return (message: string, regenerateId?: string) => {
     const date = new Date()
     const t = date.getTime()
     const tz = (date.getTimezoneOffset() / 60) * -1
-    const body = createBody(message, getModel(), getWebBrowsing(), t, tz, regenerateId)
+    const body = createBody(message, model.value, temperature.value, t, tz, regenerateId)
     const headers = createHeaders(message, body.context, t)
-    return $fetch('/api/chat/answer', { method: 'POST', headers, body })
+    return $fetch('/api/curva/answer', { method: 'POST', headers, body })
   }
 })()
 
@@ -185,24 +180,17 @@ let first = true
 export default function () {
   const appName = useState('appName').value
   const cookie = useUniCookie()
-  const previousWebBrowsingMode = cookie.get(webBrowsingCookieName)
-  if (allowedWebBrowsingModes.includes(previousWebBrowsingMode)) {
-    webBrowsingMode.value = previousWebBrowsingMode as string
+  const previousTemperature = +(cookie.has(temperatureCookieName) ? cookie.get(temperatureCookieName) as string : 0.5)
+  cookie.delete(webBrowsingCookieName, { path: '/' })
+  cookie.delete(webBrowsingCookieName)
+  cookie.delete(temperatureSuffixCookieName, { path: '/' })
+  cookie.delete(temperatureSuffixCookieName)
+  if (previousTemperature >= 0 && previousTemperature <= 1) {
+    temperature.value = previousTemperature
   }
-  const previousTemperatureSuffix = cookie.get(temperatureSuffixCookieName) || ''
-  if (/_t(?:0[0-9]|10)/.test(previousTemperatureSuffix)) {
-    // @ts-ignore
-    temperatureSuffix.value = previousTemperatureSuffix
-  }
-  watch(webBrowsingMode, (newValue) => {
-    if (typeof newValue === 'string') {
-      cookie.set(webBrowsingCookieName, newValue, {
-        path: '/'
-      })
-    }
-  })
-  watch(temperatureSuffix, (newValue) => {
-    cookie.set(temperatureSuffixCookieName, newValue, {
+  watch(temperature, (newValue) => {
+    temperature.value = Math.round(newValue * 10) / 10
+    cookie.set(temperatureCookieName, `${newValue}`, {
       path: '/'
     })
   })
@@ -273,7 +261,6 @@ export default function () {
   }
   const loadChat = async (conv: string | null, isNew = false) => {
     const promise = Promise.all([...chatLoadings])
-    console.log(first, isNew)
     const chat = first && isNew
       ? new Promise((resolve) => resolve(navigateTo('/c/')))
       : isNew
@@ -322,13 +309,7 @@ export default function () {
         const urls = (res as any).urls as string[]
         const queries = (res as any).queries as string[]
         const dt = (res as any).dt as number
-        const isQuestionComplete = 'complete' in (res as any)
-          ? (res as any).complete
-          : true
         const _version = (res as any).version as string
-        if (!isQuestionComplete) {
-          ElMessage.warning(_t('error.qTooLong'))
-        }
         // @ts-ignore
         if (!answer) {
           throw _t('error.plzRefresh')
@@ -387,7 +368,7 @@ export default function () {
   }
   const deleteMessage = (base64MessageId: string) => {
     messages.value = messages.value.filter((msg) => msg.id !== base64MessageId)
-    $fetch('/api/chat/answer', {
+    $fetch('/api/curva/answer', {
       method: 'DELETE',
       body: {
         conv: getCurrentConvId(),
@@ -412,7 +393,7 @@ export default function () {
       inputPlaceholder: baseConverter.convert(id, '64w', 10)
     })
       .then(({ value: name }) => {
-        $fetch('/api/chat/conv', { method: 'PUT', body: { id, name } })
+        $fetch('/api/curva/conv', { method: 'PUT', body: { id, name } })
           .then(async () => {
             ElMessage({
               type: 'success',
@@ -461,7 +442,7 @@ export default function () {
       })
       .then(() => {
         const loading = ElLoading.service()
-        $fetch('/api/chat/conv', {
+        $fetch('/api/curva/conv', {
           method: 'DELETE',
           body: { id }
         })
@@ -514,8 +495,7 @@ export default function () {
     model,
     conversations,
     messages,
-    webBrowsingMode,
-    temperatureSuffix,
+    temperature,
     contextMode,
     openMenu,
     openSidebar,

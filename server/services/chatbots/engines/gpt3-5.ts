@@ -3,9 +3,9 @@ import formatUserCurrentTime from './utils/formatUserCurrentTime'
 import estimateTokens from "./utils/estimateTokens"
 
 class Gpt3Chatbot {
-  engine: MindsDbGPTChatbotCore
-  constructor (engine: MindsDbGPTChatbotCore) {
-    this.engine = engine
+  core: MindsDbGPTChatbotCore
+  constructor (core: MindsDbGPTChatbotCore) {
+    this.core= core
   }
   async ask (question: string, options: { timezone?: number, temperature?: number, context?: string } = {}) {
     const { timezone = 0, temperature = 0.5 } = options
@@ -26,7 +26,7 @@ class Gpt3Chatbot {
       }
     })()
     const modelName = `gpt3${temperatureSuffix}${tokensSuffix}`
-    return await this.engine.ask(question, { ...options, modelName })
+    return await this.core.ask(question, { ...options, modelName })
   }
 }
 

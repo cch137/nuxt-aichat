@@ -7,6 +7,7 @@ interface ChatbotEngine {
     queries?: string[],
     urls?: string[]
   }>
+  setup (): any
   kill (): void
 }
 

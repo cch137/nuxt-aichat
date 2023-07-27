@@ -19,12 +19,20 @@
 const { model } = useChat()
 const options = [
   {
+    label: 'GPT-3.5',
+    value: 'gpt3'
+  },
+  {
     label: 'GPT-4',
     value: 'gpt4'
   },
   {
-    label: 'dev-mode',
-    value: 'gpt3'
-  }
+    label: 'GPT-Web',
+    value: 'gpt-web-1'
+  },
+  {
+    label: 'GPT-Web+',
+    value: 'gpt-web-2'
+  },
 ]
 </script>

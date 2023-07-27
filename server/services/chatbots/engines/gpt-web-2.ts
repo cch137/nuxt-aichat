@@ -87,20 +87,20 @@ ${result.summary(true)}`
 }
 
 class GptWeb2Chatbot {
-  engine: MindsDbGPTChatbotCore
-  constructor (engine: MindsDbGPTChatbotCore) {
-    this.engine = engine
+  core: MindsDbGPTChatbotCore
+  constructor (core: MindsDbGPTChatbotCore) {
+    this.core= core
   }
   async ask (question: string, options: { timezone?: number, time?: string } = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
-    let { queries = [], urls = [] } = await estimateQueriesAndUrls(this.engine, question, options)
+    let { queries = [], urls = [] } = await estimateQueriesAndUrls(this.core, question, options)
     const crawledPages1 = Promise.all(urls.map((url) => crawl(url)))
     const searcherResult = await search(...queries)
-    const selectedPages = await selectPages(this.engine, question, searcherResult)
+    const selectedPages = await selectPages(this.core, question, searcherResult)
     urls.push(...selectedPages.map((page) => page.url))
     const crawledPages2 = Promise.all(selectedPages.map((page) => crawl(page.url)))
     const queriesSummary = searcherResult.summary()
-    const summary = await summaryArticle(this.engine, question, [
+    const summary = await summaryArticle(this.core, question, [
       queriesSummary,
       ...(await crawledPages1).map((page) => page.markdown),
       ...(await crawledPages2).map((page) => page.markdown)
@@ -114,10 +114,12 @@ Question: ${question}
 
 References:
 ${summary}`
+    const result = await this.core.ask(prompt, { modelName: 'gpt4_t00_6k' })
     return {
       queries,
       urls,
-      ...this.engine.ask(prompt, { modelName: 'gpt4_t00_6k' }),
+      answer: result.answer,
+      error: result.error
     }
   }
 }

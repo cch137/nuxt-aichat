@@ -7,9 +7,9 @@ import extractUrls from '~/utils/extractURLs'
 import { summaryArticle } from './gpt-web-2'
 
 class GptWeb1Chatbot {
-  engine: MindsDbGPTChatbotCore
-  constructor (engine: MindsDbGPTChatbotCore) {
-    this.engine = engine
+  core: MindsDbGPTChatbotCore
+  constructor (core: MindsDbGPTChatbotCore) {
+    this.core= core
   }
   async ask (question: string, options: { timezone?: number, time?: string } = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
@@ -28,11 +28,13 @@ User current time: ${options.time}
 Question: ${question}
 
 References:
-${estimateTokens(references) > 5700 ? await summaryArticle(this.engine, question, references) : references}`
+${estimateTokens(references) > 5700 ? await summaryArticle(this.core, question, references) : references}`
+    const result = await this.core.ask(prompt, { modelName: 'gpt4_t00_6k' })
     return {
       queries,
       urls,
-      ...this.engine.ask(prompt, { modelName: 'gpt4_t00_6k' }),
+      answer: result.answer,
+      error: result.error
     }
   }
 }

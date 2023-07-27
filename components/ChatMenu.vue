@@ -11,50 +11,20 @@
       </div>
       <div class="flex flex-col pr-1 gap-1">
         <div class="flex gap-1">
+          <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>
+          <div class="flex-1">
+            <LanguageSelect />
+          </div>
+        </div>
+        <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
           <ModelSelect class="flex-1" />
         </div>
         <div class="flex gap-1">
-          <el-text class="flex flex-1 items-center">
-            <span class="mr-2">{{ $t('settings.webBrowsing') }}</span>
-            <ClientOnly>
-              <el-popover
-                placement="bottom"
-                :width="240"
-                trigger="click"
-              >
-                <template #reference>
-                  <el-icon color="#409EFF" class="cursor-pointer" size="large">
-                    <InfoFilled />
-                  </el-icon>
-                </template>
-                <template #default>
-                  <div>
-                    <div class="info">
-                      <el-text class="info">
-                        <strong>{{ $t('menu.webInfo1') }}</strong>
-                        <span>{{ $t('menu.webInfo2') }}</span>
-                      </el-text>
-                      <el-text type="warning" class="info">{{ $t('menu.expFeat1') }}</el-text>
-                    </div>
-                    <el-divider style="margin: .25rem 0;" />
-                    <div class="info">
-                      <el-text class="info">
-                        <strong>{{ $t('menu.webInfo3') }}</strong>
-                        <span>{{ $t('menu.webInfo4') }}</span>
-                      </el-text>
-                      <el-text type="error" class="info">{{ $t('menu.expFeat2') }}</el-text>
-                    </div>
-                  </div>
-                </template>
-              </el-popover>
-            </ClientOnly>
-          </el-text>
-          <div class="flex-1">
-            <WebBrowsingSelect />
-          </div>
+          <el-text class="flex-1">{{ $t('settings.context') }}</el-text>
+          <ContextSelect class="flex-1" />
         </div>
-        <div class="flex gap-1">
+        <div v-if="['gpt4', 'gpt3'].includes(model)" class="flex gap-1">
           <el-text class="flex flex-1 items-center">
             <span class="mr-2">Temperature</span>
             <ClientOnly>
@@ -78,16 +48,6 @@
           </el-text>
           <div class="flex-1" style="width: calc(50% - 0.25rem)">
             <TemperatureSelect class="w-full" />
-          </div>
-        </div>
-        <div class="flex gap-1">
-          <el-text class="flex-1">{{ $t('settings.context') }}</el-text>
-          <ContextSelect class="flex-1" />
-        </div>
-        <div class="flex gap-1">
-          <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>
-          <div class="flex-1">
-            <LanguageSelect />
           </div>
         </div>
         <div v-if="getCurrentConvId()" class="flex gap-1">
@@ -179,7 +139,7 @@ import { InfoFilled, Plus, ChatSquare, More, EditPen, Delete } from '@element-pl
 import baseConverter from '~/utils/baseConverter'
 
 const version = useState('version', () => '')
-const { conversations, getCurrentConvId, focusInput, renameConversation, deleteConversation } = useChat()
+const { conversations, model, getCurrentConvId, focusInput, renameConversation, deleteConversation } = useChat()
 
 const {
   data: versionData,

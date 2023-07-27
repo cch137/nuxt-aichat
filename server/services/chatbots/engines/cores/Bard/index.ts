@@ -1,6 +1,7 @@
 import random from '~/utils/random'
 import { Bard } from 'googlebard'
 import type { ChatbotEngine } from '../types'
+import str from '~/utils/str'
 
 class BardChatbotCore implements ChatbotEngine {
   client: Bard
@@ -13,10 +14,16 @@ class BardChatbotCore implements ChatbotEngine {
     return new Promise((resolve) => resolve(true))
   }
 
-  ask (question: string, options: { conversationId?: string }) {
-    const { conversationId = random.base64(64) } = options
-    return this.client.ask(question, conversationId)
+  async ask (question: string, options: { conversationId?: string }) {
+    try {
+      const { conversationId = random.base64(64) } = options
+      return { answer: await this.client.ask(question, conversationId) }
+    } catch (err) {
+      return { answer: '', error: str(err) }
+    }
   }
+
+  setup () {}
 
   kill () {}
 }

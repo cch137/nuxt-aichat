@@ -1,19 +1,15 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
 import { read as tokenReader } from '~/server/services/token'
-import getHistory from '~/server/services/evo/getHistory'
+import { Conversation } from '~/server/services/chatbots/curva'
 
 export default defineEventHandler(async (event) => {
-  const conv = (await readBody(event))?.id as string
+  const conv = (await readBody(event))?.id as string | undefined
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   const user = token?.user
-  if (!user) {
+  if (!user || !conv) {
     return { error: 1 }
   }
-  try {
-    return await getHistory(user, conv)
-  } catch {
-    return { error: 2 }
-  }
+  return await new Conversation(user, conv).delete()
 })

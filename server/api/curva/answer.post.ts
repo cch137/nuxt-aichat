@@ -3,8 +3,8 @@ import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
-import evo from '~/server/services/evo/index'
-import getIp from '~/server/services/getIp'
+import curva from '~/server/services/chatbots/curva'
+// import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
 import troll from '~/utils/troll'
 import baseConverter from '~/utils/baseConverter'
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 }
   }
-  const { conv, prompt, context = '', model, web, t, tz = 0, id } = body
+  const { conv, prompt, context = '', model, temperature, t, tz = 0, id } = body
   const _id = id ? baseConverter.convert(id, '64w', 16) : id
   // @ts-ignore
   if (!conv || typeof prompt !== 'string' || !model || !t) {
@@ -31,13 +31,13 @@ export default defineEventHandler(async (event) => {
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   const user = token?.user
-  const ip = getIp(event.node.req)
+  // const ip = getIp(event.node.req)
   // Validate token
   if (token === null || typeof user !== 'string') {
     return { error: 4 }
   }
   try {
-    const response = await evo.ask(user, conv, model, web, prompt, context, tz, _id)
+    const response = await curva.ask(user, conv, model, temperature, prompt, context, tz, _id)
     if (typeof response.id === 'string') {
       response.id = baseConverter.convert(response.id, 16, '64w')
     }

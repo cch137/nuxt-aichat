@@ -51,9 +51,7 @@ class Conversation {
       urls: doc.urls,
       dt: doc.dt,
     })) as ArchivedChatMessage[]
-    return {
-      history
-    }
+    return history
   }
 
   async getContext () {

@@ -14,6 +14,7 @@ class MindsDBClient {
     password: string,
     connectMethod?: 'SQL' | 'WEB'
   ) {
+    console.log('CREATE MindsDB Client:', email)
     this.email = email
     this.password = password
     this.connectMethod = connectMethod
@@ -33,6 +34,10 @@ class MindsDBClient {
 
   async askGPT (modelName: string, question: string, context?: string) {
     return await this.client.askGPT(modelName, question, context) as { answer: string, error?: string }
+  }
+
+  async queryWithWeb (command: string) {
+    return await this.webClient.query(command)
   }
 
   restart () {
@@ -81,7 +86,7 @@ class MindsDBSqlClient extends _Client {
     return this.sequelize = sequelize
   }
 
-  async _getModel (modelName: string): Promise<typeof Model> {
+  _getModel (modelName: string): typeof Model {
     class _Model extends Model { public answer!: string }
     _Model.init(
       { answer: { type: DataTypes.STRING, allowNull: false } },
@@ -101,11 +106,14 @@ class MindsDBSqlClient extends _Client {
           context: context.replaceAll('\'', '`')
         }
       })
+      // @ts-ignore
       if (result?.answer) {
+        // @ts-ignore
         return { answer: result.answer }
       }
       return { answer: '', error: 'MindsDB did not return a valid response.' }
     } catch (err) {
+      console.log(err)
       return { answer: '', error: (err as any)?.original?.sqlMessage as string }
     }
   }
@@ -167,10 +175,19 @@ class MindsDBWebClient extends _Client {
       const data = res.data as { column_names: string[], data: string[][] }
       const answerIndex = data.column_names.indexOf('answer')
       return { answer: data.data[0][answerIndex] }
-    } catch {
+    } catch (err) {
+      console.log(err)
       return { answer: '', error: 'MindsDB did not return a valid response.' }
     }
   }
+
+  async query (command: string) {
+    const res = await this.session.post('https://cloud.mindsdb.com/api/sql/query', {
+      query: command,
+      context: { db: 'mindsdb' }
+    })
+    return res.data
+  } 
 }
 
 export default MindsDBClient

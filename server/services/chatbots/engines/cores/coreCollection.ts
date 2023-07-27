@@ -1,10 +1,9 @@
-import type { ChatbotEngine } from './types'
 import troll from '~/utils/troll'
 import BardChatbotCore from './Bard'
 import MindsDbGPTChatbotCore from './MindsdbGPT'
 
 const coreCollection = {
-  record: new Map<string, ChatbotEngine>(),
+  record: new Map<string, (BardChatbotCore | MindsDbGPTChatbotCore)>(),
   async get (token: string, engineName: 'Bard' | 'MindsDB') {
     const EngineConstructor = engineName === 'Bard' ? BardChatbotCore : MindsDbGPTChatbotCore
     return this.record.get(token) || await (async () => {

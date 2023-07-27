@@ -1,12 +1,12 @@
 import type { BardChatbotCore } from './cores/Bard'
 
 class BardChatbot {
-  engine: BardChatbotCore
-  constructor (engine: BardChatbotCore) {
-    this.engine = engine
+  core: BardChatbotCore
+  constructor (core: BardChatbotCore) {
+    this.core = core
   }
   async ask (question: string, options: { conversationId?: string } = {}) {
-    return await this.engine.ask(question, options)
+    return await this.core.ask(question, options)
   }  
 }
 

@@ -1,5 +1,4 @@
 import discordBot from '~/server/services/discord/index'
-import mindsdb from '~/server/services/mindsdbGPT'
 import { readBody } from 'h3'
 
 export default defineEventHandler(async function (event) {
@@ -17,24 +16,13 @@ export default defineEventHandler(async function (event) {
     case 'DC1':
       await discordBot.connect()
       break
-    case 'WEBCONN':
-      mindsdb.defaultConnectMethod = 'WEB'
-      break
-    case 'SQLCONN':
-      mindsdb.defaultConnectMethod = 'SQL'
-      break
-    case 'RESTART':
-      await mindsdb.restart()
-      break
   }
   return await new Promise<{
-    mdbConnectMethod: 'WEB' | 'SQL',
     dcBotConnected: boolean,
     pass: boolean,
   }>((resolve) => {
     setTimeout(() => {
       resolve({
-        mdbConnectMethod: mindsdb.defaultConnectMethod,
         dcBotConnected: discordBot.connected,
         pass: true
       })
