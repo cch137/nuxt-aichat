@@ -10,8 +10,16 @@ import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
 
+var __defProp$9 = Object.defineProperty;
+var __defNormalProp$9 = (obj, key, value) => key in obj ? __defProp$9(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$9 = (obj, key, value) => {
+  __defNormalProp$9(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class Conversation {
   constructor(user, conv) {
+    __publicField$9(this, "conv");
+    __publicField$9(this, "user");
     this.user = user;
     this.conv = conv;
   }
@@ -121,8 +129,15 @@ ${joinedMessages}`;
 }
 const Conversation$1 = Conversation;
 
+var __defProp$8 = Object.defineProperty;
+var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$8 = (obj, key, value) => {
+  __defNormalProp$8(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class BardChatbotCore {
   constructor(options) {
+    __publicField$8(this, "client");
     this.client = new Bard(options.cookies);
   }
   init() {
@@ -143,8 +158,19 @@ class BardChatbotCore {
 }
 const BardChatbotCore$1 = BardChatbotCore;
 
+var __defProp$7 = Object.defineProperty;
+var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$7 = (obj, key, value) => {
+  __defNormalProp$7(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class MindsDBClient {
   constructor(email, password, connectMethod) {
+    __publicField$7(this, "email");
+    __publicField$7(this, "password");
+    __publicField$7(this, "sqlClient");
+    __publicField$7(this, "webClient");
+    __publicField$7(this, "connectMethod");
     console.log("CREATE MindsDB Client:", email);
     this.email = email;
     this.password = password;
@@ -176,19 +202,21 @@ class MindsDBClient {
   }
 }
 class _Client {
+  constructor(parent) {
+    __publicField$7(this, "parent");
+    this.parent = parent;
+  }
   get email() {
     return this.parent.email;
   }
   get password() {
     return this.parent.password;
   }
-  constructor(parent) {
-    this.parent = parent;
-  }
 }
 class MindsDBSqlClient extends _Client {
   constructor(parent) {
     super(parent);
+    __publicField$7(this, "sequelize");
     this.sequelize = this.login();
   }
   login() {
@@ -211,6 +239,10 @@ class MindsDBSqlClient extends _Client {
   }
   _getModel(modelName) {
     class _Model extends Model {
+      constructor() {
+        super(...arguments);
+        __publicField$7(this, "answer");
+      }
     }
     _Model.init(
       { answer: { type: DataTypes.STRING, allowNull: false } },
@@ -255,7 +287,8 @@ function wrapPromptTextParam(text) {
 class MindsDBWebClient extends _Client {
   constructor(parent) {
     super(parent);
-    this.lastLoggedIn = Date.now();
+    __publicField$7(this, "lastLoggedIn", Date.now());
+    __publicField$7(this, "session");
     this.session = this.login();
   }
   login() {
@@ -346,8 +379,15 @@ async function sleep(timeoutMs = 0) {
   });
 }
 
+var __defProp$6 = Object.defineProperty;
+var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$6 = (obj, key, value) => {
+  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class MindsDbGPTChatbotCore {
   constructor(options) {
+    __publicField$6(this, "client");
     const { email, password } = options;
     this.client = new MindsDBClient$1(email, password);
   }
@@ -403,8 +443,15 @@ const coreCollection = {
 };
 const coreCollection$1 = coreCollection;
 
+var __defProp$5 = Object.defineProperty;
+var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$5 = (obj, key, value) => {
+  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class BardChatbot {
   constructor(core) {
+    __publicField$5(this, "core");
     this.core = core;
   }
   async ask(question, options = {}) {
@@ -585,8 +632,15 @@ function estimateTokens(text) {
   return tokens;
 }
 
+var __defProp$4 = Object.defineProperty;
+var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$4 = (obj, key, value) => {
+  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class Gpt3Chatbot {
   constructor(core) {
+    __publicField$4(this, "core");
     this.core = core;
   }
   async ask(question, options = {}) {
@@ -614,8 +668,15 @@ Question: ${question}`;
 }
 const Gpt3Chatbot$1 = Gpt3Chatbot;
 
+var __defProp$3 = Object.defineProperty;
+var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$3 = (obj, key, value) => {
+  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class Gpt4Chatbot {
   constructor(core) {
+    __publicField$3(this, "core");
     this.core = core;
   }
   async ask(question, options = {}) {
@@ -651,6 +712,12 @@ Question: ${question}`;
 }
 const Gpt4Chatbot$1 = Gpt4Chatbot;
 
+var __defProp$2 = Object.defineProperty;
+var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$2 = (obj, key, value) => {
+  __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 const googleSearch = async (...queries) => {
   return (await Promise.all(queries.map(async (query) => {
     try {
@@ -663,6 +730,7 @@ const googleSearch = async (...queries) => {
 };
 class WebSearcherResult {
   constructor(items) {
+    __publicField$2(this, "items");
     const pages = /* @__PURE__ */ new Map();
     items.forEach((value) => pages.set(value.url, value));
     this.items = [...pages.values()];
@@ -679,6 +747,12 @@ async function search(...queries) {
   return new WebSearcherResult(await googleSearch(...queries));
 }
 
+var __defProp$1 = Object.defineProperty;
+var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$1 = (obj, key, value) => {
+  __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 function trimText(text) {
   return text.split("\n").map((ln) => ln.replace(/[\s]+/g, " ").trim()).filter((ln) => ln).join("\n");
 }
@@ -709,12 +783,12 @@ function parseHtml(html) {
 }
 class WebCrawlerResult {
   constructor(res) {
-    this.url = "";
-    this.title = "";
-    this.description = "";
-    this.contentType = "";
-    this.links = [];
-    this.markdown = "";
+    __publicField$1(this, "url", "");
+    __publicField$1(this, "title", "");
+    __publicField$1(this, "description", "");
+    __publicField$1(this, "contentType", "");
+    __publicField$1(this, "links", []);
+    __publicField$1(this, "markdown", "");
     var _a, _b;
     try {
       this.url = ((_a = res == null ? void 0 : res.config) == null ? void 0 : _a.url) || ((_b = res == null ? void 0 : res.config) == null ? void 0 : _b.baseURL) || "";
@@ -822,8 +896,15 @@ ${chunk}`;
   return summary;
 }
 
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 class GptWeb1Chatbot {
   constructor(core) {
+    __publicField(this, "core");
     this.core = core;
   }
   async ask(question, options = {}) {

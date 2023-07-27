@@ -1,7 +1,8 @@
 import mongoose, { model, Schema } from 'mongoose';
 import { config } from 'dotenv';
 import * as crypto$4 from 'crypto';
-import * as url$1 from 'url';
+import * as http from 'http';
+import * as url from 'url';
 import * as bson$1 from 'bson';
 import * as timers from 'timers';
 import * as util from 'util';
@@ -16,7 +17,6 @@ import * as zlib from 'zlib';
 import * as net from 'net';
 import * as socks from 'socks';
 import * as tls from 'tls';
-import * as http$1 from 'http';
 
 function getDefaultExportFromNamespaceIfNotNamed (n) {
 	return n && Object.prototype.hasOwnProperty.call(n, 'default') && Object.keys(n).length === 1 ? n['default'] : n;
@@ -34,7 +34,7 @@ var error = {};
 
 (function (exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.isResumableError = exports.isNetworkTimeoutError = exports.isSDAMUnrecoverableError = exports.isNodeShuttingDownError = exports.isRetryableReadError = exports.isRetryableWriteError = exports.needsRetryableWriteLabel = exports.MongoWriteConcernError = exports.MongoServerSelectionError = exports.MongoSystemError = exports.MongoMissingDependencyError = exports.MongoMissingCredentialsError = exports.MongoCompatibilityError = exports.MongoInvalidArgumentError = exports.MongoParseError = exports.MongoNetworkTimeoutError = exports.MongoNetworkError = exports.isNetworkErrorBeforeHandshake = exports.MongoTopologyClosedError = exports.MongoCursorExhaustedError = exports.MongoServerClosedError = exports.MongoCursorInUseError = exports.MongoUnexpectedServerResponseError = exports.MongoGridFSChunkError = exports.MongoGridFSStreamError = exports.MongoTailableCursorError = exports.MongoChangeStreamError = exports.MongoAWSError = exports.MongoKerberosError = exports.MongoExpiredSessionError = exports.MongoTransactionError = exports.MongoNotConnectedError = exports.MongoDecompressionError = exports.MongoBatchReExecutionError = exports.MongoRuntimeError = exports.MongoAPIError = exports.MongoDriverError = exports.MongoServerError = exports.MongoError = exports.MongoErrorLabel = exports.GET_MORE_RESUMABLE_CODES = exports.MONGODB_ERROR_CODES = exports.NODE_IS_RECOVERING_ERROR_MESSAGE = exports.LEGACY_NOT_PRIMARY_OR_SECONDARY_ERROR_MESSAGE = exports.LEGACY_NOT_WRITABLE_PRIMARY_ERROR_MESSAGE = void 0;
+	exports.isResumableError = exports.isNetworkTimeoutError = exports.isSDAMUnrecoverableError = exports.isNodeShuttingDownError = exports.isRetryableReadError = exports.isRetryableWriteError = exports.needsRetryableWriteLabel = exports.MongoWriteConcernError = exports.MongoServerSelectionError = exports.MongoSystemError = exports.MongoMissingDependencyError = exports.MongoMissingCredentialsError = exports.MongoCompatibilityError = exports.MongoInvalidArgumentError = exports.MongoParseError = exports.MongoNetworkTimeoutError = exports.MongoNetworkError = exports.isNetworkErrorBeforeHandshake = exports.MongoTopologyClosedError = exports.MongoCursorExhaustedError = exports.MongoServerClosedError = exports.MongoCursorInUseError = exports.MongoUnexpectedServerResponseError = exports.MongoGridFSChunkError = exports.MongoGridFSStreamError = exports.MongoTailableCursorError = exports.MongoChangeStreamError = exports.MongoAzureError = exports.MongoAWSError = exports.MongoKerberosError = exports.MongoExpiredSessionError = exports.MongoTransactionError = exports.MongoNotConnectedError = exports.MongoDecompressionError = exports.MongoBatchReExecutionError = exports.MongoRuntimeError = exports.MongoAPIError = exports.MongoDriverError = exports.MongoServerError = exports.MongoError = exports.MongoErrorLabel = exports.GET_MORE_RESUMABLE_CODES = exports.MONGODB_ERROR_CODES = exports.NODE_IS_RECOVERING_ERROR_MESSAGE = exports.LEGACY_NOT_PRIMARY_OR_SECONDARY_ERROR_MESSAGE = exports.LEGACY_NOT_WRITABLE_PRIMARY_ERROR_MESSAGE = void 0;
 	/** @internal */
 	const kErrorLabels = Symbol('errorLabels');
 	/**
@@ -116,6 +116,9 @@ var error = {};
 	    InterruptInUseConnections: 'InterruptInUseConnections',
 	    NoWritesPerformed: 'NoWritesPerformed'
 	});
+	function isAggregateError(e) {
+	    return 'errors' in e && Array.isArray(e.errors);
+	}
 	/**
 	 * @public
 	 * @category Error
@@ -125,14 +128,23 @@ var error = {};
 	 */
 	class MongoError extends Error {
 	    constructor(message) {
+	        super(MongoError.buildErrorMessage(message));
 	        if (message instanceof Error) {
-	            super(message.message);
 	            this.cause = message;
 	        }
-	        else {
-	            super(message);
-	        }
 	        this[kErrorLabels] = new Set();
+	    }
+	    /** @internal */
+	    static buildErrorMessage(e) {
+	        if (typeof e === 'string') {
+	            return e;
+	        }
+	        if (isAggregateError(e) && e.message.length === 0) {
+	            return e.errors.length === 0
+	                ? 'AggregateError has an empty errors array. Please check the `cause` property for more information.'
+	                : e.errors.map(({ message }) => message).join(', ');
+	        }
+	        return e.message;
 	    }
 	    get name() {
 	        return 'MongoError';
@@ -344,6 +356,22 @@ var error = {};
 	    }
 	}
 	exports.MongoAWSError = MongoAWSError;
+	/**
+	 * A error generated when the user attempts to authenticate
+	 * via Azure, but fails.
+	 *
+	 * @public
+	 * @category Error
+	 */
+	class MongoAzureError extends MongoRuntimeError {
+	    constructor(message) {
+	        super(message);
+	    }
+	    get name() {
+	        return 'MongoAzureError';
+	    }
+	}
+	exports.MongoAzureError = MongoAzureError;
 	/**
 	 * An error generated when a ChangeStream operation fails to execute.
 	 *
@@ -604,8 +632,10 @@ var error = {};
 	 * @category Error
 	 */
 	class MongoMissingDependencyError extends MongoAPIError {
-	    constructor(message) {
+	    constructor(message, { cause } = {}) {
 	        super(message);
+	        if (cause)
+	            this.cause = cause;
 	    }
 	    get name() {
 	        return 'MongoMissingDependencyError';
@@ -842,7 +872,9 @@ function commonjsRequire(path) {
 
 var utils = {};
 
-const require$$2$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(url$1);
+const require$$1$3 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(http);
+
+const require$$3 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(url);
 
 var bson = {};
 
@@ -1337,7 +1369,6 @@ var read_preference = {};
 	        return readPreference;
 	    }
 	}
-	exports.ReadPreference = ReadPreference;
 	ReadPreference.PRIMARY = exports.ReadPreferenceMode.primary;
 	ReadPreference.PRIMARY_PREFERRED = exports.ReadPreferenceMode.primaryPreferred;
 	ReadPreference.SECONDARY = exports.ReadPreferenceMode.secondary;
@@ -1348,6 +1379,7 @@ var read_preference = {};
 	ReadPreference.secondary = new ReadPreference(exports.ReadPreferenceMode.secondary);
 	ReadPreference.secondaryPreferred = new ReadPreference(exports.ReadPreferenceMode.secondaryPreferred);
 	ReadPreference.nearest = new ReadPreference(exports.ReadPreferenceMode.nearest);
+	exports.ReadPreference = ReadPreference;
 	
 } (read_preference));
 
@@ -1426,11 +1458,11 @@ class WriteConcern {
     /**
      * Constructs a WriteConcern from the write concern properties.
      * @param w - request acknowledgment that the write operation has propagated to a specified number of mongod instances or to mongod instances with specified tags.
-     * @param wtimeout - specify a time limit to prevent write operations from blocking indefinitely
-     * @param j - request acknowledgment that the write operation has been written to the on-disk journal
-     * @param fsync - equivalent to the j option
+     * @param wtimeoutMS - specify a time limit to prevent write operations from blocking indefinitely
+     * @param journal - request acknowledgment that the write operation has been written to the on-disk journal
+     * @param fsync - equivalent to the j option. Is deprecated and will be removed in the next major version.
      */
-    constructor(w, wtimeout, j, fsync) {
+    constructor(w, wtimeoutMS, journal, fsync) {
         if (w != null) {
             if (!Number.isNaN(Number(w))) {
                 this.w = Number(w);
@@ -1439,15 +1471,30 @@ class WriteConcern {
                 this.w = w;
             }
         }
-        if (wtimeout != null) {
-            this.wtimeout = wtimeout;
+        if (wtimeoutMS != null) {
+            this.wtimeoutMS = this.wtimeout = wtimeoutMS;
         }
-        if (j != null) {
-            this.j = j;
+        if (journal != null) {
+            this.journal = this.j = journal;
         }
         if (fsync != null) {
-            this.fsync = fsync;
+            this.journal = this.j = fsync ? true : false;
         }
+    }
+    /**
+     * Apply a write concern to a command document. Will modify and return the command.
+     */
+    static apply(command, writeConcern) {
+        const wc = {};
+        // The write concern document sent to the server has w/wtimeout/j fields.
+        if (writeConcern.w != null)
+            wc.w = writeConcern.w;
+        if (writeConcern.wtimeoutMS != null)
+            wc.wtimeout = writeConcern.wtimeoutMS;
+        if (writeConcern.journal != null)
+            wc.j = writeConcern.j;
+        command.writeConcern = wc;
+        return command;
     }
     /** Construct a WriteConcern given an options object. */
     static fromOptions(options, inherit) {
@@ -1484,9 +1531,12 @@ write_concern.WriteConcern = WriteConcern;
 
 (function (exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.matchesParentDomain = exports.parseUnsignedInteger = exports.parseInteger = exports.compareObjectId = exports.getMongoDBClientEncryption = exports.commandSupportsReadConcern = exports.shuffle = exports.supportsRetryableWrites = exports.enumToString = exports.emitWarningOnce = exports.emitWarning = exports.MONGODB_WARNING_CODE = exports.DEFAULT_PK_FACTORY = exports.HostAddress = exports.BufferPool = exports.List = exports.deepCopy = exports.isRecord = exports.setDifference = exports.isHello = exports.isSuperset = exports.resolveOptions = exports.hasAtomicOperators = exports.calculateDurationInMs = exports.now = exports.makeStateMachine = exports.errorStrictEqual = exports.arrayStrictEqual = exports.eachAsync = exports.maxWireVersion = exports.uuidV4 = exports.databaseNamespace = exports.maybeCallback = exports.makeCounter = exports.MongoDBNamespace = exports.ns = exports.getTopology = exports.decorateWithExplain = exports.decorateWithReadConcern = exports.decorateWithCollation = exports.isPromiseLike = exports.applyRetryableWrites = exports.filterOptions = exports.mergeOptions = exports.isObject = exports.normalizeHintField = exports.checkCollectionName = exports.hostMatchesWildcards = exports.ByteUtils = void 0;
+	exports.matchesParentDomain = exports.parseUnsignedInteger = exports.parseInteger = exports.compareObjectId = exports.getMongoDBClientEncryption = exports.commandSupportsReadConcern = exports.shuffle = exports.supportsRetryableWrites = exports.enumToString = exports.emitWarningOnce = exports.emitWarning = exports.MONGODB_WARNING_CODE = exports.DEFAULT_PK_FACTORY = exports.HostAddress = exports.BufferPool = exports.List = exports.deepCopy = exports.isRecord = exports.setDifference = exports.isHello = exports.isSuperset = exports.resolveOptions = exports.hasAtomicOperators = exports.calculateDurationInMs = exports.now = exports.makeStateMachine = exports.errorStrictEqual = exports.arrayStrictEqual = exports.eachAsync = exports.maxWireVersion = exports.uuidV4 = exports.databaseNamespace = exports.maybeCallback = exports.makeCounter = exports.MongoDBCollectionNamespace = exports.MongoDBNamespace = exports.ns = exports.getTopology = exports.decorateWithExplain = exports.decorateWithReadConcern = exports.decorateWithCollation = exports.isPromiseLike = exports.applyRetryableWrites = exports.filterOptions = exports.mergeOptions = exports.isObject = exports.normalizeHintField = exports.checkCollectionName = exports.hostMatchesWildcards = exports.ByteUtils = void 0;
+	exports.request = void 0;
 	const crypto = require$$0$9;
-	const url_1 = require$$2$2;
+	const http = require$$1$3;
+	const url = require$$3;
+	const url_1 = require$$3;
 	const bson_1 = bson;
 	const constants_1 = constants$1;
 	const constants_2 = constants;
@@ -1705,11 +1755,8 @@ write_concern.WriteConcern = WriteConcern;
 	    if ('topology' in provider && provider.topology) {
 	        return provider.topology;
 	    }
-	    else if ('s' in provider && 'client' in provider.s && provider.s.client.topology) {
-	        return provider.s.client.topology;
-	    }
-	    else if ('s' in provider && 'db' in provider.s && provider.s.db.s.client.topology) {
-	        return provider.s.db.s.client.topology;
+	    else if ('client' in provider && provider.client.topology) {
+	        return provider.client.topology;
 	    }
 	    throw new error_1.MongoNotConnectedError('MongoClient must be connected to perform this operation');
 	}
@@ -1729,13 +1776,14 @@ write_concern.WriteConcern = WriteConcern;
 	     */
 	    constructor(db, collection) {
 	        this.db = db;
+	        this.collection = collection;
 	        this.collection = collection === '' ? undefined : collection;
 	    }
 	    toString() {
 	        return this.collection ? `${this.db}.${this.collection}` : this.db;
 	    }
 	    withCollection(collection) {
-	        return new MongoDBNamespace(this.db, collection);
+	        return new MongoDBCollectionNamespace(this.db, collection);
 	    }
 	    static fromString(namespace) {
 	        if (typeof namespace !== 'string' || namespace === '') {
@@ -1748,6 +1796,20 @@ write_concern.WriteConcern = WriteConcern;
 	    }
 	}
 	exports.MongoDBNamespace = MongoDBNamespace;
+	/**
+	 * @public
+	 *
+	 * A class representing a collection's namespace.  This class enforces (through Typescript) that
+	 * the `collection` portion of the namespace is defined and should only be
+	 * used in scenarios where this can be guaranteed.
+	 */
+	class MongoDBCollectionNamespace extends MongoDBNamespace {
+	    constructor(db, collection) {
+	        super(db, collection);
+	        this.collection = collection;
+	    }
+	}
+	exports.MongoDBCollectionNamespace = MongoDBCollectionNamespace;
 	/** @internal */
 	function* makeCounter(seed = 0) {
 	    let count = seed;
@@ -2494,6 +2556,42 @@ write_concern.WriteConcern = WriteConcern;
 	    return addressDomain.endsWith(srvHostDomain);
 	}
 	exports.matchesParentDomain = matchesParentDomain;
+	async function request(uri, options = {}) {
+	    return new Promise((resolve, reject) => {
+	        const requestOptions = {
+	            method: 'GET',
+	            timeout: 10000,
+	            json: true,
+	            ...url.parse(uri),
+	            ...options
+	        };
+	        const req = http.request(requestOptions, res => {
+	            res.setEncoding('utf8');
+	            let data = '';
+	            res.on('data', d => {
+	                data += d;
+	            });
+	            res.once('end', () => {
+	                if (options.json === false) {
+	                    resolve(data);
+	                    return;
+	                }
+	                try {
+	                    const parsed = JSON.parse(data);
+	                    resolve(parsed);
+	                }
+	                catch {
+	                    // TODO(NODE-3483)
+	                    reject(new error_1.MongoRuntimeError(`Invalid JSON response: "${data}"`));
+	                }
+	            });
+	        });
+	        req.once('timeout', () => req.destroy(new error_1.MongoNetworkTimeoutError(`Network request to ${uri} timed out after ${options.timeout} ms`)));
+	        req.once('error', error => reject(error));
+	        req.end();
+	    });
+	}
+	exports.request = request;
 	
 } (utils));
 
@@ -2774,7 +2872,7 @@ const require$$0$6 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(util);
 
 (function (exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.defineAspects = exports.AbstractOperation = exports.Aspect = void 0;
+	exports.defineAspects = exports.AbstractCallbackOperation = exports.AbstractOperation = exports.Aspect = void 0;
 	const util_1 = require$$0$6;
 	const bson_1 = bson;
 	const read_preference_1 = read_preference;
@@ -2798,9 +2896,6 @@ const require$$0$6 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(util);
 	 */
 	class AbstractOperation {
 	    constructor(options = {}) {
-	        this.executeAsync = (0, util_1.promisify)((server, session, callback) => {
-	            this.execute(server, session, callback);
-	        });
 	        this.readPreference = this.hasAspect(exports.Aspect.WRITE_OPERATION)
 	            ? read_preference_1.ReadPreference.primary
 	            : read_preference_1.ReadPreference.fromOptions(options) ?? read_preference_1.ReadPreference.primary;
@@ -2832,6 +2927,18 @@ const require$$0$6 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(util);
 	    }
 	}
 	exports.AbstractOperation = AbstractOperation;
+	/** @internal */
+	class AbstractCallbackOperation extends AbstractOperation {
+	    constructor(options = {}) {
+	        super(options);
+	    }
+	    execute(server, session) {
+	        return (0, util_1.promisify)((callback) => {
+	            this.executeCallback(server, session, callback);
+	        })();
+	    }
+	}
+	exports.AbstractCallbackOperation = AbstractCallbackOperation;
 	function defineAspects(operation, aspects) {
 	    if (!Array.isArray(aspects) && !(aspects instanceof Set)) {
 	        aspects = [aspects];
@@ -2849,15 +2956,15 @@ const require$$0$6 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(util);
 
 Object.defineProperty(command, "__esModule", { value: true });
 command.CommandOperation = void 0;
-const error_1$G = error;
+const error_1$H = error;
 const explain_1 = explain;
 const read_concern_1$2 = read_concern;
 const server_selection_1$1 = server_selection;
-const utils_1$r = utils;
-const write_concern_1$3 = write_concern;
-const operation_1$k = operation;
+const utils_1$t = utils;
+const write_concern_1$4 = write_concern;
+const operation_1$n = operation;
 /** @internal */
-class CommandOperation extends operation_1$k.AbstractOperation {
+class CommandOperation extends operation_1$n.AbstractCallbackOperation {
     constructor(parent, options) {
         super(options);
         this.options = options ?? {};
@@ -2866,24 +2973,24 @@ class CommandOperation extends operation_1$k.AbstractOperation {
         //       as a parent?
         const dbNameOverride = options?.dbName || options?.authdb;
         if (dbNameOverride) {
-            this.ns = new utils_1$r.MongoDBNamespace(dbNameOverride, '$cmd');
+            this.ns = new utils_1$t.MongoDBNamespace(dbNameOverride, '$cmd');
         }
         else {
             this.ns = parent
                 ? parent.s.namespace.withCollection('$cmd')
-                : new utils_1$r.MongoDBNamespace('admin', '$cmd');
+                : new utils_1$t.MongoDBNamespace('admin', '$cmd');
         }
         this.readConcern = read_concern_1$2.ReadConcern.fromOptions(options);
-        this.writeConcern = write_concern_1$3.WriteConcern.fromOptions(options);
-        if (this.hasAspect(operation_1$k.Aspect.EXPLAINABLE)) {
+        this.writeConcern = write_concern_1$4.WriteConcern.fromOptions(options);
+        if (this.hasAspect(operation_1$n.Aspect.EXPLAINABLE)) {
             this.explain = explain_1.Explain.fromOptions(options);
         }
         else if (options?.explain != null) {
-            throw new error_1$G.MongoInvalidArgumentError(`Option "explain" is not supported on this command`);
+            throw new error_1$H.MongoInvalidArgumentError(`Option "explain" is not supported on this command`);
         }
     }
     get canRetryWrite() {
-        if (this.hasAspect(operation_1$k.Aspect.EXPLAINABLE)) {
+        if (this.hasAspect(operation_1$n.Aspect.EXPLAINABLE)) {
             return this.explain == null;
         }
         return true;
@@ -2897,27 +3004,27 @@ class CommandOperation extends operation_1$k.AbstractOperation {
             readPreference: this.readPreference,
             session
         };
-        const serverWireVersion = (0, utils_1$r.maxWireVersion)(server);
+        const serverWireVersion = (0, utils_1$t.maxWireVersion)(server);
         const inTransaction = this.session && this.session.inTransaction();
-        if (this.readConcern && (0, utils_1$r.commandSupportsReadConcern)(cmd) && !inTransaction) {
+        if (this.readConcern && (0, utils_1$t.commandSupportsReadConcern)(cmd) && !inTransaction) {
             Object.assign(cmd, { readConcern: this.readConcern });
         }
         if (this.trySecondaryWrite && serverWireVersion < server_selection_1$1.MIN_SECONDARY_WRITE_WIRE_VERSION) {
             options.omitReadPreference = true;
         }
-        if (this.writeConcern && this.hasAspect(operation_1$k.Aspect.WRITE_OPERATION) && !inTransaction) {
-            Object.assign(cmd, { writeConcern: this.writeConcern });
+        if (this.writeConcern && this.hasAspect(operation_1$n.Aspect.WRITE_OPERATION) && !inTransaction) {
+            write_concern_1$4.WriteConcern.apply(cmd, this.writeConcern);
         }
         if (options.collation &&
             typeof options.collation === 'object' &&
-            !this.hasAspect(operation_1$k.Aspect.SKIP_COLLATION)) {
+            !this.hasAspect(operation_1$n.Aspect.SKIP_COLLATION)) {
             Object.assign(cmd, { collation: options.collation });
         }
         if (typeof options.maxTimeMS === 'number') {
             cmd.maxTimeMS = options.maxTimeMS;
         }
-        if (this.hasAspect(operation_1$k.Aspect.EXPLAINABLE) && this.explain) {
-            cmd = (0, utils_1$r.decorateWithExplain)(cmd, this.explain);
+        if (this.hasAspect(operation_1$n.Aspect.EXPLAINABLE) && this.explain) {
+            cmd = (0, utils_1$t.decorateWithExplain)(cmd, this.explain);
         }
         server.command(this.ns, cmd, options, callback);
     }
@@ -2927,10 +3034,10 @@ command.CommandOperation = CommandOperation;
 Object.defineProperty(add_user, "__esModule", { value: true });
 add_user.AddUserOperation = void 0;
 const crypto$3 = require$$0$9;
-const error_1$F = error;
-const utils_1$q = utils;
+const error_1$G = error;
+const utils_1$s = utils;
 const command_1$g = command;
-const operation_1$j = operation;
+const operation_1$m = operation;
 /** @internal */
 class AddUserOperation extends command_1$g.CommandOperation {
     constructor(db, username, password, options) {
@@ -2940,7 +3047,7 @@ class AddUserOperation extends command_1$g.CommandOperation {
         this.password = password;
         this.options = options ?? {};
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const db = this.db;
         const username = this.username;
         const password = this.password;
@@ -2949,11 +3056,11 @@ class AddUserOperation extends command_1$g.CommandOperation {
         // v5 removed the digestPassword option from AddUserOptions but we still want to throw
         // an error when digestPassword is provided.
         if ('digestPassword' in options && options.digestPassword != null) {
-            return callback(new error_1$F.MongoInvalidArgumentError('Option "digestPassword" not supported via addUser, use db.command(...) instead'));
+            return callback(new error_1$G.MongoInvalidArgumentError('Option "digestPassword" not supported via addUser, use db.command(...) instead'));
         }
         let roles;
         if (!options.roles || (Array.isArray(options.roles) && options.roles.length === 0)) {
-            (0, utils_1$q.emitWarningOnce)('Creating a user without roles is deprecated. Defaults to "root" if db is "admin" or "dbOwner" otherwise');
+            (0, utils_1$s.emitWarningOnce)('Creating a user without roles is deprecated. Defaults to "root" if db is "admin" or "dbOwner" otherwise');
             if (db.databaseName.toLowerCase() === 'admin') {
                 roles = ['root'];
             }
@@ -2966,7 +3073,7 @@ class AddUserOperation extends command_1$g.CommandOperation {
         }
         let topology;
         try {
-            topology = (0, utils_1$q.getTopology)(db);
+            topology = (0, utils_1$s.getTopology)(db);
         }
         catch (error) {
             return callback(error);
@@ -2995,32 +3102,32 @@ class AddUserOperation extends command_1$g.CommandOperation {
     }
 }
 add_user.AddUserOperation = AddUserOperation;
-(0, operation_1$j.defineAspects)(AddUserOperation, [operation_1$j.Aspect.WRITE_OPERATION]);
+(0, operation_1$m.defineAspects)(AddUserOperation, [operation_1$m.Aspect.WRITE_OPERATION]);
 
 var execute_operation = {};
 
 Object.defineProperty(execute_operation, "__esModule", { value: true });
 execute_operation.executeOperation = void 0;
-const error_1$E = error;
+const error_1$F = error;
 const read_preference_1$4 = read_preference;
 const server_selection_1 = server_selection;
-const utils_1$p = utils;
-const operation_1$i = operation;
-const MMAPv1_RETRY_WRITES_ERROR_CODE = error_1$E.MONGODB_ERROR_CODES.IllegalOperation;
+const utils_1$r = utils;
+const operation_1$l = operation;
+const MMAPv1_RETRY_WRITES_ERROR_CODE = error_1$F.MONGODB_ERROR_CODES.IllegalOperation;
 const MMAPv1_RETRY_WRITES_ERROR_MESSAGE = 'This MongoDB deployment does not support retryable writes. Please add retryWrites=false to your connection string.';
 function executeOperation(client, operation, callback) {
-    return (0, utils_1$p.maybeCallback)(() => executeOperationAsync(client, operation), callback);
+    return (0, utils_1$r.maybeCallback)(() => executeOperationAsync(client, operation), callback);
 }
 execute_operation.executeOperation = executeOperation;
 async function executeOperationAsync(client, operation) {
-    if (!(operation instanceof operation_1$i.AbstractOperation)) {
+    if (!(operation instanceof operation_1$l.AbstractCallbackOperation)) {
         // TODO(NODE-3483): Extend MongoRuntimeError
-        throw new error_1$E.MongoRuntimeError('This method requires a valid operation instance');
+        throw new error_1$F.MongoRuntimeError('This method requires a valid operation instance');
     }
     if (client.topology == null) {
         // Auto connect on operation
         if (client.s.hasBeenClosed) {
-            throw new error_1$E.MongoNotConnectedError('Client must be connected before running operations');
+            throw new error_1$F.MongoNotConnectedError('Client must be connected before running operations');
         }
         client.s.options[Symbol.for('@@mdb.skipPingOnConnect')] = true;
         try {
@@ -3032,7 +3139,7 @@ async function executeOperationAsync(client, operation) {
     }
     const { topology } = client;
     if (topology == null) {
-        throw new error_1$E.MongoRuntimeError('client.connect did not create a topology but also did not throw');
+        throw new error_1$F.MongoRuntimeError('client.connect did not create a topology but also did not throw');
     }
     // The driver sessions spec mandates that we implicitly create sessions for operations
     // that are not explicitly provided with a session.
@@ -3043,21 +3150,21 @@ async function executeOperationAsync(client, operation) {
         session = client.startSession({ owner, explicit: false });
     }
     else if (session.hasEnded) {
-        throw new error_1$E.MongoExpiredSessionError('Use of expired sessions is not permitted');
+        throw new error_1$F.MongoExpiredSessionError('Use of expired sessions is not permitted');
     }
     else if (session.snapshotEnabled && !topology.capabilities.supportsSnapshotReads) {
-        throw new error_1$E.MongoCompatibilityError('Snapshot reads require MongoDB 5.0 or later');
+        throw new error_1$F.MongoCompatibilityError('Snapshot reads require MongoDB 5.0 or later');
     }
     const readPreference = operation.readPreference ?? read_preference_1$4.ReadPreference.primary;
     const inTransaction = !!session?.inTransaction();
     if (inTransaction && !readPreference.equals(read_preference_1$4.ReadPreference.primary)) {
-        throw new error_1$E.MongoTransactionError(`Read preference in a transaction must be primary, not: ${readPreference.mode}`);
+        throw new error_1$F.MongoTransactionError(`Read preference in a transaction must be primary, not: ${readPreference.mode}`);
     }
     if (session?.isPinned && session.transaction.isCommitted && !operation.bypassPinningCheck) {
         session.unpin();
     }
     let selector;
-    if (operation.hasAspect(operation_1$i.Aspect.MUST_SELECT_SAME_SERVER)) {
+    if (operation.hasAspect(operation_1$l.Aspect.MUST_SELECT_SAME_SERVER)) {
         // GetMore and KillCursor operations must always select the same server, but run through
         // server selection to potentially force monitor checks if the server is
         // in an unknown state.
@@ -3074,12 +3181,12 @@ async function executeOperationAsync(client, operation) {
     const server = await topology.selectServerAsync(selector, { session });
     if (session == null) {
         // No session also means it is not retryable, early exit
-        return operation.executeAsync(server, undefined);
+        return operation.execute(server, undefined);
     }
-    if (!operation.hasAspect(operation_1$i.Aspect.RETRYABLE)) {
+    if (!operation.hasAspect(operation_1$l.Aspect.RETRYABLE)) {
         // non-retryable operation, early exit
         try {
-            return await operation.executeAsync(server, session);
+            return await operation.execute(server, session);
         }
         finally {
             if (session?.owner != null && session.owner === owner) {
@@ -3090,20 +3197,20 @@ async function executeOperationAsync(client, operation) {
     const willRetryRead = topology.s.options.retryReads && !inTransaction && operation.canRetryRead;
     const willRetryWrite = topology.s.options.retryWrites &&
         !inTransaction &&
-        (0, utils_1$p.supportsRetryableWrites)(server) &&
+        (0, utils_1$r.supportsRetryableWrites)(server) &&
         operation.canRetryWrite;
-    const hasReadAspect = operation.hasAspect(operation_1$i.Aspect.READ_OPERATION);
-    const hasWriteAspect = operation.hasAspect(operation_1$i.Aspect.WRITE_OPERATION);
+    const hasReadAspect = operation.hasAspect(operation_1$l.Aspect.READ_OPERATION);
+    const hasWriteAspect = operation.hasAspect(operation_1$l.Aspect.WRITE_OPERATION);
     const willRetry = (hasReadAspect && willRetryRead) || (hasWriteAspect && willRetryWrite);
     if (hasWriteAspect && willRetryWrite) {
         operation.options.willRetryWrite = true;
         session.incrementTransactionNumber();
     }
     try {
-        return await operation.executeAsync(server, session);
+        return await operation.execute(server, session);
     }
     catch (operationError) {
-        if (willRetry && operationError instanceof error_1$E.MongoError) {
+        if (willRetry && operationError instanceof error_1$F.MongoError) {
             return await retryOperation(operation, operationError, {
                 session,
                 topology,
@@ -3119,25 +3226,25 @@ async function executeOperationAsync(client, operation) {
     }
 }
 async function retryOperation(operation, originalError, { session, topology, selector }) {
-    const isWriteOperation = operation.hasAspect(operation_1$i.Aspect.WRITE_OPERATION);
-    const isReadOperation = operation.hasAspect(operation_1$i.Aspect.READ_OPERATION);
+    const isWriteOperation = operation.hasAspect(operation_1$l.Aspect.WRITE_OPERATION);
+    const isReadOperation = operation.hasAspect(operation_1$l.Aspect.READ_OPERATION);
     if (isWriteOperation && originalError.code === MMAPv1_RETRY_WRITES_ERROR_CODE) {
-        throw new error_1$E.MongoServerError({
+        throw new error_1$F.MongoServerError({
             message: MMAPv1_RETRY_WRITES_ERROR_MESSAGE,
             errmsg: MMAPv1_RETRY_WRITES_ERROR_MESSAGE,
             originalError
         });
     }
-    if (isWriteOperation && !(0, error_1$E.isRetryableWriteError)(originalError)) {
+    if (isWriteOperation && !(0, error_1$F.isRetryableWriteError)(originalError)) {
         throw originalError;
     }
-    if (isReadOperation && !(0, error_1$E.isRetryableReadError)(originalError)) {
+    if (isReadOperation && !(0, error_1$F.isRetryableReadError)(originalError)) {
         throw originalError;
     }
-    if (originalError instanceof error_1$E.MongoNetworkError &&
+    if (originalError instanceof error_1$F.MongoNetworkError &&
         session.isPinned &&
         !session.inTransaction() &&
-        operation.hasAspect(operation_1$i.Aspect.CURSOR_CREATING)) {
+        operation.hasAspect(operation_1$l.Aspect.CURSOR_CREATING)) {
         // If we have a cursor and the initial command fails with a network error,
         // we can retry it on another connection. So we need to check it back in, clear the
         // pool for the service id, and retry again.
@@ -3145,15 +3252,15 @@ async function retryOperation(operation, originalError, { session, topology, sel
     }
     // select a new server, and attempt to retry the operation
     const server = await topology.selectServerAsync(selector, { session });
-    if (isWriteOperation && !(0, utils_1$p.supportsRetryableWrites)(server)) {
-        throw new error_1$E.MongoUnexpectedServerResponseError('Selected server does not support retryable writes');
+    if (isWriteOperation && !(0, utils_1$r.supportsRetryableWrites)(server)) {
+        throw new error_1$F.MongoUnexpectedServerResponseError('Selected server does not support retryable writes');
     }
     try {
-        return await operation.executeAsync(server, session);
+        return await operation.execute(server, session);
     }
     catch (retryError) {
-        if (retryError instanceof error_1$E.MongoError &&
-            retryError.hasErrorLabel(error_1$E.MongoErrorLabel.NoWritesPerformed)) {
+        if (retryError instanceof error_1$F.MongoError &&
+            retryError.hasErrorLabel(error_1$F.MongoErrorLabel.NoWritesPerformed)) {
             throw originalError;
         }
         throw retryError;
@@ -3164,20 +3271,20 @@ var list_databases = {};
 
 Object.defineProperty(list_databases, "__esModule", { value: true });
 list_databases.ListDatabasesOperation = void 0;
-const utils_1$o = utils;
+const utils_1$q = utils;
 const command_1$f = command;
-const operation_1$h = operation;
+const operation_1$k = operation;
 /** @internal */
 class ListDatabasesOperation extends command_1$f.CommandOperation {
     constructor(db, options) {
         super(db, options);
         this.options = options ?? {};
-        this.ns = new utils_1$o.MongoDBNamespace('admin', '$cmd');
+        this.ns = new utils_1$q.MongoDBNamespace('admin', '$cmd');
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const cmd = { listDatabases: 1 };
-        if (this.options.nameOnly) {
-            cmd.nameOnly = Number(cmd.nameOnly);
+        if (typeof this.options.nameOnly === 'boolean') {
+            cmd.nameOnly = this.options.nameOnly;
         }
         if (this.options.filter) {
             cmd.filter = this.options.filter;
@@ -3187,21 +3294,21 @@ class ListDatabasesOperation extends command_1$f.CommandOperation {
         }
         // we check for undefined specifically here to allow falsy values
         // eslint-disable-next-line no-restricted-syntax
-        if ((0, utils_1$o.maxWireVersion)(server) >= 9 && this.options.comment !== undefined) {
+        if ((0, utils_1$q.maxWireVersion)(server) >= 9 && this.options.comment !== undefined) {
             cmd.comment = this.options.comment;
         }
         super.executeCommand(server, session, cmd, callback);
     }
 }
 list_databases.ListDatabasesOperation = ListDatabasesOperation;
-(0, operation_1$h.defineAspects)(ListDatabasesOperation, [operation_1$h.Aspect.READ_OPERATION, operation_1$h.Aspect.RETRYABLE]);
+(0, operation_1$k.defineAspects)(ListDatabasesOperation, [operation_1$k.Aspect.READ_OPERATION, operation_1$k.Aspect.RETRYABLE]);
 
 var remove_user = {};
 
 Object.defineProperty(remove_user, "__esModule", { value: true });
 remove_user.RemoveUserOperation = void 0;
 const command_1$e = command;
-const operation_1$g = operation;
+const operation_1$j = operation;
 /** @internal */
 class RemoveUserOperation extends command_1$e.CommandOperation {
     constructor(db, username, options) {
@@ -3209,20 +3316,20 @@ class RemoveUserOperation extends command_1$e.CommandOperation {
         this.options = options;
         this.username = username;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         super.executeCommand(server, session, { dropUser: this.username }, err => {
             callback(err, err ? false : true);
         });
     }
 }
 remove_user.RemoveUserOperation = RemoveUserOperation;
-(0, operation_1$g.defineAspects)(RemoveUserOperation, [operation_1$g.Aspect.WRITE_OPERATION]);
+(0, operation_1$j.defineAspects)(RemoveUserOperation, [operation_1$j.Aspect.WRITE_OPERATION]);
 
 var run_command = {};
 
 Object.defineProperty(run_command, "__esModule", { value: true });
 run_command.RunAdminCommandOperation = run_command.RunCommandOperation = void 0;
-const utils_1$n = utils;
+const utils_1$p = utils;
 const command_1$d = command;
 /** @internal */
 class RunCommandOperation extends command_1$d.CommandOperation {
@@ -3231,7 +3338,7 @@ class RunCommandOperation extends command_1$d.CommandOperation {
         this.options = options ?? {};
         this.command = command;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const command = this.command;
         this.executeCommand(server, session, command, callback);
     }
@@ -3240,7 +3347,7 @@ run_command.RunCommandOperation = RunCommandOperation;
 class RunAdminCommandOperation extends RunCommandOperation {
     constructor(parent, command, options) {
         super(parent, command, options);
-        this.ns = new utils_1$n.MongoDBNamespace('admin');
+        this.ns = new utils_1$p.MongoDBNamespace('admin');
     }
 }
 run_command.RunAdminCommandOperation = RunAdminCommandOperation;
@@ -3249,7 +3356,7 @@ var validate_collection = {};
 
 Object.defineProperty(validate_collection, "__esModule", { value: true });
 validate_collection.ValidateCollectionOperation = void 0;
-const error_1$D = error;
+const error_1$E = error;
 const command_1$c = command;
 /** @internal */
 class ValidateCollectionOperation extends command_1$c.CommandOperation {
@@ -3267,20 +3374,20 @@ class ValidateCollectionOperation extends command_1$c.CommandOperation {
         this.command = command;
         this.collectionName = collectionName;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const collectionName = this.collectionName;
         super.executeCommand(server, session, this.command, (err, doc) => {
             if (err != null)
                 return callback(err);
             // TODO(NODE-3483): Replace these with MongoUnexpectedServerResponseError
             if (doc.ok === 0)
-                return callback(new error_1$D.MongoRuntimeError('Error with validate command'));
+                return callback(new error_1$E.MongoRuntimeError('Error with validate command'));
             if (doc.result != null && typeof doc.result !== 'string')
-                return callback(new error_1$D.MongoRuntimeError('Error with validation data'));
+                return callback(new error_1$E.MongoRuntimeError('Error with validation data'));
             if (doc.result != null && doc.result.match(/exception|corrupt/) != null)
-                return callback(new error_1$D.MongoRuntimeError(`Invalid collection ${collectionName}`));
+                return callback(new error_1$E.MongoRuntimeError(`Invalid collection ${collectionName}`));
             if (doc.valid != null && !doc.valid)
-                return callback(new error_1$D.MongoRuntimeError(`Invalid collection ${collectionName}`));
+                return callback(new error_1$E.MongoRuntimeError(`Invalid collection ${collectionName}`));
             return callback(undefined, doc);
         });
     }
@@ -3290,10 +3397,10 @@ validate_collection.ValidateCollectionOperation = ValidateCollectionOperation;
 Object.defineProperty(admin, "__esModule", { value: true });
 admin.Admin = void 0;
 const add_user_1 = add_user;
-const execute_operation_1$5 = execute_operation;
+const execute_operation_1$6 = execute_operation;
 const list_databases_1 = list_databases;
 const remove_user_1 = remove_user;
-const run_command_1$1 = run_command;
+const run_command_1$2 = run_command;
 const validate_collection_1 = validate_collection;
 /**
  * The **Admin** class is an internal class that allows convenient access to
@@ -3345,7 +3452,7 @@ class Admin {
      * @param options - Optional settings for the command
      */
     async command(command, options) {
-        return (0, execute_operation_1$5.executeOperation)(this.s.db.s.client, new run_command_1$1.RunCommandOperation(this.s.db, command, { dbName: 'admin', ...options }));
+        return (0, execute_operation_1$6.executeOperation)(this.s.db.client, new run_command_1$2.RunCommandOperation(this.s.db, command, { dbName: 'admin', ...options }));
     }
     /**
      * Retrieve the server build information
@@ -3396,7 +3503,7 @@ class Admin {
                     ? passwordOrOptions
                     : undefined;
         const password = typeof passwordOrOptions === 'string' ? passwordOrOptions : undefined;
-        return (0, execute_operation_1$5.executeOperation)(this.s.db.s.client, new add_user_1.AddUserOperation(this.s.db, username, password, { dbName: 'admin', ...options }));
+        return (0, execute_operation_1$6.executeOperation)(this.s.db.client, new add_user_1.AddUserOperation(this.s.db, username, password, { dbName: 'admin', ...options }));
     }
     /**
      * Remove a user from a database
@@ -3405,7 +3512,7 @@ class Admin {
      * @param options - Optional settings for the command
      */
     async removeUser(username, options) {
-        return (0, execute_operation_1$5.executeOperation)(this.s.db.s.client, new remove_user_1.RemoveUserOperation(this.s.db, username, { dbName: 'admin', ...options }));
+        return (0, execute_operation_1$6.executeOperation)(this.s.db.client, new remove_user_1.RemoveUserOperation(this.s.db, username, { dbName: 'admin', ...options }));
     }
     /**
      * Validate an existing collection
@@ -3414,7 +3521,7 @@ class Admin {
      * @param options - Optional settings for the command
      */
     async validateCollection(collectionName, options = {}) {
-        return (0, execute_operation_1$5.executeOperation)(this.s.db.s.client, new validate_collection_1.ValidateCollectionOperation(this, collectionName, options));
+        return (0, execute_operation_1$6.executeOperation)(this.s.db.client, new validate_collection_1.ValidateCollectionOperation(this, collectionName, options));
     }
     /**
      * List the available databases
@@ -3422,7 +3529,7 @@ class Admin {
      * @param options - Optional settings for the command
      */
     async listDatabases(options) {
-        return (0, execute_operation_1$5.executeOperation)(this.s.db.s.client, new list_databases_1.ListDatabasesOperation(this.s.db, options));
+        return (0, execute_operation_1$6.executeOperation)(this.s.db.client, new list_databases_1.ListDatabasesOperation(this.s.db, options));
     }
     /**
      * Get ReplicaSet status
@@ -3443,9 +3550,9 @@ var _delete = {};
 
 Object.defineProperty(_delete, "__esModule", { value: true });
 _delete.makeDeleteStatement = _delete.DeleteManyOperation = _delete.DeleteOneOperation = _delete.DeleteOperation = void 0;
-const error_1$C = error;
+const error_1$D = error;
 const command_1$b = command;
-const operation_1$f = operation;
+const operation_1$i = operation;
 /** @internal */
 class DeleteOperation extends command_1$b.CommandOperation {
     constructor(ns, statements, options) {
@@ -3460,7 +3567,7 @@ class DeleteOperation extends command_1$b.CommandOperation {
         }
         return this.statements.every(op => (op.limit != null ? op.limit > 0 : true));
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const options = this.options ?? {};
         const ordered = typeof options.ordered === 'boolean' ? options.ordered : true;
         const command = {
@@ -3480,7 +3587,7 @@ class DeleteOperation extends command_1$b.CommandOperation {
         if (unacknowledgedWrite) {
             if (this.statements.find((o) => o.hint)) {
                 // TODO(NODE-3541): fix error for hint with unacknowledged writes
-                callback(new error_1$C.MongoCompatibilityError(`hint is not supported with unacknowledged writes`));
+                callback(new error_1$D.MongoCompatibilityError(`hint is not supported with unacknowledged writes`));
                 return;
             }
         }
@@ -3492,14 +3599,14 @@ class DeleteOneOperation extends DeleteOperation {
     constructor(collection, filter, options) {
         super(collection.s.namespace, [makeDeleteStatement(filter, { ...options, limit: 1 })], options);
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, res) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, res) => {
             if (err || res == null)
                 return callback(err);
             if (res.code)
-                return callback(new error_1$C.MongoServerError(res));
+                return callback(new error_1$D.MongoServerError(res));
             if (res.writeErrors)
-                return callback(new error_1$C.MongoServerError(res.writeErrors[0]));
+                return callback(new error_1$D.MongoServerError(res.writeErrors[0]));
             if (this.explain)
                 return callback(undefined, res);
             callback(undefined, {
@@ -3514,14 +3621,14 @@ class DeleteManyOperation extends DeleteOperation {
     constructor(collection, filter, options) {
         super(collection.s.namespace, [makeDeleteStatement(filter, options)], options);
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, res) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, res) => {
             if (err || res == null)
                 return callback(err);
             if (res.code)
-                return callback(new error_1$C.MongoServerError(res));
+                return callback(new error_1$D.MongoServerError(res));
             if (res.writeErrors)
-                return callback(new error_1$C.MongoServerError(res.writeErrors[0]));
+                return callback(new error_1$D.MongoServerError(res.writeErrors[0]));
             if (this.explain)
                 return callback(undefined, res);
             callback(undefined, {
@@ -3546,17 +3653,17 @@ function makeDeleteStatement(filter, options) {
     return op;
 }
 _delete.makeDeleteStatement = makeDeleteStatement;
-(0, operation_1$f.defineAspects)(DeleteOperation, [operation_1$f.Aspect.RETRYABLE, operation_1$f.Aspect.WRITE_OPERATION]);
-(0, operation_1$f.defineAspects)(DeleteOneOperation, [
-    operation_1$f.Aspect.RETRYABLE,
-    operation_1$f.Aspect.WRITE_OPERATION,
-    operation_1$f.Aspect.EXPLAINABLE,
-    operation_1$f.Aspect.SKIP_COLLATION
+(0, operation_1$i.defineAspects)(DeleteOperation, [operation_1$i.Aspect.RETRYABLE, operation_1$i.Aspect.WRITE_OPERATION]);
+(0, operation_1$i.defineAspects)(DeleteOneOperation, [
+    operation_1$i.Aspect.RETRYABLE,
+    operation_1$i.Aspect.WRITE_OPERATION,
+    operation_1$i.Aspect.EXPLAINABLE,
+    operation_1$i.Aspect.SKIP_COLLATION
 ]);
-(0, operation_1$f.defineAspects)(DeleteManyOperation, [
-    operation_1$f.Aspect.WRITE_OPERATION,
-    operation_1$f.Aspect.EXPLAINABLE,
-    operation_1$f.Aspect.SKIP_COLLATION
+(0, operation_1$i.defineAspects)(DeleteManyOperation, [
+    operation_1$i.Aspect.WRITE_OPERATION,
+    operation_1$i.Aspect.EXPLAINABLE,
+    operation_1$i.Aspect.SKIP_COLLATION
 ]);
 
 var insert = {};
@@ -3565,16 +3672,16 @@ var bulk_write = {};
 
 Object.defineProperty(bulk_write, "__esModule", { value: true });
 bulk_write.BulkWriteOperation = void 0;
-const operation_1$e = operation;
+const operation_1$h = operation;
 /** @internal */
-class BulkWriteOperation extends operation_1$e.AbstractOperation {
+class BulkWriteOperation extends operation_1$h.AbstractCallbackOperation {
     constructor(collection, operations, options) {
         super(options);
         this.options = options;
         this.collection = collection;
         this.operations = operations;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const coll = this.collection;
         const operations = this.operations;
         const options = { ...this.options, ...this.bsonOptions, readPreference: this.readPreference };
@@ -3596,14 +3703,14 @@ class BulkWriteOperation extends operation_1$e.AbstractOperation {
     }
 }
 bulk_write.BulkWriteOperation = BulkWriteOperation;
-(0, operation_1$e.defineAspects)(BulkWriteOperation, [operation_1$e.Aspect.WRITE_OPERATION]);
+(0, operation_1$h.defineAspects)(BulkWriteOperation, [operation_1$h.Aspect.WRITE_OPERATION]);
 
 var common_functions = {};
 
 Object.defineProperty(common_functions, "__esModule", { value: true });
 common_functions.prepareDocs = common_functions.indexInformation = void 0;
-const error_1$B = error;
-const utils_1$m = utils;
+const error_1$C = error;
+const utils_1$o = utils;
 function indexInformation(db, name, _optionsOrCallback, _callback) {
     let options = _optionsOrCallback;
     let callback = _callback;
@@ -3615,14 +3722,14 @@ function indexInformation(db, name, _optionsOrCallback, _callback) {
     const full = options.full == null ? false : options.full;
     let topology;
     try {
-        topology = (0, utils_1$m.getTopology)(db);
+        topology = (0, utils_1$o.getTopology)(db);
     }
     catch (error) {
         return callback(error);
     }
     // Did the user destroy the topology
     if (topology.isDestroyed())
-        return callback(new error_1$B.MongoTopologyClosedError());
+        return callback(new error_1$C.MongoTopologyClosedError());
     // Process all the results from the index command and collection
     function processResults(indexes) {
         // Contains all the information
@@ -3670,12 +3777,12 @@ common_functions.prepareDocs = prepareDocs;
 
 Object.defineProperty(insert, "__esModule", { value: true });
 insert.InsertManyOperation = insert.InsertOneOperation = insert.InsertOperation = void 0;
-const error_1$A = error;
-const write_concern_1$2 = write_concern;
+const error_1$B = error;
+const write_concern_1$3 = write_concern;
 const bulk_write_1 = bulk_write;
 const command_1$a = command;
 const common_functions_1$1 = common_functions;
-const operation_1$d = operation;
+const operation_1$g = operation;
 /** @internal */
 class InsertOperation extends command_1$a.CommandOperation {
     constructor(ns, documents, options) {
@@ -3684,7 +3791,7 @@ class InsertOperation extends command_1$a.CommandOperation {
         this.ns = ns;
         this.documents = documents;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const options = this.options ?? {};
         const ordered = typeof options.ordered === 'boolean' ? options.ordered : true;
         const command = {
@@ -3708,15 +3815,15 @@ class InsertOneOperation extends InsertOperation {
     constructor(collection, doc, options) {
         super(collection.s.namespace, (0, common_functions_1$1.prepareDocs)(collection, [doc], options), options);
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, res) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, res) => {
             if (err || res == null)
                 return callback(err);
             if (res.code)
-                return callback(new error_1$A.MongoServerError(res));
+                return callback(new error_1$B.MongoServerError(res));
             if (res.writeErrors) {
                 // This should be a WriteError but we can't change it now because of error hierarchy
-                return callback(new error_1$A.MongoServerError(res.writeErrors[0]));
+                return callback(new error_1$B.MongoServerError(res.writeErrors[0]));
             }
             callback(undefined, {
                 acknowledged: this.writeConcern?.w !== 0 ?? true,
@@ -3727,25 +3834,25 @@ class InsertOneOperation extends InsertOperation {
 }
 insert.InsertOneOperation = InsertOneOperation;
 /** @internal */
-class InsertManyOperation extends operation_1$d.AbstractOperation {
+class InsertManyOperation extends operation_1$g.AbstractCallbackOperation {
     constructor(collection, docs, options) {
         super(options);
         if (!Array.isArray(docs)) {
-            throw new error_1$A.MongoInvalidArgumentError('Argument "docs" must be an array of documents');
+            throw new error_1$B.MongoInvalidArgumentError('Argument "docs" must be an array of documents');
         }
         this.options = options;
         this.collection = collection;
         this.docs = docs;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const coll = this.collection;
         const options = { ...this.options, ...this.bsonOptions, readPreference: this.readPreference };
-        const writeConcern = write_concern_1$2.WriteConcern.fromOptions(options);
+        const writeConcern = write_concern_1$3.WriteConcern.fromOptions(options);
         const bulkWriteOperation = new bulk_write_1.BulkWriteOperation(coll, (0, common_functions_1$1.prepareDocs)(coll, this.docs, options).map(document => ({ insertOne: { document } })), options);
-        bulkWriteOperation.execute(server, session, (err, res) => {
+        bulkWriteOperation.executeCallback(server, session, (err, res) => {
             if (err || res == null) {
                 if (err && err.message === 'Operation must be an object with an operation key') {
-                    err = new error_1$A.MongoInvalidArgumentError('Collection.insertMany() cannot be called with an array that has null/undefined values');
+                    err = new error_1$B.MongoInvalidArgumentError('Collection.insertMany() cannot be called with an array that has null/undefined values');
                 }
                 return callback(err);
             }
@@ -3758,18 +3865,18 @@ class InsertManyOperation extends operation_1$d.AbstractOperation {
     }
 }
 insert.InsertManyOperation = InsertManyOperation;
-(0, operation_1$d.defineAspects)(InsertOperation, [operation_1$d.Aspect.RETRYABLE, operation_1$d.Aspect.WRITE_OPERATION]);
-(0, operation_1$d.defineAspects)(InsertOneOperation, [operation_1$d.Aspect.RETRYABLE, operation_1$d.Aspect.WRITE_OPERATION]);
-(0, operation_1$d.defineAspects)(InsertManyOperation, [operation_1$d.Aspect.WRITE_OPERATION]);
+(0, operation_1$g.defineAspects)(InsertOperation, [operation_1$g.Aspect.RETRYABLE, operation_1$g.Aspect.WRITE_OPERATION]);
+(0, operation_1$g.defineAspects)(InsertOneOperation, [operation_1$g.Aspect.RETRYABLE, operation_1$g.Aspect.WRITE_OPERATION]);
+(0, operation_1$g.defineAspects)(InsertManyOperation, [operation_1$g.Aspect.WRITE_OPERATION]);
 
-var update = {};
+var update$1 = {};
 
-Object.defineProperty(update, "__esModule", { value: true });
-update.makeUpdateStatement = update.ReplaceOneOperation = update.UpdateManyOperation = update.UpdateOneOperation = update.UpdateOperation = void 0;
-const error_1$z = error;
-const utils_1$l = utils;
+Object.defineProperty(update$1, "__esModule", { value: true });
+update$1.makeUpdateStatement = update$1.ReplaceOneOperation = update$1.UpdateManyOperation = update$1.UpdateOneOperation = update$1.UpdateOperation = void 0;
+const error_1$A = error;
+const utils_1$n = utils;
 const command_1$9 = command;
-const operation_1$c = operation;
+const operation_1$f = operation;
 /** @internal */
 class UpdateOperation extends command_1$9.CommandOperation {
     constructor(ns, statements, options) {
@@ -3784,7 +3891,7 @@ class UpdateOperation extends command_1$9.CommandOperation {
         }
         return this.statements.every(op => op.multi == null || op.multi === false);
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const options = this.options ?? {};
         const ordered = typeof options.ordered === 'boolean' ? options.ordered : true;
         const command = {
@@ -3807,32 +3914,32 @@ class UpdateOperation extends command_1$9.CommandOperation {
         if (unacknowledgedWrite) {
             if (this.statements.find((o) => o.hint)) {
                 // TODO(NODE-3541): fix error for hint with unacknowledged writes
-                callback(new error_1$z.MongoCompatibilityError(`hint is not supported with unacknowledged writes`));
+                callback(new error_1$A.MongoCompatibilityError(`hint is not supported with unacknowledged writes`));
                 return;
             }
         }
         super.executeCommand(server, session, command, callback);
     }
 }
-update.UpdateOperation = UpdateOperation;
+update$1.UpdateOperation = UpdateOperation;
 /** @internal */
 class UpdateOneOperation extends UpdateOperation {
     constructor(collection, filter, update, options) {
         super(collection.s.namespace, [makeUpdateStatement(filter, update, { ...options, multi: false })], options);
-        if (!(0, utils_1$l.hasAtomicOperators)(update)) {
-            throw new error_1$z.MongoInvalidArgumentError('Update document requires atomic operators');
+        if (!(0, utils_1$n.hasAtomicOperators)(update)) {
+            throw new error_1$A.MongoInvalidArgumentError('Update document requires atomic operators');
         }
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, res) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, res) => {
             if (err || !res)
                 return callback(err);
             if (this.explain != null)
                 return callback(undefined, res);
             if (res.code)
-                return callback(new error_1$z.MongoServerError(res));
+                return callback(new error_1$A.MongoServerError(res));
             if (res.writeErrors)
-                return callback(new error_1$z.MongoServerError(res.writeErrors[0]));
+                return callback(new error_1$A.MongoServerError(res.writeErrors[0]));
             callback(undefined, {
                 acknowledged: this.writeConcern?.w !== 0 ?? true,
                 modifiedCount: res.nModified != null ? res.nModified : res.n,
@@ -3843,25 +3950,25 @@ class UpdateOneOperation extends UpdateOperation {
         });
     }
 }
-update.UpdateOneOperation = UpdateOneOperation;
+update$1.UpdateOneOperation = UpdateOneOperation;
 /** @internal */
 class UpdateManyOperation extends UpdateOperation {
     constructor(collection, filter, update, options) {
         super(collection.s.namespace, [makeUpdateStatement(filter, update, { ...options, multi: true })], options);
-        if (!(0, utils_1$l.hasAtomicOperators)(update)) {
-            throw new error_1$z.MongoInvalidArgumentError('Update document requires atomic operators');
+        if (!(0, utils_1$n.hasAtomicOperators)(update)) {
+            throw new error_1$A.MongoInvalidArgumentError('Update document requires atomic operators');
         }
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, res) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, res) => {
             if (err || !res)
                 return callback(err);
             if (this.explain != null)
                 return callback(undefined, res);
             if (res.code)
-                return callback(new error_1$z.MongoServerError(res));
+                return callback(new error_1$A.MongoServerError(res));
             if (res.writeErrors)
-                return callback(new error_1$z.MongoServerError(res.writeErrors[0]));
+                return callback(new error_1$A.MongoServerError(res.writeErrors[0]));
             callback(undefined, {
                 acknowledged: this.writeConcern?.w !== 0 ?? true,
                 modifiedCount: res.nModified != null ? res.nModified : res.n,
@@ -3872,25 +3979,25 @@ class UpdateManyOperation extends UpdateOperation {
         });
     }
 }
-update.UpdateManyOperation = UpdateManyOperation;
+update$1.UpdateManyOperation = UpdateManyOperation;
 /** @internal */
 class ReplaceOneOperation extends UpdateOperation {
     constructor(collection, filter, replacement, options) {
         super(collection.s.namespace, [makeUpdateStatement(filter, replacement, { ...options, multi: false })], options);
-        if ((0, utils_1$l.hasAtomicOperators)(replacement)) {
-            throw new error_1$z.MongoInvalidArgumentError('Replacement document must not contain atomic operators');
+        if ((0, utils_1$n.hasAtomicOperators)(replacement)) {
+            throw new error_1$A.MongoInvalidArgumentError('Replacement document must not contain atomic operators');
         }
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, res) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, res) => {
             if (err || !res)
                 return callback(err);
             if (this.explain != null)
                 return callback(undefined, res);
             if (res.code)
-                return callback(new error_1$z.MongoServerError(res));
+                return callback(new error_1$A.MongoServerError(res));
             if (res.writeErrors)
-                return callback(new error_1$z.MongoServerError(res.writeErrors[0]));
+                return callback(new error_1$A.MongoServerError(res.writeErrors[0]));
             callback(undefined, {
                 acknowledged: this.writeConcern?.w !== 0 ?? true,
                 modifiedCount: res.nModified != null ? res.nModified : res.n,
@@ -3901,13 +4008,13 @@ class ReplaceOneOperation extends UpdateOperation {
         });
     }
 }
-update.ReplaceOneOperation = ReplaceOneOperation;
+update$1.ReplaceOneOperation = ReplaceOneOperation;
 function makeUpdateStatement(filter, update, options) {
     if (filter == null || typeof filter !== 'object') {
-        throw new error_1$z.MongoInvalidArgumentError('Selector must be a valid JavaScript object');
+        throw new error_1$A.MongoInvalidArgumentError('Selector must be a valid JavaScript object');
     }
     if (update == null || typeof update !== 'object') {
-        throw new error_1$z.MongoInvalidArgumentError('Document must be a valid JavaScript object');
+        throw new error_1$A.MongoInvalidArgumentError('Document must be a valid JavaScript object');
     }
     const op = { q: filter, u: update };
     if (typeof options.upsert === 'boolean') {
@@ -3927,23 +4034,23 @@ function makeUpdateStatement(filter, update, options) {
     }
     return op;
 }
-update.makeUpdateStatement = makeUpdateStatement;
-(0, operation_1$c.defineAspects)(UpdateOperation, [operation_1$c.Aspect.RETRYABLE, operation_1$c.Aspect.WRITE_OPERATION, operation_1$c.Aspect.SKIP_COLLATION]);
-(0, operation_1$c.defineAspects)(UpdateOneOperation, [
-    operation_1$c.Aspect.RETRYABLE,
-    operation_1$c.Aspect.WRITE_OPERATION,
-    operation_1$c.Aspect.EXPLAINABLE,
-    operation_1$c.Aspect.SKIP_COLLATION
+update$1.makeUpdateStatement = makeUpdateStatement;
+(0, operation_1$f.defineAspects)(UpdateOperation, [operation_1$f.Aspect.RETRYABLE, operation_1$f.Aspect.WRITE_OPERATION, operation_1$f.Aspect.SKIP_COLLATION]);
+(0, operation_1$f.defineAspects)(UpdateOneOperation, [
+    operation_1$f.Aspect.RETRYABLE,
+    operation_1$f.Aspect.WRITE_OPERATION,
+    operation_1$f.Aspect.EXPLAINABLE,
+    operation_1$f.Aspect.SKIP_COLLATION
 ]);
-(0, operation_1$c.defineAspects)(UpdateManyOperation, [
-    operation_1$c.Aspect.WRITE_OPERATION,
-    operation_1$c.Aspect.EXPLAINABLE,
-    operation_1$c.Aspect.SKIP_COLLATION
+(0, operation_1$f.defineAspects)(UpdateManyOperation, [
+    operation_1$f.Aspect.WRITE_OPERATION,
+    operation_1$f.Aspect.EXPLAINABLE,
+    operation_1$f.Aspect.SKIP_COLLATION
 ]);
-(0, operation_1$c.defineAspects)(ReplaceOneOperation, [
-    operation_1$c.Aspect.RETRYABLE,
-    operation_1$c.Aspect.WRITE_OPERATION,
-    operation_1$c.Aspect.SKIP_COLLATION
+(0, operation_1$f.defineAspects)(ReplaceOneOperation, [
+    operation_1$f.Aspect.RETRYABLE,
+    operation_1$f.Aspect.WRITE_OPERATION,
+    operation_1$f.Aspect.SKIP_COLLATION
 ]);
 
 (function (exports) {
@@ -3955,7 +4062,7 @@ update.makeUpdateStatement = makeUpdateStatement;
 	const execute_operation_1 = execute_operation;
 	const insert_1 = insert;
 	const operation_1 = operation;
-	const update_1 = update;
+	const update_1 = update$1;
 	const utils_1 = utils;
 	const write_concern_1 = write_concern;
 	/** @internal */
@@ -4318,13 +4425,13 @@ update.makeUpdateStatement = makeUpdateStatement;
 	    }
 	    try {
 	        if (isInsertBatch(batch)) {
-	            (0, execute_operation_1.executeOperation)(bulkOperation.s.collection.s.db.s.client, new insert_1.InsertOperation(bulkOperation.s.namespace, batch.operations, finalOptions), resultHandler);
+	            (0, execute_operation_1.executeOperation)(bulkOperation.s.collection.client, new insert_1.InsertOperation(bulkOperation.s.namespace, batch.operations, finalOptions), resultHandler);
 	        }
 	        else if (isUpdateBatch(batch)) {
-	            (0, execute_operation_1.executeOperation)(bulkOperation.s.collection.s.db.s.client, new update_1.UpdateOperation(bulkOperation.s.namespace, batch.operations, finalOptions), resultHandler);
+	            (0, execute_operation_1.executeOperation)(bulkOperation.s.collection.client, new update_1.UpdateOperation(bulkOperation.s.namespace, batch.operations, finalOptions), resultHandler);
 	        }
 	        else if (isDeleteBatch(batch)) {
-	            (0, execute_operation_1.executeOperation)(bulkOperation.s.collection.s.db.s.client, new delete_1.DeleteOperation(bulkOperation.s.namespace, batch.operations, finalOptions), resultHandler);
+	            (0, execute_operation_1.executeOperation)(bulkOperation.s.collection.client, new delete_1.DeleteOperation(bulkOperation.s.namespace, batch.operations, finalOptions), resultHandler);
 	        }
 	    }
 	    catch (err) {
@@ -4484,12 +4591,12 @@ update.makeUpdateStatement = makeUpdateStatement;
 	 * We would like this logic to simply live inside the BulkWriteOperation class
 	 * @internal
 	 */
-	class BulkWriteShimOperation extends operation_1.AbstractOperation {
+	class BulkWriteShimOperation extends operation_1.AbstractCallbackOperation {
 	    constructor(bulkOperation, options) {
 	        super(options);
 	        this.bulkOperation = bulkOperation;
 	    }
-	    execute(server, session, callback) {
+	    executeCallback(server, session, callback) {
 	        if (this.options.session == null) {
 	            // An implicit session could have been created by 'executeOperation'
 	            // So if we stick it on finalOptions here, each bulk operation
@@ -4782,7 +4889,7 @@ update.makeUpdateStatement = makeUpdateStatement;
 	        this.s.executed = true;
 	        const finalOptions = { ...this.s.options, ...options };
 	        const operation = new BulkWriteShimOperation(this, finalOptions);
-	        return (0, execute_operation_1.executeOperation)(this.s.collection.s.db.s.client, operation);
+	        return (0, execute_operation_1.executeOperation)(this.s.collection.client, operation);
 	    }
 	    /**
 	     * Handles the write error before executing commands
@@ -4846,7 +4953,7 @@ update.makeUpdateStatement = makeUpdateStatement;
 Object.defineProperty(ordered, "__esModule", { value: true });
 ordered.OrderedBulkOperation = void 0;
 const BSON$3 = bson;
-const error_1$y = error;
+const error_1$z = error;
 const common_1$6 = common;
 /** @public */
 class OrderedBulkOperation extends common_1$6.BulkOperationBase {
@@ -4865,7 +4972,7 @@ class OrderedBulkOperation extends common_1$6.BulkOperationBase {
         // Throw error if the doc is bigger than the max BSON size
         if (bsonSize >= this.s.maxBsonObjectSize)
             // TODO(NODE-3483): Change this to MongoBSONError
-            throw new error_1$y.MongoInvalidArgumentError(`Document is larger than the maximum size ${this.s.maxBsonObjectSize}`);
+            throw new error_1$z.MongoInvalidArgumentError(`Document is larger than the maximum size ${this.s.maxBsonObjectSize}`);
         // Create a new batch object if we don't have a current one
         if (this.s.currentBatch == null) {
             this.s.currentBatch = new common_1$6.Batch(batchType, this.s.currentIndex);
@@ -4897,7 +5004,7 @@ class OrderedBulkOperation extends common_1$6.BulkOperationBase {
         }
         // We have an array of documents
         if (Array.isArray(document)) {
-            throw new error_1$y.MongoInvalidArgumentError('Operation passed in cannot be an Array');
+            throw new error_1$z.MongoInvalidArgumentError('Operation passed in cannot be an Array');
         }
         this.s.currentBatch.originalIndexes.push(this.s.currentIndex);
         this.s.currentBatch.operations.push(document);
@@ -4914,7 +5021,7 @@ var unordered = {};
 Object.defineProperty(unordered, "__esModule", { value: true });
 unordered.UnorderedBulkOperation = void 0;
 const BSON$2 = bson;
-const error_1$x = error;
+const error_1$y = error;
 const common_1$5 = common;
 /** @public */
 class UnorderedBulkOperation extends common_1$5.BulkOperationBase {
@@ -4939,7 +5046,7 @@ class UnorderedBulkOperation extends common_1$5.BulkOperationBase {
         // Throw error if the doc is bigger than the max BSON size
         if (bsonSize >= this.s.maxBsonObjectSize) {
             // TODO(NODE-3483): Change this to MongoBSONError
-            throw new error_1$x.MongoInvalidArgumentError(`Document is larger than the maximum size ${this.s.maxBsonObjectSize}`);
+            throw new error_1$y.MongoInvalidArgumentError(`Document is larger than the maximum size ${this.s.maxBsonObjectSize}`);
         }
         // Holds the current batch
         this.s.currentBatch = undefined;
@@ -4975,7 +5082,7 @@ class UnorderedBulkOperation extends common_1$5.BulkOperationBase {
         }
         // We have an array of documents
         if (Array.isArray(document)) {
-            throw new error_1$x.MongoInvalidArgumentError('Operation passed in cannot be an Array');
+            throw new error_1$y.MongoInvalidArgumentError('Operation passed in cannot be an Array');
         }
         this.s.currentBatch.operations.push(document);
         this.s.currentBatch.originalIndexes.push(this.s.currentIndex);
@@ -5015,6 +5122,7 @@ var aggregate = {};
 	exports.AggregateOperation = exports.DB_AGGREGATE_COLLECTION = void 0;
 	const error_1 = error;
 	const utils_1 = utils;
+	const write_concern_1 = write_concern;
 	const command_1 = command;
 	const operation_1 = operation;
 	/** @internal */
@@ -5059,7 +5167,7 @@ var aggregate = {};
 	    addToPipeline(stage) {
 	        this.pipeline.push(stage);
 	    }
-	    execute(server, session, callback) {
+	    executeCallback(server, session, callback) {
 	        const options = this.options;
 	        const serverWireVersion = (0, utils_1.maxWireVersion)(server);
 	        const command = { aggregate: this.target, pipeline: this.pipeline };
@@ -5067,7 +5175,7 @@ var aggregate = {};
 	            this.readConcern = undefined;
 	        }
 	        if (this.hasWriteStage && this.writeConcern) {
-	            Object.assign(command, { writeConcern: this.writeConcern });
+	            write_concern_1.WriteConcern.apply(command, this.writeConcern);
 	        }
 	        if (options.bypassDocumentValidation === true) {
 	            command.bypassDocumentValidation = options.bypassDocumentValidation;
@@ -5136,11 +5244,11 @@ var get_more = {};
 
 Object.defineProperty(get_more, "__esModule", { value: true });
 get_more.GetMoreOperation = void 0;
-const error_1$w = error;
-const utils_1$k = utils;
-const operation_1$b = operation;
+const error_1$x = error;
+const utils_1$m = utils;
+const operation_1$e = operation;
 /** @internal */
-class GetMoreOperation extends operation_1$b.AbstractOperation {
+class GetMoreOperation extends operation_1$e.AbstractCallbackOperation {
     constructor(ns, cursorId, server, options) {
         super(options);
         this.options = options;
@@ -5152,18 +5260,18 @@ class GetMoreOperation extends operation_1$b.AbstractOperation {
      * Although there is a server already associated with the get more operation, the signature
      * for execute passes a server so we will just use that one.
      */
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         if (server !== this.server) {
-            return callback(new error_1$w.MongoRuntimeError('Getmore must run on the same server operation began on'));
+            return callback(new error_1$x.MongoRuntimeError('Getmore must run on the same server operation began on'));
         }
         if (this.cursorId == null || this.cursorId.isZero()) {
-            return callback(new error_1$w.MongoRuntimeError('Unable to iterate cursor with no id'));
+            return callback(new error_1$x.MongoRuntimeError('Unable to iterate cursor with no id'));
         }
         const collection = this.ns.collection;
         if (collection == null) {
             // Cursors should have adopted the namespace returned by MongoDB
             // which should always defined a collection name (even a pseudo one, ex. db.aggregate())
-            return callback(new error_1$w.MongoRuntimeError('A collection name must be determined before getMore'));
+            return callback(new error_1$x.MongoRuntimeError('A collection name must be determined before getMore'));
         }
         const getMoreCmd = {
             getMore: this.cursorId,
@@ -5177,7 +5285,7 @@ class GetMoreOperation extends operation_1$b.AbstractOperation {
         }
         // we check for undefined specifically here to allow falsy values
         // eslint-disable-next-line no-restricted-syntax
-        if (this.options.comment !== undefined && (0, utils_1$k.maxWireVersion)(server) >= 9) {
+        if (this.options.comment !== undefined && (0, utils_1$m.maxWireVersion)(server) >= 9) {
             getMoreCmd.comment = this.options.comment;
         }
         const commandOptions = {
@@ -5189,30 +5297,30 @@ class GetMoreOperation extends operation_1$b.AbstractOperation {
     }
 }
 get_more.GetMoreOperation = GetMoreOperation;
-(0, operation_1$b.defineAspects)(GetMoreOperation, [operation_1$b.Aspect.READ_OPERATION, operation_1$b.Aspect.MUST_SELECT_SAME_SERVER]);
+(0, operation_1$e.defineAspects)(GetMoreOperation, [operation_1$e.Aspect.READ_OPERATION, operation_1$e.Aspect.MUST_SELECT_SAME_SERVER]);
 
 var kill_cursors = {};
 
 Object.defineProperty(kill_cursors, "__esModule", { value: true });
 kill_cursors.KillCursorsOperation = void 0;
-const error_1$v = error;
-const operation_1$a = operation;
-class KillCursorsOperation extends operation_1$a.AbstractOperation {
+const error_1$w = error;
+const operation_1$d = operation;
+class KillCursorsOperation extends operation_1$d.AbstractCallbackOperation {
     constructor(cursorId, ns, server, options) {
         super(options);
         this.ns = ns;
         this.cursorId = cursorId;
         this.server = server;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         if (server !== this.server) {
-            return callback(new error_1$v.MongoRuntimeError('Killcursor must run on the same server operation began on'));
+            return callback(new error_1$w.MongoRuntimeError('Killcursor must run on the same server operation began on'));
         }
         const killCursors = this.ns.collection;
         if (killCursors == null) {
             // Cursors should have adopted the namespace returned by MongoDB
             // which should always defined a collection name (even a pseudo one, ex. db.aggregate())
-            return callback(new error_1$v.MongoRuntimeError('A collection name must be determined before killCursors'));
+            return callback(new error_1$w.MongoRuntimeError('A collection name must be determined before killCursors'));
         }
         const killCursorsCommand = {
             killCursors,
@@ -5222,7 +5330,7 @@ class KillCursorsOperation extends operation_1$a.AbstractOperation {
     }
 }
 kill_cursors.KillCursorsOperation = KillCursorsOperation;
-(0, operation_1$a.defineAspects)(KillCursorsOperation, [operation_1$a.Aspect.MUST_SELECT_SAME_SERVER]);
+(0, operation_1$d.defineAspects)(KillCursorsOperation, [operation_1$d.Aspect.MUST_SELECT_SAME_SERVER]);
 
 var sessions = {};
 
@@ -5284,10 +5392,10 @@ class ConnectionPoolMetrics {
         this.otherConnections = 0;
     }
 }
-metrics.ConnectionPoolMetrics = ConnectionPoolMetrics;
 ConnectionPoolMetrics.TXN = 'txn';
 ConnectionPoolMetrics.CURSOR = 'cursor';
 ConnectionPoolMetrics.OTHER = 'other';
+metrics.ConnectionPoolMetrics = ConnectionPoolMetrics;
 
 var shared = {};
 
@@ -5298,8 +5406,8 @@ var server_description = {};
 Object.defineProperty(server_description, "__esModule", { value: true });
 server_description.compareTopologyVersion = server_description.parseServerType = server_description.ServerDescription = void 0;
 const bson_1$7 = bson;
-const error_1$u = error;
-const utils_1$j = utils;
+const error_1$v = error;
+const utils_1$l = utils;
 const common_1$4 = common$1;
 const WRITABLE_SERVER_TYPES = new Set([
     common_1$4.ServerType.RSPrimary,
@@ -5330,11 +5438,11 @@ class ServerDescription {
      */
     constructor(address, hello, options = {}) {
         if (address == null || address === '') {
-            throw new error_1$u.MongoRuntimeError('ServerDescription must be provided with a non-empty address');
+            throw new error_1$v.MongoRuntimeError('ServerDescription must be provided with a non-empty address');
         }
         this.address =
             typeof address === 'string'
-                ? utils_1$j.HostAddress.fromString(address).toString() // Use HostAddress to normalize
+                ? utils_1$l.HostAddress.fromString(address).toString() // Use HostAddress to normalize
                 : address.toString();
         this.type = parseServerType(hello, options);
         this.hosts = hello?.hosts?.map((host) => host.toLowerCase()) ?? [];
@@ -5344,7 +5452,7 @@ class ServerDescription {
         this.minWireVersion = hello?.minWireVersion ?? 0;
         this.maxWireVersion = hello?.maxWireVersion ?? 0;
         this.roundTripTime = options?.roundTripTime ?? -1;
-        this.lastUpdateTime = (0, utils_1$j.now)();
+        this.lastUpdateTime = (0, utils_1$l.now)();
         this.lastWriteDate = hello?.lastWrite?.lastWriteDate ?? 0;
         this.error = options.error ?? null;
         // TODO(NODE-2674): Preserve int64 sent from MongoDB
@@ -5358,7 +5466,7 @@ class ServerDescription {
         this.$clusterTime = hello?.$clusterTime ?? null;
     }
     get hostAddress() {
-        return utils_1$j.HostAddress.fromString(this.address);
+        return utils_1$l.HostAddress.fromString(this.address);
     }
     get allHosts() {
         return this.hosts.concat(this.arbiters).concat(this.passives);
@@ -5393,13 +5501,13 @@ class ServerDescription {
         const topologyVersionsEqual = this.topologyVersion === other?.topologyVersion ||
             compareTopologyVersion(this.topologyVersion, other?.topologyVersion) === 0;
         const electionIdsEqual = this.electionId != null && other?.electionId != null
-            ? (0, utils_1$j.compareObjectId)(this.electionId, other.electionId) === 0
+            ? (0, utils_1$l.compareObjectId)(this.electionId, other.electionId) === 0
             : this.electionId === other?.electionId;
         return (other != null &&
-            (0, utils_1$j.errorStrictEqual)(this.error, other.error) &&
+            (0, utils_1$l.errorStrictEqual)(this.error, other.error) &&
             this.type === other.type &&
             this.minWireVersion === other.minWireVersion &&
-            (0, utils_1$j.arrayStrictEqual)(this.hosts, other.hosts) &&
+            (0, utils_1$l.arrayStrictEqual)(this.hosts, other.hosts) &&
             tagsStrictEqual(this.tags, other.tags) &&
             this.setName === other.setName &&
             this.setVersion === other.setVersion &&
@@ -5486,8 +5594,8 @@ server_description.compareTopologyVersion = compareTopologyVersion;
 Object.defineProperty(topology_description, "__esModule", { value: true });
 topology_description.TopologyDescription = void 0;
 const WIRE_CONSTANTS = constants$1;
-const error_1$t = error;
-const utils_1$i = utils;
+const error_1$u = error;
+const utils_1$k = utils;
 const common_1$3 = common$1;
 const server_description_1$1 = server_description;
 // constants related to compatibility checks
@@ -5599,7 +5707,7 @@ class TopologyDescription {
             }
             else if (serverDescriptions.size < srvMaxHosts) {
                 // Add only the amount needed to get us back to srvMaxHosts
-                const selectedHosts = (0, utils_1$i.shuffle)(hostnamesToAdd, srvMaxHosts - serverDescriptions.size);
+                const selectedHosts = (0, utils_1$k.shuffle)(hostnamesToAdd, srvMaxHosts - serverDescriptions.size);
                 for (const selectedHostToAdd of selectedHosts) {
                     serverDescriptions.set(selectedHostToAdd, new server_description_1$1.ServerDescription(selectedHostToAdd));
                 }
@@ -5744,7 +5852,7 @@ function updateRsFromPrimary(serverDescriptions, serverDescription, setName = nu
         return [checkHasPrimary(serverDescriptions), setName, maxSetVersion, maxElectionId];
     }
     if (serverDescription.maxWireVersion >= 17) {
-        const electionIdComparison = (0, utils_1$i.compareObjectId)(maxElectionId, serverDescription.electionId);
+        const electionIdComparison = (0, utils_1$k.compareObjectId)(maxElectionId, serverDescription.electionId);
         const maxElectionIdIsEqual = electionIdComparison === 0;
         const maxElectionIdIsLess = electionIdComparison === -1;
         const maxSetVersionIsLessOrEqual = (maxSetVersion ?? -1) <= (serverDescription.setVersion ?? -1);
@@ -5767,7 +5875,7 @@ function updateRsFromPrimary(serverDescriptions, serverDescription, setName = nu
         if (serverDescription.setVersion && electionId) {
             if (maxSetVersion && maxElectionId) {
                 if (maxSetVersion > serverDescription.setVersion ||
-                    (0, utils_1$i.compareObjectId)(maxElectionId, electionId) > 0) {
+                    (0, utils_1$k.compareObjectId)(maxElectionId, electionId) > 0) {
                     // this primary is stale, we must remove it
                     serverDescriptions.set(serverDescription.address, new server_description_1$1.ServerDescription(serverDescription.address));
                     return [checkHasPrimary(serverDescriptions), setName, maxSetVersion, maxElectionId];
@@ -5808,7 +5916,7 @@ function updateRsFromPrimary(serverDescriptions, serverDescription, setName = nu
 function updateRsWithPrimaryFromMember(serverDescriptions, serverDescription, setName = null) {
     if (setName == null) {
         // TODO(NODE-3483): should be an appropriate runtime error
-        throw new error_1$t.MongoRuntimeError('Argument "setName" is required if connected to a replica set');
+        throw new error_1$u.MongoRuntimeError('Argument "setName" is required if connected to a replica set');
     }
     if (setName !== serverDescription.setName ||
         (serverDescription.me && serverDescription.address !== serverDescription.me)) {
@@ -5844,7 +5952,7 @@ function checkHasPrimary(serverDescriptions) {
 
 Object.defineProperty(shared, "__esModule", { value: true });
 shared.isSharded = shared.getReadPreference = void 0;
-const error_1$s = error;
+const error_1$t = error;
 const read_preference_1$3 = read_preference;
 const common_1$2 = common$1;
 const topology_description_1 = topology_description;
@@ -5859,7 +5967,7 @@ function getReadPreference(options) {
         readPreference = read_preference_1$3.ReadPreference.fromString(readPreference);
     }
     if (!(readPreference instanceof read_preference_1$3.ReadPreference)) {
-        throw new error_1$s.MongoInvalidArgumentError('Option "readPreference" must be a ReadPreference instance');
+        throw new error_1$t.MongoInvalidArgumentError('Option "readPreference" must be a ReadPreference instance');
     }
     return readPreference;
 }
@@ -6031,15 +6139,16 @@ const bson_1$6 = bson;
 const metrics_1 = metrics;
 const shared_1$1 = shared;
 const constants_1$4 = constants;
-const error_1$r = error;
+const error_1$s = error;
 const mongo_types_1$3 = mongo_types;
-const execute_operation_1$4 = execute_operation;
-const run_command_1 = run_command;
+const execute_operation_1$5 = execute_operation;
+const run_command_1$1 = run_command;
 const read_concern_1$1 = read_concern;
 const read_preference_1$2 = read_preference;
 const common_1$1 = common$1;
 const transactions_1 = transactions;
-const utils_1$h = utils;
+const utils_1$j = utils;
+const write_concern_1$2 = write_concern;
 const minWireVersionForShardedTransactions = 8;
 /** @internal */
 const kServerSession = Symbol('serverSession');
@@ -6072,17 +6181,17 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
         this[_a$1] = false;
         if (client == null) {
             // TODO(NODE-3483)
-            throw new error_1$r.MongoRuntimeError('ClientSession requires a MongoClient');
+            throw new error_1$s.MongoRuntimeError('ClientSession requires a MongoClient');
         }
         if (sessionPool == null || !(sessionPool instanceof ServerSessionPool)) {
             // TODO(NODE-3483)
-            throw new error_1$r.MongoRuntimeError('ClientSession requires a ServerSessionPool');
+            throw new error_1$s.MongoRuntimeError('ClientSession requires a ServerSessionPool');
         }
         options = options ?? {};
         if (options.snapshot === true) {
             this[kSnapshotEnabled] = true;
             if (options.causalConsistency === true) {
-                throw new error_1$r.MongoInvalidArgumentError('Properties "causalConsistency" and "snapshot" are mutually exclusive');
+                throw new error_1$s.MongoInvalidArgumentError('Properties "causalConsistency" and "snapshot" are mutually exclusive');
             }
         }
         this.client = client;
@@ -6111,10 +6220,10 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
         let serverSession = this[kServerSession];
         if (serverSession == null) {
             if (this.explicit) {
-                throw new error_1$r.MongoRuntimeError('Unexpected null serverSession for an explicit session');
+                throw new error_1$s.MongoRuntimeError('Unexpected null serverSession for an explicit session');
             }
             if (this.hasEnded) {
-                throw new error_1$r.MongoRuntimeError('Unexpected null serverSession for an ended implicit session');
+                throw new error_1$s.MongoRuntimeError('Unexpected null serverSession for an ended implicit session');
             }
             serverSession = this.sessionPool.acquire();
             this[kServerSession] = serverSession;
@@ -6204,10 +6313,10 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
      */
     advanceClusterTime(clusterTime) {
         if (!clusterTime || typeof clusterTime !== 'object') {
-            throw new error_1$r.MongoInvalidArgumentError('input cluster time must be an object');
+            throw new error_1$s.MongoInvalidArgumentError('input cluster time must be an object');
         }
         if (!clusterTime.clusterTime || clusterTime.clusterTime._bsontype !== 'Timestamp') {
-            throw new error_1$r.MongoInvalidArgumentError('input cluster time "clusterTime" property must be a valid BSON Timestamp');
+            throw new error_1$s.MongoInvalidArgumentError('input cluster time "clusterTime" property must be a valid BSON Timestamp');
         }
         if (!clusterTime.signature ||
             clusterTime.signature.hash?._bsontype !== 'Binary' ||
@@ -6215,7 +6324,7 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
                 typeof clusterTime.signature.keyId !== 'number' &&
                 clusterTime.signature.keyId?._bsontype !== 'Long') // apparently we decode the key to number?
         ) {
-            throw new error_1$r.MongoInvalidArgumentError('input cluster time must have a valid "signature" property with BSON Binary hash and BSON Long keyId');
+            throw new error_1$s.MongoInvalidArgumentError('input cluster time must have a valid "signature" property with BSON Binary hash and BSON Long keyId');
         }
         (0, common_1$1._advanceClusterTime)(this, clusterTime);
     }
@@ -6231,7 +6340,7 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
         if (this.id == null || session.id == null) {
             return false;
         }
-        return utils_1$h.ByteUtils.equals(this.id.id.buffer, session.id.id.buffer);
+        return utils_1$j.ByteUtils.equals(this.id.id.buffer, session.id.id.buffer);
     }
     /**
      * Increment the transaction number on the internal ServerSession
@@ -6255,19 +6364,19 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
      */
     startTransaction(options) {
         if (this[kSnapshotEnabled]) {
-            throw new error_1$r.MongoCompatibilityError('Transactions are not supported in snapshot sessions');
+            throw new error_1$s.MongoCompatibilityError('Transactions are not supported in snapshot sessions');
         }
         if (this.inTransaction()) {
-            throw new error_1$r.MongoTransactionError('Transaction already in progress');
+            throw new error_1$s.MongoTransactionError('Transaction already in progress');
         }
         if (this.isPinned && this.transaction.isCommitted) {
             this.unpin();
         }
-        const topologyMaxWireVersion = (0, utils_1$h.maxWireVersion)(this.client.topology);
+        const topologyMaxWireVersion = (0, utils_1$j.maxWireVersion)(this.client.topology);
         if ((0, shared_1$1.isSharded)(this.client.topology) &&
             topologyMaxWireVersion != null &&
             topologyMaxWireVersion < minWireVersionForShardedTransactions) {
-            throw new error_1$r.MongoCompatibilityError('Transactions are not supported on sharded clusters in MongoDB < 4.2.');
+            throw new error_1$s.MongoCompatibilityError('Transactions are not supported on sharded clusters in MongoDB < 4.2.');
         }
         // increment txnNumber
         this.incrementTransactionNumber();
@@ -6302,7 +6411,7 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
      * This is here to ensure that ClientSession is never serialized to BSON.
      */
     toBSON() {
-        throw new error_1$r.MongoRuntimeError('ClientSession cannot be serialized to BSON.');
+        throw new error_1$s.MongoRuntimeError('ClientSession cannot be serialized to BSON.');
     }
     /**
      * Runs a provided callback within a transaction, retrying either the commitTransaction operation
@@ -6326,7 +6435,7 @@ class ClientSession extends mongo_types_1$3.TypedEventEmitter {
      * @returns A raw command response or undefined
      */
     async withTransaction(fn, options) {
-        const startTime = (0, utils_1$h.now)();
+        const startTime = (0, utils_1$j.now)();
         return attemptTransaction(this, startTime, fn, options);
     }
 }
@@ -6339,16 +6448,16 @@ const NON_DETERMINISTIC_WRITE_CONCERN_ERRORS = new Set([
     'UnsatisfiableWriteConcern'
 ]);
 function hasNotTimedOut(startTime, max) {
-    return (0, utils_1$h.calculateDurationInMs)(startTime) < max;
+    return (0, utils_1$j.calculateDurationInMs)(startTime) < max;
 }
 function isUnknownTransactionCommitResult(err) {
-    const isNonDeterministicWriteConcernError = err instanceof error_1$r.MongoServerError &&
+    const isNonDeterministicWriteConcernError = err instanceof error_1$s.MongoServerError &&
         err.codeName &&
         NON_DETERMINISTIC_WRITE_CONCERN_ERRORS.has(err.codeName);
     return (isMaxTimeMSExpiredError(err) ||
         (!isNonDeterministicWriteConcernError &&
-            err.code !== error_1$r.MONGODB_ERROR_CODES.UnsatisfiableWriteConcern &&
-            err.code !== error_1$r.MONGODB_ERROR_CODES.UnknownReplWriteConcern));
+            err.code !== error_1$s.MONGODB_ERROR_CODES.UnsatisfiableWriteConcern &&
+            err.code !== error_1$s.MONGODB_ERROR_CODES.UnknownReplWriteConcern));
 }
 function maybeClearPinnedConnection(session, options) {
     // unpin a connection if it has been pinned
@@ -6356,8 +6465,8 @@ function maybeClearPinnedConnection(session, options) {
     const error = options?.error;
     if (session.inTransaction() &&
         error &&
-        error instanceof error_1$r.MongoError &&
-        error.hasErrorLabel(error_1$r.MongoErrorLabel.TransientTransactionError)) {
+        error instanceof error_1$s.MongoError &&
+        error.hasErrorLabel(error_1$s.MongoErrorLabel.TransientTransactionError)) {
         return;
     }
     const topology = session.client.topology;
@@ -6380,21 +6489,21 @@ function maybeClearPinnedConnection(session, options) {
 }
 sessions.maybeClearPinnedConnection = maybeClearPinnedConnection;
 function isMaxTimeMSExpiredError(err) {
-    if (err == null || !(err instanceof error_1$r.MongoServerError)) {
+    if (err == null || !(err instanceof error_1$s.MongoServerError)) {
         return false;
     }
-    return (err.code === error_1$r.MONGODB_ERROR_CODES.MaxTimeMSExpired ||
-        (err.writeConcernError && err.writeConcernError.code === error_1$r.MONGODB_ERROR_CODES.MaxTimeMSExpired));
+    return (err.code === error_1$s.MONGODB_ERROR_CODES.MaxTimeMSExpired ||
+        (err.writeConcernError && err.writeConcernError.code === error_1$s.MONGODB_ERROR_CODES.MaxTimeMSExpired));
 }
 function attemptTransactionCommit(session, startTime, fn, options) {
     return session.commitTransaction().catch((err) => {
-        if (err instanceof error_1$r.MongoError &&
+        if (err instanceof error_1$s.MongoError &&
             hasNotTimedOut(startTime, MAX_WITH_TRANSACTION_TIMEOUT) &&
             !isMaxTimeMSExpiredError(err)) {
-            if (err.hasErrorLabel(error_1$r.MongoErrorLabel.UnknownTransactionCommitResult)) {
+            if (err.hasErrorLabel(error_1$s.MongoErrorLabel.UnknownTransactionCommitResult)) {
                 return attemptTransactionCommit(session, startTime, fn, options);
             }
-            if (err.hasErrorLabel(error_1$r.MongoErrorLabel.TransientTransactionError)) {
+            if (err.hasErrorLabel(error_1$s.MongoErrorLabel.TransientTransactionError)) {
                 return attemptTransaction(session, startTime, fn, options);
             }
         }
@@ -6418,9 +6527,9 @@ function attemptTransaction(session, startTime, fn, options) {
     catch (err) {
         promise = Promise.reject(err);
     }
-    if (!(0, utils_1$h.isPromiseLike)(promise)) {
+    if (!(0, utils_1$j.isPromiseLike)(promise)) {
         session.abortTransaction().catch(() => null);
-        throw new error_1$r.MongoInvalidArgumentError('Function provided to `withTransaction` must return a Promise');
+        throw new error_1$s.MongoInvalidArgumentError('Function provided to `withTransaction` must return a Promise');
     }
     return promise.then(() => {
         if (userExplicitlyEndedTransaction(session)) {
@@ -6429,13 +6538,13 @@ function attemptTransaction(session, startTime, fn, options) {
         return attemptTransactionCommit(session, startTime, fn, options);
     }, err => {
         function maybeRetryOrThrow(err) {
-            if (err instanceof error_1$r.MongoError &&
-                err.hasErrorLabel(error_1$r.MongoErrorLabel.TransientTransactionError) &&
+            if (err instanceof error_1$s.MongoError &&
+                err.hasErrorLabel(error_1$s.MongoErrorLabel.TransientTransactionError) &&
                 hasNotTimedOut(startTime, MAX_WITH_TRANSACTION_TIMEOUT)) {
                 return attemptTransaction(session, startTime, fn, options);
             }
             if (isMaxTimeMSExpiredError(err)) {
-                err.addErrorLabel(error_1$r.MongoErrorLabel.UnknownTransactionCommitResult);
+                err.addErrorLabel(error_1$s.MongoErrorLabel.UnknownTransactionCommitResult);
             }
             throw err;
         }
@@ -6450,7 +6559,7 @@ function endTransaction(session, commandName, callback) {
     // handle any initial problematic cases
     const txnState = session.transaction.state;
     if (txnState === transactions_1.TxnState.NO_TRANSACTION) {
-        callback(new error_1$r.MongoTransactionError('No transaction started'));
+        callback(new error_1$s.MongoTransactionError('No transaction started'));
         return;
     }
     if (commandName === 'commitTransaction') {
@@ -6462,7 +6571,7 @@ function endTransaction(session, commandName, callback) {
             return;
         }
         if (txnState === transactions_1.TxnState.TRANSACTION_ABORTED) {
-            callback(new error_1$r.MongoTransactionError('Cannot call commitTransaction after calling abortTransaction'));
+            callback(new error_1$s.MongoTransactionError('Cannot call commitTransaction after calling abortTransaction'));
             return;
         }
     }
@@ -6474,12 +6583,12 @@ function endTransaction(session, commandName, callback) {
             return;
         }
         if (txnState === transactions_1.TxnState.TRANSACTION_ABORTED) {
-            callback(new error_1$r.MongoTransactionError('Cannot call abortTransaction twice'));
+            callback(new error_1$s.MongoTransactionError('Cannot call abortTransaction twice'));
             return;
         }
         if (txnState === transactions_1.TxnState.TRANSACTION_COMMITTED ||
             txnState === transactions_1.TxnState.TRANSACTION_COMMITTED_EMPTY) {
-            callback(new error_1$r.MongoTransactionError('Cannot call abortTransaction after calling commitTransaction'));
+            callback(new error_1$s.MongoTransactionError('Cannot call abortTransaction after calling commitTransaction'));
             return;
         }
     }
@@ -6494,10 +6603,10 @@ function endTransaction(session, commandName, callback) {
         writeConcern = { w: session.clientOptions.writeConcern.w };
     }
     if (txnState === transactions_1.TxnState.TRANSACTION_COMMITTED) {
-        writeConcern = Object.assign({ wtimeout: 10000 }, writeConcern, { w: 'majority' });
+        writeConcern = Object.assign({ wtimeoutMS: 10000 }, writeConcern, { w: 'majority' });
     }
     if (writeConcern) {
-        Object.assign(command, { writeConcern });
+        write_concern_1$2.WriteConcern.apply(command, writeConcern);
     }
     if (commandName === 'commitTransaction' && session.transaction.options.maxTimeMS) {
         Object.assign(command, { maxTimeMS: session.transaction.options.maxTimeMS });
@@ -6512,17 +6621,17 @@ function endTransaction(session, commandName, callback) {
             return callback();
         }
         session.transaction.transition(transactions_1.TxnState.TRANSACTION_COMMITTED);
-        if (error instanceof error_1$r.MongoError) {
-            if (error.hasErrorLabel(error_1$r.MongoErrorLabel.RetryableWriteError) ||
-                error instanceof error_1$r.MongoWriteConcernError ||
+        if (error instanceof error_1$s.MongoError) {
+            if (error.hasErrorLabel(error_1$s.MongoErrorLabel.RetryableWriteError) ||
+                error instanceof error_1$s.MongoWriteConcernError ||
                 isMaxTimeMSExpiredError(error)) {
                 if (isUnknownTransactionCommitResult(error)) {
-                    error.addErrorLabel(error_1$r.MongoErrorLabel.UnknownTransactionCommitResult);
+                    error.addErrorLabel(error_1$s.MongoErrorLabel.UnknownTransactionCommitResult);
                     // per txns spec, must unpin session in this case
                     session.unpin({ error });
                 }
             }
-            else if (error.hasErrorLabel(error_1$r.MongoErrorLabel.TransientTransactionError)) {
+            else if (error.hasErrorLabel(error_1$s.MongoErrorLabel.TransientTransactionError)) {
                 session.unpin({ error });
             }
         }
@@ -6532,7 +6641,7 @@ function endTransaction(session, commandName, callback) {
         command.recoveryToken = session.transaction.recoveryToken;
     }
     // send the command
-    (0, execute_operation_1$4.executeOperation)(session.client, new run_command_1.RunAdminCommandOperation(undefined, command, {
+    (0, execute_operation_1$5.executeOperation)(session.client, new run_command_1$1.RunAdminCommandOperation(undefined, command, {
         session,
         readPreference: read_preference_1$2.ReadPreference.primary,
         bypassPinningCheck: true
@@ -6541,7 +6650,7 @@ function endTransaction(session, commandName, callback) {
             // always unpin on abort regardless of command outcome
             session.unpin();
         }
-        if (error instanceof error_1$r.MongoError && error.hasErrorLabel(error_1$r.MongoErrorLabel.RetryableWriteError)) {
+        if (error instanceof error_1$s.MongoError && error.hasErrorLabel(error_1$s.MongoErrorLabel.RetryableWriteError)) {
             // SPEC-1185: apply majority write concern when retrying commitTransaction
             if (command.commitTransaction) {
                 // per txns spec, must unpin session in this case
@@ -6550,7 +6659,7 @@ function endTransaction(session, commandName, callback) {
                     w: 'majority'
                 });
             }
-            return (0, execute_operation_1$4.executeOperation)(session.client, new run_command_1.RunAdminCommandOperation(undefined, command, {
+            return (0, execute_operation_1$5.executeOperation)(session.client, new run_command_1$1.RunAdminCommandOperation(undefined, command, {
                 session,
                 readPreference: read_preference_1$2.ReadPreference.primary,
                 bypassPinningCheck: true
@@ -6567,8 +6676,8 @@ function endTransaction(session, commandName, callback) {
 class ServerSession {
     /** @internal */
     constructor() {
-        this.id = { id: new bson_1$6.Binary((0, utils_1$h.uuidV4)(), bson_1$6.Binary.SUBTYPE_UUID) };
-        this.lastUse = (0, utils_1$h.now)();
+        this.id = { id: new bson_1$6.Binary((0, utils_1$j.uuidV4)(), bson_1$6.Binary.SUBTYPE_UUID) };
+        this.lastUse = (0, utils_1$j.now)();
         this.txnNumber = 0;
         this.isDirty = false;
     }
@@ -6580,7 +6689,7 @@ class ServerSession {
     hasTimedOut(sessionTimeoutMinutes) {
         // Take the difference of the lastUse timestamp and now, which will result in a value in
         // milliseconds, and then convert milliseconds to minutes to compare to `sessionTimeoutMinutes`
-        const idleTimeMinutes = Math.round((((0, utils_1$h.calculateDurationInMs)(this.lastUse) % 86400000) % 3600000) / 60000);
+        const idleTimeMinutes = Math.round((((0, utils_1$j.calculateDurationInMs)(this.lastUse) % 86400000) % 3600000) / 60000);
         return idleTimeMinutes > sessionTimeoutMinutes - 1;
     }
     /**
@@ -6611,10 +6720,10 @@ sessions.ServerSession = ServerSession;
 class ServerSessionPool {
     constructor(client) {
         if (client == null) {
-            throw new error_1$r.MongoRuntimeError('ServerSessionPool requires a MongoClient');
+            throw new error_1$s.MongoRuntimeError('ServerSessionPool requires a MongoClient');
         }
         this.client = client;
-        this.sessions = new utils_1$h.List();
+        this.sessions = new utils_1$j.List();
     }
     /**
      * Acquire a Server Session from the pool.
@@ -6678,22 +6787,22 @@ sessions.ServerSessionPool = ServerSessionPool;
  */
 function applySession(session, command, options) {
     if (session.hasEnded) {
-        return new error_1$r.MongoExpiredSessionError();
+        return new error_1$s.MongoExpiredSessionError();
     }
     // May acquire serverSession here
     const serverSession = session.serverSession;
     if (serverSession == null) {
-        return new error_1$r.MongoRuntimeError('Unable to acquire server session');
+        return new error_1$s.MongoRuntimeError('Unable to acquire server session');
     }
     if (options.writeConcern?.w === 0) {
         if (session && session.explicit) {
             // Error if user provided an explicit session to an unacknowledged write (SPEC-1019)
-            return new error_1$r.MongoAPIError('Cannot have explicit session with unacknowledged writes');
+            return new error_1$s.MongoAPIError('Cannot have explicit session with unacknowledged writes');
         }
         return;
     }
     // mark the last use of this session, and apply the `lsid`
-    serverSession.lastUse = (0, utils_1$h.now)();
+    serverSession.lastUse = (0, utils_1$j.now)();
     command.lsid = serverSession.id;
     const inTxnOrTxnCommand = session.inTransaction() || (0, transactions_1.isTransactionCommand)(command);
     const isRetryableWrite = !!options.willRetryWrite;
@@ -6709,7 +6818,7 @@ function applySession(session, command, options) {
         }
         if (session.supports.causalConsistency &&
             session.operationTime &&
-            (0, utils_1$h.commandSupportsReadConcern)(command, options)) {
+            (0, utils_1$j.commandSupportsReadConcern)(command, options)) {
             command.readConcern = command.readConcern || {};
             Object.assign(command.readConcern, { afterClusterTime: session.operationTime });
         }
@@ -6762,7 +6871,7 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 
 (function (exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.assertUninitialized = exports.next = exports.AbstractCursor = exports.CURSOR_FLAGS = void 0;
+	exports.assertUninitialized = exports.AbstractCursor = exports.CURSOR_FLAGS = void 0;
 	const stream_1 = require$$0$5;
 	const util_1 = require$$0$6;
 	const bson_1 = bson;
@@ -6970,7 +7079,7 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	        if (this[kDocuments].length !== 0) {
 	            return true;
 	        }
-	        const doc = await nextAsync(this, true);
+	        const doc = await next(this, { blocking: true, transform: false });
 	        if (doc) {
 	            this[kDocuments].unshift(doc);
 	            return true;
@@ -6982,7 +7091,7 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	        if (this[kId] === bson_1.Long.ZERO) {
 	            throw new error_1.MongoCursorExhaustedError();
 	        }
-	        return nextAsync(this, true);
+	        return next(this, { blocking: true, transform: true });
 	    }
 	    /**
 	     * Try to get the next available document from the cursor or `null` if an empty batch is returned
@@ -6991,7 +7100,7 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	        if (this[kId] === bson_1.Long.ZERO) {
 	            throw new error_1.MongoCursorExhaustedError();
 	        }
-	        return nextAsync(this, false);
+	        return next(this, { blocking: false, transform: true });
 	    }
 	    /**
 	     * Iterates over all the documents for this cursor using the iterator, callback pattern.
@@ -7243,17 +7352,9 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	        });
 	    }
 	}
-	exports.AbstractCursor = AbstractCursor;
 	/** @event */
 	AbstractCursor.CLOSE = 'close';
-	function nextDocument(cursor) {
-	    const doc = cursor[kDocuments].shift();
-	    if (doc && cursor[kTransform]) {
-	        return cursor[kTransform](doc);
-	    }
-	    return doc;
-	}
-	const nextAsync = (0, util_1.promisify)(next);
+	exports.AbstractCursor = AbstractCursor;
 	/**
 	 * @param cursor - the cursor on which to call `next`
 	 * @param blocking - a boolean indicating whether or not the cursor should `block` until data
@@ -7261,52 +7362,84 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	 *     the cursor has been exhausted.  In certain scenarios (ChangeStreams, tailable await cursors and
 	 *     `tryNext`, for example) blocking is necessary because a getMore returning no documents does
 	 *     not indicate the end of the cursor.
-	 * @param callback - callback to return the result to the caller
-	 * @returns
+	 * @param transform - if true, the cursor's transform function is applied to the result document (if the transform exists)
+	 * @returns the next document in the cursor, or `null`.  When `blocking` is `true`, a `null` document means
+	 * the cursor has been exhausted.  Otherwise, it means that there is no document available in the cursor's buffer.
 	 */
-	function next(cursor, blocking, callback) {
+	async function next(cursor, { blocking, transform }) {
 	    const cursorId = cursor[kId];
 	    if (cursor.closed) {
-	        return callback(undefined, null);
+	        return null;
 	    }
 	    if (cursor[kDocuments].length !== 0) {
-	        callback(undefined, nextDocument(cursor));
-	        return;
+	        const doc = cursor[kDocuments].shift();
+	        if (doc != null && transform && cursor[kTransform]) {
+	            try {
+	                return cursor[kTransform](doc);
+	            }
+	            catch (error) {
+	                await cleanupCursorAsync(cursor, { error, needsToEmitClosed: true }).catch(() => {
+	                    // `cleanupCursorAsync` should never throw, but if it does we want to throw the original
+	                    // error instead.
+	                });
+	                throw error;
+	            }
+	        }
+	        return doc;
 	    }
 	    if (cursorId == null) {
 	        // All cursors must operate within a session, one must be made implicitly if not explicitly provided
-	        cursor[kInit](err => {
-	            if (err)
-	                return callback(err);
-	            return next(cursor, blocking, callback);
-	        });
-	        return;
+	        const init = (0, util_1.promisify)(cb => cursor[kInit](cb));
+	        await init();
+	        return next(cursor, { blocking, transform });
 	    }
 	    if (cursorIsDead(cursor)) {
-	        return cleanupCursor(cursor, undefined, () => callback(undefined, null));
+	        // if the cursor is dead, we clean it up
+	        // cleanupCursorAsync should never throw, but if it does it indicates a bug in the driver
+	        // and we should surface the error
+	        await cleanupCursorAsync(cursor, {});
+	        return null;
 	    }
 	    // otherwise need to call getMore
 	    const batchSize = cursor[kOptions].batchSize || 1000;
-	    cursor._getMore(batchSize, (error, response) => {
-	        if (response) {
-	            const cursorId = typeof response.cursor.id === 'number'
-	                ? bson_1.Long.fromNumber(response.cursor.id)
-	                : typeof response.cursor.id === 'bigint'
-	                    ? bson_1.Long.fromBigInt(response.cursor.id)
-	                    : response.cursor.id;
-	            cursor[kDocuments].pushMany(response.cursor.nextBatch);
-	            cursor[kId] = cursorId;
+	    const getMore = (0, util_1.promisify)((batchSize, cb) => cursor._getMore(batchSize, cb));
+	    let response;
+	    try {
+	        response = await getMore(batchSize);
+	    }
+	    catch (error) {
+	        if (error) {
+	            await cleanupCursorAsync(cursor, { error }).catch(() => {
+	                // `cleanupCursorAsync` should never throw, but if it does we want to throw the original
+	                // error instead.
+	            });
+	            throw error;
 	        }
-	        if (error || cursorIsDead(cursor)) {
-	            return cleanupCursor(cursor, { error }, () => callback(error, nextDocument(cursor)));
-	        }
-	        if (cursor[kDocuments].length === 0 && blocking === false) {
-	            return callback(undefined, null);
-	        }
-	        next(cursor, blocking, callback);
-	    });
+	    }
+	    if (response) {
+	        const cursorId = typeof response.cursor.id === 'number'
+	            ? bson_1.Long.fromNumber(response.cursor.id)
+	            : typeof response.cursor.id === 'bigint'
+	                ? bson_1.Long.fromBigInt(response.cursor.id)
+	                : response.cursor.id;
+	        cursor[kDocuments].pushMany(response.cursor.nextBatch);
+	        cursor[kId] = cursorId;
+	    }
+	    if (cursorIsDead(cursor)) {
+	        // If we successfully received a response from a cursor BUT the cursor indicates that it is exhausted,
+	        // we intentionally clean up the cursor to release its session back into the pool before the cursor
+	        // is iterated.  This prevents a cursor that is exhausted on the server from holding
+	        // onto a session indefinitely until the AbstractCursor is iterated.
+	        //
+	        // cleanupCursorAsync should never throw, but if it does it indicates a bug in the driver
+	        // and we should surface the error
+	        await cleanupCursorAsync(cursor, {});
+	    }
+	    if (cursor[kDocuments].length === 0 && blocking === false) {
+	        return null;
+	    }
+	    return next(cursor, { blocking, transform });
 	}
-	exports.next = next;
 	function cursorIsDead(cursor) {
 	    const cursorId = cursor[kId];
 	    return !!cursorId && cursorId.isZero();
@@ -7318,6 +7451,9 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	    const server = cursor[kServer];
 	    const session = cursor[kSession];
 	    const error = options?.error;
+	    // Cursors only emit closed events once the client-side cursor has been exhausted fully or there
+	    // was an error.  Notably, when the server returns a cursor id of 0 and a non-empty batch, we
+	    // cleanup the cursor but don't emit a `close` event.
 	    const needsToEmitClosed = options?.needsToEmitClosed ?? cursor[kDocuments].length === 0;
 	    if (error) {
 	        if (cursor.loadBalanced && error instanceof error_1.MongoNetworkError) {
@@ -7395,34 +7531,7 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	        this._cursor.close().then(() => callback(error), closeError => callback(closeError));
 	    }
 	    _readNext() {
-	        next(this._cursor, true, (err, result) => {
-	            if (err) {
-	                // NOTE: This is questionable, but we have a test backing the behavior. It seems the
-	                //       desired behavior is that a stream ends cleanly when a user explicitly closes
-	                //       a client during iteration. Alternatively, we could do the "right" thing and
-	                //       propagate the error message by removing this special case.
-	                if (err.message.match(/server is closed/)) {
-	                    this._cursor.close().catch(() => null);
-	                    return this.push(null);
-	                }
-	                // NOTE: This is also perhaps questionable. The rationale here is that these errors tend
-	                //       to be "operation was interrupted", where a cursor has been closed but there is an
-	                //       active getMore in-flight. This used to check if the cursor was killed but once
-	                //       that changed to happen in cleanup legitimate errors would not destroy the
-	                //       stream. There are change streams test specifically test these cases.
-	                if (err.message.match(/operation was interrupted/)) {
-	                    return this.push(null);
-	                }
-	                // NOTE: The two above checks on the message of the error will cause a null to be pushed
-	                //       to the stream, thus closing the stream before the destroy call happens. This means
-	                //       that either of those error messages on a change stream will not get a proper
-	                //       'error' event to be emitted (the error passed to destroy). Change stream resumability
-	                //       relies on that error event to be emitted to create its new cursor and thus was not
-	                //       working on 4.4 servers because the error emitted on failover was "interrupted at
-	                //       shutdown" while on 5.0+ it is "The server is in quiesce mode and will shut down".
-	                //       See NODE-4475.
-	                return this.destroy(err);
-	            }
+	        next(this._cursor, { blocking: true, transform: true }).then(result => {
 	            if (result == null) {
 	                this.push(null);
 	            }
@@ -7435,6 +7544,32 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	                }
 	                this._readInProgress = false;
 	            }
+	        }, err => {
+	            // NOTE: This is questionable, but we have a test backing the behavior. It seems the
+	            //       desired behavior is that a stream ends cleanly when a user explicitly closes
+	            //       a client during iteration. Alternatively, we could do the "right" thing and
+	            //       propagate the error message by removing this special case.
+	            if (err.message.match(/server is closed/)) {
+	                this._cursor.close().catch(() => null);
+	                return this.push(null);
+	            }
+	            // NOTE: This is also perhaps questionable. The rationale here is that these errors tend
+	            //       to be "operation was interrupted", where a cursor has been closed but there is an
+	            //       active getMore in-flight. This used to check if the cursor was killed but once
+	            //       that changed to happen in cleanup legitimate errors would not destroy the
+	            //       stream. There are change streams test specifically test these cases.
+	            if (err.message.match(/operation was interrupted/)) {
+	                return this.push(null);
+	            }
+	            // NOTE: The two above checks on the message of the error will cause a null to be pushed
+	            //       to the stream, thus closing the stream before the destroy call happens. This means
+	            //       that either of those error messages on a change stream will not get a proper
+	            //       'error' event to be emitted (the error passed to destroy). Change stream resumability
+	            //       relies on that error event to be emitted to create its new cursor and thus was not
+	            //       working on 4.4 servers because the error emitted on failover was "interrupted at
+	            //       shutdown" while on 5.0+ it is "The server is in quiesce mode and will shut down".
+	            //       See NODE-4475.
+	            return this.destroy(err);
 	        });
 	    }
 	}
@@ -7444,9 +7579,9 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 Object.defineProperty(aggregation_cursor, "__esModule", { value: true });
 aggregation_cursor.AggregationCursor = void 0;
 const aggregate_1$1 = aggregate;
-const execute_operation_1$3 = execute_operation;
-const utils_1$g = utils;
-const abstract_cursor_1$3 = abstract_cursor;
+const execute_operation_1$4 = execute_operation;
+const utils_1$i = utils;
+const abstract_cursor_1$4 = abstract_cursor;
 /** @internal */
 const kPipeline = Symbol('pipeline');
 /** @internal */
@@ -7458,7 +7593,7 @@ const kOptions = Symbol('options');
  * or higher stream
  * @public
  */
-class AggregationCursor extends abstract_cursor_1$3.AbstractCursor {
+class AggregationCursor extends abstract_cursor_1$4.AbstractCursor {
     /** @internal */
     constructor(client, namespace, pipeline = [], options = {}) {
         super(client, namespace, options);
@@ -7469,7 +7604,7 @@ class AggregationCursor extends abstract_cursor_1$3.AbstractCursor {
         return this[kPipeline];
     }
     clone() {
-        const clonedOptions = (0, utils_1$g.mergeOptions)({}, this[kOptions]);
+        const clonedOptions = (0, utils_1$i.mergeOptions)({}, this[kOptions]);
         delete clonedOptions.session;
         return new AggregationCursor(this.client, this.namespace, this[kPipeline], {
             ...clonedOptions
@@ -7485,7 +7620,7 @@ class AggregationCursor extends abstract_cursor_1$3.AbstractCursor {
             ...this.cursorOptions,
             session
         });
-        (0, execute_operation_1$3.executeOperation)(this.client, aggregateOperation, (err, response) => {
+        (0, execute_operation_1$4.executeOperation)(this.client, aggregateOperation, (err, response) => {
             if (err || response == null)
                 return callback(err);
             // TODO: NODE-2882
@@ -7494,32 +7629,32 @@ class AggregationCursor extends abstract_cursor_1$3.AbstractCursor {
     }
     /** Execute the explain for the cursor */
     async explain(verbosity) {
-        return (0, execute_operation_1$3.executeOperation)(this.client, new aggregate_1$1.AggregateOperation(this.namespace, this[kPipeline], {
+        return (0, execute_operation_1$4.executeOperation)(this.client, new aggregate_1$1.AggregateOperation(this.namespace, this[kPipeline], {
             ...this[kOptions],
             ...this.cursorOptions,
             explain: verbosity ?? true
         }));
     }
     group($group) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $group });
         return this;
     }
     /** Add a limit stage to the aggregation pipeline */
     limit($limit) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $limit });
         return this;
     }
     /** Add a match stage to the aggregation pipeline */
     match($match) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $match });
         return this;
     }
     /** Add an out stage to the aggregation pipeline */
     out($out) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $out });
         return this;
     }
@@ -7565,43 +7700,43 @@ class AggregationCursor extends abstract_cursor_1$3.AbstractCursor {
      * ```
      */
     project($project) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $project });
         return this;
     }
     /** Add a lookup stage to the aggregation pipeline */
     lookup($lookup) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $lookup });
         return this;
     }
     /** Add a redact stage to the aggregation pipeline */
     redact($redact) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $redact });
         return this;
     }
     /** Add a skip stage to the aggregation pipeline */
     skip($skip) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $skip });
         return this;
     }
     /** Add a sort stage to the aggregation pipeline */
     sort($sort) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $sort });
         return this;
     }
     /** Add a unwind stage to the aggregation pipeline */
     unwind($unwind) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $unwind });
         return this;
     }
     /** Add a geoNear stage to the aggregation pipeline */
     geoNear($geoNear) {
-        (0, abstract_cursor_1$3.assertUninitialized)(this);
+        (0, abstract_cursor_1$4.assertUninitialized)(this);
         this[kPipeline].push({ $geoNear });
         return this;
     }
@@ -7615,7 +7750,7 @@ var count = {};
 Object.defineProperty(count, "__esModule", { value: true });
 count.CountOperation = void 0;
 const command_1$8 = command;
-const operation_1$9 = operation;
+const operation_1$c = operation;
 /** @internal */
 class CountOperation extends command_1$8.CommandOperation {
     constructor(namespace, filter, options) {
@@ -7624,7 +7759,7 @@ class CountOperation extends command_1$8.CommandOperation {
         this.collectionName = namespace.collection;
         this.query = filter;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const options = this.options;
         const cmd = {
             count: this.collectionName,
@@ -7648,7 +7783,7 @@ class CountOperation extends command_1$8.CommandOperation {
     }
 }
 count.CountOperation = CountOperation;
-(0, operation_1$9.defineAspects)(CountOperation, [operation_1$9.Aspect.READ_OPERATION, operation_1$9.Aspect.RETRYABLE]);
+(0, operation_1$c.defineAspects)(CountOperation, [operation_1$c.Aspect.READ_OPERATION, operation_1$c.Aspect.RETRYABLE]);
 
 var find = {};
 
@@ -7656,7 +7791,7 @@ var sort = {};
 
 Object.defineProperty(sort, "__esModule", { value: true });
 sort.formatSort = void 0;
-const error_1$q = error;
+const error_1$r = error;
 /** @internal */
 function prepareDirection(direction = 1) {
     const value = `${direction}`.toLowerCase();
@@ -7672,7 +7807,7 @@ function prepareDirection(direction = 1) {
         case '-1':
             return -1;
         default:
-            throw new error_1$q.MongoInvalidArgumentError(`Invalid sort direction: ${JSON.stringify(direction)}`);
+            throw new error_1$r.MongoInvalidArgumentError(`Invalid sort direction: ${JSON.stringify(direction)}`);
     }
 }
 /** @internal */
@@ -7735,7 +7870,7 @@ function formatSort(sort, direction) {
     if (typeof sort === 'string')
         return new Map([[sort, prepareDirection(direction)]]);
     if (typeof sort !== 'object') {
-        throw new error_1$q.MongoInvalidArgumentError(`Invalid sort format: ${JSON.stringify(sort)} Sort must be a valid object`);
+        throw new error_1$r.MongoInvalidArgumentError(`Invalid sort format: ${JSON.stringify(sort)} Sort must be a valid object`);
     }
     if (!Array.isArray(sort)) {
         return isMap(sort) ? mapToMap(sort) : Object.keys(sort).length ? objectToMap(sort) : undefined;
@@ -7752,12 +7887,12 @@ sort.formatSort = formatSort;
 
 Object.defineProperty(find, "__esModule", { value: true });
 find.FindOperation = void 0;
-const error_1$p = error;
+const error_1$q = error;
 const read_concern_1 = read_concern;
 const sort_1$1 = sort;
-const utils_1$f = utils;
+const utils_1$h = utils;
 const command_1$7 = command;
-const operation_1$8 = operation;
+const operation_1$b = operation;
 /** @internal */
 class FindOperation extends command_1$7.CommandOperation {
     constructor(collection, ns, filter = {}, options = {}) {
@@ -7766,17 +7901,17 @@ class FindOperation extends command_1$7.CommandOperation {
         delete this.options.writeConcern;
         this.ns = ns;
         if (typeof filter !== 'object' || Array.isArray(filter)) {
-            throw new error_1$p.MongoInvalidArgumentError('Query filter must be a plain object or ObjectId');
+            throw new error_1$q.MongoInvalidArgumentError('Query filter must be a plain object or ObjectId');
         }
         // special case passing in an ObjectId as a filter
         this.filter = filter != null && filter._bsontype === 'ObjectId' ? { _id: filter } : filter;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         this.server = server;
         const options = this.options;
         let findCommand = makeFindCommand(this.ns, this.filter, options);
         if (this.explain) {
-            findCommand = (0, utils_1$f.decorateWithExplain)(findCommand, this.explain);
+            findCommand = (0, utils_1$h.decorateWithExplain)(findCommand, this.explain);
         }
         server.command(this.ns, findCommand, {
             ...this.options,
@@ -7808,7 +7943,7 @@ function makeFindCommand(ns, filter, options) {
         findCommand.projection = projection;
     }
     if (options.hint) {
-        findCommand.hint = (0, utils_1$f.normalizeHintField)(options.hint);
+        findCommand.hint = (0, utils_1$h.normalizeHintField)(options.hint);
     }
     if (typeof options.skip === 'number') {
         findCommand.skip = options.skip;
@@ -7891,22 +8026,22 @@ function makeFindCommand(ns, filter, options) {
     }
     return findCommand;
 }
-(0, operation_1$8.defineAspects)(FindOperation, [
-    operation_1$8.Aspect.READ_OPERATION,
-    operation_1$8.Aspect.RETRYABLE,
-    operation_1$8.Aspect.EXPLAINABLE,
-    operation_1$8.Aspect.CURSOR_CREATING
+(0, operation_1$b.defineAspects)(FindOperation, [
+    operation_1$b.Aspect.READ_OPERATION,
+    operation_1$b.Aspect.RETRYABLE,
+    operation_1$b.Aspect.EXPLAINABLE,
+    operation_1$b.Aspect.CURSOR_CREATING
 ]);
 
 Object.defineProperty(find_cursor, "__esModule", { value: true });
 find_cursor.FindCursor = find_cursor.FLAGS = void 0;
-const error_1$o = error;
+const error_1$p = error;
 const count_1 = count;
-const execute_operation_1$2 = execute_operation;
+const execute_operation_1$3 = execute_operation;
 const find_1 = find;
 const sort_1 = sort;
-const utils_1$e = utils;
-const abstract_cursor_1$2 = abstract_cursor;
+const utils_1$g = utils;
+const abstract_cursor_1$3 = abstract_cursor;
 /** @internal */
 const kFilter = Symbol('filter');
 /** @internal */
@@ -7923,7 +8058,7 @@ find_cursor.FLAGS = [
     'partial'
 ];
 /** @public */
-class FindCursor extends abstract_cursor_1$2.AbstractCursor {
+class FindCursor extends abstract_cursor_1$3.AbstractCursor {
     /** @internal */
     constructor(client, namespace, filter = {}, options = {}) {
         super(client, namespace, options);
@@ -7934,7 +8069,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
         }
     }
     clone() {
-        const clonedOptions = (0, utils_1$e.mergeOptions)({}, this[kBuiltOptions]);
+        const clonedOptions = (0, utils_1$g.mergeOptions)({}, this[kBuiltOptions]);
         delete clonedOptions.session;
         return new FindCursor(this.client, this.namespace, this[kFilter], {
             ...clonedOptions
@@ -7950,7 +8085,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
             ...this.cursorOptions,
             session
         });
-        (0, execute_operation_1$2.executeOperation)(this.client, findOperation, (err, response) => {
+        (0, execute_operation_1$3.executeOperation)(this.client, findOperation, (err, response) => {
             if (err || response == null)
                 return callback(err);
             // TODO: We only need this for legacy queries that do not support `limit`, maybe
@@ -7993,11 +8128,11 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @deprecated Use `collection.estimatedDocumentCount` or `collection.countDocuments` instead
      */
     async count(options) {
-        (0, utils_1$e.emitWarningOnce)('cursor.count is deprecated and will be removed in the next major version, please use `collection.estimatedDocumentCount` or `collection.countDocuments` instead ');
+        (0, utils_1$g.emitWarningOnce)('cursor.count is deprecated and will be removed in the next major version, please use `collection.estimatedDocumentCount` or `collection.countDocuments` instead ');
         if (typeof options === 'boolean') {
-            throw new error_1$o.MongoInvalidArgumentError('Invalid first parameter to count');
+            throw new error_1$p.MongoInvalidArgumentError('Invalid first parameter to count');
         }
-        return (0, execute_operation_1$2.executeOperation)(this.client, new count_1.CountOperation(this.namespace, this[kFilter], {
+        return (0, execute_operation_1$3.executeOperation)(this.client, new count_1.CountOperation(this.namespace, this[kFilter], {
             ...this[kBuiltOptions],
             ...this.cursorOptions,
             ...options
@@ -8005,7 +8140,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
     }
     /** Execute the explain for the cursor */
     async explain(verbosity) {
-        return (0, execute_operation_1$2.executeOperation)(this.client, new find_1.FindOperation(undefined, this.namespace, this[kFilter], {
+        return (0, execute_operation_1$3.executeOperation)(this.client, new find_1.FindOperation(undefined, this.namespace, this[kFilter], {
             ...this[kBuiltOptions],
             ...this.cursorOptions,
             explain: verbosity ?? true
@@ -8013,7 +8148,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
     }
     /** Set the cursor query */
     filter(filter) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kFilter] = filter;
         return this;
     }
@@ -8023,7 +8158,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param hint - If specified, then the query system will only consider plans using the hinted index.
      */
     hint(hint) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].hint = hint;
         return this;
     }
@@ -8033,7 +8168,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param min - Specify a $min value to specify the inclusive lower bound for a specific index in order to constrain the results of find(). The $min specifies the lower bound for all keys of a specific index in order.
      */
     min(min) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].min = min;
         return this;
     }
@@ -8043,7 +8178,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param max - Specify a $max value to specify the exclusive upper bound for a specific index in order to constrain the results of find(). The $max specifies the upper bound for all keys of a specific index in order.
      */
     max(max) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].max = max;
         return this;
     }
@@ -8055,7 +8190,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - the returnKey value.
      */
     returnKey(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].returnKey = value;
         return this;
     }
@@ -8065,7 +8200,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - The $showDiskLoc option has now been deprecated and replaced with the showRecordId field. $showDiskLoc will still be accepted for OP_QUERY stye find.
      */
     showRecordId(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].showRecordId = value;
         return this;
     }
@@ -8076,9 +8211,9 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - The modifier value.
      */
     addQueryModifier(name, value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         if (name[0] !== '$') {
-            throw new error_1$o.MongoInvalidArgumentError(`${name} is not a valid query modifier`);
+            throw new error_1$p.MongoInvalidArgumentError(`${name} is not a valid query modifier`);
         }
         // Strip of the $
         const field = name.substr(1);
@@ -8115,7 +8250,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
                 this[kBuiltOptions].showRecordId = value;
                 break;
             default:
-                throw new error_1$o.MongoInvalidArgumentError(`Invalid query modifier: ${name}`);
+                throw new error_1$p.MongoInvalidArgumentError(`Invalid query modifier: ${name}`);
         }
         return this;
     }
@@ -8125,7 +8260,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - The comment attached to this query.
      */
     comment(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].comment = value;
         return this;
     }
@@ -8135,9 +8270,9 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - Number of milliseconds to wait before aborting the tailed query.
      */
     maxAwaitTimeMS(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         if (typeof value !== 'number') {
-            throw new error_1$o.MongoInvalidArgumentError('Argument for maxAwaitTimeMS must be a number');
+            throw new error_1$p.MongoInvalidArgumentError('Argument for maxAwaitTimeMS must be a number');
         }
         this[kBuiltOptions].maxAwaitTimeMS = value;
         return this;
@@ -8148,9 +8283,9 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - Number of milliseconds to wait before aborting the query.
      */
     maxTimeMS(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         if (typeof value !== 'number') {
-            throw new error_1$o.MongoInvalidArgumentError('Argument for maxTimeMS must be a number');
+            throw new error_1$p.MongoInvalidArgumentError('Argument for maxTimeMS must be a number');
         }
         this[kBuiltOptions].maxTimeMS = value;
         return this;
@@ -8196,7 +8331,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * ```
      */
     project(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].projection = value;
         return this;
     }
@@ -8207,9 +8342,9 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param direction - The direction of the sorting (1 or -1).
      */
     sort(sort, direction) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         if (this[kBuiltOptions].tailable) {
-            throw new error_1$o.MongoTailableCursorError('Tailable cursor does not support sorting');
+            throw new error_1$p.MongoTailableCursorError('Tailable cursor does not support sorting');
         }
         this[kBuiltOptions].sort = (0, sort_1.formatSort)(sort, direction);
         return this;
@@ -8221,9 +8356,9 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * {@link https://www.mongodb.com/docs/manual/reference/command/find/#find-cmd-allowdiskuse | find command allowDiskUse documentation}
      */
     allowDiskUse(allow = true) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         if (!this[kBuiltOptions].sort) {
-            throw new error_1$o.MongoInvalidArgumentError('Option "allowDiskUse" requires a sort specification');
+            throw new error_1$p.MongoInvalidArgumentError('Option "allowDiskUse" requires a sort specification');
         }
         // As of 6.0 the default is true. This allows users to get back to the old behavior.
         if (!allow) {
@@ -8239,7 +8374,7 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - The cursor collation options (MongoDB 3.4 or higher) settings for update operation (see 3.4 documentation for available fields).
      */
     collation(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         this[kBuiltOptions].collation = value;
         return this;
     }
@@ -8249,12 +8384,12 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - The limit for the cursor query.
      */
     limit(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         if (this[kBuiltOptions].tailable) {
-            throw new error_1$o.MongoTailableCursorError('Tailable cursor does not support limit');
+            throw new error_1$p.MongoTailableCursorError('Tailable cursor does not support limit');
         }
         if (typeof value !== 'number') {
-            throw new error_1$o.MongoInvalidArgumentError('Operation "limit" requires an integer');
+            throw new error_1$p.MongoInvalidArgumentError('Operation "limit" requires an integer');
         }
         this[kBuiltOptions].limit = value;
         return this;
@@ -8265,12 +8400,12 @@ class FindCursor extends abstract_cursor_1$2.AbstractCursor {
      * @param value - The skip for the cursor query.
      */
     skip(value) {
-        (0, abstract_cursor_1$2.assertUninitialized)(this);
+        (0, abstract_cursor_1$3.assertUninitialized)(this);
         if (this[kBuiltOptions].tailable) {
-            throw new error_1$o.MongoTailableCursorError('Tailable cursor does not support skip');
+            throw new error_1$p.MongoTailableCursorError('Tailable cursor does not support skip');
         }
         if (typeof value !== 'number') {
-            throw new error_1$o.MongoInvalidArgumentError('Operation "skip" requires an integer');
+            throw new error_1$p.MongoInvalidArgumentError('Operation "skip" requires an integer');
         }
         this[kBuiltOptions].skip = value;
         return this;
@@ -8284,12 +8419,12 @@ var indexes = {};
 
 Object.defineProperty(indexes, "__esModule", { value: true });
 indexes.IndexInformationOperation = indexes.IndexExistsOperation = indexes.ListIndexesOperation = indexes.DropIndexesOperation = indexes.DropIndexOperation = indexes.EnsureIndexOperation = indexes.CreateIndexOperation = indexes.CreateIndexesOperation = indexes.IndexesOperation = void 0;
-const error_1$n = error;
+const error_1$o = error;
 const read_preference_1$1 = read_preference;
-const utils_1$d = utils;
+const utils_1$f = utils;
 const command_1$6 = command;
 const common_functions_1 = common_functions;
-const operation_1$7 = operation;
+const operation_1$a = operation;
 const VALID_INDEX_OPTIONS = new Set([
     'background',
     'unique',
@@ -8339,7 +8474,7 @@ function makeIndexSpec(indexSpec, options) {
                 key.set(property, value);
             }
         }
-        else if ((0, utils_1$d.isObject)(spec)) {
+        else if ((0, utils_1$f.isObject)(spec)) {
             for (const [property, value] of Object.entries(spec)) {
                 key.set(property, value);
             }
@@ -8348,13 +8483,13 @@ function makeIndexSpec(indexSpec, options) {
     return { ...options, key };
 }
 /** @internal */
-class IndexesOperation extends operation_1$7.AbstractOperation {
+class IndexesOperation extends operation_1$a.AbstractCallbackOperation {
     constructor(collection, options) {
         super(options);
         this.options = options;
         this.collection = collection;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const coll = this.collection;
         const options = this.options;
         (0, common_functions_1.indexInformation)(coll.s.db, coll.collectionName, { full: true, ...options, readPreference: this.readPreference, session }, callback);
@@ -8379,14 +8514,14 @@ class CreateIndexesOperation extends command_1$6.CommandOperation {
             };
         });
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const options = this.options;
         const indexes = this.indexes;
-        const serverWireVersion = (0, utils_1$d.maxWireVersion)(server);
+        const serverWireVersion = (0, utils_1$f.maxWireVersion)(server);
         const cmd = { createIndexes: this.collectionName, indexes };
         if (options.commitQuorum != null) {
             if (serverWireVersion < 9) {
-                callback(new error_1$n.MongoCompatibilityError('Option `commitQuorum` for `createIndexes` not supported on servers < 4.4'));
+                callback(new error_1$o.MongoCompatibilityError('Option `commitQuorum` for `createIndexes` not supported on servers < 4.4'));
                 return;
             }
             cmd.commitQuorum = options.commitQuorum;
@@ -8409,8 +8544,8 @@ class CreateIndexOperation extends CreateIndexesOperation {
     constructor(parent, collectionName, indexSpec, options) {
         super(parent, collectionName, [makeIndexSpec(indexSpec, options)], options);
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, indexNames) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, indexNames) => {
             if (err || !indexNames)
                 return callback(err);
             return callback(undefined, indexNames[0]);
@@ -8426,7 +8561,7 @@ class EnsureIndexOperation extends CreateIndexOperation {
         this.db = db;
         this.collectionName = collectionName;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const indexName = this.indexes[0].name;
         const cursor = this.db.collection(this.collectionName).listIndexes({ session });
         cursor.toArray().then(indexes => {
@@ -8435,11 +8570,11 @@ class EnsureIndexOperation extends CreateIndexOperation {
                 callback(undefined, indexName);
                 return;
             }
-            super.execute(server, session, callback);
+            super.executeCallback(server, session, callback);
         }, error => {
-            if (error instanceof error_1$n.MongoError && error.code === error_1$n.MONGODB_ERROR_CODES.NamespaceNotFound) {
+            if (error instanceof error_1$o.MongoError && error.code === error_1$o.MONGODB_ERROR_CODES.NamespaceNotFound) {
                 // ignore "NamespaceNotFound" errors
-                return super.execute(server, session, callback);
+                return super.executeCallback(server, session, callback);
             }
             return callback(error);
         });
@@ -8454,7 +8589,7 @@ class DropIndexOperation extends command_1$6.CommandOperation {
         this.collection = collection;
         this.indexName = indexName;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const cmd = { dropIndexes: this.collection.collectionName, index: this.indexName };
         super.executeCommand(server, session, cmd, callback);
     }
@@ -8465,8 +8600,8 @@ class DropIndexesOperation extends DropIndexOperation {
     constructor(collection, options) {
         super(collection, '*', options);
     }
-    execute(server, session, callback) {
-        super.execute(server, session, err => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, err => {
             if (err)
                 return callback(err, false);
             callback(undefined, true);
@@ -8482,8 +8617,8 @@ class ListIndexesOperation extends command_1$6.CommandOperation {
         delete this.options.writeConcern;
         this.collectionNamespace = collection.s.namespace;
     }
-    execute(server, session, callback) {
-        const serverWireVersion = (0, utils_1$d.maxWireVersion)(server);
+    executeCallback(server, session, callback) {
+        const serverWireVersion = (0, utils_1$f.maxWireVersion)(server);
         const cursor = this.options.batchSize ? { batchSize: this.options.batchSize } : {};
         const command = { listIndexes: this.collectionNamespace.collection, cursor };
         // we check for undefined specifically here to allow falsy values
@@ -8496,14 +8631,14 @@ class ListIndexesOperation extends command_1$6.CommandOperation {
 }
 indexes.ListIndexesOperation = ListIndexesOperation;
 /** @internal */
-class IndexExistsOperation extends operation_1$7.AbstractOperation {
+class IndexExistsOperation extends operation_1$a.AbstractCallbackOperation {
     constructor(collection, indexes, options) {
         super(options);
         this.options = options;
         this.collection = collection;
         this.indexes = indexes;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const coll = this.collection;
         const indexes = this.indexes;
         (0, common_functions_1.indexInformation)(coll.s.db, coll.collectionName, { ...this.options, readPreference: this.readPreference, session }, (err, indexInformation) => {
@@ -8526,40 +8661,40 @@ class IndexExistsOperation extends operation_1$7.AbstractOperation {
 }
 indexes.IndexExistsOperation = IndexExistsOperation;
 /** @internal */
-class IndexInformationOperation extends operation_1$7.AbstractOperation {
+class IndexInformationOperation extends operation_1$a.AbstractCallbackOperation {
     constructor(db, name, options) {
         super(options);
         this.options = options ?? {};
         this.db = db;
         this.name = name;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const db = this.db;
         const name = this.name;
         (0, common_functions_1.indexInformation)(db, name, { ...this.options, readPreference: this.readPreference, session }, callback);
     }
 }
 indexes.IndexInformationOperation = IndexInformationOperation;
-(0, operation_1$7.defineAspects)(ListIndexesOperation, [
-    operation_1$7.Aspect.READ_OPERATION,
-    operation_1$7.Aspect.RETRYABLE,
-    operation_1$7.Aspect.CURSOR_CREATING
+(0, operation_1$a.defineAspects)(ListIndexesOperation, [
+    operation_1$a.Aspect.READ_OPERATION,
+    operation_1$a.Aspect.RETRYABLE,
+    operation_1$a.Aspect.CURSOR_CREATING
 ]);
-(0, operation_1$7.defineAspects)(CreateIndexesOperation, [operation_1$7.Aspect.WRITE_OPERATION]);
-(0, operation_1$7.defineAspects)(CreateIndexOperation, [operation_1$7.Aspect.WRITE_OPERATION]);
-(0, operation_1$7.defineAspects)(EnsureIndexOperation, [operation_1$7.Aspect.WRITE_OPERATION]);
-(0, operation_1$7.defineAspects)(DropIndexOperation, [operation_1$7.Aspect.WRITE_OPERATION]);
-(0, operation_1$7.defineAspects)(DropIndexesOperation, [operation_1$7.Aspect.WRITE_OPERATION]);
+(0, operation_1$a.defineAspects)(CreateIndexesOperation, [operation_1$a.Aspect.WRITE_OPERATION]);
+(0, operation_1$a.defineAspects)(CreateIndexOperation, [operation_1$a.Aspect.WRITE_OPERATION]);
+(0, operation_1$a.defineAspects)(EnsureIndexOperation, [operation_1$a.Aspect.WRITE_OPERATION]);
+(0, operation_1$a.defineAspects)(DropIndexOperation, [operation_1$a.Aspect.WRITE_OPERATION]);
+(0, operation_1$a.defineAspects)(DropIndexesOperation, [operation_1$a.Aspect.WRITE_OPERATION]);
 
 Object.defineProperty(list_indexes_cursor, "__esModule", { value: true });
 list_indexes_cursor.ListIndexesCursor = void 0;
-const execute_operation_1$1 = execute_operation;
+const execute_operation_1$2 = execute_operation;
 const indexes_1 = indexes;
-const abstract_cursor_1$1 = abstract_cursor;
+const abstract_cursor_1$2 = abstract_cursor;
 /** @public */
-class ListIndexesCursor extends abstract_cursor_1$1.AbstractCursor {
+class ListIndexesCursor extends abstract_cursor_1$2.AbstractCursor {
     constructor(collection, options) {
-        super(collection.s.db.s.client, collection.s.namespace, options);
+        super(collection.client, collection.s.namespace, options);
         this.parent = collection;
         this.options = options;
     }
@@ -8576,7 +8711,7 @@ class ListIndexesCursor extends abstract_cursor_1$1.AbstractCursor {
             ...this.options,
             session
         });
-        (0, execute_operation_1$1.executeOperation)(this.parent.s.db.s.client, operation, (err, response) => {
+        (0, execute_operation_1$2.executeOperation)(this.parent.client, operation, (err, response) => {
             if (err || response == null)
                 return callback(err);
             // TODO: NODE-2882
@@ -8585,6 +8720,21 @@ class ListIndexesCursor extends abstract_cursor_1$1.AbstractCursor {
     }
 }
 list_indexes_cursor.ListIndexesCursor = ListIndexesCursor;
+
+var list_search_indexes_cursor = {};
+
+Object.defineProperty(list_search_indexes_cursor, "__esModule", { value: true });
+list_search_indexes_cursor.ListSearchIndexesCursor = void 0;
+const aggregation_cursor_1 = aggregation_cursor;
+/** @public */
+class ListSearchIndexesCursor extends aggregation_cursor_1.AggregationCursor {
+    /** @internal */
+    constructor({ fullNamespace: ns, client }, name, options = {}) {
+        const pipeline = name == null ? [{ $listSearchIndexes: {} }] : [{ $listSearchIndexes: { name } }];
+        super(client, ns, pipeline, options);
+    }
+}
+list_search_indexes_cursor.ListSearchIndexesCursor = ListSearchIndexesCursor;
 
 var count_documents = {};
 
@@ -8605,8 +8755,8 @@ class CountDocumentsOperation extends aggregate_1.AggregateOperation {
         pipeline.push({ $group: { _id: 1, n: { $sum: 1 } } });
         super(collection.s.namespace, pipeline, options);
     }
-    execute(server, session, callback) {
-        super.execute(server, session, (err, result) => {
+    executeCallback(server, session, callback) {
+        super.executeCallback(server, session, (err, result) => {
             if (err || !result) {
                 callback(err);
                 return;
@@ -8628,9 +8778,9 @@ var distinct = {};
 
 Object.defineProperty(distinct, "__esModule", { value: true });
 distinct.DistinctOperation = void 0;
-const utils_1$c = utils;
+const utils_1$e = utils;
 const command_1$5 = command;
-const operation_1$6 = operation;
+const operation_1$9 = operation;
 /**
  * Return a list of distinct values for the given key across a collection.
  * @internal
@@ -8651,7 +8801,7 @@ class DistinctOperation extends command_1$5.CommandOperation {
         this.key = key;
         this.query = query;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const coll = this.collection;
         const key = this.key;
         const query = this.query;
@@ -8672,10 +8822,10 @@ class DistinctOperation extends command_1$5.CommandOperation {
             cmd.comment = options.comment;
         }
         // Do we have a readConcern specified
-        (0, utils_1$c.decorateWithReadConcern)(cmd, coll, options);
+        (0, utils_1$e.decorateWithReadConcern)(cmd, coll, options);
         // Have we specified collation
         try {
-            (0, utils_1$c.decorateWithCollation)(cmd, coll, options);
+            (0, utils_1$e.decorateWithCollation)(cmd, coll, options);
         }
         catch (err) {
             return callback(err);
@@ -8690,15 +8840,15 @@ class DistinctOperation extends command_1$5.CommandOperation {
     }
 }
 distinct.DistinctOperation = DistinctOperation;
-(0, operation_1$6.defineAspects)(DistinctOperation, [operation_1$6.Aspect.READ_OPERATION, operation_1$6.Aspect.RETRYABLE, operation_1$6.Aspect.EXPLAINABLE]);
+(0, operation_1$9.defineAspects)(DistinctOperation, [operation_1$9.Aspect.READ_OPERATION, operation_1$9.Aspect.RETRYABLE, operation_1$9.Aspect.EXPLAINABLE]);
 
-var drop = {};
+var drop$1 = {};
 
-Object.defineProperty(drop, "__esModule", { value: true });
-drop.DropDatabaseOperation = drop.DropCollectionOperation = void 0;
-const error_1$m = error;
+Object.defineProperty(drop$1, "__esModule", { value: true });
+drop$1.DropDatabaseOperation = drop$1.DropCollectionOperation = void 0;
+const error_1$n = error;
 const command_1$4 = command;
-const operation_1$5 = operation;
+const operation_1$8 = operation;
 /** @internal */
 class DropCollectionOperation extends command_1$4.CommandOperation {
     constructor(db, name, options = {}) {
@@ -8707,12 +8857,12 @@ class DropCollectionOperation extends command_1$4.CommandOperation {
         this.options = options;
         this.name = name;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         (async () => {
             const db = this.db;
             const options = this.options;
             const name = this.name;
-            const encryptedFieldsMap = db.s.client.options.autoEncryption?.encryptedFieldsMap;
+            const encryptedFieldsMap = db.client.options.autoEncryption?.encryptedFieldsMap;
             let encryptedFields = options.encryptedFields ?? encryptedFieldsMap?.[`${db.databaseName}.${name}`];
             if (!encryptedFields && encryptedFieldsMap) {
                 // If the MongoClient was configured with an encryptedFieldsMap,
@@ -8734,8 +8884,8 @@ class DropCollectionOperation extends command_1$4.CommandOperation {
                         await dropOp.executeWithoutEncryptedFieldsCheck(server, session);
                     }
                     catch (err) {
-                        if (!(err instanceof error_1$m.MongoServerError) ||
-                            err.code !== error_1$m.MONGODB_ERROR_CODES.NamespaceNotFound) {
+                        if (!(err instanceof error_1$n.MongoServerError) ||
+                            err.code !== error_1$n.MONGODB_ERROR_CODES.NamespaceNotFound) {
                             throw err;
                         }
                     }
@@ -8754,14 +8904,14 @@ class DropCollectionOperation extends command_1$4.CommandOperation {
         });
     }
 }
-drop.DropCollectionOperation = DropCollectionOperation;
+drop$1.DropCollectionOperation = DropCollectionOperation;
 /** @internal */
 class DropDatabaseOperation extends command_1$4.CommandOperation {
     constructor(db, options) {
         super(db, options);
         this.options = options;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         super.executeCommand(server, session, { dropDatabase: 1 }, (err, result) => {
             if (err)
                 return callback(err);
@@ -8771,16 +8921,16 @@ class DropDatabaseOperation extends command_1$4.CommandOperation {
         });
     }
 }
-drop.DropDatabaseOperation = DropDatabaseOperation;
-(0, operation_1$5.defineAspects)(DropCollectionOperation, [operation_1$5.Aspect.WRITE_OPERATION]);
-(0, operation_1$5.defineAspects)(DropDatabaseOperation, [operation_1$5.Aspect.WRITE_OPERATION]);
+drop$1.DropDatabaseOperation = DropDatabaseOperation;
+(0, operation_1$8.defineAspects)(DropCollectionOperation, [operation_1$8.Aspect.WRITE_OPERATION]);
+(0, operation_1$8.defineAspects)(DropDatabaseOperation, [operation_1$8.Aspect.WRITE_OPERATION]);
 
 var estimated_document_count = {};
 
 Object.defineProperty(estimated_document_count, "__esModule", { value: true });
 estimated_document_count.EstimatedDocumentCountOperation = void 0;
 const command_1$3 = command;
-const operation_1$4 = operation;
+const operation_1$7 = operation;
 /** @internal */
 class EstimatedDocumentCountOperation extends command_1$3.CommandOperation {
     constructor(collection, options = {}) {
@@ -8788,7 +8938,7 @@ class EstimatedDocumentCountOperation extends command_1$3.CommandOperation {
         this.options = options;
         this.collectionName = collection.collectionName;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const cmd = { count: this.collectionName };
         if (typeof this.options.maxTimeMS === 'number') {
             cmd.maxTimeMS = this.options.maxTimeMS;
@@ -8808,10 +8958,10 @@ class EstimatedDocumentCountOperation extends command_1$3.CommandOperation {
     }
 }
 estimated_document_count.EstimatedDocumentCountOperation = EstimatedDocumentCountOperation;
-(0, operation_1$4.defineAspects)(EstimatedDocumentCountOperation, [
-    operation_1$4.Aspect.READ_OPERATION,
-    operation_1$4.Aspect.RETRYABLE,
-    operation_1$4.Aspect.CURSOR_CREATING
+(0, operation_1$7.defineAspects)(EstimatedDocumentCountOperation, [
+    operation_1$7.Aspect.READ_OPERATION,
+    operation_1$7.Aspect.RETRYABLE,
+    operation_1$7.Aspect.CURSOR_CREATING
 ]);
 
 var find_and_modify = {};
@@ -8848,6 +8998,7 @@ var find_and_modify = {};
 	            new: false,
 	            upsert: false
 	        };
+	        options.includeResultMetadata ?? (options.includeResultMetadata = true);
 	        const sort = (0, sort_1.formatSort)(options.sort);
 	        if (sort) {
 	            this.cmdBase.sort = sort;
@@ -8875,7 +9026,7 @@ var find_and_modify = {};
 	        this.collection = collection;
 	        this.query = query;
 	    }
-	    execute(server, session, callback) {
+	    executeCallback(server, session, callback) {
 	        const coll = this.collection;
 	        const query = this.query;
 	        const options = { ...this.options, ...this.bsonOptions };
@@ -8906,7 +9057,7 @@ var find_and_modify = {};
 	        super.executeCommand(server, session, cmd, (err, result) => {
 	            if (err)
 	                return callback(err);
-	            return callback(undefined, result);
+	            return callback(undefined, options.includeResultMetadata ? result : result.value ?? null);
 	        });
 	    }
 	}
@@ -8973,16 +9124,16 @@ var is_capped = {};
 
 Object.defineProperty(is_capped, "__esModule", { value: true });
 is_capped.IsCappedOperation = void 0;
-const error_1$l = error;
-const operation_1$3 = operation;
+const error_1$m = error;
+const operation_1$6 = operation;
 /** @internal */
-class IsCappedOperation extends operation_1$3.AbstractOperation {
+class IsCappedOperation extends operation_1$6.AbstractCallbackOperation {
     constructor(collection, options) {
         super(options);
         this.options = options;
         this.collection = collection;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const coll = this.collection;
         coll.s.db
             .listCollections({ name: coll.collectionName }, { ...this.options, nameOnly: false, readPreference: this.readPreference, session })
@@ -8990,7 +9141,7 @@ class IsCappedOperation extends operation_1$3.AbstractOperation {
             .then(collections => {
             if (collections.length === 0) {
                 // TODO(NODE-3485)
-                return callback(new error_1$l.MongoAPIError(`collection ${coll.namespace} not found`));
+                return callback(new error_1$m.MongoAPIError(`collection ${coll.namespace} not found`));
             }
             callback(undefined, !!collections[0].options?.capped);
         }, error => callback(error));
@@ -9002,16 +9153,16 @@ var options_operation = {};
 
 Object.defineProperty(options_operation, "__esModule", { value: true });
 options_operation.OptionsOperation = void 0;
-const error_1$k = error;
-const operation_1$2 = operation;
+const error_1$l = error;
+const operation_1$5 = operation;
 /** @internal */
-class OptionsOperation extends operation_1$2.AbstractOperation {
+class OptionsOperation extends operation_1$5.AbstractCallbackOperation {
     constructor(collection, options) {
         super(options);
         this.options = options;
         this.collection = collection;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const coll = this.collection;
         coll.s.db
             .listCollections({ name: coll.collectionName }, { ...this.options, nameOnly: false, readPreference: this.readPreference, session })
@@ -9019,7 +9170,7 @@ class OptionsOperation extends operation_1$2.AbstractOperation {
             .then(collections => {
             if (collections.length === 0) {
                 // TODO(NODE-3485)
-                return callback(new error_1$k.MongoAPIError(`collection ${coll.namespace} not found`));
+                return callback(new error_1$l.MongoAPIError(`collection ${coll.namespace} not found`));
             }
             callback(undefined, collections[0].options);
         }, error => callback(error));
@@ -9056,9 +9207,9 @@ function requireRename () {
 	        this.collection = collection;
 	        this.newName = newName;
 	    }
-	    execute(server, session, callback) {
+	    executeCallback(server, session, callback) {
 	        const coll = this.collection;
-	        super.execute(server, session, (err, doc) => {
+	        super.executeCallback(server, session, (err, doc) => {
 	            if (err)
 	                return callback(err);
 	            // We have an error
@@ -9082,6 +9233,98 @@ function requireRename () {
 	return rename;
 }
 
+var create = {};
+
+Object.defineProperty(create, "__esModule", { value: true });
+create.CreateSearchIndexesOperation = void 0;
+const operation_1$4 = operation;
+/** @internal */
+class CreateSearchIndexesOperation extends operation_1$4.AbstractCallbackOperation {
+    constructor(collection, descriptions) {
+        super();
+        this.collection = collection;
+        this.descriptions = descriptions;
+    }
+    executeCallback(server, session, callback) {
+        const namespace = this.collection.fullNamespace;
+        const command = {
+            createSearchIndexes: namespace.collection,
+            indexes: this.descriptions
+        };
+        server.command(namespace, command, { session }, (err, res) => {
+            if (err || !res) {
+                callback(err);
+                return;
+            }
+            const indexesCreated = res?.indexesCreated ?? [];
+            callback(undefined, indexesCreated.map(({ name }) => name));
+        });
+    }
+}
+create.CreateSearchIndexesOperation = CreateSearchIndexesOperation;
+
+var drop = {};
+
+Object.defineProperty(drop, "__esModule", { value: true });
+drop.DropSearchIndexOperation = void 0;
+const operation_1$3 = operation;
+/** @internal */
+class DropSearchIndexOperation extends operation_1$3.AbstractCallbackOperation {
+    constructor(collection, name) {
+        super();
+        this.collection = collection;
+        this.name = name;
+    }
+    executeCallback(server, session, callback) {
+        const namespace = this.collection.fullNamespace;
+        const command = {
+            dropSearchIndex: namespace.collection
+        };
+        if (typeof this.name === 'string') {
+            command.name = this.name;
+        }
+        server.command(namespace, command, { session }, err => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            callback();
+        });
+    }
+}
+drop.DropSearchIndexOperation = DropSearchIndexOperation;
+
+var update = {};
+
+Object.defineProperty(update, "__esModule", { value: true });
+update.UpdateSearchIndexOperation = void 0;
+const operation_1$2 = operation;
+/** @internal */
+class UpdateSearchIndexOperation extends operation_1$2.AbstractCallbackOperation {
+    constructor(collection, name, definition) {
+        super();
+        this.collection = collection;
+        this.name = name;
+        this.definition = definition;
+    }
+    executeCallback(server, session, callback) {
+        const namespace = this.collection.fullNamespace;
+        const command = {
+            updateSearchIndex: namespace.collection,
+            name: this.name,
+            definition: this.definition
+        };
+        server.command(namespace, command, { session }, err => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            callback();
+        });
+    }
+}
+update.UpdateSearchIndexOperation = UpdateSearchIndexOperation;
+
 var stats = {};
 
 Object.defineProperty(stats, "__esModule", { value: true });
@@ -9104,7 +9347,7 @@ class CollStatsOperation extends command_1$2.CommandOperation {
         this.options = options ?? {};
         this.collectionName = collection.collectionName;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const command = { collStats: this.collectionName };
         if (this.options.scale != null) {
             command.scale = this.options.scale;
@@ -9119,7 +9362,7 @@ class DbStatsOperation extends command_1$2.CommandOperation {
         super(db, options);
         this.options = options;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         const command = { dbStats: true };
         if (this.options.scale != null) {
             command.scale = this.options.scale;
@@ -9145,13 +9388,14 @@ function requireCollection () {
 	const aggregation_cursor_1 = aggregation_cursor;
 	const find_cursor_1 = find_cursor;
 	const list_indexes_cursor_1 = list_indexes_cursor;
+	const list_search_indexes_cursor_1 = list_search_indexes_cursor;
 	const error_1 = error;
 	const bulk_write_1 = bulk_write;
 	const count_1 = count;
 	const count_documents_1 = count_documents;
 	const delete_1 = _delete;
 	const distinct_1 = distinct;
-	const drop_1 = drop;
+	const drop_1 = drop$1;
 	const estimated_document_count_1 = estimated_document_count;
 	const execute_operation_1 = execute_operation;
 	const find_and_modify_1 = find_and_modify;
@@ -9160,8 +9404,11 @@ function requireCollection () {
 	const is_capped_1 = is_capped;
 	const options_operation_1 = options_operation;
 	const rename_1 = requireRename();
-	const stats_1 = stats;
+	const create_1 = create;
+	const drop_2 = drop;
 	const update_1 = update;
+	const stats_1 = stats;
+	const update_2 = update$1;
 	const read_concern_1 = read_concern;
 	const read_preference_1 = read_preference;
 	const utils_1 = utils;
@@ -9203,13 +9450,14 @@ function requireCollection () {
 	        this.s = {
 	            db,
 	            options,
-	            namespace: new utils_1.MongoDBNamespace(db.databaseName, name),
+	            namespace: new utils_1.MongoDBCollectionNamespace(db.databaseName, name),
 	            pkFactory: db.options?.pkFactory ?? utils_1.DEFAULT_PK_FACTORY,
 	            readPreference: read_preference_1.ReadPreference.fromOptions(options),
 	            bsonOptions: (0, bson_1.resolveBSONOptions)(options, db),
 	            readConcern: read_concern_1.ReadConcern.fromOptions(options),
 	            writeConcern: write_concern_1.WriteConcern.fromOptions(options)
 	        };
+	        this.client = db.client;
 	    }
 	    /**
 	     * The name of the database this collection belongs to
@@ -9221,14 +9469,21 @@ function requireCollection () {
 	     * The name of this collection
 	     */
 	    get collectionName() {
-	        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	        return this.s.namespace.collection;
 	    }
 	    /**
 	     * The namespace of this collection, in the format `${this.dbName}.${this.collectionName}`
 	     */
 	    get namespace() {
-	        return this.s.namespace.toString();
+	        return this.fullNamespace.toString();
+	    }
+	    /**
+	     *  @internal
+	     *
+	     * The `MongoDBNamespace` for the collection.
+	     */
+	    get fullNamespace() {
+	        return this.s.namespace;
 	    }
 	    /**
 	     * The current readConcern of the collection. If not explicitly defined for
@@ -9279,7 +9534,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async insertOne(doc, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new insert_1.InsertOneOperation(this, doc, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new insert_1.InsertOneOperation(this, doc, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Inserts an array of documents into MongoDB. If documents passed in do not contain the **_id** field,
@@ -9290,7 +9545,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async insertMany(docs, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new insert_1.InsertManyOperation(this, docs, (0, utils_1.resolveOptions)(this, options ?? { ordered: true })));
+	        return (0, execute_operation_1.executeOperation)(this.client, new insert_1.InsertManyOperation(this, docs, (0, utils_1.resolveOptions)(this, options ?? { ordered: true })));
 	    }
 	    /**
 	     * Perform a bulkWrite operation without a fluent API
@@ -9315,7 +9570,7 @@ function requireCollection () {
 	        if (!Array.isArray(operations)) {
 	            throw new error_1.MongoInvalidArgumentError('Argument "operations" must be an array of documents');
 	        }
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new bulk_write_1.BulkWriteOperation(this, operations, (0, utils_1.resolveOptions)(this, options ?? { ordered: true })));
+	        return (0, execute_operation_1.executeOperation)(this.client, new bulk_write_1.BulkWriteOperation(this, operations, (0, utils_1.resolveOptions)(this, options ?? { ordered: true })));
 	    }
 	    /**
 	     * Update a single document in a collection
@@ -9325,7 +9580,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async updateOne(filter, update, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new update_1.UpdateOneOperation(this, filter, update, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new update_2.UpdateOneOperation(this, filter, update, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Replace a document in a collection with another document
@@ -9335,7 +9590,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async replaceOne(filter, replacement, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new update_1.ReplaceOneOperation(this, filter, replacement, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new update_2.ReplaceOneOperation(this, filter, replacement, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Update multiple documents in a collection
@@ -9345,7 +9600,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async updateMany(filter, update, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new update_1.UpdateManyOperation(this, filter, update, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new update_2.UpdateManyOperation(this, filter, update, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Delete a document from a collection
@@ -9354,7 +9609,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async deleteOne(filter = {}, options = {}) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new delete_1.DeleteOneOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new delete_1.DeleteOneOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Delete multiple documents from a collection
@@ -9363,7 +9618,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async deleteMany(filter = {}, options = {}) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new delete_1.DeleteManyOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new delete_1.DeleteManyOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Rename the collection.
@@ -9376,7 +9631,7 @@ function requireCollection () {
 	     */
 	    async rename(newName, options) {
 	        // Intentionally, we do not inherit options from parent for this operation.
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new rename_1.RenameOperation(this, newName, {
+	        return (0, execute_operation_1.executeOperation)(this.client, new rename_1.RenameOperation(this, newName, {
 	            ...options,
 	            readPreference: read_preference_1.ReadPreference.PRIMARY
 	        }));
@@ -9387,13 +9642,13 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async drop(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new drop_1.DropCollectionOperation(this.s.db, this.collectionName, options));
+	        return (0, execute_operation_1.executeOperation)(this.client, new drop_1.DropCollectionOperation(this.s.db, this.collectionName, options));
 	    }
 	    async findOne(filter = {}, options = {}) {
 	        return this.find(filter, options).limit(-1).batchSize(1).next();
 	    }
 	    find(filter = {}, options = {}) {
-	        return new find_cursor_1.FindCursor(this.s.db.s.client, this.s.namespace, filter, (0, utils_1.resolveOptions)(this, options));
+	        return new find_cursor_1.FindCursor(this.client, this.s.namespace, filter, (0, utils_1.resolveOptions)(this, options));
 	    }
 	    /**
 	     * Returns the options of the collection.
@@ -9401,7 +9656,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async options(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new options_operation_1.OptionsOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new options_operation_1.OptionsOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Returns if the collection is a capped collection
@@ -9409,7 +9664,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async isCapped(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new is_capped_1.IsCappedOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new is_capped_1.IsCappedOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Creates an index on the db and collection collection.
@@ -9440,7 +9695,7 @@ function requireCollection () {
 	     * ```
 	     */
 	    async createIndex(indexSpec, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new indexes_1.CreateIndexOperation(this, this.collectionName, indexSpec, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.CreateIndexOperation(this, this.collectionName, indexSpec, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Creates multiple indexes in the collection, this method is only supported for
@@ -9474,7 +9729,7 @@ function requireCollection () {
 	     * ```
 	     */
 	    async createIndexes(indexSpecs, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new indexes_1.CreateIndexesOperation(this, this.collectionName, indexSpecs, (0, utils_1.resolveOptions)(this, { ...options, maxTimeMS: undefined })));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.CreateIndexesOperation(this, this.collectionName, indexSpecs, (0, utils_1.resolveOptions)(this, { ...options, maxTimeMS: undefined })));
 	    }
 	    /**
 	     * Drops an index from this collection.
@@ -9483,7 +9738,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async dropIndex(indexName, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new indexes_1.DropIndexOperation(this, indexName, {
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.DropIndexOperation(this, indexName, {
 	            ...(0, utils_1.resolveOptions)(this, options),
 	            readPreference: read_preference_1.ReadPreference.primary
 	        }));
@@ -9494,7 +9749,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async dropIndexes(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new indexes_1.DropIndexesOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.DropIndexesOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Get the list of all indexes information for the collection.
@@ -9511,7 +9766,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async indexExists(indexes, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new indexes_1.IndexExistsOperation(this, indexes, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.IndexExistsOperation(this, indexes, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Retrieves this collections index info.
@@ -9519,7 +9774,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async indexInformation(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new indexes_1.IndexInformationOperation(this.s.db, this.collectionName, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.IndexInformationOperation(this.s.db, this.collectionName, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Gets an estimate of the count of documents in a collection using collection metadata.
@@ -9535,7 +9790,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async estimatedDocumentCount(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new estimated_document_count_1.EstimatedDocumentCountOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new estimated_document_count_1.EstimatedDocumentCountOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Gets the number of documents matching the filter.
@@ -9563,10 +9818,10 @@ function requireCollection () {
 	     * @see https://www.mongodb.com/docs/manual/reference/operator/query/centerSphere/#op._S_centerSphere
 	     */
 	    async countDocuments(filter = {}, options = {}) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new count_documents_1.CountDocumentsOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new count_documents_1.CountDocumentsOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    async distinct(key, filter = {}, options = {}) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new distinct_1.DistinctOperation(this, key, filter, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new distinct_1.DistinctOperation(this, key, filter, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Retrieve all the indexes on the collection.
@@ -9574,7 +9829,7 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async indexes(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new indexes_1.IndexesOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.IndexesOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Get all the collection statistics.
@@ -9585,36 +9840,16 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async stats(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new stats_1.CollStatsOperation(this, options));
+	        return (0, execute_operation_1.executeOperation)(this.client, new stats_1.CollStatsOperation(this, options));
 	    }
-	    /**
-	     * Find a document and delete it in one atomic operation. Requires a write lock for the duration of the operation.
-	     *
-	     * @param filter - The filter used to select the document to remove
-	     * @param options - Optional settings for the command
-	     */
 	    async findOneAndDelete(filter, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new find_and_modify_1.FindOneAndDeleteOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new find_and_modify_1.FindOneAndDeleteOperation(this, filter, (0, utils_1.resolveOptions)(this, options)));
 	    }
-	    /**
-	     * Find a document and replace it in one atomic operation. Requires a write lock for the duration of the operation.
-	     *
-	     * @param filter - The filter used to select the document to replace
-	     * @param replacement - The Document that replaces the matching document
-	     * @param options - Optional settings for the command
-	     */
 	    async findOneAndReplace(filter, replacement, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new find_and_modify_1.FindOneAndReplaceOperation(this, filter, replacement, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new find_and_modify_1.FindOneAndReplaceOperation(this, filter, replacement, (0, utils_1.resolveOptions)(this, options)));
 	    }
-	    /**
-	     * Find a document and update it in one atomic operation. Requires a write lock for the duration of the operation.
-	     *
-	     * @param filter - The filter used to select the document to update
-	     * @param update - Update operations to be performed on the document
-	     * @param options - Optional settings for the command
-	     */
 	    async findOneAndUpdate(filter, update, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new find_and_modify_1.FindOneAndUpdateOperation(this, filter, update, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new find_and_modify_1.FindOneAndUpdateOperation(this, filter, update, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Execute an aggregation framework pipeline against the collection, needs MongoDB \>= 2.2
@@ -9626,7 +9861,7 @@ function requireCollection () {
 	        if (!Array.isArray(pipeline)) {
 	            throw new error_1.MongoInvalidArgumentError('Argument "pipeline" must be an array of aggregation stages');
 	        }
-	        return new aggregation_cursor_1.AggregationCursor(this.s.db.s.client, this.s.namespace, pipeline, (0, utils_1.resolveOptions)(this, options));
+	        return new aggregation_cursor_1.AggregationCursor(this.client, this.s.namespace, pipeline, (0, utils_1.resolveOptions)(this, options));
 	    }
 	    /**
 	     * Create a new Change Stream, watching for new changes (insertions, updates, replacements, deletions, and invalidations) in this collection.
@@ -9709,7 +9944,62 @@ function requireCollection () {
 	     * @param options - Optional settings for the command
 	     */
 	    async count(filter = {}, options = {}) {
-	        return (0, execute_operation_1.executeOperation)(this.s.db.s.client, new count_1.CountOperation(utils_1.MongoDBNamespace.fromString(this.namespace), filter, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new count_1.CountOperation(this.fullNamespace, filter, (0, utils_1.resolveOptions)(this, options)));
+	    }
+	    listSearchIndexes(indexNameOrOptions, options) {
+	        options =
+	            typeof indexNameOrOptions === 'object' ? indexNameOrOptions : options == null ? {} : options;
+	        const indexName = indexNameOrOptions == null
+	            ? null
+	            : typeof indexNameOrOptions === 'object'
+	                ? null
+	                : indexNameOrOptions;
+	        return new list_search_indexes_cursor_1.ListSearchIndexesCursor(this, indexName, options);
+	    }
+	    /**
+	     * Creates a single search index for the collection.
+	     *
+	     * @param description - The index description for the new search index.
+	     * @returns A promise that resolves to the name of the new search index.
+	     *
+	     * @remarks Only available when used against a 7.0+ Atlas cluster.
+	     */
+	    async createSearchIndex(description) {
+	        const [index] = await this.createSearchIndexes([description]);
+	        return index;
+	    }
+	    /**
+	     * Creates multiple search indexes for the current collection.
+	     *
+	     * @param descriptions - An array of `SearchIndexDescription`s for the new search indexes.
+	     * @returns A promise that resolves to an array of the newly created search index names.
+	     *
+	     * @remarks Only available when used against a 7.0+ Atlas cluster.
+	     * @returns
+	     */
+	    async createSearchIndexes(descriptions) {
+	        return (0, execute_operation_1.executeOperation)(this.client, new create_1.CreateSearchIndexesOperation(this, descriptions));
+	    }
+	    /**
+	     * Deletes a search index by index name.
+	     *
+	     * @param name - The name of the search index to be deleted.
+	     *
+	     * @remarks Only available when used against a 7.0+ Atlas cluster.
+	     */
+	    async dropSearchIndex(name) {
+	        return (0, execute_operation_1.executeOperation)(this.client, new drop_2.DropSearchIndexOperation(this, name));
+	    }
+	    /**
+	     * Updates a search index by replacing the existing index definition with the provided definition.
+	     *
+	     * @param name - The name of the search index to update.
+	     * @param definition - The new search index definition.
+	     *
+	     * @remarks Only available when used against a 7.0+ Atlas cluster.
+	     */
+	    async updateSearchIndex(name, definition) {
+	        return (0, execute_operation_1.executeOperation)(this.client, new update_1.UpdateSearchIndexOperation(this, name, definition));
 	    }
 	}
 	collection.Collection = Collection;
@@ -9849,7 +10139,7 @@ var list_collections = {};
 
 Object.defineProperty(list_collections, "__esModule", { value: true });
 list_collections.ListCollectionsOperation = void 0;
-const utils_1$b = utils;
+const utils_1$d = utils;
 const command_1$1 = command;
 const operation_1 = operation;
 /** @internal */
@@ -9866,8 +10156,8 @@ class ListCollectionsOperation extends command_1$1.CommandOperation {
             this.batchSize = this.options.batchSize;
         }
     }
-    execute(server, session, callback) {
-        return super.executeCommand(server, session, this.generateCommand((0, utils_1$b.maxWireVersion)(server)), callback);
+    executeCallback(server, session, callback) {
+        return super.executeCommand(server, session, this.generateCommand((0, utils_1$d.maxWireVersion)(server)), callback);
     }
     /* This is here for the purpose of unit testing the final command that gets sent. */
     generateCommand(wireVersion) {
@@ -9895,13 +10185,13 @@ list_collections.ListCollectionsOperation = ListCollectionsOperation;
 
 Object.defineProperty(list_collections_cursor, "__esModule", { value: true });
 list_collections_cursor.ListCollectionsCursor = void 0;
-const execute_operation_1 = execute_operation;
+const execute_operation_1$1 = execute_operation;
 const list_collections_1 = list_collections;
-const abstract_cursor_1 = abstract_cursor;
+const abstract_cursor_1$1 = abstract_cursor;
 /** @public */
-class ListCollectionsCursor extends abstract_cursor_1.AbstractCursor {
+class ListCollectionsCursor extends abstract_cursor_1$1.AbstractCursor {
     constructor(db, filter, options) {
-        super(db.s.client, db.s.namespace, options);
+        super(db.client, db.s.namespace, options);
         this.parent = db;
         this.filter = filter;
         this.options = options;
@@ -9919,7 +10209,7 @@ class ListCollectionsCursor extends abstract_cursor_1.AbstractCursor {
             ...this.options,
             session
         });
-        (0, execute_operation_1.executeOperation)(this.parent.s.client, operation, (err, response) => {
+        (0, execute_operation_1$1.executeOperation)(this.parent.client, operation, (err, response) => {
             if (err || response == null)
                 return callback(err);
             // TODO: NODE-2882
@@ -9928,6 +10218,101 @@ class ListCollectionsCursor extends abstract_cursor_1.AbstractCursor {
     }
 }
 list_collections_cursor.ListCollectionsCursor = ListCollectionsCursor;
+
+var run_command_cursor = {};
+
+Object.defineProperty(run_command_cursor, "__esModule", { value: true });
+run_command_cursor.RunCommandCursor = void 0;
+const error_1$k = error;
+const execute_operation_1 = execute_operation;
+const get_more_1 = get_more;
+const run_command_1 = run_command;
+const utils_1$c = utils;
+const abstract_cursor_1 = abstract_cursor;
+/** @public */
+class RunCommandCursor extends abstract_cursor_1.AbstractCursor {
+    /**
+     * Controls the `getMore.comment` field
+     * @param comment - any BSON value
+     */
+    setComment(comment) {
+        this.getMoreOptions.comment = comment;
+        return this;
+    }
+    /**
+     * Controls the `getMore.maxTimeMS` field. Only valid when cursor is tailable await
+     * @param maxTimeMS - the number of milliseconds to wait for new data
+     */
+    setMaxTimeMS(maxTimeMS) {
+        this.getMoreOptions.maxAwaitTimeMS = maxTimeMS;
+        return this;
+    }
+    /**
+     * Controls the `getMore.batchSize` field
+     * @param maxTimeMS - the number documents to return in the `nextBatch`
+     */
+    setBatchSize(batchSize) {
+        this.getMoreOptions.batchSize = batchSize;
+        return this;
+    }
+    /** Unsupported for RunCommandCursor */
+    clone() {
+        throw new error_1$k.MongoAPIError('Clone not supported, create a new cursor with db.runCursorCommand');
+    }
+    /** Unsupported for RunCommandCursor: readConcern must be configured directly on command document */
+    withReadConcern(_) {
+        throw new error_1$k.MongoAPIError('RunCommandCursor does not support readConcern it must be attached to the command being run');
+    }
+    /** Unsupported for RunCommandCursor: various cursor flags must be configured directly on command document */
+    addCursorFlag(_, __) {
+        throw new error_1$k.MongoAPIError('RunCommandCursor does not support cursor flags, they must be attached to the command being run');
+    }
+    /** Unsupported for RunCommandCursor: maxTimeMS must be configured directly on command document */
+    maxTimeMS(_) {
+        throw new error_1$k.MongoAPIError('maxTimeMS must be configured on the command document directly, to configure getMore.maxTimeMS use cursor.setMaxTimeMS()');
+    }
+    /** Unsupported for RunCommandCursor: batchSize must be configured directly on command document */
+    batchSize(_) {
+        throw new error_1$k.MongoAPIError('batchSize must be configured on the command document directly, to configure getMore.batchSize use cursor.setBatchSize()');
+    }
+    /** @internal */
+    constructor(db, command, options = {}) {
+        super(db.client, (0, utils_1$c.ns)(db.namespace), options);
+        this.getMoreOptions = {};
+        this.db = db;
+        this.command = Object.freeze({ ...command });
+    }
+    /** @internal */
+    _initialize(session, callback) {
+        const operation = new run_command_1.RunCommandOperation(this.db, this.command, {
+            ...this.cursorOptions,
+            session: session,
+            readPreference: this.cursorOptions.readPreference
+        });
+        (0, execute_operation_1.executeOperation)(this.client, operation).then(response => {
+            if (response.cursor == null) {
+                callback(new error_1$k.MongoUnexpectedServerResponseError('Expected server to respond with cursor'));
+                return;
+            }
+            callback(undefined, {
+                server: operation.server,
+                session,
+                response
+            });
+        }, err => callback(err));
+    }
+    /** @internal */
+    _getMore(_batchSize, callback) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const getMoreOperation = new get_more_1.GetMoreOperation(this.namespace, this.id, this.server, {
+            ...this.cursorOptions,
+            session: this.session,
+            ...this.getMoreOptions
+        });
+        (0, execute_operation_1.executeOperation)(this.client, getMoreOperation, callback);
+    }
+}
+run_command_cursor.RunCommandCursor = RunCommandCursor;
 
 var collections = {};
 
@@ -9941,13 +10326,13 @@ function requireCollections () {
 	const collection_1 = requireCollection();
 	const operation_1 = operation;
 	/** @internal */
-	class CollectionsOperation extends operation_1.AbstractOperation {
+	class CollectionsOperation extends operation_1.AbstractCallbackOperation {
 	    constructor(db, options) {
 	        super(options);
 	        this.options = options;
 	        this.db = db;
 	    }
-	    execute(server, session, callback) {
+	    executeCallback(server, session, callback) {
 	        // Let's get the collection names
 	        this.db
 	            .listCollections({}, { ...this.options, nameOnly: true, readPreference: this.readPreference, session })
@@ -10018,16 +10403,18 @@ function requireCreate_collection () {
 	        this.db = db;
 	        this.name = name;
 	    }
-	    execute(server, session, callback) {
+	    executeCallback(server, session, callback) {
 	        (async () => {
 	            const db = this.db;
 	            const name = this.name;
 	            const options = this.options;
 	            const encryptedFields = options.encryptedFields ??
-	                db.s.client.options.autoEncryption?.encryptedFieldsMap?.[`${db.databaseName}.${name}`];
+	                db.client.options.autoEncryption?.encryptedFieldsMap?.[`${db.databaseName}.${name}`];
 	            if (encryptedFields) {
 	                // Creating a QE collection required min server of 7.0.0
-	                if (server.description.maxWireVersion < constants_1.MIN_SUPPORTED_QE_WIRE_VERSION) {
+	                // TODO(NODE-5353): Get wire version information from connection.
+	                if (!server.loadBalanced &&
+	                    server.description.maxWireVersion < constants_1.MIN_SUPPORTED_QE_WIRE_VERSION) {
 	                    throw new error_1.MongoCompatibilityError(`${INVALID_QE_VERSION} The minimum server version required is ${constants_1.MIN_SUPPORTED_QE_SERVER_VERSION}`);
 	                }
 	                // Create auxilliary collections for queryable encryption support.
@@ -10050,9 +10437,7 @@ function requireCreate_collection () {
 	            if (encryptedFields) {
 	                // Create the required index for queryable encryption support.
 	                const createIndexOp = new indexes_1.CreateIndexOperation(db, name, { __safeContent__: 1 }, {});
-	                await new Promise((resolve, reject) => {
-	                    createIndexOp.execute(server, session, err => (err ? reject(err) : resolve()));
-	                });
+	                await createIndexOp.execute(server, session);
 	            }
 	            return coll;
 	        })().then(coll => callback(undefined, coll), err => callback(err));
@@ -10099,7 +10484,7 @@ class ProfilingLevelOperation extends command_1.CommandOperation {
         super(db, options);
         this.options = options;
     }
-    execute(server, session, callback) {
+    executeCallback(server, session, callback) {
         super.executeCommand(server, session, { profile: -1 }, (err, doc) => {
             if (err == null && doc.ok === 1) {
                 const was = doc.was;
@@ -10157,7 +10542,7 @@ var set_profiling_level = {};
 	        }
 	        this.level = level;
 	    }
-	    execute(server, session, callback) {
+	    executeCallback(server, session, callback) {
 	        const level = this.level;
 	        if (!levelValues.has(level)) {
 	            return callback(new error_1.MongoInvalidArgumentError(`Profiling level must be one of "${(0, utils_1.enumToString)(exports.ProfilingLevel)}"`));
@@ -10190,11 +10575,12 @@ function requireDb () {
 	const CONSTANTS = constants;
 	const aggregation_cursor_1 = aggregation_cursor;
 	const list_collections_cursor_1 = list_collections_cursor;
+	const run_command_cursor_1 = run_command_cursor;
 	const error_1 = error;
 	const add_user_1 = add_user;
 	const collections_1 = requireCollections();
 	const create_collection_1 = requireCreate_collection();
-	const drop_1 = drop;
+	const drop_1 = drop$1;
 	const execute_operation_1 = execute_operation;
 	const indexes_1 = indexes;
 	const profiling_level_1 = profiling_level;
@@ -10269,8 +10655,6 @@ function requireDb () {
 	        validateDatabaseName(databaseName);
 	        // Internal state of the db object
 	        this.s = {
-	            // Client
-	            client,
 	            // Options
 	            options,
 	            // Unpack read preference
@@ -10285,6 +10669,7 @@ function requireDb () {
 	            // Namespace
 	            namespace: new utils_1.MongoDBNamespace(databaseName)
 	        };
+	        this.client = client;
 	    }
 	    get databaseName() {
 	        return this.s.namespace.db;
@@ -10308,7 +10693,7 @@ function requireDb () {
 	     */
 	    get readPreference() {
 	        if (this.s.readPreference == null) {
-	            return this.s.client.readPreference;
+	            return this.client.readPreference;
 	        }
 	        return this.s.readPreference;
 	    }
@@ -10330,7 +10715,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async createCollection(name, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new create_collection_1.CreateCollectionOperation(this, name, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new create_collection_1.CreateCollectionOperation(this, name, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Execute a command
@@ -10359,7 +10744,7 @@ function requireDb () {
 	     */
 	    async command(command, options) {
 	        // Intentionally, we do not inherit options from parent for this operation.
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new run_command_1.RunCommandOperation(this, command, options));
+	        return (0, execute_operation_1.executeOperation)(this.client, new run_command_1.RunCommandOperation(this, command, options));
 	    }
 	    /**
 	     * Execute an aggregation framework pipeline against the database, needs MongoDB \>= 3.6
@@ -10368,7 +10753,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    aggregate(pipeline = [], options) {
-	        return new aggregation_cursor_1.AggregationCursor(this.s.client, this.s.namespace, pipeline, (0, utils_1.resolveOptions)(this, options));
+	        return new aggregation_cursor_1.AggregationCursor(this.client, this.s.namespace, pipeline, (0, utils_1.resolveOptions)(this, options));
 	    }
 	    /** Return the Admin db instance */
 	    admin() {
@@ -10392,7 +10777,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async stats(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new stats_1.DbStatsOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new stats_1.DbStatsOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    listCollections(filter = {}, options = {}) {
 	        return new list_collections_cursor_1.ListCollectionsCursor(this, filter, (0, utils_1.resolveOptions)(this, options));
@@ -10409,7 +10794,7 @@ function requireDb () {
 	     */
 	    async renameCollection(fromCollection, toCollection, options) {
 	        // Intentionally, we do not inherit options from parent for this operation.
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new rename_1.RenameOperation(this.collection(fromCollection), toCollection, { ...options, new_collection: true, readPreference: read_preference_1.ReadPreference.primary }));
+	        return (0, execute_operation_1.executeOperation)(this.client, new rename_1.RenameOperation(this.collection(fromCollection), toCollection, { ...options, new_collection: true, readPreference: read_preference_1.ReadPreference.primary }));
 	    }
 	    /**
 	     * Drop a collection from the database, removing it permanently. New accesses will create a new collection.
@@ -10418,7 +10803,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async dropCollection(name, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new drop_1.DropCollectionOperation(this, name, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new drop_1.DropCollectionOperation(this, name, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Drop a database, removing it permanently from the server.
@@ -10426,7 +10811,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async dropDatabase(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new drop_1.DropDatabaseOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new drop_1.DropDatabaseOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Fetch all collections for the current db.
@@ -10434,7 +10819,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async collections(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new collections_1.CollectionsOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new collections_1.CollectionsOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Creates an index on the db and collection.
@@ -10444,7 +10829,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async createIndex(name, indexSpec, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new indexes_1.CreateIndexOperation(this, name, indexSpec, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.CreateIndexOperation(this, name, indexSpec, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Add a user to the database
@@ -10463,7 +10848,7 @@ function requireDb () {
 	                    ? passwordOrOptions
 	                    : undefined;
 	        const password = typeof passwordOrOptions === 'string' ? passwordOrOptions : undefined;
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new add_user_1.AddUserOperation(this, username, password, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new add_user_1.AddUserOperation(this, username, password, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Remove a user from a database
@@ -10472,7 +10857,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async removeUser(username, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new remove_user_1.RemoveUserOperation(this, username, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new remove_user_1.RemoveUserOperation(this, username, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Set the current profiling level of MongoDB
@@ -10481,7 +10866,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async setProfilingLevel(level, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new set_profiling_level_1.SetProfilingLevelOperation(this, level, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new set_profiling_level_1.SetProfilingLevelOperation(this, level, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Retrieve the current profiling Level for MongoDB
@@ -10489,7 +10874,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async profilingLevel(options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new profiling_level_1.ProfilingLevelOperation(this, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new profiling_level_1.ProfilingLevelOperation(this, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Retrieves this collections index info.
@@ -10498,7 +10883,7 @@ function requireDb () {
 	     * @param options - Optional settings for the command
 	     */
 	    async indexInformation(name, options) {
-	        return (0, execute_operation_1.executeOperation)(this.s.client, new indexes_1.IndexInformationOperation(this, name, (0, utils_1.resolveOptions)(this, options)));
+	        return (0, execute_operation_1.executeOperation)(this.client, new indexes_1.IndexInformationOperation(this, name, (0, utils_1.resolveOptions)(this, options)));
 	    }
 	    /**
 	     * Create a new Change Stream, watching for new changes (insertions, updates,
@@ -10523,14 +10908,26 @@ function requireDb () {
 	        }
 	        return new change_stream_1.ChangeStream(this, pipeline, (0, utils_1.resolveOptions)(this, options));
 	    }
+	    /**
+	     * A low level cursor API providing basic driver functionality:
+	     * - ClientSession management
+	     * - ReadPreference for server selection
+	     * - Running getMores automatically when a local batch is exhausted
+	     *
+	     * @param command - The command that will start a cursor on the server.
+	     * @param options - Configurations for running the command, bson options will apply to getMores
+	     */
+	    runCursorCommand(command, options) {
+	        return new run_command_cursor_1.RunCommandCursor(this, command, options);
+	    }
 	}
-	db.Db = Db;
 	Db.SYSTEM_NAMESPACE_COLLECTION = CONSTANTS.SYSTEM_NAMESPACE_COLLECTION;
 	Db.SYSTEM_INDEX_COLLECTION = CONSTANTS.SYSTEM_INDEX_COLLECTION;
 	Db.SYSTEM_PROFILE_COLLECTION = CONSTANTS.SYSTEM_PROFILE_COLLECTION;
 	Db.SYSTEM_USER_COLLECTION = CONSTANTS.SYSTEM_USER_COLLECTION;
 	Db.SYSTEM_COMMAND_COLLECTION = CONSTANTS.SYSTEM_COMMAND_COLLECTION;
 	Db.SYSTEM_JS_COLLECTION = CONSTANTS.SYSTEM_JS_COLLECTION;
+	db.Db = Db;
 	// TODO(NODE-3484): Refactor into MongoDBNamespace
 	// Validate the database name
 	function validateDatabaseName(databaseName) {
@@ -10560,79 +10957,100 @@ const require$$0$3 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(dns$1)
 
 var deps = {};
 
-Object.defineProperty(deps, "__esModule", { value: true });
-deps.AutoEncryptionLoggerLevel = aws4 = deps.aws4 = saslprep = deps.saslprep = Snappy = deps.Snappy = deps.getAwsCredentialProvider = ZStandard = deps.ZStandard = Kerberos = deps.Kerberos = void 0;
-const error_1$i = error;
-function makeErrorModule(error) {
-    const props = error ? { kModuleError: error } : {};
-    return new Proxy(props, {
-        get: (_, key) => {
-            if (key === 'kModuleError') {
-                return error;
-            }
-            throw error;
-        },
-        set: () => {
-            throw error;
-        }
-    });
-}
-var Kerberos = deps.Kerberos = makeErrorModule(new error_1$i.MongoMissingDependencyError('Optional module `kerberos` not found. Please install it to enable kerberos authentication'));
-try {
-    // Ensure you always wrap an optional require in the try block NODE-3199
-    Kerberos = deps.Kerberos = require('kerberos');
-}
-catch { } // eslint-disable-line
-var ZStandard = deps.ZStandard = makeErrorModule(new error_1$i.MongoMissingDependencyError('Optional module `@mongodb-js/zstd` not found. Please install it to enable zstd compression'));
-try {
-    ZStandard = deps.ZStandard = require('@mongodb-js/zstd');
-}
-catch { } // eslint-disable-line
-function getAwsCredentialProvider() {
-    try {
-        // Ensure you always wrap an optional require in the try block NODE-3199
-        const credentialProvider = require('@aws-sdk/credential-providers');
-        return credentialProvider;
-    }
-    catch {
-        return makeErrorModule(new error_1$i.MongoMissingDependencyError('Optional module `@aws-sdk/credential-providers` not found.' +
-            ' Please install it to enable getting aws credentials via the official sdk.'));
-    }
-}
-deps.getAwsCredentialProvider = getAwsCredentialProvider;
-var Snappy = deps.Snappy = makeErrorModule(new error_1$i.MongoMissingDependencyError('Optional module `snappy` not found. Please install it to enable snappy compression'));
-try {
-    // Ensure you always wrap an optional require in the try block NODE-3199
-    Snappy = deps.Snappy = require('snappy');
-}
-catch { } // eslint-disable-line
-var saslprep = deps.saslprep = makeErrorModule(new error_1$i.MongoMissingDependencyError('Optional module `saslprep` not found.' +
-    ' Please install it to enable Stringprep Profile for User Names and Passwords'));
-try {
-    // Ensure you always wrap an optional require in the try block NODE-3199
-    saslprep = deps.saslprep = require('saslprep');
-}
-catch { } // eslint-disable-line
-var aws4 = deps.aws4 = makeErrorModule(new error_1$i.MongoMissingDependencyError('Optional module `aws4` not found. Please install it to enable AWS authentication'));
-try {
-    // Ensure you always wrap an optional require in the try block NODE-3199
-    aws4 = deps.aws4 = require('aws4');
-}
-catch { } // eslint-disable-line
-/** @public */
-deps.AutoEncryptionLoggerLevel = Object.freeze({
-    FatalError: 0,
-    Error: 1,
-    Warning: 2,
-    Info: 3,
-    Trace: 4
-});
+(function (exports) {
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.AutoEncryptionLoggerLevel = exports.aws4 = exports.saslprep = exports.getSnappy = exports.getAwsCredentialProvider = exports.getZstdLibrary = exports.ZStandard = exports.getKerberos = exports.Kerberos = void 0;
+	const error_1 = error;
+	function makeErrorModule(error) {
+	    const props = error ? { kModuleError: error } : {};
+	    return new Proxy(props, {
+	        get: (_, key) => {
+	            if (key === 'kModuleError') {
+	                return error;
+	            }
+	            throw error;
+	        },
+	        set: () => {
+	            throw error;
+	        }
+	    });
+	}
+	exports.Kerberos = makeErrorModule(new error_1.MongoMissingDependencyError('Optional module `kerberos` not found. Please install it to enable kerberos authentication'));
+	function getKerberos() {
+	    try {
+	        // Ensure you always wrap an optional require in the try block NODE-3199
+	        exports.Kerberos = require('kerberos');
+	        return exports.Kerberos;
+	    }
+	    catch {
+	        return exports.Kerberos;
+	    }
+	}
+	exports.getKerberos = getKerberos;
+	exports.ZStandard = makeErrorModule(new error_1.MongoMissingDependencyError('Optional module `@mongodb-js/zstd` not found. Please install it to enable zstd compression'));
+	function getZstdLibrary() {
+	    try {
+	        exports.ZStandard = require('@mongodb-js/zstd');
+	        return exports.ZStandard;
+	    }
+	    catch {
+	        return exports.ZStandard;
+	    }
+	}
+	exports.getZstdLibrary = getZstdLibrary;
+	function getAwsCredentialProvider() {
+	    try {
+	        // Ensure you always wrap an optional require in the try block NODE-3199
+	        const credentialProvider = require('@aws-sdk/credential-providers');
+	        return credentialProvider;
+	    }
+	    catch {
+	        return makeErrorModule(new error_1.MongoMissingDependencyError('Optional module `@aws-sdk/credential-providers` not found.' +
+	            ' Please install it to enable getting aws credentials via the official sdk.'));
+	    }
+	}
+	exports.getAwsCredentialProvider = getAwsCredentialProvider;
+	function getSnappy() {
+	    try {
+	        // Ensure you always wrap an optional require in the try block NODE-3199
+	        const value = require('snappy');
+	        return value;
+	    }
+	    catch (cause) {
+	        const kModuleError = new error_1.MongoMissingDependencyError('Optional module `snappy` not found. Please install it to enable snappy compression', { cause });
+	        return { kModuleError };
+	    }
+	}
+	exports.getSnappy = getSnappy;
+	exports.saslprep = makeErrorModule(new error_1.MongoMissingDependencyError('Optional module `saslprep` not found.' +
+	    ' Please install it to enable Stringprep Profile for User Names and Passwords'));
+	try {
+	    // Ensure you always wrap an optional require in the try block NODE-3199
+	    exports.saslprep = require('saslprep');
+	}
+	catch { } // eslint-disable-line
+	exports.aws4 = makeErrorModule(new error_1.MongoMissingDependencyError('Optional module `aws4` not found. Please install it to enable AWS authentication'));
+	try {
+	    // Ensure you always wrap an optional require in the try block NODE-3199
+	    exports.aws4 = require('aws4');
+	}
+	catch { } // eslint-disable-line
+	/** @public */
+	exports.AutoEncryptionLoggerLevel = Object.freeze({
+	    FatalError: 0,
+	    Error: 1,
+	    Warning: 2,
+	    Info: 3,
+	    Trace: 4
+	});
+	
+} (deps));
 
 var auth_provider = {};
 
 Object.defineProperty(auth_provider, "__esModule", { value: true });
 auth_provider.AuthProvider = auth_provider.AuthContext = void 0;
-const error_1$h = error;
+const error_1$i = error;
 /**
  * Context used during authentication
  * @internal
@@ -10663,7 +11081,7 @@ class AuthProvider {
      */
     async reauth(context) {
         if (context.reauthenticating) {
-            throw new error_1$h.MongoRuntimeError('Reauthentication already in progress.');
+            throw new error_1$i.MongoRuntimeError('Reauthentication already in progress.');
         }
         try {
             context.reauthenticating = true;
@@ -10695,6 +11113,7 @@ auth_provider.AuthProvider = AuthProvider;
 	async function externalCommand(connection, command) {
 	    return connection.commandAsync((0, utils_1.ns)('$external.$cmd'), command, undefined);
 	}
+	let krb;
 	class GSSAPI extends auth_provider_1.AuthProvider {
 	    async auth(authContext) {
 	        const { connection, credentials } = authContext;
@@ -10722,10 +11141,11 @@ auth_provider.AuthProvider = AuthProvider;
 	    if (!hostAddress || typeof hostAddress.host !== 'string' || !credentials) {
 	        throw new error_1.MongoInvalidArgumentError('Connection must have host and port and credentials defined.');
 	    }
-	    if ('kModuleError' in deps_1.Kerberos) {
-	        throw deps_1.Kerberos['kModuleError'];
+	    loadKrb();
+	    if ('kModuleError' in krb) {
+	        throw krb['kModuleError'];
 	    }
-	    const { initializeClient } = deps_1.Kerberos;
+	    const { initializeClient } = krb;
 	    const { username, password } = credentials;
 	    const mechanismProperties = credentials.mechanismProperties;
 	    const serviceName = mechanismProperties.SERVICE_NAME ?? 'mongodb';
@@ -10818,6 +11238,14 @@ auth_provider.AuthProvider = AuthProvider;
 	    }
 	}
 	exports.resolveCname = resolveCname;
+	/**
+	 * Load the Kerberos library.
+	 */
+	function loadKrb() {
+	    if (!krb) {
+	        krb = (0, deps_1.getKerberos)();
+	    }
+	}
 	
 } (gssapi));
 
@@ -10873,6 +11301,7 @@ var providers = {};
 	    // Default for wireprotocol < 3
 	    return providers_1.AuthMechanism.MONGODB_CR;
 	}
+	const ALLOWED_PROVIDER_NAMES = ['aws', 'azure'];
 	const ALLOWED_HOSTS_ERROR = 'Auth mechanism property ALLOWED_HOSTS must be an array of strings.';
 	/** @internal */
 	exports.DEFAULT_ALLOWED_HOSTS = [
@@ -10883,6 +11312,8 @@ var providers = {};
 	    '127.0.0.1',
 	    '::1'
 	];
+	/** Error for when the token audience is missing in the environment. */
+	const TOKEN_AUDIENCE_MISSING_ERROR = 'TOKEN_AUDIENCE must be set in the auth mechanism properties when PROVIDER_NAME is azure.';
 	/**
 	 * A representation of the credentials used by MongoDB
 	 * @public
@@ -10960,9 +11391,13 @@ var providers = {};
 	            if (this.username && this.mechanismProperties.PROVIDER_NAME) {
 	                throw new error_1.MongoInvalidArgumentError(`username and PROVIDER_NAME may not be used together for mechanism '${this.mechanism}'.`);
 	            }
+	            if (this.mechanismProperties.PROVIDER_NAME === 'azure' &&
+	                !this.mechanismProperties.TOKEN_AUDIENCE) {
+	                throw new error_1.MongoAzureError(TOKEN_AUDIENCE_MISSING_ERROR);
+	            }
 	            if (this.mechanismProperties.PROVIDER_NAME &&
-	                this.mechanismProperties.PROVIDER_NAME !== 'aws') {
-	                throw new error_1.MongoInvalidArgumentError(`Currently only a PROVIDER_NAME of 'aws' is supported for mechanism '${this.mechanism}'.`);
+	                !ALLOWED_PROVIDER_NAMES.includes(this.mechanismProperties.PROVIDER_NAME)) {
+	                throw new error_1.MongoInvalidArgumentError(`Currently only a PROVIDER_NAME in ${ALLOWED_PROVIDER_NAMES.join(',')} is supported for mechanism '${this.mechanism}'.`);
 	            }
 	            if (this.mechanismProperties.REFRESH_TOKEN_CALLBACK &&
 	                !this.mechanismProperties.REQUEST_TOKEN_CALLBACK) {
@@ -11031,10 +11466,10 @@ var client_metadata = {};
 
 const require$$0$1 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(os$1);
 
-const require$$1$3 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(process$2);
+const require$$1$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(process$2);
 
 var name = "mongodb";
-var version = "5.5.0";
+var version = "5.7.0";
 var description = "The official MongoDB driver for Node.js";
 var main = "lib/index.js";
 var files = [
@@ -11059,7 +11494,7 @@ var author = {
 	email: "dbx-node@mongodb.com"
 };
 var dependencies = {
-	bson: "^5.3.0",
+	bson: "^5.4.0",
 	"mongodb-connection-string-url": "^2.6.0",
 	socks: "^2.7.1"
 };
@@ -11068,11 +11503,19 @@ var optionalDependencies = {
 };
 var peerDependencies = {
 	"@aws-sdk/credential-providers": "^3.201.0",
+	"@mongodb-js/zstd": "^1.1.0",
+	kerberos: "^2.0.1",
 	"mongodb-client-encryption": ">=2.3.0 <3",
 	snappy: "^7.2.2"
 };
 var peerDependenciesMeta = {
 	"@aws-sdk/credential-providers": {
+		optional: true
+	},
+	"@mongodb-js/zstd": {
+		optional: true
+	},
+	kerberos: {
 		optional: true
 	},
 	snappy: {
@@ -11085,9 +11528,10 @@ var peerDependenciesMeta = {
 var devDependencies = {
 	"@iarna/toml": "^2.2.5",
 	"@istanbuljs/nyc-config-typescript": "^1.0.2",
-	"@microsoft/api-extractor": "^7.34.8",
+	"@microsoft/api-extractor": "^7.35.1",
 	"@microsoft/tsdoc-config": "^0.16.2",
 	"@mongodb-js/zstd": "^1.1.0",
+	"@octokit/core": "^4.2.1",
 	"@types/chai": "^4.3.5",
 	"@types/chai-subset": "^1.3.3",
 	"@types/express": "^4.17.17",
@@ -11122,10 +11566,9 @@ var devDependencies = {
 	"sinon-chai": "^3.7.0",
 	snappy: "^7.2.2",
 	"source-map-support": "^0.5.21",
-	"standard-version": "^9.5.0",
 	"ts-node": "^10.9.1",
-	tsd: "^0.27.0",
-	typescript: "^4.9.5",
+	tsd: "^0.28.1",
+	typescript: "^5.0.4",
 	"typescript-cached-transpile": "^0.0.6",
 	"v8-heapsnapshot": "^1.2.0",
 	yargs: "^17.7.2"
@@ -11144,6 +11587,7 @@ var scripts = {
 	"build:dts": "npm run build:ts && api-extractor run && node etc/clean_definition_files.cjs",
 	"build:docs": "./etc/docs/build.ts",
 	"build:typedoc": "typedoc",
+	"build:nightly": "node ./.github/scripts/nightly.mjs",
 	"check:bench": "node test/benchmarks/driverBench",
 	"check:coverage": "nyc npm run test:all",
 	"check:integration-coverage": "nyc npm run check:test",
@@ -11154,6 +11598,7 @@ var scripts = {
 	"check:tsd": "tsd --version && tsd",
 	"check:dependencies": "mocha test/action/dependency.test.ts",
 	"check:dts": "node ./node_modules/typescript/bin/tsc --noEmit mongodb.d.ts && tsd",
+	"check:search-indexes": "nyc mocha --config test/mocha_mongodb.json test/manual/search-index-management.spec.test.ts",
 	"check:test": "mocha --config test/mocha_mongodb.json test/integration",
 	"check:unit": "mocha test/unit",
 	"check:ts": "node ./node_modules/typescript/bin/tsc -v && node ./node_modules/typescript/bin/tsc --noEmit",
@@ -11161,6 +11606,7 @@ var scripts = {
 	"check:adl": "mocha --config test/mocha_mongodb.json test/manual/atlas-data-lake-testing",
 	"check:aws": "nyc mocha --config test/mocha_mongodb.json test/integration/auth/mongodb_aws.test.ts",
 	"check:oidc": "mocha --config test/mocha_mongodb.json test/manual/mongodb_oidc.prose.test.ts",
+	"check:oidc-azure": "mocha --config test/mocha_mongodb.json test/integration/auth/mongodb_oidc_azure.prose.test.ts",
 	"check:ocsp": "mocha --config test/manual/mocharc.json test/manual/ocsp_support.test.js",
 	"check:kerberos": "nyc mocha --config test/manual/mocharc.json test/manual/kerberos.test.ts",
 	"check:tls": "mocha --config test/manual/mocharc.json test/manual/tls_support.test.js",
@@ -11171,7 +11617,6 @@ var scripts = {
 	"fix:eslint": "npm run check:eslint -- --fix",
 	prepare: "node etc/prepare.js",
 	"preview:docs": "ts-node etc/docs/preview.ts",
-	release: "bash etc/check-remote.sh && standard-version -a -i HISTORY.md",
 	test: "npm run check:lint && npm run test:all",
 	"test:all": "npm run check:unit && npm run check:test",
 	"update:docs": "npm run build:docs -- --yes"
@@ -11211,9 +11656,9 @@ const require$$4 = {
 Object.defineProperty(client_metadata, "__esModule", { value: true });
 client_metadata.getFAASEnv = client_metadata.makeClientMetadata = client_metadata.LimitedSizeDocument = void 0;
 const os = require$$0$1;
-const process$1 = require$$1$3;
+const process$1 = require$$1$2;
 const bson_1$5 = bson;
-const error_1$g = error;
+const error_1$h = error;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const NODE_DRIVER_VERSION = require$$4.version;
 /** @internal */
@@ -11270,14 +11715,14 @@ function makeClientMetadata(options) {
         version: version.length > 0 ? `${NODE_DRIVER_VERSION}|${version}` : NODE_DRIVER_VERSION
     };
     if (!metadataDocument.ifItFitsItSits('driver', driverInfo)) {
-        throw new error_1$g.MongoInvalidArgumentError('Unable to include driverInfo name and version, metadata cannot exceed 512 bytes');
+        throw new error_1$h.MongoInvalidArgumentError('Unable to include driverInfo name and version, metadata cannot exceed 512 bytes');
     }
     let runtimeInfo = getRuntimeInfo();
     if (platform.length > 0) {
         runtimeInfo = `${runtimeInfo}|${platform}`;
     }
     if (!metadataDocument.ifItFitsItSits('platform', runtimeInfo)) {
-        throw new error_1$g.MongoInvalidArgumentError('Unable to include driverInfo platform, metadata cannot exceed 512 bytes');
+        throw new error_1$h.MongoInvalidArgumentError('Unable to include driverInfo platform, metadata cannot exceed 512 bytes');
     }
     // Note: order matters, os.type is last so it will be removed last if we're at maxSize
     const osInfo = new Map()
@@ -11382,13 +11827,13 @@ function getRuntimeInfo() {
 
 var compression = {};
 
-const require$$1$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(zlib);
+const require$$1$1 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(zlib);
 
 (function (exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.decompress = exports.compress = exports.uncompressibleCommands = exports.Compressor = void 0;
 	const util_1 = require$$0$6;
-	const zlib = require$$1$2;
+	const zlib = require$$1$1;
 	const constants_1 = constants;
 	const deps_1 = deps;
 	const error_1 = error;
@@ -11414,27 +11859,42 @@ const require$$1$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(zlib);
 	const ZSTD_COMPRESSION_LEVEL = 3;
 	const zlibInflate = (0, util_1.promisify)(zlib.inflate.bind(zlib));
 	const zlibDeflate = (0, util_1.promisify)(zlib.deflate.bind(zlib));
+	let zstd;
+	let Snappy = null;
+	function loadSnappy() {
+	    if (Snappy == null) {
+	        const snappyImport = (0, deps_1.getSnappy)();
+	        if ('kModuleError' in snappyImport) {
+	            throw snappyImport.kModuleError;
+	        }
+	        Snappy = snappyImport;
+	    }
+	    return Snappy;
+	}
 	// Facilitate compressing a message using an agreed compressor
 	async function compress(options, dataToBeCompressed) {
 	    const zlibOptions = {};
 	    switch (options.agreedCompressor) {
-	        case 'snappy':
-	            if ('kModuleError' in deps_1.Snappy) {
-	                throw deps_1.Snappy['kModuleError'];
+	        case 'snappy': {
+	            Snappy ?? (Snappy = loadSnappy());
+	            return Snappy.compress(dataToBeCompressed);
+	        }
+	        case 'zstd': {
+	            loadZstd();
+	            if ('kModuleError' in zstd) {
+	                throw zstd['kModuleError'];
 	            }
-	            return deps_1.Snappy.compress(dataToBeCompressed);
-	        case 'zstd':
-	            if ('kModuleError' in deps_1.ZStandard) {
-	                throw deps_1.ZStandard['kModuleError'];
-	            }
-	            return deps_1.ZStandard.compress(dataToBeCompressed, ZSTD_COMPRESSION_LEVEL);
-	        case 'zlib':
+	            return zstd.compress(dataToBeCompressed, ZSTD_COMPRESSION_LEVEL);
+	        }
+	        case 'zlib': {
 	            if (options.zlibCompressionLevel) {
 	                zlibOptions.level = options.zlibCompressionLevel;
 	            }
 	            return zlibDeflate(dataToBeCompressed, zlibOptions);
-	        default:
+	        }
+	        default: {
 	            throw new error_1.MongoInvalidArgumentError(`Unknown compressor ${options.agreedCompressor} failed to compress`);
+	        }
 	    }
 	}
 	exports.compress = compress;
@@ -11447,23 +11907,34 @@ const require$$1$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(zlib);
 	        throw new error_1.MongoDecompressionError(`Server sent message compressed using an unsupported compressor. (Received compressor ID ${compressorID})`);
 	    }
 	    switch (compressorID) {
-	        case exports.Compressor.snappy:
-	            if ('kModuleError' in deps_1.Snappy) {
-	                throw deps_1.Snappy['kModuleError'];
+	        case exports.Compressor.snappy: {
+	            Snappy ?? (Snappy = loadSnappy());
+	            return Snappy.uncompress(compressedData, { asBuffer: true });
+	        }
+	        case exports.Compressor.zstd: {
+	            loadZstd();
+	            if ('kModuleError' in zstd) {
+	                throw zstd['kModuleError'];
 	            }
-	            return deps_1.Snappy.uncompress(compressedData, { asBuffer: true });
-	        case exports.Compressor.zstd:
-	            if ('kModuleError' in deps_1.ZStandard) {
-	                throw deps_1.ZStandard['kModuleError'];
-	            }
-	            return deps_1.ZStandard.decompress(compressedData);
-	        case exports.Compressor.zlib:
+	            return zstd.decompress(compressedData);
+	        }
+	        case exports.Compressor.zlib: {
 	            return zlibInflate(compressedData);
-	        default:
+	        }
+	        default: {
 	            return compressedData;
+	        }
 	    }
 	}
 	exports.decompress = decompress;
+	/**
+	 * Load ZStandard if it is not already set.
+	 */
+	function loadZstd() {
+	    if (!zstd) {
+	        zstd = (0, deps_1.getZstdLibrary)();
+	    }
+	}
 	
 } (compression));
 
@@ -11954,7 +12425,7 @@ function requireConnection_string () {
 		const dns = require$$0$3;
 		const fs = require$$0$2;
 		const mongodb_connection_string_url_1 = require$$2$1;
-		const url_1 = require$$2$2;
+		const url_1 = require$$3;
 		const mongo_credentials_1 = mongo_credentials;
 		const providers_1 = providers;
 		const client_metadata_1 = client_metadata;
@@ -12102,7 +12573,7 @@ function requireConnection_string () {
 		function* entriesFromString(value) {
 		    const keyValuePairs = value.split(',');
 		    for (const keyValue of keyValuePairs) {
-		        const [key, value] = keyValue.split(':');
+		        const [key, value] = keyValue.split(/:(.*)/);
 		        if (value == null) {
 		            throw new error_1.MongoParseError('Cannot have undefined values in key value pairs');
 		        }
@@ -12842,35 +13313,40 @@ function requireConnection_string () {
 		        type: 'boolean'
 		    },
 		    sslCA: {
+		        deprecated: 'sslCA is deprecated and will be removed in the next major version. Please use tlsCAFile instead.',
 		        target: 'ca',
 		        transform({ values: [value] }) {
 		            return fs.readFileSync(String(value), { encoding: 'ascii' });
 		        }
 		    },
 		    sslCRL: {
+		        deprecated: 'sslCRL is deprecated and will be removed in the next major version. Please use tlsCertificateKeyFile instead.',
 		        target: 'crl',
 		        transform({ values: [value] }) {
 		            return fs.readFileSync(String(value), { encoding: 'ascii' });
 		        }
 		    },
 		    sslCert: {
+		        deprecated: 'sslCert is deprecated and will be removed in the next major version. Please use tlsCertificateKeyFile instead.',
 		        target: 'cert',
 		        transform({ values: [value] }) {
 		            return fs.readFileSync(String(value), { encoding: 'ascii' });
 		        }
 		    },
 		    sslKey: {
+		        deprecated: 'sslKey is deprecated and will be removed in the next major version. Please use tlsCertificateKeyFile instead.',
 		        target: 'key',
 		        transform({ values: [value] }) {
 		            return fs.readFileSync(String(value), { encoding: 'ascii' });
 		        }
 		    },
 		    sslPass: {
-		        deprecated: true,
+		        deprecated: 'sslPass is deprecated and will be removed in the next major version. Please use tlsCertificateKeyFilePassword instead.',
 		        target: 'passphrase',
 		        type: 'string'
 		    },
 		    sslValidate: {
+		        deprecated: 'sslValidate is deprecated and will be removed in the next major version. Please use tlsAllowInvalidCertificates instead.',
 		        target: 'rejectUnauthorized',
 		        type: 'boolean'
 		    },
@@ -12898,6 +13374,7 @@ function requireConnection_string () {
 		        }
 		    },
 		    tlsCertificateFile: {
+		        deprecated: 'tlsCertificateFile is deprecated and will be removed in the next major version. Please use tlsCertificateKeyFile instead.',
 		        target: 'cert',
 		        transform({ values: [value] }) {
 		            return fs.readFileSync(String(value), { encoding: 'ascii' });
@@ -13186,9 +13663,9 @@ var commands = {};
 Object.defineProperty(commands, "__esModule", { value: true });
 commands.BinMsg = commands.Msg = commands.Response = commands.Query = void 0;
 const BSON$1 = bson;
-const error_1$f = error;
+const error_1$g = error;
 const read_preference_1 = read_preference;
-const utils_1$a = utils;
+const utils_1$b = utils;
 const constants_1$3 = constants$1;
 // Incrementing request id
 let _requestId = 0;
@@ -13214,14 +13691,14 @@ class Query {
         // Basic options needed to be passed in
         // TODO(NODE-3483): Replace with MongoCommandError
         if (ns == null)
-            throw new error_1$f.MongoRuntimeError('Namespace must be specified for query');
+            throw new error_1$g.MongoRuntimeError('Namespace must be specified for query');
         // TODO(NODE-3483): Replace with MongoCommandError
         if (query == null)
-            throw new error_1$f.MongoRuntimeError('A query document must be specified for query');
+            throw new error_1$g.MongoRuntimeError('A query document must be specified for query');
         // Validate that we are not passing 0x00 in the collection name
         if (ns.indexOf('\x00') !== -1) {
             // TODO(NODE-3483): Use MongoNamespace static method
-            throw new error_1$f.MongoRuntimeError('Namespace cannot contain a null character');
+            throw new error_1$g.MongoRuntimeError('Namespace cannot contain a null character');
         }
         // Basic options
         this.ns = ns;
@@ -13504,11 +13981,11 @@ class Msg {
     constructor(ns, command, options) {
         // Basic options needed to be passed in
         if (command == null)
-            throw new error_1$f.MongoInvalidArgumentError('Query document must be specified for query');
+            throw new error_1$g.MongoInvalidArgumentError('Query document must be specified for query');
         // Basic options
         this.ns = ns;
         this.command = command;
-        this.command.$db = (0, utils_1$a.databaseNamespace)(ns);
+        this.command.$db = (0, utils_1$b.databaseNamespace)(ns);
         if (options.readPreference && options.readPreference.mode !== read_preference_1.ReadPreference.PRIMARY) {
             this.command.$readPreference = options.readPreference.toJSON();
         }
@@ -13648,7 +14125,7 @@ class BinMsg {
             else if (payloadType === 1) {
                 // It was decided that no driver makes use of payload type 1
                 // TODO(NODE-3483): Replace with MongoDeprecationError
-                throw new error_1$f.MongoRuntimeError('OP_MSG Payload Type 1 detected unsupported protocol');
+                throw new error_1$g.MongoRuntimeError('OP_MSG Payload Type 1 detected unsupported protocol');
             }
         }
         if (this.documents.length === 1 && documentsReturnedIn != null && raw) {
@@ -13927,8 +14404,8 @@ var message_stream = {};
 Object.defineProperty(message_stream, "__esModule", { value: true });
 message_stream.MessageStream = void 0;
 const stream_1$2 = require$$0$5;
-const error_1$e = error;
-const utils_1$9 = utils;
+const error_1$f = error;
+const utils_1$a = utils;
 const commands_1$1 = commands;
 const compression_1 = compression;
 const constants_1$2 = constants$1;
@@ -13948,7 +14425,7 @@ class MessageStream extends stream_1$2.Duplex {
         /** @internal */
         this.isMonitoringConnection = false;
         this.maxBsonMessageSize = options.maxBsonMessageSize || kDefaultMaxBsonMessageSize;
-        this[kBuffer] = new utils_1$9.BufferPool();
+        this[kBuffer] = new utils_1$a.BufferPool();
     }
     get buffer() {
         return this[kBuffer];
@@ -14012,10 +14489,10 @@ function processIncomingData(stream, callback) {
         return callback();
     }
     if (sizeOfMessage < 0) {
-        return callback(new error_1$e.MongoParseError(`Invalid message size: ${sizeOfMessage}`));
+        return callback(new error_1$f.MongoParseError(`Invalid message size: ${sizeOfMessage}`));
     }
     if (sizeOfMessage > stream.maxBsonMessageSize) {
-        return callback(new error_1$e.MongoParseError(`Invalid message size: ${sizeOfMessage}, max allowed: ${stream.maxBsonMessageSize}`));
+        return callback(new error_1$f.MongoParseError(`Invalid message size: ${sizeOfMessage}, max allowed: ${stream.maxBsonMessageSize}`));
     }
     if (sizeOfMessage > buffer.length) {
         return callback();
@@ -14061,7 +14538,7 @@ function processIncomingData(stream, callback) {
     ResponseType = messageHeader.opCode === constants_1$2.OP_MSG ? commands_1$1.BinMsg : commands_1$1.Response;
     (0, compression_1.decompress)(compressorID, compressedBuffer).then(messageBody => {
         if (messageBody.length !== messageHeader.length) {
-            return callback(new error_1$e.MongoDecompressionError('Message body and message header must be the same length'));
+            return callback(new error_1$f.MongoDecompressionError('Message body and message header must be the same length'));
         }
         // If we are a monitoring connection message stream and
         // there is more in the buffer that can be read, skip processing since we
@@ -14136,10 +14613,10 @@ connection.hasSessionSupport = connection.CryptoConnection = connection.Connecti
 const timers_1$1 = require$$0$7;
 const util_1$2 = require$$0$6;
 const constants_1$1 = constants;
-const error_1$d = error;
+const error_1$e = error;
 const mongo_types_1$2 = mongo_types;
 const sessions_1 = sessions;
-const utils_1$8 = utils;
+const utils_1$9 = utils;
 const command_monitoring_events_1 = command_monitoring_events;
 const commands_1 = commands;
 const message_stream_1 = message_stream;
@@ -14181,7 +14658,7 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
         this[kClusterTime] = null;
         this[kDescription] = new stream_description_1.StreamDescription(this.address, options);
         this[kGeneration] = options.generation;
-        this[kLastUseTime] = (0, utils_1$8.now)();
+        this[kLastUseTime] = (0, utils_1$9.now)();
         // setup parser stream and message handling
         this[kQueue] = new Map();
         this[kMessageStream] = new message_stream_1.MessageStream({
@@ -14234,7 +14711,7 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
         this[kGeneration] = generation;
     }
     get idleTime() {
-        return (0, utils_1$8.calculateDurationInMs)(this[kLastUseTime]);
+        return (0, utils_1$9.calculateDurationInMs)(this[kLastUseTime]);
     }
     get clusterTime() {
         return this[kClusterTime];
@@ -14243,20 +14720,20 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
         return this[kStream];
     }
     markAvailable() {
-        this[kLastUseTime] = (0, utils_1$8.now)();
+        this[kLastUseTime] = (0, utils_1$9.now)();
     }
     onError(error) {
         this.cleanup(true, error);
     }
     onClose() {
         const message = `connection ${this.id} to ${this.address} closed`;
-        this.cleanup(true, new error_1$d.MongoNetworkError(message));
+        this.cleanup(true, new error_1$e.MongoNetworkError(message));
     }
     onTimeout() {
         this[kDelayedTimeoutId] = (0, timers_1$1.setTimeout)(() => {
             const message = `connection ${this.id} to ${this.address} timed out`;
             const beforeHandshake = this.hello == null;
-            this.cleanup(true, new error_1$d.MongoNetworkTimeoutError(message, { beforeHandshake }));
+            this.cleanup(true, new error_1$e.MongoNetworkTimeoutError(message, { beforeHandshake }));
         }, 1).unref(); // No need for this timer to hold the event loop open
     }
     onMessage(message) {
@@ -14275,7 +14752,7 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
             // the responseTo when hello responses have been skipped:
             // First check if the map is of invalid size
             if (this[kQueue].size > 1) {
-                this.cleanup(true, new error_1$d.MongoRuntimeError(INVALID_QUEUE_SIZE));
+                this.cleanup(true, new error_1$e.MongoRuntimeError(INVALID_QUEUE_SIZE));
             }
             else {
                 // Get the first orphaned operation description.
@@ -14327,11 +14804,11 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
                 this.emit(Connection.CLUSTER_TIME_RECEIVED, document.$clusterTime);
             }
             if (document.writeConcernError) {
-                callback(new error_1$d.MongoWriteConcernError(document.writeConcernError, document), document);
+                callback(new error_1$e.MongoWriteConcernError(document.writeConcernError, document), document);
                 return;
             }
             if (document.ok === 0 || document.$err || document.errmsg || document.code) {
-                callback(new error_1$d.MongoServerError(document));
+                callback(new error_1$e.MongoServerError(document));
                 return;
             }
         }
@@ -14351,7 +14828,7 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
         this.removeAllListeners(Connection.PINNED);
         this.removeAllListeners(Connection.UNPINNED);
         const message = `connection ${this.id} to ${this.address} closed`;
-        this.cleanup(options.force, new error_1$d.MongoNetworkError(message));
+        this.cleanup(options.force, new error_1$e.MongoNetworkError(message));
     }
     /**
      * A method that cleans up the connection.  When `force` is true, this method
@@ -14417,7 +14894,7 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
             }
         }
         else if (session?.explicit) {
-            return callback(new error_1$d.MongoCompatibilityError('Current topology does not support sessions'));
+            return callback(new error_1$e.MongoCompatibilityError('Current topology does not support sessions'));
         }
         // if we have a known cluster time, gossip it
         if (clusterTime) {
@@ -14448,7 +14925,6 @@ class Connection extends mongo_types_1$2.TypedEventEmitter {
         }
     }
 }
-connection.Connection = Connection;
 /** @event */
 Connection.COMMAND_STARTED = constants_1$1.COMMAND_STARTED;
 /** @event */
@@ -14465,6 +14941,7 @@ Connection.MESSAGE = constants_1$1.MESSAGE;
 Connection.PINNED = constants_1$1.PINNED;
 /** @event */
 Connection.UNPINNED = constants_1$1.UNPINNED;
+connection.Connection = Connection;
 /** @internal */
 class CryptoConnection extends Connection {
     constructor(stream, options) {
@@ -14475,15 +14952,15 @@ class CryptoConnection extends Connection {
     command(ns, cmd, options, callback) {
         const autoEncrypter = this[kAutoEncrypter];
         if (!autoEncrypter) {
-            return callback(new error_1$d.MongoMissingDependencyError('No AutoEncrypter available for encryption'));
+            return callback(new error_1$e.MongoMissingDependencyError('No AutoEncrypter available for encryption'));
         }
-        const serverWireVersion = (0, utils_1$8.maxWireVersion)(this);
+        const serverWireVersion = (0, utils_1$9.maxWireVersion)(this);
         if (serverWireVersion === 0) {
             // This means the initial handshake hasn't happened yet
             return super.command(ns, cmd, options, callback);
         }
         if (serverWireVersion < 8) {
-            callback(new error_1$d.MongoCompatibilityError('Auto-encryption requires a minimum MongoDB version of 4.2'));
+            callback(new error_1$e.MongoCompatibilityError('Auto-encryption requires a minimum MongoDB version of 4.2'));
             return;
         }
         // Save sort or indexKeys based on the command being run
@@ -14532,7 +15009,7 @@ function supportsOpMsg(conn) {
     if (description == null) {
         return false;
     }
-    return (0, utils_1$8.maxWireVersion)(conn) >= 6 && !description.__nodejs_mock_server__;
+    return (0, utils_1$9.maxWireVersion)(conn) >= 6 && !description.__nodejs_mock_server__;
 }
 function streamIdentifier(stream, options) {
     if (options.proxyHost) {
@@ -14542,9 +15019,9 @@ function streamIdentifier(stream, options) {
     }
     const { remoteAddress, remotePort } = stream;
     if (typeof remoteAddress === 'string' && typeof remotePort === 'number') {
-        return utils_1$8.HostAddress.fromHostPort(remoteAddress, remotePort).toString();
+        return utils_1$9.HostAddress.fromHostPort(remoteAddress, remotePort).toString();
     }
-    return (0, utils_1$8.uuidV4)().toString('hex');
+    return (0, utils_1$9.uuidV4)().toString('hex');
 }
 function write(conn, command, options, callback) {
     options = options ?? {};
@@ -14579,7 +15056,7 @@ function write(conn, command, options, callback) {
     // if command monitoring is enabled we need to modify the callback here
     if (conn.monitorCommands) {
         conn.emit(Connection.COMMAND_STARTED, new command_monitoring_events_1.CommandStartedEvent(conn, command));
-        operationDescription.started = (0, utils_1$8.now)();
+        operationDescription.started = (0, utils_1$9.now)();
         operationDescription.cb = (err, reply) => {
             // Command monitoring spec states that if ok is 1, then we must always emit
             // a command succeeded event, even if there's an error. Write concern errors
@@ -14600,7 +15077,7 @@ function write(conn, command, options, callback) {
                 // need it not to be provided to the original callback in this case so
                 // retryability does not get tricked into thinking the command actually
                 // succeeded.
-                callback(err, err instanceof error_1$d.MongoWriteConcernError ? undefined : reply);
+                callback(err, err instanceof error_1$e.MongoWriteConcernError ? undefined : reply);
             }
         };
     }
@@ -14628,7 +15105,7 @@ var connect = {};
 
 const require$$0 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(net);
 
-const require$$1$1 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(socks);
+const require$$1 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(socks);
 
 const require$$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(tls);
 
@@ -14637,17 +15114,17 @@ var mongocr = {};
 Object.defineProperty(mongocr, "__esModule", { value: true });
 mongocr.MongoCR = void 0;
 const crypto$2 = require$$0$9;
-const error_1$c = error;
-const utils_1$7 = utils;
+const error_1$d = error;
+const utils_1$8 = utils;
 const auth_provider_1$4 = auth_provider;
 class MongoCR extends auth_provider_1$4.AuthProvider {
     async auth(authContext) {
         const { connection, credentials } = authContext;
         if (!credentials) {
-            throw new error_1$c.MongoMissingCredentialsError('AuthContext must provide credentials.');
+            throw new error_1$d.MongoMissingCredentialsError('AuthContext must provide credentials.');
         }
         const { username, password, source } = credentials;
-        const { nonce } = await connection.commandAsync((0, utils_1$7.ns)(`${source}.$cmd`), { getnonce: 1 }, undefined);
+        const { nonce } = await connection.commandAsync((0, utils_1$8.ns)(`${source}.$cmd`), { getnonce: 1 }, undefined);
         const hashPassword = crypto$2
             .createHash('md5')
             .update(`${username}:mongo:${password}`, 'utf8')
@@ -14663,25 +15140,21 @@ class MongoCR extends auth_provider_1$4.AuthProvider {
             nonce,
             key
         };
-        await connection.commandAsync((0, utils_1$7.ns)(`${source}.$cmd`), authenticateCommand, undefined);
+        await connection.commandAsync((0, utils_1$8.ns)(`${source}.$cmd`), authenticateCommand, undefined);
     }
 }
 mongocr.MongoCR = MongoCR;
 
 var mongodb_aws = {};
 
-const require$$1 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(http$1);
-
 Object.defineProperty(mongodb_aws, "__esModule", { value: true });
 mongodb_aws.MongoDBAWS = void 0;
 const crypto$1 = require$$0$9;
-const http = require$$1;
-const url = require$$2$2;
 const util_1$1 = require$$0$6;
 const BSON = bson;
 const deps_1$1 = deps;
-const error_1$b = error;
-const utils_1$6 = utils;
+const error_1$c = error;
+const utils_1$7 = utils;
 const auth_provider_1$3 = auth_provider;
 const mongo_credentials_1 = mongo_credentials;
 const providers_1$3 = providers;
@@ -14704,14 +15177,14 @@ class MongoDBAWS extends auth_provider_1$3.AuthProvider {
     async auth(authContext) {
         const { connection } = authContext;
         if (!authContext.credentials) {
-            throw new error_1$b.MongoMissingCredentialsError('AuthContext must provide credentials.');
+            throw new error_1$c.MongoMissingCredentialsError('AuthContext must provide credentials.');
         }
         if ('kModuleError' in deps_1$1.aws4) {
             throw deps_1$1.aws4['kModuleError'];
         }
         const { sign } = deps_1$1.aws4;
-        if ((0, utils_1$6.maxWireVersion)(connection) < 9) {
-            throw new error_1$b.MongoCompatibilityError('MONGODB-AWS authentication requires MongoDB version 4.4 or later');
+        if ((0, utils_1$7.maxWireVersion)(connection) < 9) {
+            throw new error_1$c.MongoCompatibilityError('MONGODB-AWS authentication requires MongoDB version 4.4 or later');
         }
         if (!authContext.credentials.username) {
             authContext.credentials = await makeTempCredentials(authContext.credentials);
@@ -14733,23 +15206,23 @@ class MongoDBAWS extends auth_provider_1$3.AuthProvider {
             mechanism: 'MONGODB-AWS',
             payload: BSON.serialize({ r: nonce, p: ASCII_N }, bsonOptions)
         };
-        const saslStartResponse = await connection.commandAsync((0, utils_1$6.ns)(`${db}.$cmd`), saslStart, undefined);
+        const saslStartResponse = await connection.commandAsync((0, utils_1$7.ns)(`${db}.$cmd`), saslStart, undefined);
         const serverResponse = BSON.deserialize(saslStartResponse.payload.buffer, bsonOptions);
         const host = serverResponse.h;
         const serverNonce = serverResponse.s.buffer;
         if (serverNonce.length !== 64) {
             // TODO(NODE-3483)
-            throw new error_1$b.MongoRuntimeError(`Invalid server nonce length ${serverNonce.length}, expected 64`);
+            throw new error_1$c.MongoRuntimeError(`Invalid server nonce length ${serverNonce.length}, expected 64`);
         }
-        if (!utils_1$6.ByteUtils.equals(serverNonce.subarray(0, nonce.byteLength), nonce)) {
+        if (!utils_1$7.ByteUtils.equals(serverNonce.subarray(0, nonce.byteLength), nonce)) {
             // throw because the serverNonce's leading 32 bytes must equal the client nonce's 32 bytes
             // https://github.com/mongodb/specifications/blob/875446db44aade414011731840831f38a6c668df/source/auth/auth.rst#id11
             // TODO(NODE-3483)
-            throw new error_1$b.MongoRuntimeError('Server nonce does not begin with client nonce');
+            throw new error_1$c.MongoRuntimeError('Server nonce does not begin with client nonce');
         }
         if (host.length < 1 || host.length > 255 || host.indexOf('..') !== -1) {
             // TODO(NODE-3483)
-            throw new error_1$b.MongoRuntimeError(`Server returned an invalid host: "${host}"`);
+            throw new error_1$c.MongoRuntimeError(`Server returned an invalid host: "${host}"`);
         }
         const body = 'Action=GetCallerIdentity&Version=2011-06-15';
         const options = sign({
@@ -14760,7 +15233,7 @@ class MongoDBAWS extends auth_provider_1$3.AuthProvider {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': body.length,
-                'X-MongoDB-Server-Nonce': utils_1$6.ByteUtils.toBase64(serverNonce),
+                'X-MongoDB-Server-Nonce': utils_1$7.ByteUtils.toBase64(serverNonce),
                 'X-MongoDB-GS2-CB-Flag': 'n'
             },
             path: '/',
@@ -14778,14 +15251,14 @@ class MongoDBAWS extends auth_provider_1$3.AuthProvider {
             conversationId: 1,
             payload: BSON.serialize(payload, bsonOptions)
         };
-        await connection.commandAsync((0, utils_1$6.ns)(`${db}.$cmd`), saslContinue, undefined);
+        await connection.commandAsync((0, utils_1$7.ns)(`${db}.$cmd`), saslContinue, undefined);
     }
 }
 mongodb_aws.MongoDBAWS = MongoDBAWS;
 async function makeTempCredentials(credentials) {
     function makeMongoCredentialsFromAWSTemp(creds) {
         if (!creds.AccessKeyId || !creds.SecretAccessKey || !creds.Token) {
-            throw new error_1$b.MongoMissingCredentialsError('Could not obtain temporary MONGODB-AWS credentials');
+            throw new error_1$c.MongoMissingCredentialsError('Could not obtain temporary MONGODB-AWS credentials');
         }
         return new mongo_credentials_1.MongoCredentials({
             username: creds.AccessKeyId,
@@ -14804,22 +15277,22 @@ async function makeTempCredentials(credentials) {
         // If the environment variable AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
         // is set then drivers MUST assume that it was set by an AWS ECS agent
         if (process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI) {
-            return makeMongoCredentialsFromAWSTemp(await request(`${AWS_RELATIVE_URI}${process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}`));
+            return makeMongoCredentialsFromAWSTemp(await (0, utils_1$7.request)(`${AWS_RELATIVE_URI}${process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}`));
         }
         // Otherwise assume we are on an EC2 instance
         // get a token
-        const token = await request(`${AWS_EC2_URI}/latest/api/token`, {
+        const token = await (0, utils_1$7.request)(`${AWS_EC2_URI}/latest/api/token`, {
             method: 'PUT',
             json: false,
             headers: { 'X-aws-ec2-metadata-token-ttl-seconds': 30 }
         });
         // get role name
-        const roleName = await request(`${AWS_EC2_URI}/${AWS_EC2_PATH}`, {
+        const roleName = await (0, utils_1$7.request)(`${AWS_EC2_URI}/${AWS_EC2_PATH}`, {
             json: false,
             headers: { 'X-aws-ec2-metadata-token': token }
         });
         // get temp credentials
-        const creds = await request(`${AWS_EC2_URI}/${AWS_EC2_PATH}/${roleName}`, {
+        const creds = await (0, utils_1$7.request)(`${AWS_EC2_URI}/${AWS_EC2_PATH}/${roleName}`, {
             headers: { 'X-aws-ec2-metadata-token': token }
         });
         return makeMongoCredentialsFromAWSTemp(creds);
@@ -14847,7 +15320,7 @@ async function makeTempCredentials(credentials) {
             });
         }
         catch (error) {
-            throw new error_1$b.MongoAWSError(error.message);
+            throw new error_1$c.MongoAWSError(error.message);
         }
     }
 }
@@ -14857,41 +15330,6 @@ function deriveRegion(host) {
         return 'us-east-1';
     }
     return parts[1];
-}
-async function request(uri, options = {}) {
-    return new Promise((resolve, reject) => {
-        const requestOptions = {
-            method: 'GET',
-            timeout: 10000,
-            json: true,
-            ...url.parse(uri),
-            ...options
-        };
-        const req = http.request(requestOptions, res => {
-            res.setEncoding('utf8');
-            let data = '';
-            res.on('data', d => {
-                data += d;
-            });
-            res.once('end', () => {
-                if (options.json === false) {
-                    resolve(data);
-                    return;
-                }
-                try {
-                    const parsed = JSON.parse(data);
-                    resolve(parsed);
-                }
-                catch {
-                    // TODO(NODE-3483)
-                    reject(new error_1$b.MongoRuntimeError(`Invalid JSON response: "${data}"`));
-                }
-            });
-        });
-        req.once('timeout', () => req.destroy(new error_1$b.MongoAWSError(`AWS request to ${uri} timed out after ${options.timeout} ms`)));
-        req.once('error', error => reject(error));
-        req.end();
-    });
 }
 
 var mongodb_oidc = {};
@@ -14903,7 +15341,7 @@ var service_workflow = {};
 Object.defineProperty(service_workflow, "__esModule", { value: true });
 service_workflow.commandDocument = service_workflow.ServiceWorkflow = void 0;
 const bson_1$4 = require$$0$8;
-const utils_1$5 = utils;
+const utils_1$6 = utils;
 const providers_1$2 = providers;
 /**
  * Common behaviour for OIDC device workflows.
@@ -14915,15 +15353,15 @@ class ServiceWorkflow {
      * and then attempts to read the token from that path.
      */
     async execute(connection, credentials) {
-        const token = await this.getToken();
+        const token = await this.getToken(credentials);
         const command = commandDocument(token);
-        return connection.commandAsync((0, utils_1$5.ns)(credentials.source), command, undefined);
+        return connection.commandAsync((0, utils_1$6.ns)(credentials.source), command, undefined);
     }
     /**
      * Get the document to add for speculative authentication.
      */
     async speculativeAuth(credentials) {
-        const token = await this.getToken();
+        const token = await this.getToken(credentials);
         const document = commandDocument(token);
         document.db = credentials.source;
         return { speculativeAuthenticate: document };
@@ -14945,8 +15383,8 @@ service_workflow.commandDocument = commandDocument;
 Object.defineProperty(aws_service_workflow, "__esModule", { value: true });
 aws_service_workflow.AwsServiceWorkflow = void 0;
 const fs = require$$0$2;
-const error_1$a = error;
-const service_workflow_1 = service_workflow;
+const error_1$b = error;
+const service_workflow_1$1 = service_workflow;
 /** Error for when the token is missing in the environment. */
 const TOKEN_MISSING_ERROR = 'AWS_WEB_IDENTITY_TOKEN_FILE must be set in the environment.';
 /**
@@ -14954,7 +15392,7 @@ const TOKEN_MISSING_ERROR = 'AWS_WEB_IDENTITY_TOKEN_FILE must be set in the envi
  *
  * @internal
  */
-class AwsServiceWorkflow extends service_workflow_1.ServiceWorkflow {
+class AwsServiceWorkflow extends service_workflow_1$1.ServiceWorkflow {
     constructor() {
         super();
     }
@@ -14964,21 +15402,48 @@ class AwsServiceWorkflow extends service_workflow_1.ServiceWorkflow {
     async getToken() {
         const tokenFile = process.env.AWS_WEB_IDENTITY_TOKEN_FILE;
         if (!tokenFile) {
-            throw new error_1$a.MongoAWSError(TOKEN_MISSING_ERROR);
+            throw new error_1$b.MongoAWSError(TOKEN_MISSING_ERROR);
         }
         return fs.promises.readFile(tokenFile, 'utf8');
     }
 }
 aws_service_workflow.AwsServiceWorkflow = AwsServiceWorkflow;
 
-var callback_workflow = {};
+var azure_service_workflow = {};
 
-var callback_lock_cache = {};
+var azure_token_cache = {};
 
 var cache = {};
 
 Object.defineProperty(cache, "__esModule", { value: true });
-cache.Cache = void 0;
+cache.Cache = cache.ExpiringCacheEntry = void 0;
+/* 5 minutes in milliseconds */
+const EXPIRATION_BUFFER_MS = 300000;
+/**
+ * An entry in a cache that can expire in a certain amount of time.
+ */
+class ExpiringCacheEntry {
+    /**
+     * Create a new expiring token entry.
+     */
+    constructor(expiration) {
+        this.expiration = this.expirationTime(expiration);
+    }
+    /**
+     * The entry is still valid if the expiration is more than
+     * 5 minutes from the expiration time.
+     */
+    isValid() {
+        return this.expiration - Date.now() > EXPIRATION_BUFFER_MS;
+    }
+    /**
+     * Get an expiration time in milliseconds past epoch.
+     */
+    expirationTime(expiresInSeconds) {
+        return Date.now() + expiresInSeconds * 1000;
+    }
+}
+cache.ExpiringCacheEntry = ExpiringCacheEntry;
 /**
  * Base class for OIDC caches.
  */
@@ -14998,11 +15463,135 @@ class Cache {
     /**
      * Create a cache key from the address and username.
      */
-    cacheKey(address, username, callbackHash) {
+    hashedCacheKey(address, username, callbackHash) {
         return JSON.stringify([address, username, callbackHash]);
     }
 }
 cache.Cache = Cache;
+
+Object.defineProperty(azure_token_cache, "__esModule", { value: true });
+azure_token_cache.AzureTokenCache = azure_token_cache.AzureTokenEntry = void 0;
+const cache_1$2 = cache;
+/** @internal */
+class AzureTokenEntry extends cache_1$2.ExpiringCacheEntry {
+    /**
+     * Instantiate the entry.
+     */
+    constructor(token, expiration) {
+        super(expiration);
+        this.token = token;
+    }
+}
+azure_token_cache.AzureTokenEntry = AzureTokenEntry;
+/**
+ * A cache of access tokens from Azure.
+ * @internal
+ */
+class AzureTokenCache extends cache_1$2.Cache {
+    /**
+     * Add an entry to the cache.
+     */
+    addEntry(tokenAudience, token) {
+        const entry = new AzureTokenEntry(token.access_token, token.expires_in);
+        this.entries.set(tokenAudience, entry);
+        return entry;
+    }
+    /**
+     * Create a cache key.
+     */
+    cacheKey(tokenAudience) {
+        return tokenAudience;
+    }
+    /**
+     * Delete an entry from the cache.
+     */
+    deleteEntry(tokenAudience) {
+        this.entries.delete(tokenAudience);
+    }
+    /**
+     * Get an Azure token entry from the cache.
+     */
+    getEntry(tokenAudience) {
+        return this.entries.get(tokenAudience);
+    }
+}
+azure_token_cache.AzureTokenCache = AzureTokenCache;
+
+Object.defineProperty(azure_service_workflow, "__esModule", { value: true });
+azure_service_workflow.AzureServiceWorkflow = void 0;
+const error_1$a = error;
+const utils_1$5 = utils;
+const azure_token_cache_1 = azure_token_cache;
+const service_workflow_1 = service_workflow;
+/** Base URL for getting Azure tokens. */
+const AZURE_BASE_URL = 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01';
+/** Azure request headers. */
+const AZURE_HEADERS = Object.freeze({ Metadata: 'true', Accept: 'application/json' });
+/** Invalid endpoint result error. */
+const ENDPOINT_RESULT_ERROR = 'Azure endpoint did not return a value with only access_token and expires_in properties';
+/** Error for when the token audience is missing in the environment. */
+const TOKEN_AUDIENCE_MISSING_ERROR = 'TOKEN_AUDIENCE must be set in the auth mechanism properties when PROVIDER_NAME is azure.';
+/**
+ * Device workflow implementation for Azure.
+ *
+ * @internal
+ */
+class AzureServiceWorkflow extends service_workflow_1.ServiceWorkflow {
+    constructor() {
+        super(...arguments);
+        this.cache = new azure_token_cache_1.AzureTokenCache();
+    }
+    /**
+     * Get the token from the environment.
+     */
+    async getToken(credentials) {
+        const tokenAudience = credentials?.mechanismProperties.TOKEN_AUDIENCE;
+        if (!tokenAudience) {
+            throw new error_1$a.MongoAzureError(TOKEN_AUDIENCE_MISSING_ERROR);
+        }
+        let token;
+        const entry = this.cache.getEntry(tokenAudience);
+        if (entry?.isValid()) {
+            token = entry.token;
+        }
+        else {
+            this.cache.deleteEntry(tokenAudience);
+            const response = await getAzureTokenData(tokenAudience);
+            if (!isEndpointResultValid(response)) {
+                throw new error_1$a.MongoAzureError(ENDPOINT_RESULT_ERROR);
+            }
+            this.cache.addEntry(tokenAudience, response);
+            token = response.access_token;
+        }
+        return token;
+    }
+}
+azure_service_workflow.AzureServiceWorkflow = AzureServiceWorkflow;
+/**
+ * Hit the Azure endpoint to get the token data.
+ */
+async function getAzureTokenData(tokenAudience) {
+    const url = `${AZURE_BASE_URL}&resource=${tokenAudience}`;
+    const data = await (0, utils_1$5.request)(url, {
+        json: true,
+        headers: AZURE_HEADERS
+    });
+    return data;
+}
+/**
+ * Determines if a result returned from the endpoint is valid.
+ * This means the result is not nullish, contains the access_token required field
+ * and the expires_in required field.
+ */
+function isEndpointResultValid(token) {
+    if (token == null || typeof token !== 'object')
+        return false;
+    return 'access_token' in token && 'expires_in' in token;
+}
+
+var callback_workflow = {};
+
+var callback_lock_cache = {};
 
 Object.defineProperty(callback_lock_cache, "__esModule", { value: true });
 callback_lock_cache.CallbackLockCache = void 0;
@@ -15026,7 +15615,7 @@ class CallbackLockCache extends cache_1$1.Cache {
      * Get the callbacks for the connection and credentials. If an entry does not
      * exist a new one will get set.
      */
-    getCallbacks(connection, credentials) {
+    getEntry(connection, credentials) {
         const requestCallback = credentials.mechanismProperties.REQUEST_TOKEN_CALLBACK;
         const refreshCallback = credentials.mechanismProperties.REFRESH_TOKEN_CALLBACK;
         if (!requestCallback) {
@@ -15038,12 +15627,12 @@ class CallbackLockCache extends cache_1$1.Cache {
         if (entry) {
             return entry;
         }
-        return this.setCallbacks(key, callbackHash, requestCallback, refreshCallback);
+        return this.addEntry(key, callbackHash, requestCallback, refreshCallback);
     }
     /**
      * Set locked callbacks on for connection and credentials.
      */
-    setCallbacks(key, callbackHash, requestCallback, refreshCallback) {
+    addEntry(key, callbackHash, requestCallback, refreshCallback) {
         const entry = {
             requestCallback: withLock(requestCallback),
             refreshCallback: refreshCallback ? withLock(refreshCallback) : undefined,
@@ -15051,6 +15640,12 @@ class CallbackLockCache extends cache_1$1.Cache {
         };
         this.entries.set(key, entry);
         return entry;
+    }
+    /**
+     * Create a cache key from the address and username.
+     */
+    cacheKey(address, username, callbackHash) {
+        return this.hashedCacheKey(address, username, callbackHash);
     }
 }
 callback_lock_cache.CallbackLockCache = CallbackLockCache;
@@ -15091,26 +15686,17 @@ var token_entry_cache = {};
 Object.defineProperty(token_entry_cache, "__esModule", { value: true });
 token_entry_cache.TokenEntryCache = token_entry_cache.TokenEntry = void 0;
 const cache_1 = cache;
-/* 5 minutes in milliseconds */
-const EXPIRATION_BUFFER_MS = 300000;
 /* Default expiration is now for when no expiration provided */
 const DEFAULT_EXPIRATION_SECS = 0;
 /** @internal */
-class TokenEntry {
+class TokenEntry extends cache_1.ExpiringCacheEntry {
     /**
      * Instantiate the entry.
      */
     constructor(tokenResult, serverInfo, expiration) {
+        super(expiration);
         this.tokenResult = tokenResult;
         this.serverInfo = serverInfo;
-        this.expiration = expiration;
-    }
-    /**
-     * The entry is still valid if the expiration is more than
-     * 5 minutes from the expiration time.
-     */
-    isValid() {
-        return this.expiration - Date.now() > EXPIRATION_BUFFER_MS;
     }
 }
 token_entry_cache.TokenEntry = TokenEntry;
@@ -15123,7 +15709,7 @@ class TokenEntryCache extends cache_1.Cache {
      * Set an entry in the token cache.
      */
     addEntry(address, username, callbackHash, tokenResult, serverInfo) {
-        const entry = new TokenEntry(tokenResult, serverInfo, expirationTime(tokenResult.expiresInSeconds));
+        const entry = new TokenEntry(tokenResult, serverInfo, tokenResult.expiresInSeconds ?? DEFAULT_EXPIRATION_SECS);
         this.entries.set(this.cacheKey(address, username, callbackHash), entry);
         return entry;
     }
@@ -15149,14 +15735,14 @@ class TokenEntryCache extends cache_1.Cache {
             }
         }
     }
+    /**
+     * Create a cache key from the address and username.
+     */
+    cacheKey(address, username, callbackHash) {
+        return this.hashedCacheKey(address, username, callbackHash);
+    }
 }
 token_entry_cache.TokenEntryCache = TokenEntryCache;
-/**
- * Get an expiration time in milliseconds past epoch. Defaults to immediate.
- */
-function expirationTime(expiresInSeconds) {
-    return Date.now() + (expiresInSeconds ?? DEFAULT_EXPIRATION_SECS) * 1000;
-}
 
 Object.defineProperty(callback_workflow, "__esModule", { value: true });
 callback_workflow.CallbackWorkflow = void 0;
@@ -15200,7 +15786,7 @@ class CallbackWorkflow {
      */
     async execute(connection, credentials, reauthenticating, response) {
         // Get the callbacks with locks from the callback lock cache.
-        const { requestCallback, refreshCallback, callbackHash } = this.callbackCache.getCallbacks(connection, credentials);
+        const { requestCallback, refreshCallback, callbackHash } = this.callbackCache.getEntry(connection, credentials);
         // Look for an existing entry in the cache.
         const entry = this.cache.getEntry(connection.address, credentials.username, callbackHash);
         let result;
@@ -15367,6 +15953,7 @@ function startCommandDocument(credentials) {
 	const error_1 = error;
 	const auth_provider_1 = auth_provider;
 	const aws_service_workflow_1 = aws_service_workflow;
+	const azure_service_workflow_1 = azure_service_workflow;
 	const callback_workflow_1 = callback_workflow;
 	/** Error when credentials are missing. */
 	const MISSING_CREDENTIALS_ERROR = 'AuthContext must provide credentials.';
@@ -15374,6 +15961,7 @@ function startCommandDocument(credentials) {
 	exports.OIDC_WORKFLOWS = new Map();
 	exports.OIDC_WORKFLOWS.set('callback', new callback_workflow_1.CallbackWorkflow());
 	exports.OIDC_WORKFLOWS.set('aws', new aws_service_workflow_1.AwsServiceWorkflow());
+	exports.OIDC_WORKFLOWS.set('azure', new azure_service_workflow_1.AzureServiceWorkflow());
 	/**
 	 * OIDC auth provider.
 	 * @experimental
@@ -15480,7 +16068,8 @@ class ScramSHA extends auth_provider_1$1.AuthProvider {
         if (!credentials) {
             throw new error_1$6.MongoMissingCredentialsError('AuthContext must provide credentials.');
         }
-        if (cryptoMethod === 'sha256' && deps_1.saslprep == null) {
+        if (cryptoMethod === 'sha256' &&
+            ('kModuleError' in deps_1.saslprep || typeof deps_1.saslprep !== 'function')) {
             (0, utils_1$2.emitWarning)('Warning: no saslprep library specified. Passwords will not be sanitized');
         }
         const nonce = await this.randomBytesAsync(24);
@@ -15558,7 +16147,8 @@ async function continueScramConversation(cryptoMethod, response, authContext) {
     const password = credentials.password;
     let processedPassword;
     if (cryptoMethod === 'sha256') {
-        processedPassword = 'kModuleError' in deps_1.saslprep ? password : (0, deps_1.saslprep)(password);
+        processedPassword =
+            'kModuleError' in deps_1.saslprep || typeof deps_1.saslprep !== 'function' ? password : (0, deps_1.saslprep)(password);
     }
     else {
         processedPassword = passwordDigest(username, password);
@@ -15758,9 +16348,8 @@ function x509AuthenticateCommand(credentials) {
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.LEGAL_TCP_SOCKET_OPTIONS = exports.LEGAL_TLS_SOCKET_OPTIONS = exports.prepareHandshakeDocument = exports.connect = exports.AUTH_PROVIDERS = void 0;
 	const net = require$$0;
-	const socks_1 = require$$1$1;
+	const socks_1 = require$$1;
 	const tls = require$$2;
-	const bson_1 = bson;
 	const constants_1 = constants;
 	const error_1 = error;
 	const utils_1 = utils;
@@ -15804,12 +16393,10 @@ function x509AuthenticateCommand(credentials) {
 	}
 	exports.connect = connect;
 	function checkSupportedServer(hello, options) {
-	    const serverVersionHighEnough = hello &&
-	        (typeof hello.maxWireVersion === 'number' || hello.maxWireVersion instanceof bson_1.Int32) &&
-	        hello.maxWireVersion >= constants_2.MIN_SUPPORTED_WIRE_VERSION;
-	    const serverVersionLowEnough = hello &&
-	        (typeof hello.minWireVersion === 'number' || hello.minWireVersion instanceof bson_1.Int32) &&
-	        hello.minWireVersion <= constants_2.MAX_SUPPORTED_WIRE_VERSION;
+	    const maxWireVersion = Number(hello.maxWireVersion);
+	    const minWireVersion = Number(hello.minWireVersion);
+	    const serverVersionHighEnough = !Number.isNaN(maxWireVersion) && maxWireVersion >= constants_2.MIN_SUPPORTED_WIRE_VERSION;
+	    const serverVersionLowEnough = !Number.isNaN(minWireVersion) && minWireVersion <= constants_2.MAX_SUPPORTED_WIRE_VERSION;
 	    if (serverVersionHighEnough) {
 	        if (serverVersionLowEnough) {
 	            return null;
@@ -16968,7 +17555,6 @@ errors.WaitQueueTimeoutError = WaitQueueTimeoutError;
 	        this[kProcessingWaitQueue] = false;
 	    }
 	}
-	exports.ConnectionPool = ConnectionPool;
 	/**
 	 * Emitted when the connection pool is created.
 	 * @event
@@ -17024,6 +17610,7 @@ errors.WaitQueueTimeoutError = WaitQueueTimeoutError;
 	 * @event
 	 */
 	ConnectionPool.CONNECTION_CHECKED_IN = constants_1.CONNECTION_CHECKED_IN;
+	exports.ConnectionPool = ConnectionPool;
 	
 } (connection_pool));
 
@@ -17460,6 +18047,7 @@ function requireServer () {
 	hasRequiredServer = 1;
 	Object.defineProperty(server, "__esModule", { value: true });
 	server.Server = void 0;
+	const util_1 = require$$0$6;
 	const connection_1 = connection;
 	const connection_pool_1 = connection_pool;
 	const errors_1 = errors;
@@ -17486,6 +18074,7 @@ function requireServer () {
 	     */
 	    constructor(topology, description, options) {
 	        super();
+	        this.commandAsync = (0, util_1.promisify)((ns, cmd, options, callback) => this.command(ns, cmd, options, callback));
 	        this.serverApi = options.serverApi;
 	        const poolOptions = { hostAddress: description.hostAddress, ...options };
 	        this.topology = topology;
@@ -17649,10 +18238,10 @@ function requireServer () {
 	            });
 	            return;
 	        }
-	        this.s.operationCount += 1;
+	        this.incrementOperationCount();
 	        this.pool.withConnection(conn, (err, conn, cb) => {
 	            if (err || !conn) {
-	                this.s.operationCount -= 1;
+	                this.decrementOperationCount();
 	                if (!err) {
 	                    return cb(new error_1.MongoRuntimeError('Failed to create connection without error'));
 	                }
@@ -17662,7 +18251,7 @@ function requireServer () {
 	                return cb(err);
 	            }
 	            conn.command(ns, cmd, finalOptions, makeOperationHandler(this, conn, cmd, finalOptions, (error, response) => {
-	                this.s.operationCount -= 1;
+	                this.decrementOperationCount();
 	                cb(error, response);
 	            }));
 	        }, callback);
@@ -17711,8 +18300,19 @@ function requireServer () {
 	            }
 	        }
 	    }
+	    /**
+	     * Decrement the operation count, returning the new count.
+	     */
+	    decrementOperationCount() {
+	        return (this.s.operationCount -= 1);
+	    }
+	    /**
+	     * Increment the operation count, returning the new count.
+	     */
+	    incrementOperationCount() {
+	        return (this.s.operationCount += 1);
+	    }
 	}
-	server.Server = Server;
 	/** @event */
 	Server.SERVER_HEARTBEAT_STARTED = constants_1.SERVER_HEARTBEAT_STARTED;
 	/** @event */
@@ -17727,6 +18327,7 @@ function requireServer () {
 	Server.CLOSED = constants_1.CLOSED;
 	/** @event */
 	Server.ENDED = constants_1.ENDED;
+	server.Server = Server;
 	function calculateRoundTripTime(oldRtt, duration) {
 	    if (oldRtt === -1) {
 	        return duration;
@@ -17929,9 +18530,9 @@ class SrvPoller extends mongo_types_1$1.TypedEventEmitter {
         this.success(finalAddresses);
     }
 }
-srv_polling.SrvPoller = SrvPoller;
 /** @event */
 SrvPoller.SRV_RECORD_DISCOVERY = 'srvRecordDiscovery';
+srv_polling.SrvPoller = SrvPoller;
 
 var hasRequiredTopology;
 
@@ -18316,7 +18917,6 @@ function requireTopology () {
 	        this.s.clusterTime = clusterTime;
 	    }
 	}
-	topology.Topology = Topology;
 	/** @event */
 	Topology.SERVER_OPENING = constants_1.SERVER_OPENING;
 	/** @event */
@@ -18339,6 +18939,7 @@ function requireTopology () {
 	Topology.CLOSE = constants_1.CLOSE;
 	/** @event */
 	Topology.TIMEOUT = constants_1.TIMEOUT;
+	topology.Topology = Topology;
 	/** Destroys a server, and removes all event listeners from the instance */
 	function destroyServer(server, topology, options, callback) {
 	    options = options ?? { force: false };
@@ -19154,9 +19755,9 @@ function requireChange_stream () {
 	        const client = this.type === CHANGE_DOMAIN_TYPES.CLUSTER
 	            ? this.parent
 	            : this.type === CHANGE_DOMAIN_TYPES.DATABASE
-	                ? this.parent.s.client
+	                ? this.parent.client
 	                : this.type === CHANGE_DOMAIN_TYPES.COLLECTION
-	                    ? this.parent.s.db.s.client
+	                    ? this.parent.client
 	                    : null;
 	        if (client == null) {
 	            // This should never happen because of the assertion in the constructor
@@ -19269,7 +19870,6 @@ function requireChange_stream () {
 	        }
 	    }
 	}
-	change_stream.ChangeStream = ChangeStream;
 	/** @event */
 	ChangeStream.RESPONSE = constants_1.RESPONSE;
 	/** @event */
@@ -19294,6 +19894,7 @@ function requireChange_stream () {
 	 * @event
 	 */
 	ChangeStream.RESUME_TOKEN_CHANGED = constants_1.RESUME_TOKEN_CHANGED;
+	change_stream.ChangeStream = ChangeStream;
 	
 	return change_stream;
 }
@@ -19399,7 +20000,6 @@ class GridFSBucketReadStream extends stream_1$1.Readable {
         }
     }
 }
-download.GridFSBucketReadStream = GridFSBucketReadStream;
 /**
  * An error occurred
  * @event
@@ -19425,6 +20025,7 @@ GridFSBucketReadStream.END = 'end';
  * @event
  */
 GridFSBucketReadStream.CLOSE = 'close';
+download.GridFSBucketReadStream = GridFSBucketReadStream;
 function throwIfInitialized(stream) {
     if (stream.s.init) {
         throw new error_1$2.MongoGridFSStreamError('Options cannot be changed after the stream is initialized');
@@ -19716,7 +20317,6 @@ class GridFSBucketWriteStream extends stream_1.Writable {
         return this;
     }
 }
-upload.GridFSBucketWriteStream = GridFSBucketWriteStream;
 /** @event */
 GridFSBucketWriteStream.CLOSE = 'close';
 /** @event */
@@ -19726,6 +20326,7 @@ GridFSBucketWriteStream.ERROR = 'error';
  * @event
  */
 GridFSBucketWriteStream.FINISH = 'finish';
+upload.GridFSBucketWriteStream = GridFSBucketWriteStream;
 function __handleError(stream, error, callback) {
     if (stream.state.errored) {
         return;
@@ -19766,9 +20367,8 @@ async function checkChunksIndex(stream) {
         return false;
     });
     if (!hasChunksIndex) {
-        const writeConcernOptions = getWriteOptions(stream);
         await stream.chunks.createIndex(index, {
-            ...writeConcernOptions,
+            ...stream.writeConcern,
             background: true,
             unique: true
         });
@@ -19785,7 +20385,7 @@ function checkDone(stream, callback) {
         if (checkAborted(stream, callback)) {
             return false;
         }
-        stream.files.insertOne(filesDoc, getWriteOptions(stream)).then(() => {
+        stream.files.insertOne(filesDoc, { writeConcern: stream.writeConcern }).then(() => {
             stream.emit(GridFSBucketWriteStream.FINISH, filesDoc);
             stream.emit(GridFSBucketWriteStream.CLOSE);
         }, error => {
@@ -19880,7 +20480,7 @@ function doWrite(stream, chunk, encoding, callback) {
             if (checkAborted(stream, callback)) {
                 return false;
             }
-            stream.chunks.insertOne(doc, getWriteOptions(stream)).then(() => {
+            stream.chunks.insertOne(doc, { writeConcern: stream.writeConcern }).then(() => {
                 --stream.state.outstandingRequests;
                 --outstandingRequests;
                 if (!outstandingRequests) {
@@ -19902,17 +20502,6 @@ function doWrite(stream, chunk, encoding, callback) {
     // to be compatible with node's `.pipe()` function.
     // False means the client should wait for the 'drain' event.
     return false;
-}
-function getWriteOptions(stream) {
-    const obj = {};
-    if (stream.writeConcern) {
-        obj.writeConcern = {
-            w: stream.writeConcern.w,
-            wtimeout: stream.writeConcern.wtimeout,
-            j: stream.writeConcern.j
-        };
-    }
-    return obj;
 }
 function waitForIndexes(stream, callback) {
     if (stream.bucket.s.checkedIndexes) {
@@ -19938,7 +20527,7 @@ function writeRemnant(stream, callback) {
     if (checkAborted(stream, callback)) {
         return false;
     }
-    stream.chunks.insertOne(doc, getWriteOptions(stream)).then(() => {
+    stream.chunks.insertOne(doc, { writeConcern: stream.writeConcern }).then(() => {
         --stream.state.outstandingRequests;
         checkDone(stream);
     }, error => {
@@ -20073,7 +20662,6 @@ class GridFSBucket extends mongo_types_1.TypedEventEmitter {
         await this.s._chunksCollection.drop();
     }
 }
-gridfs.GridFSBucket = GridFSBucket;
 /**
  * When the first call to openUploadStream is made, the upload stream will
  * check to see if it needs to create the proper indexes on the chunks and
@@ -20083,6 +20671,7 @@ gridfs.GridFSBucket = GridFSBucket;
  * @event
  */
 GridFSBucket.INDEX = 'index';
+gridfs.GridFSBucket = GridFSBucket;
 
 var hasRequiredLib;
 
@@ -20091,9 +20680,9 @@ function requireLib () {
 	hasRequiredLib = 1;
 	(function (exports) {
 		Object.defineProperty(exports, "__esModule", { value: true });
-		exports.Admin = exports.AbstractCursor = exports.MongoWriteConcernError = exports.MongoUnexpectedServerResponseError = exports.MongoTransactionError = exports.MongoTopologyClosedError = exports.MongoTailableCursorError = exports.MongoSystemError = exports.MongoServerSelectionError = exports.MongoServerError = exports.MongoServerClosedError = exports.MongoRuntimeError = exports.MongoParseError = exports.MongoNotConnectedError = exports.MongoNetworkTimeoutError = exports.MongoNetworkError = exports.MongoMissingDependencyError = exports.MongoMissingCredentialsError = exports.MongoKerberosError = exports.MongoInvalidArgumentError = exports.MongoGridFSStreamError = exports.MongoGridFSChunkError = exports.MongoExpiredSessionError = exports.MongoError = exports.MongoDriverError = exports.MongoDecompressionError = exports.MongoCursorInUseError = exports.MongoCursorExhaustedError = exports.MongoCompatibilityError = exports.MongoChangeStreamError = exports.MongoBatchReExecutionError = exports.MongoAWSError = exports.MongoAPIError = exports.ChangeStreamCursor = exports.MongoBulkWriteError = exports.Timestamp = exports.ObjectId = exports.MinKey = exports.MaxKey = exports.Long = exports.Int32 = exports.Double = exports.Decimal128 = exports.DBRef = exports.Code = exports.BSONType = exports.BSONSymbol = exports.BSONRegExp = exports.Binary = exports.BSON = void 0;
-		exports.ServerDescriptionChangedEvent = exports.ServerClosedEvent = exports.ConnectionReadyEvent = exports.ConnectionPoolReadyEvent = exports.ConnectionPoolMonitoringEvent = exports.ConnectionPoolCreatedEvent = exports.ConnectionPoolClosedEvent = exports.ConnectionPoolClearedEvent = exports.ConnectionCreatedEvent = exports.ConnectionClosedEvent = exports.ConnectionCheckOutStartedEvent = exports.ConnectionCheckOutFailedEvent = exports.ConnectionCheckedOutEvent = exports.ConnectionCheckedInEvent = exports.CommandSucceededEvent = exports.CommandStartedEvent = exports.CommandFailedEvent = exports.WriteConcern = exports.ReadPreference = exports.ReadConcern = exports.TopologyType = exports.ServerType = exports.ReadPreferenceMode = exports.ReadConcernLevel = exports.ProfilingLevel = exports.ReturnDocument = exports.ServerApiVersion = exports.ExplainVerbosity = exports.MongoErrorLabel = exports.AutoEncryptionLoggerLevel = exports.CURSOR_FLAGS = exports.Compressor = exports.AuthMechanism = exports.GSSAPICanonicalizationValue = exports.BatchType = exports.UnorderedBulkOperation = exports.OrderedBulkOperation = exports.MongoClient = exports.ListIndexesCursor = exports.ListCollectionsCursor = exports.GridFSBucketWriteStream = exports.GridFSBucketReadStream = exports.GridFSBucket = exports.FindCursor = exports.Db = exports.Collection = exports.ClientSession = exports.ChangeStream = exports.CancellationToken = exports.AggregationCursor = void 0;
-		exports.SrvPollingEvent = exports.TopologyOpeningEvent = exports.TopologyDescriptionChangedEvent = exports.TopologyClosedEvent = exports.ServerOpeningEvent = exports.ServerHeartbeatSucceededEvent = exports.ServerHeartbeatStartedEvent = exports.ServerHeartbeatFailedEvent = void 0;
+		exports.AbstractCursor = exports.MongoWriteConcernError = exports.MongoUnexpectedServerResponseError = exports.MongoTransactionError = exports.MongoTopologyClosedError = exports.MongoTailableCursorError = exports.MongoSystemError = exports.MongoServerSelectionError = exports.MongoServerError = exports.MongoServerClosedError = exports.MongoRuntimeError = exports.MongoParseError = exports.MongoNotConnectedError = exports.MongoNetworkTimeoutError = exports.MongoNetworkError = exports.MongoMissingDependencyError = exports.MongoMissingCredentialsError = exports.MongoKerberosError = exports.MongoInvalidArgumentError = exports.MongoGridFSStreamError = exports.MongoGridFSChunkError = exports.MongoExpiredSessionError = exports.MongoError = exports.MongoDriverError = exports.MongoDecompressionError = exports.MongoCursorInUseError = exports.MongoCursorExhaustedError = exports.MongoCompatibilityError = exports.MongoChangeStreamError = exports.MongoBatchReExecutionError = exports.MongoAzureError = exports.MongoAWSError = exports.MongoAPIError = exports.ChangeStreamCursor = exports.MongoBulkWriteError = exports.Timestamp = exports.ObjectId = exports.MinKey = exports.MaxKey = exports.Long = exports.Int32 = exports.Double = exports.Decimal128 = exports.DBRef = exports.Code = exports.BSONType = exports.BSONSymbol = exports.BSONRegExp = exports.Binary = exports.BSON = void 0;
+		exports.ServerClosedEvent = exports.ConnectionReadyEvent = exports.ConnectionPoolReadyEvent = exports.ConnectionPoolMonitoringEvent = exports.ConnectionPoolCreatedEvent = exports.ConnectionPoolClosedEvent = exports.ConnectionPoolClearedEvent = exports.ConnectionCreatedEvent = exports.ConnectionClosedEvent = exports.ConnectionCheckOutStartedEvent = exports.ConnectionCheckOutFailedEvent = exports.ConnectionCheckedOutEvent = exports.ConnectionCheckedInEvent = exports.CommandSucceededEvent = exports.CommandStartedEvent = exports.CommandFailedEvent = exports.WriteConcern = exports.ReadPreference = exports.ReadConcern = exports.TopologyType = exports.ServerType = exports.ReadPreferenceMode = exports.ReadConcernLevel = exports.ProfilingLevel = exports.ReturnDocument = exports.ServerApiVersion = exports.ExplainVerbosity = exports.MongoErrorLabel = exports.AutoEncryptionLoggerLevel = exports.CURSOR_FLAGS = exports.Compressor = exports.AuthMechanism = exports.GSSAPICanonicalizationValue = exports.BatchType = exports.UnorderedBulkOperation = exports.OrderedBulkOperation = exports.MongoClient = exports.ListIndexesCursor = exports.ListCollectionsCursor = exports.GridFSBucketWriteStream = exports.GridFSBucketReadStream = exports.GridFSBucket = exports.FindCursor = exports.Db = exports.Collection = exports.ClientSession = exports.ChangeStream = exports.CancellationToken = exports.AggregationCursor = exports.Admin = void 0;
+		exports.SrvPollingEvent = exports.TopologyOpeningEvent = exports.TopologyDescriptionChangedEvent = exports.TopologyClosedEvent = exports.ServerOpeningEvent = exports.ServerHeartbeatSucceededEvent = exports.ServerHeartbeatStartedEvent = exports.ServerHeartbeatFailedEvent = exports.ServerDescriptionChangedEvent = void 0;
 		const admin_1 = admin;
 		Object.defineProperty(exports, "Admin", { enumerable: true, get: function () { return admin_1.Admin; } });
 		const ordered_1 = ordered;
@@ -20153,6 +20742,7 @@ function requireLib () {
 		var error_1 = error;
 		Object.defineProperty(exports, "MongoAPIError", { enumerable: true, get: function () { return error_1.MongoAPIError; } });
 		Object.defineProperty(exports, "MongoAWSError", { enumerable: true, get: function () { return error_1.MongoAWSError; } });
+		Object.defineProperty(exports, "MongoAzureError", { enumerable: true, get: function () { return error_1.MongoAzureError; } });
 		Object.defineProperty(exports, "MongoBatchReExecutionError", { enumerable: true, get: function () { return error_1.MongoBatchReExecutionError; } });
 		Object.defineProperty(exports, "MongoChangeStreamError", { enumerable: true, get: function () { return error_1.MongoChangeStreamError; } });
 		Object.defineProperty(exports, "MongoCompatibilityError", { enumerable: true, get: function () { return error_1.MongoCompatibilityError; } });

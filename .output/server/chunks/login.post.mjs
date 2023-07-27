@@ -8,6 +8,7 @@ import 'dotenv';
 import './index2.mjs';
 import 'mongoose';
 import 'crypto';
+import 'http';
 import 'url';
 import 'bson';
 import 'timers';
@@ -23,7 +24,6 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
-import 'http';
 import './random.mjs';
 import 'crypto-js/md5.js';
 

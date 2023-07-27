@@ -17,4 +17,5 @@ import 'radix3';
 import 'node:fs';
 import 'node:url';
 import 'pathe';
+import 'http-graceful-shutdown';
 //# sourceMappingURL=index.mjs.map

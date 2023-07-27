@@ -4,6 +4,7 @@ import { getAllKey, getDeletedKey } from './keys.mjs';
 import 'mongoose';
 import 'dotenv';
 import 'crypto';
+import 'http';
 import 'url';
 import 'bson';
 import 'timers';
@@ -19,7 +20,6 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
-import 'http';
 
 const tree = defineEventHandler(async (event) => {
   var _a;

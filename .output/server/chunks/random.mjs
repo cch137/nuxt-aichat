@@ -169,6 +169,12 @@ function toSeed(seed) {
   }
 }
 
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 const N = 624;
 const M = 397;
 const MATRIX_A = 2567483615;
@@ -177,8 +183,9 @@ const LOWER_MASK = 2147483647;
 class MersenneTwister {
   /** @param {Number} [seed] */
   constructor(seed) {
-    this.mt = new Array(N);
-    this.mti = N + 1;
+    __publicField(this, "mt", new Array(N));
+    __publicField(this, "mti", N + 1);
+    __publicField(this, "seed");
     this.seed = seed = toSeed(seed);
     if (Array.isArray(seed)) {
       this.init_by_array(seed, seed.length);

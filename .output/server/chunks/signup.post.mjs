@@ -10,6 +10,7 @@ import 'dotenv';
 import './index2.mjs';
 import 'mongoose';
 import 'crypto';
+import 'http';
 import 'url';
 import 'bson';
 import 'timers';
@@ -25,7 +26,6 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
-import 'http';
 
 const signup_post = defineEventHandler(async function(event) {
   const body = await readBody(event);

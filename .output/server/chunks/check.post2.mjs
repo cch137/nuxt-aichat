@@ -10,6 +10,7 @@ import 'crypto-js/md5.js';
 import 'mongoose';
 import 'dotenv';
 import 'crypto';
+import 'http';
 import 'url';
 import 'bson';
 import 'timers';
@@ -25,7 +26,6 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
-import 'http';
 
 const check_post = defineEventHandler(async (event) => {
   var _a;

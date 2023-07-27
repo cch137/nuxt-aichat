@@ -9,6 +9,7 @@ import './random.mjs';
 import 'mongoose';
 import 'dotenv';
 import 'crypto';
+import 'http';
 import 'url';
 import 'bson';
 import 'timers';
@@ -24,7 +25,6 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
-import 'http';
 
 const conv_put = defineEventHandler(async (event) => {
   var _a, _b, _c;
