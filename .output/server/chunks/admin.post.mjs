@@ -1,35 +1,6 @@
 import { defineEventHandler, readBody } from 'h3';
 import { d as discordBot } from './index.mjs';
-import { m as mindsdb } from './index2.mjs';
 import 'discord.js';
-import './index3.mjs';
-import 'dotenv';
-import 'crypto';
-import 'url';
-import 'bson';
-import 'timers';
-import 'util';
-import 'stream';
-import 'events';
-import 'dns';
-import 'fs';
-import 'mongodb-connection-string-url';
-import 'os';
-import 'process';
-import 'zlib';
-import 'net';
-import 'socks';
-import 'tls';
-import 'http';
-import 'mongoose';
-import './message.mjs';
-import './deleteConversation.mjs';
-import 'sequelize';
-import './createAxiosSession.mjs';
-import 'axios';
-import 'cookie';
-import './str.mjs';
-import './log.mjs';
 
 const admin_post = defineEventHandler(async function(event) {
   const body = await readBody(event);
@@ -46,20 +17,10 @@ const admin_post = defineEventHandler(async function(event) {
     case "DC1":
       await discordBot.connect();
       break;
-    case "WEBCONN":
-      mindsdb.defaultConnectMethod = "WEB";
-      break;
-    case "SQLCONN":
-      mindsdb.defaultConnectMethod = "SQL";
-      break;
-    case "RESTART":
-      await mindsdb.restart();
-      break;
   }
   return await new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        mdbConnectMethod: mindsdb.defaultConnectMethod,
         dcBotConnected: discordBot.connected,
         pass: true
       });

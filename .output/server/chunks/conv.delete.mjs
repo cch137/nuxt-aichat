@@ -1,12 +1,12 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
-import { d as deleteConversation } from './deleteConversation.mjs';
+import { C as Conversation } from './index3.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 import './random.mjs';
-import './index3.mjs';
+import './index2.mjs';
+import 'mongoose';
 import 'dotenv';
 import 'crypto';
 import 'url';
@@ -25,8 +25,14 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
-import './message.mjs';
+import 'googlebard';
+import 'sequelize';
+import './createAxiosSession.mjs';
+import 'axios';
+import 'googlethis';
+import 'turndown';
+import '@joplin/turndown-plugin-gfm';
+import 'cheerio';
 
 const conv_delete = defineEventHandler(async (event) => {
   var _a, _b, _c, _d;
@@ -37,7 +43,7 @@ const conv_delete = defineEventHandler(async (event) => {
   if (!user || !conv) {
     return { error: 1 };
   }
-  return await deleteConversation(user, conv);
+  return await new Conversation(user, conv).delete();
 });
 
 export { conv_delete as default };

@@ -3,7 +3,8 @@ import { a as auth } from './auth.mjs';
 import 'crypto-js/sha3.js';
 import 'nodemailer';
 import 'dotenv';
-import './index3.mjs';
+import './index2.mjs';
+import 'mongoose';
 import 'crypto';
 import 'url';
 import 'bson';
@@ -21,10 +22,7 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
 import './random.mjs';
-import './str.mjs';
-import './message.mjs';
 
 const resendCode_post = defineEventHandler(async function(event) {
   const body = await readBody(event);

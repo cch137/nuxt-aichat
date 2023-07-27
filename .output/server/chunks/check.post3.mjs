@@ -3,12 +3,11 @@ import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
 import { r as read, p as pack, g as generate } from './token.mjs';
 import { r as random } from './random.mjs';
-import './index3.mjs';
-import { m as message } from './message.mjs';
+import { m as message } from './index2.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
+import 'mongoose';
 import 'dotenv';
 import 'crypto';
 import 'url';
@@ -27,7 +26,6 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
 
 const check_post = defineEventHandler(async (event) => {
   var _a;

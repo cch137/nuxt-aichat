@@ -1,20 +1,9 @@
 import sha3 from 'crypto-js/sha3.js';
 import nodemailer from 'nodemailer';
 import { config } from 'dotenv';
-import './index3.mjs';
+import { m as message } from './index2.mjs';
 import { r as random } from './random.mjs';
 import { model, Schema } from 'mongoose';
-import { m as message } from './message.mjs';
-
-const userCollection = model("User", new Schema({
-  uid: { type: String, required: true },
-  email: { type: String, required: true },
-  username: { type: String, required: true },
-  password: { type: String, required: true }
-}, {
-  versionKey: false,
-  strict: "throw"
-}), "users");
 
 config();
 const MY_EMAIL_ADDRESS = process.env.NODEMAILER_EMAIL;
@@ -55,10 +44,20 @@ const mailer = {
 };
 const mailer$1 = mailer;
 
+const userCollection = model("User", new Schema({
+  uid: { type: String, required: true },
+  email: { type: String, required: true },
+  username: { type: String, required: true },
+  password: { type: String, required: true }
+}, {
+  versionKey: false,
+  strict: "throw"
+}), "users");
+
 const sha256 = (message) => {
   return sha3(message, { outputLength: 256 }).toString();
 };
-const appName = "EvoGPT";
+const appName = "CH4";
 const verificationVerifierMap = /* @__PURE__ */ new Map();
 const sendVerificationCodeMail = async (toEmailAddress, code) => {
   return await mailer$1.sendText(toEmailAddress, `Verification code - ${appName}`, `Here is your ${appName} verification code:

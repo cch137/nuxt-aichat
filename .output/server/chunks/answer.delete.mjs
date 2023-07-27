@@ -1,9 +1,9 @@
 import { defineEventHandler, readBody } from 'h3';
-import { l as libExports } from './index3.mjs';
+import { l as libExports, m as message } from './index2.mjs';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
 import { b as baseConverter } from './random.mjs';
-import { m as message } from './message.mjs';
+import 'mongoose';
 import 'dotenv';
 import 'crypto';
 import 'url';
@@ -22,10 +22,8 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 
 const answer_delete = defineEventHandler(async (event) => {
   var _a, _b, _c;

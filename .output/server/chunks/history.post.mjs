@@ -1,12 +1,12 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
-import './index3.mjs';
-import { m as message } from './message.mjs';
+import { C as Conversation } from './index3.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 import './random.mjs';
+import './index2.mjs';
+import 'mongoose';
 import 'dotenv';
 import 'crypto';
 import 'url';
@@ -25,32 +25,14 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
-
-async function getHistory(user, conv) {
-  if (!(user && conv)) {
-    return [];
-  }
-  return (await message.find({
-    user,
-    conv
-  }, {
-    _id: 1,
-    Q: 1,
-    A: 1,
-    queries: 1,
-    urls: 1,
-    dt: 1
-  }).sort({ createdAt: 1 })).map((doc) => ({
-    Q: doc.Q,
-    A: doc.A,
-    id: doc._id.toString("base64"),
-    t: doc._id.getTimestamp().getTime(),
-    queries: doc.queries,
-    urls: doc.urls,
-    dt: doc.dt
-  }));
-}
+import 'googlebard';
+import 'sequelize';
+import './createAxiosSession.mjs';
+import 'axios';
+import 'googlethis';
+import 'turndown';
+import '@joplin/turndown-plugin-gfm';
+import 'cheerio';
 
 const history_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d;
@@ -62,7 +44,7 @@ const history_post = defineEventHandler(async (event) => {
     return { error: 1 };
   }
   try {
-    return await getHistory(user, conv);
+    return await new Conversation(user, conv).getHistory();
   } catch {
     return { error: 2 };
   }

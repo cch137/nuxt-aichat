@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from 'h3';
-import './index3.mjs';
+import { m as message } from './index2.mjs';
 import { getAllKey, getDeletedKey } from './keys.mjs';
-import { m as message } from './message.mjs';
+import 'mongoose';
 import 'dotenv';
 import 'crypto';
 import 'url';
@@ -20,7 +20,6 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
 
 const messages = defineEventHandler(async (event) => {
   var _a;

@@ -1,13 +1,12 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
-import './index3.mjs';
-import { m as message } from './message.mjs';
+import { m as message } from './index2.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 import './random.mjs';
+import 'mongoose';
 import 'dotenv';
 import 'crypto';
 import 'url';
@@ -26,7 +25,6 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
 
 const conv_put = defineEventHandler(async (event) => {
   var _a, _b, _c;

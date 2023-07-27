@@ -4,11 +4,11 @@ import { r as read } from './token.mjs';
 import { a as auth } from './auth.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 import './random.mjs';
 import 'nodemailer';
 import 'dotenv';
-import './index3.mjs';
+import './index2.mjs';
+import 'mongoose';
 import 'crypto';
 import 'url';
 import 'bson';
@@ -26,8 +26,6 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'http';
-import 'mongoose';
-import './message.mjs';
 
 const signup_post = defineEventHandler(async function(event) {
   const body = await readBody(event);

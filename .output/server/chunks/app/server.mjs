@@ -326,7 +326,7 @@ function useHead(input, options = {}) {
     return isBrowser ? clientUseHead(input, options) : serverUseHead(input, options);
   }
 }
-const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "EvoGPT" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "EvoGPT" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
+const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "CH4" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "CH4" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
 const appLayoutTransition = true;
 const appPageTransition = true;
 const appKeepalive = false;
@@ -538,7 +538,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-3d3c57a6.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-71f796f7.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "c",
@@ -546,7 +546,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-d73ce815.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-74df112f.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "index",
@@ -562,7 +562,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/login-12f0b4fa.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-25083609.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -578,7 +578,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/signup-b8254963.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/signup-72401db2.mjs').then((m) => m.default || m)
   }
 ];
 const routerOptions0 = {
@@ -650,7 +650,7 @@ const validate = /* @__PURE__ */ defineNuxtRouteMiddleware(async (to) => {
     return result;
   }
 });
-const appName = "EvoGPT";
+const appName = "CH4";
 const client_45global = /* @__PURE__ */ defineNuxtRouteMiddleware(() => {
   useState("appName", () => appName);
 });
@@ -659,8 +659,8 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-fe15c438.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-cb9e693a.mjs')
+  chat: () => import('./_nuxt/chat-e005b3f6.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-803a12e7.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
@@ -3968,7 +3968,7 @@ const en = {
   menu: {
     title: "Menu",
     about: "About",
-    joinDcMessage: "Join our Discord server to keep up with the latest news from EvoGPT!",
+    joinDcMessage: "Join our Discord server to keep up with the latest news!",
     webInfo1: "Basic: ",
     webInfo2: "Allow extracting URLs from the question or directly use a search engine to query the question. ",
     webInfo3: "Advanced: ",
@@ -4073,7 +4073,7 @@ const zhTW = {
   menu: {
     title: "菜單",
     about: "關於",
-    joinDcMessage: "加入我們的 Discord 服務器以跟進 EvoGPT 的最新消息！",
+    joinDcMessage: "加入我們的 Discord 服務器以跟進最新消息！",
     webInfo1: "基礎：",
     webInfo2: "允許提取提問中的 URL 或直接使用搜索引擎查詢提問。",
     webInfo3: "進階：",
@@ -4178,7 +4178,7 @@ const ru = {
   menu: {
     title: "Меню",
     about: "О программе",
-    joinDcMessage: "Присоединяйтесь к нашему серверу Discord, чтобы быть в курсе последних новостей от EvoGPT!",
+    joinDcMessage: "Присоединяйтесь к нашему серверу Discord, чтобы быть в курсе последних новостей от CH4!",
     webInfo1: "Базовый: ",
     webInfo2: "Разрешить извлечение URL-адресов из вопроса или использовать поисковую систему для поиска информации по вопросу. ",
     webInfo3: "Расширенный: ",
@@ -4283,7 +4283,7 @@ const es = {
   menu: {
     title: "Menú",
     about: "Acerca de",
-    joinDcMessage: "¡Únete a nuestro servidor de Discord para estar al día con las últimas noticias de EvoGPT!",
+    joinDcMessage: "¡Únete a nuestro servidor de Discord para estar al día con las últimas noticias de CH4!",
     webInfo1: "Básico: ",
     webInfo2: "Permite extraer URL de la pregunta o utilizar un motor de búsqueda para realizar la consulta. ",
     webInfo3: "Avanzado: ",
