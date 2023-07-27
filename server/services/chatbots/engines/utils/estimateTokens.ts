@@ -13,10 +13,10 @@ function estimateTokens (text: string): number {
       case 'zh':
       case 'ja':
       case 'ko':
-        tokens += (languageDistribution[languageCode] * length) / 0.75
+        tokens += (languageDistribution[languageCode] * length) / 0.5
         break
       default:
-        tokens += (languageDistribution[languageCode] * length)
+        tokens += (languageDistribution[languageCode] * length) / 0.75
     }
   }
   return tokens

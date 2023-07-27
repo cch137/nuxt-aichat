@@ -4,6 +4,7 @@ import search from '../../webBrowsing/search'
 import crawl from '../../webBrowsing/crawl'
 import type { WebSearcherResult } from '../../webBrowsing/search'
 import estimateTokens from './utils/estimateTokens'
+import sleep from 'utils/sleep'
 
 function parseObjectFromText (text: string, startChar = '{', endChar = '}') {
   try {
@@ -49,7 +50,7 @@ function chunkParagraphs (article: string, chunkMaxTokens = 2000) {
 }
 
 async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, article: string, options: { time?: string, maxTries?: number, chunkMaxTokens?: number, summaryMaxTokens?: number, modelName?: string } = {}): Promise<string> {
-  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 2500, summaryMaxTokens = 5700, modelName = 'gpt3_t00_3k' } = options
+  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 2000, summaryMaxTokens = 5700, modelName = 'gpt3_t00_3k' } = options
   const chunks = chunkParagraphs(article, chunkMaxTokens)
   const summary = (await Promise.all(chunks.map(async (chunk) => {
     const prompt = `
@@ -89,7 +90,7 @@ ${result.summary(true)}`
 class GptWeb2Chatbot {
   core: MindsDbGPTChatbotCore
   constructor (core: MindsDbGPTChatbotCore) {
-    this.core= core
+    this.core = core
   }
   async ask (question: string, options: { timezone?: number, time?: string } = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }

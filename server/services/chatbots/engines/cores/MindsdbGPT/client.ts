@@ -1,6 +1,26 @@
 import type { AxiosInstance } from 'axios'
-import { Sequelize, Model, DataTypes } from 'sequelize'
+import { Sequelize, QueryTypes } from 'sequelize'
 import createAxiosSession from '~/server/services/utils/createAxiosSession'
+
+function wrapPromptTextParam (text: string) {
+  const hasSingleQuotes = text.includes("'")
+  const hasDoubleQuotes = text.includes('"')
+  if (hasSingleQuotes) {
+    if (hasDoubleQuotes) {
+      return `'${text.replaceAll('\'', '`')}'`
+    } else {
+      return `"${text}"`
+    }
+  } else {
+    return `'${text}'`
+  }
+}
+
+function getSelectSql (modelName: string, question: string, context = '') {
+  question = question.replaceAll('\'', '`')
+  context = (context || '').replaceAll('\'', '`')
+  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`
+}
 
 class MindsDBClient {
   email
@@ -86,26 +106,16 @@ class MindsDBSqlClient extends _Client {
     return this.sequelize = sequelize
   }
 
-  _getModel (modelName: string): typeof Model {
-    class _Model extends Model { public answer!: string }
-    _Model.init(
-      { answer: { type: DataTypes.STRING, allowNull: false } },
-      { sequelize: this.sequelize, tableName: modelName }
-    )
-    return _Model
-  }
-
   async askGPT (modelName: string, question = 'Hi', context = '') {
     try {
-      const model = this._getModel(modelName)
       // @ts-ignore
-      const result = await model.findOne({
-        attributes: ['answer'],
-        where: {
-          question: question.replaceAll('\'', '`'),
-          context: context.replaceAll('\'', '`')
+      const result = (await this.sequelize.query(
+        getSelectSql(modelName, question, context),
+        {
+          replacements: { question: question, context: context },
+          type: QueryTypes.SELECT
         }
-      })
+      ))[0]
       // @ts-ignore
       if (result?.answer) {
         // @ts-ignore
@@ -116,20 +126,6 @@ class MindsDBSqlClient extends _Client {
       console.log(err)
       return { answer: '', error: (err as any)?.original?.sqlMessage as string }
     }
-  }
-}
-
-function wrapPromptTextParam (text: string) {
-  const hasSingleQuotes = text.includes("'")
-  const hasDoubleQuotes = text.includes('"')
-  if (hasSingleQuotes) {
-    if (hasDoubleQuotes) {
-      return `'${text.replaceAll('\'', '`')}'`
-    } else {
-      return `"${text}"`
-    }
-  } else {
-    return `'${text}'`
   }
 }
 
@@ -169,7 +165,7 @@ class MindsDBWebClient extends _Client {
     context = context.replaceAll('\'', '`')
     try {
       const res = await this.session.post('https://cloud.mindsdb.com/api/sql/query', {
-        query: `SELECT answer FROM mindsdb.${modelName}\r\nWHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`,
+        query: getSelectSql(modelName, question, context),
         context: { db: 'mindsdb' }
       })
       const data = res.data as { column_names: string[], data: string[][] }

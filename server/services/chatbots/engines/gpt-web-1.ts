@@ -9,15 +9,14 @@ import { summaryArticle } from './gpt-web-2'
 class GptWeb1Chatbot {
   core: MindsDbGPTChatbotCore
   constructor (core: MindsDbGPTChatbotCore) {
-    this.core= core
+    this.core = core
   }
   async ask (question: string, options: { timezone?: number, time?: string } = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
-    const queries = [question.replace(/\s+/g, ' ').trim()]
     const urls = extractUrls(question)
     const crawledPages1 = Promise.all(urls.map((url) => crawl(url)))
     const references = [
-      (await search(...queries)).summary(),
+      (await search(question.replace(/\s+/g, ' ').trim())).summary(),
       ...(await crawledPages1).map((page) => page.markdown)
     ].join('\n---\n')
     const prompt = `
@@ -31,7 +30,6 @@ References:
 ${estimateTokens(references) > 5700 ? await summaryArticle(this.core, question, references) : references}`
     const result = await this.core.ask(prompt, { modelName: 'gpt4_t00_6k' })
     return {
-      queries,
       urls,
       answer: result.answer,
       error: result.error

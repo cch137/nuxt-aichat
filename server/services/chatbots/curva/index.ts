@@ -11,7 +11,7 @@ function chooseEngine (model: string) {
     case 'gpt-web-1':
       return GptWeb1Chatbot
     case 'gpt-web-2':
-      return GptWeb1Chatbot
+      return GptWeb2Chatbot
     case 'bard':
       return BardChatbot
     default:

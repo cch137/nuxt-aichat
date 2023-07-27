@@ -10,6 +10,7 @@ import troll from '~/utils/troll'
 import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
 import type { ArchivedChatMessage } from '~/server/services/chatbots/curva/types'
+// import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 
 const model = ref('gpt4')
 

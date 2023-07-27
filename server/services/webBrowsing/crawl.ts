@@ -13,10 +13,17 @@ function trimText (text: string): string {
     .join('\n')
 }
 
-function parseHtml (html: string | AnyNode | AnyNode[] | Buffer) {
+function parseHtml (html: string | AnyNode | AnyNode[] | Buffer, textOnly = true) {
   const $ = cheerioLoad(html)
   $('style').remove()
   $('script').remove()
+  if (textOnly) {
+    $('img').remove()
+    $('video').remove()
+    $('audio').remove()
+    $('canvas').remove()
+    $('svg').remove()
+  }
   $('a').replaceWith(function () {
     return $('<span>').text($(this).prop('innerText') || $(this).text())
   })
@@ -52,7 +59,7 @@ class WebCrawlerResult {
       '---\n' + trimText(this.markdown)
   }
 
-  constructor (res: AxiosResponse) {
+  constructor (res: AxiosResponse, textOnly = true) {
     try {
       this.url = res?.config?.url || res?.config?.baseURL || ''
       this.contentType = str(res.headers['Content-Type'] || '')
@@ -66,7 +73,7 @@ class WebCrawlerResult {
         if (typeof res.data !== 'string') {
           res.data = JSON.stringify(res.data)
         }
-        const webpage = parseHtml(res.data)
+        const webpage = parseHtml(res.data, textOnly)
         this.title = webpage.title || ''
         this.description = webpage.description || ''
         this.links = webpage.links || []
@@ -78,7 +85,7 @@ class WebCrawlerResult {
   }
 }
 
-async function crawl (url: string) {
+async function crawl (url: string, textOnly = true) {
   if (!(url.startsWith('http://') || url.startsWith('https://'))) {
     url = `http://${url}`
   }
@@ -95,9 +102,9 @@ async function crawl (url: string) {
       timeout: 10000,
       validateStatus: (_) => true
     })
-    return new WebCrawlerResult(request)
+    return new WebCrawlerResult(request, textOnly)
   } catch {
-    return new WebCrawlerResult({} as AxiosResponse)
+    return new WebCrawlerResult({} as AxiosResponse, textOnly)
   }
 }
 

@@ -2,7 +2,7 @@ import { m as message, l as libExports } from './index2.mjs';
 import { t as troll } from './token.mjs';
 import { r as random, s as str } from './random.mjs';
 import { Bard } from 'googlebard';
-import { Sequelize, DataTypes, Model } from 'sequelize';
+import { Sequelize, QueryTypes } from 'sequelize';
 import { c as createAxiosSession } from './createAxiosSession.mjs';
 import googlethis from 'googlethis';
 import axios from 'axios';
@@ -10,16 +10,16 @@ import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
 
-var __defProp$9 = Object.defineProperty;
-var __defNormalProp$9 = (obj, key, value) => key in obj ? __defProp$9(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$9 = (obj, key, value) => {
-  __defNormalProp$9(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$a = Object.defineProperty;
+var __defNormalProp$a = (obj, key, value) => key in obj ? __defProp$a(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$a = (obj, key, value) => {
+  __defNormalProp$a(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Conversation {
   constructor(user, conv) {
-    __publicField$9(this, "conv");
-    __publicField$9(this, "user");
+    __publicField$a(this, "conv");
+    __publicField$a(this, "user");
     this.user = user;
     this.conv = conv;
   }
@@ -129,15 +129,15 @@ ${joinedMessages}`;
 }
 const Conversation$1 = Conversation;
 
-var __defProp$8 = Object.defineProperty;
-var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$8 = (obj, key, value) => {
-  __defNormalProp$8(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$9 = Object.defineProperty;
+var __defNormalProp$9 = (obj, key, value) => key in obj ? __defProp$9(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$9 = (obj, key, value) => {
+  __defNormalProp$9(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class BardChatbotCore {
   constructor(options) {
-    __publicField$8(this, "client");
+    __publicField$9(this, "client");
     this.client = new Bard(options.cookies);
   }
   init() {
@@ -158,19 +158,37 @@ class BardChatbotCore {
 }
 const BardChatbotCore$1 = BardChatbotCore;
 
-var __defProp$7 = Object.defineProperty;
-var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$7 = (obj, key, value) => {
-  __defNormalProp$7(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$8 = Object.defineProperty;
+var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$8 = (obj, key, value) => {
+  __defNormalProp$8(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
+function wrapPromptTextParam(text) {
+  const hasSingleQuotes = text.includes("'");
+  const hasDoubleQuotes = text.includes('"');
+  if (hasSingleQuotes) {
+    if (hasDoubleQuotes) {
+      return `'${text.replaceAll("'", "`")}'`;
+    } else {
+      return `"${text}"`;
+    }
+  } else {
+    return `'${text}'`;
+  }
+}
+function getSelectSql(modelName, question, context = "") {
+  question = question.replaceAll("'", "`");
+  context = (context || "").replaceAll("'", "`");
+  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`;
+}
 class MindsDBClient {
   constructor(email, password, connectMethod) {
-    __publicField$7(this, "email");
-    __publicField$7(this, "password");
-    __publicField$7(this, "sqlClient");
-    __publicField$7(this, "webClient");
-    __publicField$7(this, "connectMethod");
+    __publicField$8(this, "email");
+    __publicField$8(this, "password");
+    __publicField$8(this, "sqlClient");
+    __publicField$8(this, "webClient");
+    __publicField$8(this, "connectMethod");
     console.log("CREATE MindsDB Client:", email);
     this.email = email;
     this.password = password;
@@ -203,7 +221,7 @@ class MindsDBClient {
 }
 class _Client {
   constructor(parent) {
-    __publicField$7(this, "parent");
+    __publicField$8(this, "parent");
     this.parent = parent;
   }
   get email() {
@@ -216,7 +234,7 @@ class _Client {
 class MindsDBSqlClient extends _Client {
   constructor(parent) {
     super(parent);
-    __publicField$7(this, "sequelize");
+    __publicField$8(this, "sequelize");
     this.sequelize = this.login();
   }
   login() {
@@ -237,30 +255,16 @@ class MindsDBSqlClient extends _Client {
     }
     return this.sequelize = sequelize;
   }
-  _getModel(modelName) {
-    class _Model extends Model {
-      constructor() {
-        super(...arguments);
-        __publicField$7(this, "answer");
-      }
-    }
-    _Model.init(
-      { answer: { type: DataTypes.STRING, allowNull: false } },
-      { sequelize: this.sequelize, tableName: modelName }
-    );
-    return _Model;
-  }
   async askGPT(modelName, question = "Hi", context = "") {
     var _a;
     try {
-      const model = this._getModel(modelName);
-      const result = await model.findOne({
-        attributes: ["answer"],
-        where: {
-          question: question.replaceAll("'", "`"),
-          context: context.replaceAll("'", "`")
+      const result = (await this.sequelize.query(
+        getSelectSql(modelName, question, context),
+        {
+          replacements: { question, context },
+          type: QueryTypes.SELECT
         }
-      });
+      ))[0];
       if (result == null ? void 0 : result.answer) {
         return { answer: result.answer };
       }
@@ -271,24 +275,11 @@ class MindsDBSqlClient extends _Client {
     }
   }
 }
-function wrapPromptTextParam(text) {
-  const hasSingleQuotes = text.includes("'");
-  const hasDoubleQuotes = text.includes('"');
-  if (hasSingleQuotes) {
-    if (hasDoubleQuotes) {
-      return `'${text.replaceAll("'", "`")}'`;
-    } else {
-      return `"${text}"`;
-    }
-  } else {
-    return `'${text}'`;
-  }
-}
 class MindsDBWebClient extends _Client {
   constructor(parent) {
     super(parent);
-    __publicField$7(this, "lastLoggedIn", Date.now());
-    __publicField$7(this, "session");
+    __publicField$8(this, "lastLoggedIn", Date.now());
+    __publicField$8(this, "session");
     this.session = this.login();
   }
   login() {
@@ -316,8 +307,7 @@ class MindsDBWebClient extends _Client {
     context = context.replaceAll("'", "`");
     try {
       const res = await this.session.post("https://cloud.mindsdb.com/api/sql/query", {
-        query: `SELECT answer FROM mindsdb.${modelName}\r
-WHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`,
+        query: getSelectSql(modelName, question, context),
         context: { db: "mindsdb" }
       });
       const data = res.data;
@@ -379,15 +369,15 @@ async function sleep(timeoutMs = 0) {
   });
 }
 
-var __defProp$6 = Object.defineProperty;
-var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$6 = (obj, key, value) => {
-  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$7 = Object.defineProperty;
+var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$7 = (obj, key, value) => {
+  __defNormalProp$7(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class MindsDbGPTChatbotCore {
   constructor(options) {
-    __publicField$6(this, "client");
+    __publicField$7(this, "client");
     const { email, password } = options;
     this.client = new MindsDBClient$1(email, password);
   }
@@ -443,15 +433,15 @@ const coreCollection = {
 };
 const coreCollection$1 = coreCollection;
 
-var __defProp$5 = Object.defineProperty;
-var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$5 = (obj, key, value) => {
-  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$6 = Object.defineProperty;
+var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$6 = (obj, key, value) => {
+  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class BardChatbot {
   constructor(core) {
-    __publicField$5(this, "core");
+    __publicField$6(this, "core");
     this.core = core;
   }
   async ask(question, options = {}) {
@@ -623,24 +613,24 @@ function estimateTokens(text) {
       case "zh":
       case "ja":
       case "ko":
-        tokens += languageDistribution[languageCode] * length / 0.75;
+        tokens += languageDistribution[languageCode] * length / 0.5;
         break;
       default:
-        tokens += languageDistribution[languageCode] * length;
+        tokens += languageDistribution[languageCode] * length / 0.75;
     }
   }
   return tokens;
 }
 
-var __defProp$4 = Object.defineProperty;
-var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$4 = (obj, key, value) => {
-  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$5 = Object.defineProperty;
+var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$5 = (obj, key, value) => {
+  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Gpt3Chatbot {
   constructor(core) {
-    __publicField$4(this, "core");
+    __publicField$5(this, "core");
     this.core = core;
   }
   async ask(question, options = {}) {
@@ -668,15 +658,15 @@ Question: ${question}`;
 }
 const Gpt3Chatbot$1 = Gpt3Chatbot;
 
-var __defProp$3 = Object.defineProperty;
-var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$3 = (obj, key, value) => {
-  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$4 = Object.defineProperty;
+var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$4 = (obj, key, value) => {
+  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Gpt4Chatbot {
   constructor(core) {
-    __publicField$3(this, "core");
+    __publicField$4(this, "core");
     this.core = core;
   }
   async ask(question, options = {}) {
@@ -712,10 +702,10 @@ Question: ${question}`;
 }
 const Gpt4Chatbot$1 = Gpt4Chatbot;
 
-var __defProp$2 = Object.defineProperty;
-var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$2 = (obj, key, value) => {
-  __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$3 = Object.defineProperty;
+var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$3 = (obj, key, value) => {
+  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 const googleSearch = async (...queries) => {
@@ -730,7 +720,7 @@ const googleSearch = async (...queries) => {
 };
 class WebSearcherResult {
   constructor(items) {
-    __publicField$2(this, "items");
+    __publicField$3(this, "items");
     const pages = /* @__PURE__ */ new Map();
     items.forEach((value) => pages.set(value.url, value));
     this.items = [...pages.values()];
@@ -747,20 +737,27 @@ async function search(...queries) {
   return new WebSearcherResult(await googleSearch(...queries));
 }
 
-var __defProp$1 = Object.defineProperty;
-var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$1 = (obj, key, value) => {
-  __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$2 = Object.defineProperty;
+var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$2 = (obj, key, value) => {
+  __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 function trimText(text) {
   return text.split("\n").map((ln) => ln.replace(/[\s]+/g, " ").trim()).filter((ln) => ln).join("\n");
 }
-function parseHtml(html) {
+function parseHtml(html, textOnly = true) {
   var _a, _b, _c, _d;
   const $ = load(html);
   $("style").remove();
   $("script").remove();
+  if (textOnly) {
+    $("img").remove();
+    $("video").remove();
+    $("audio").remove();
+    $("canvas").remove();
+    $("svg").remove();
+  }
   $("a").replaceWith(function() {
     return $("<span>").text($(this).prop("innerText") || $(this).text());
   });
@@ -782,13 +779,13 @@ function parseHtml(html) {
   };
 }
 class WebCrawlerResult {
-  constructor(res) {
-    __publicField$1(this, "url", "");
-    __publicField$1(this, "title", "");
-    __publicField$1(this, "description", "");
-    __publicField$1(this, "contentType", "");
-    __publicField$1(this, "links", []);
-    __publicField$1(this, "markdown", "");
+  constructor(res, textOnly = true) {
+    __publicField$2(this, "url", "");
+    __publicField$2(this, "title", "");
+    __publicField$2(this, "description", "");
+    __publicField$2(this, "contentType", "");
+    __publicField$2(this, "links", []);
+    __publicField$2(this, "markdown", "");
     var _a, _b;
     try {
       this.url = ((_a = res == null ? void 0 : res.config) == null ? void 0 : _a.url) || ((_b = res == null ? void 0 : res.config) == null ? void 0 : _b.baseURL) || "";
@@ -803,7 +800,7 @@ class WebCrawlerResult {
         if (typeof res.data !== "string") {
           res.data = JSON.stringify(res.data);
         }
-        const webpage = parseHtml(res.data);
+        const webpage = parseHtml(res.data, textOnly);
         this.title = webpage.title || "";
         this.description = webpage.description || "";
         this.links = webpage.links || [];
@@ -819,7 +816,7 @@ class WebCrawlerResult {
 ` : "") + "---\n" + trimText(this.markdown);
   }
 }
-async function crawl(url) {
+async function crawl(url, textOnly = true) {
   if (!(url.startsWith("http://") || url.startsWith("https://"))) {
     url = `http://${url}`;
   }
@@ -836,9 +833,9 @@ async function crawl(url) {
       timeout: 1e4,
       validateStatus: (_) => true
     });
-    return new WebCrawlerResult(request);
+    return new WebCrawlerResult(request, textOnly);
   } catch {
-    return new WebCrawlerResult({});
+    return new WebCrawlerResult({}, textOnly);
   }
 }
 
@@ -858,6 +855,35 @@ function extractUrls(text, noRepeat = true) {
   }
 }
 
+var __defProp$1 = Object.defineProperty;
+var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$1 = (obj, key, value) => {
+  __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+function parseObjectFromText(text, startChar = "{", endChar = "}") {
+  try {
+    return JSON.parse(text.substring(text.indexOf(startChar), text.lastIndexOf(endChar) + 1));
+  } catch {
+    return JSON.parse(`${startChar}${endChar}`);
+  }
+}
+async function estimateQueriesAndUrls(engine, question, options = {}) {
+  const { time = formatUserCurrentTime(0) } = options;
+  const prompt = `User curent time: ${time}
+Your user need to know: ${question}
+Please list a few phrases (up to 5) that you need to use the search engine to query.
+Keep number of phases as small as possible (about 3).
+If the user input is not in English, make sure those phrases cover both languages.
+Also, provide the URLs that appear in the user prompt (if any).
+Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }`;
+  const answer = (await engine.ask(prompt, { modelName: "gpt3_t00_3k", context: "" })).answer || "{}";
+  try {
+    return parseObjectFromText(answer, "{", "}");
+  } catch {
+    return { queries: [], urls: [] };
+  }
+}
 function chunkParagraphs(article, chunkMaxTokens = 2e3) {
   const lines = article.split("\n");
   let cursorChunkLength = 0, cursorIndex = 0;
@@ -876,7 +902,7 @@ function chunkParagraphs(article, chunkMaxTokens = 2e3) {
   return chunks;
 }
 async function summaryArticle(engine, question, article, options = {}) {
-  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 2500, summaryMaxTokens = 5700, modelName = "gpt3_t00_3k" } = options;
+  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 2e3, summaryMaxTokens = 5700, modelName = "gpt3_t00_3k" } = options;
   const chunks = chunkParagraphs(article, chunkMaxTokens);
   const summary = (await Promise.all(chunks.map(async (chunk) => {
     const prompt = `
@@ -895,6 +921,60 @@ ${chunk}`;
   }
   return summary;
 }
+async function selectPages(engine, question, result, options = {}) {
+  const { time = formatUserCurrentTime(0), modelName = "gpt4_t00_7k" } = options;
+  const prompt = `
+Please select some pages (up to 8) from the search engine results that can help you answer your question.
+Keep number of pages as small as possible (about 3).
+If it is impossible to determine from the description of website whether it contains useful information, do not choose that website.
+Pay attention to the release time and avoid outdated information.
+Language is not limited.
+Think of yourself as an API, do not make other descriptions, just reply a JSON array.
+Each element in the array should be an object with two properties: "url" (string) and "title" (string).
+User current time: ${time}
+Question: ${question}
+Search engine results:
+${result.summary(true)}`;
+  return parseObjectFromText((await engine.ask(prompt, { modelName })).answer, "[", "]");
+}
+class GptWeb2Chatbot {
+  constructor(core) {
+    __publicField$1(this, "core");
+    this.core = core;
+  }
+  async ask(question, options = {}) {
+    options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
+    let { queries = [], urls = [] } = await estimateQueriesAndUrls(this.core, question, options);
+    const crawledPages1 = Promise.all(urls.map((url) => crawl(url)));
+    const searcherResult = await search(...queries);
+    const selectedPages = await selectPages(this.core, question, searcherResult);
+    urls.push(...selectedPages.map((page) => page.url));
+    const crawledPages2 = Promise.all(selectedPages.map((page) => crawl(page.url)));
+    const queriesSummary = searcherResult.summary();
+    const summary = await summaryArticle(this.core, question, [
+      queriesSummary,
+      ...(await crawledPages1).map((page) => page.markdown),
+      ...(await crawledPages2).map((page) => page.markdown)
+    ].join("\n---\n"));
+    const prompt = `
+Use references where possible and answer in detail.
+Ensure the overall coherence and consistency of the responses.
+Ensure that the release time of news is relevant to the responses, avoiding outdated information.
+User current time: ${options.time}
+Question: ${question}
+
+References:
+${summary}`;
+    const result = await this.core.ask(prompt, { modelName: "gpt4_t00_6k" });
+    return {
+      queries,
+      urls,
+      answer: result.answer,
+      error: result.error
+    };
+  }
+}
+const GptWeb2Chatbot$1 = GptWeb2Chatbot;
 
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -909,11 +989,10 @@ class GptWeb1Chatbot {
   }
   async ask(question, options = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
-    const queries = [question.replace(/\s+/g, " ").trim()];
     const urls = extractUrls(question);
     const crawledPages1 = Promise.all(urls.map((url) => crawl(url)));
     const references = [
-      (await search(...queries)).summary(),
+      (await search(question.replace(/\s+/g, " ").trim())).summary(),
       ...(await crawledPages1).map((page) => page.markdown)
     ].join("\n---\n");
     const prompt = `
@@ -927,7 +1006,6 @@ References:
 ${estimateTokens(references) > 5700 ? await summaryArticle(this.core, question, references) : references}`;
     const result = await this.core.ask(prompt, { modelName: "gpt4_t00_6k" });
     return {
-      queries,
       urls,
       answer: result.answer,
       error: result.error
@@ -945,7 +1023,7 @@ function chooseEngine(model) {
     case "gpt-web-1":
       return GptWeb1Chatbot$1;
     case "gpt-web-2":
-      return GptWeb1Chatbot$1;
+      return GptWeb2Chatbot$1;
     case "bard":
       return BardChatbot$1;
     default:

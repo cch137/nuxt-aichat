@@ -46,8 +46,8 @@ class MindsDbGPTChatbotCore implements ChatbotEngine {
 
 // (async () => {
 //   const bot1 = new MindsDbGPTChatbotCore({
-//     email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
-//     password: 'M5Ij992bVsPWdZajh7fZqw'
+//     email: 'chorngherngchee@gmail.com',
+//     password: 'Curva&&cch137'
 //   })
 //   await sleep(3000)
 //   console.log('OK')
