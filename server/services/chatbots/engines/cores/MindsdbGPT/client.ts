@@ -1,9 +1,6 @@
 import type { AxiosInstance } from 'axios'
-import { config } from 'dotenv'
 import { Sequelize, Model, DataTypes } from 'sequelize'
 import createAxiosSession from '~/server/services/utils/createAxiosSession'
-
-config()
 
 class MindsDBClient {
   email

@@ -8,7 +8,7 @@ import random from '~/utils/random'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
-import type { AchivedChatMessage } from '~/server/services/evo/getHistory'
+import type { ArchivedChatMessage } from '~/server/services/evo/getHistory'
 
 const model = ref('gpt4')
 
@@ -41,7 +41,7 @@ const DEFAULT_WEB_BROWSING_MODE = 'OFF'
 const webBrowsingMode = ref(DEFAULT_WEB_BROWSING_MODE)
 
 // @ts-ignore
-interface DisplayChatMessage extends AchivedChatMessage {
+interface DisplayChatMessage extends ArchivedChatMessage {
   done: boolean;
   t: Date;
   id?: string;
@@ -81,7 +81,7 @@ const _fetchHistory = (conv: string | null) => {
     const archived = await $fetch('/api/chat/history', {
       method: 'POST',
       body: { id: conv }
-    }) as AchivedChatMessage[]
+    }) as ArchivedChatMessage[]
     if (!archived || archived.length === 0) {
       navigateTo('/c/')
     }
