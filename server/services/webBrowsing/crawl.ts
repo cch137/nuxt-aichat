@@ -5,6 +5,8 @@ import TurndownService from 'turndown'
 import { gfm } from '@joplin/turndown-plugin-gfm'
 import { AnyNode, load as cheerioLoad } from 'cheerio'
 import str from '~/utils/str'
+import { isYouTubeLink, getYouTubeVideoId } from '~/utils/ytLinks'
+import { crawlYouTubeVideo } from './ytCrawler'
 
 function trimText (text: string): string {
   return text.split('\n')
@@ -85,9 +87,32 @@ class WebCrawlerResult {
   }
 }
 
+class WebCrawlerResultYT extends WebCrawlerResult {
+  get summary (): string {
+    return (this.title ? `Title: ${this.title}\n` : '') +
+      (this.description ? `Description: ${this.description}\n` : '') +
+      '---\nCaptions:\n' + trimText(this.markdown)
+  }
+
+  constructor (res: AxiosResponse, data: { title: string, description: string, captions: string }, textOnly = true) {
+    super(res, textOnly)
+    this.title = data.title
+    this.description = data.description
+    this.markdown = data.captions
+  }
+}
+
 async function crawl (url: string, textOnly = true) {
   if (!(url.startsWith('http://') || url.startsWith('https://'))) {
     url = `http://${url}`
+  }
+  if (isYouTubeLink(url)) {
+    const ytVideo = await crawlYouTubeVideo(getYouTubeVideoId(url) as string)
+    return new WebCrawlerResultYT(ytVideo.axios, {
+      title: ytVideo.title || '',
+      description: ytVideo.description || '',
+      captions: (await ytVideo.getCaptions()).map((caption) => caption.text).join('\n')
+    })
   }
   const origin = new URL(url).origin
   const headers = {

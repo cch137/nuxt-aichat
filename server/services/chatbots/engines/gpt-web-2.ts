@@ -4,7 +4,7 @@ import search from '../../webBrowsing/search'
 import crawl from '../../webBrowsing/crawl'
 import type { WebSearcherResult } from '../../webBrowsing/search'
 import estimateTokens from './utils/estimateTokens'
-import sleep from 'utils/sleep'
+import sleep from '~/utils/sleep'
 
 function parseObjectFromText (text: string, startChar = '{', endChar = '}') {
   try {
@@ -18,11 +18,16 @@ async function estimateQueriesAndUrls (engine: MindsDbGPTChatbotCore, question: 
   const { time = formatUserCurrentTime(0) } = options
   const prompt = `User curent time: ${time}
 Your user need to know: ${question}
-Please list a few phrases (up to 5) that you need to use the search engine to query.
-Keep number of phases as small as possible (about 3).
+Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }
+"queries" must be phrases. "urls" must be URLs.
+You will search for "queries" in the search engine and visit the web pages in the "urls."
+List a few phrases that you need to use the search engine to query.
+Keep number of phases as small as possible (about 3, up to 5).
+The search engine will provide more optional URLs instead of serving as a source of available information.
+Thus, searching for tasks you have been assigned, such as "summarize <a url>" or "provide <information>", is prohibited.
 If the user input is not in English, make sure those phrases cover both languages.
-Also, provide the URLs that appear in the user prompt (if any).
-Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }`
+Also, only provide the URLs that appear in the user prompt.
+`
   const answer = (await engine.ask(prompt, { modelName: 'gpt3_t00_3k', context: '' })).answer || '{}'
   try {
     return parseObjectFromText(answer, '{', '}') as { queries: string[], urls: string[] }
@@ -49,8 +54,21 @@ function chunkParagraphs (article: string, chunkMaxTokens = 2000) {
   return chunks
 }
 
+let lastSummaryArticle = 0
+
 async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, article: string, options: { time?: string, maxTries?: number, chunkMaxTokens?: number, summaryMaxTokens?: number, modelName?: string } = {}): Promise<string> {
-  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 2000, summaryMaxTokens = 5700, modelName = 'gpt3_t00_3k' } = options
+  const now = Date.now()
+  if (now - lastSummaryArticle < 500) {
+    return await new Promise(async (resolve, reject) => {
+      try {
+        await sleep(Math.random() * 1000)
+        resolve(await summaryArticle(engine, question, article, options))
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5000, summaryMaxTokens = 5000, modelName = 'gpt4_t00_6k' } = options
   const chunks = chunkParagraphs(article, chunkMaxTokens)
   const summary = (await Promise.all(chunks.map(async (chunk) => {
     const prompt = `
@@ -62,7 +80,7 @@ User curent time: ${time}
 Question: ${question}
 Webpage:
 ${chunk}`
-    return await engine.ask(prompt, { modelName })
+    return (await engine.ask(prompt, { modelName })).answer
   }))).join('\n')
   if (estimateTokens(summary) > summaryMaxTokens && maxTries > 1) {
     return await summaryArticle(engine, question, summary, { ...options, maxTries: maxTries - 1 })
@@ -95,17 +113,21 @@ class GptWeb2Chatbot {
   async ask (question: string, options: { timezone?: number, time?: string } = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
     let { queries = [], urls = [] } = await estimateQueriesAndUrls(this.core, question, options)
-    const crawledPages1 = Promise.all(urls.map((url) => crawl(url)))
+    const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)))
     const searcherResult = await search(...queries)
     const selectedPages = await selectPages(this.core, question, searcherResult)
     urls.push(...selectedPages.map((page) => page.url))
-    const crawledPages2 = Promise.all(selectedPages.map((page) => crawl(page.url)))
+    const crawledPages2 = Promise.all(selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown)))
     const queriesSummary = searcherResult.summary()
-    const summary = await summaryArticle(this.core, question, [
-      queriesSummary,
-      ...(await crawledPages1).map((page) => page.markdown),
-      ...(await crawledPages2).map((page) => page.markdown)
-    ].join('\n---\n'))
+    let summary = (await Promise.all([
+      summaryArticle(this.core, question, queriesSummary),
+      ...await crawledPages1,
+      ...await crawledPages2
+    ])).join('\n---\n')
+    let tries = 3
+    while (estimateTokens(summary) > 5000 && tries-- > 0) {
+      summary = await summaryArticle(this.core, question, summary)
+    }
     const prompt = `
 Use references where possible and answer in detail.
 Ensure the overall coherence and consistency of the responses.
