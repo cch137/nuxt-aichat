@@ -1,7 +1,8 @@
 import calculateAlphanumericLength from '~/utils/calculateAlphanumericLength'
 import detectLanguageDistribution from '~/utils/detectLanguageDistribution'
 
-function estimateTokens (text: string): number {
+function estimateTokens (...texts: string[]): number {
+  const text = texts.join('')
   const length = calculateAlphanumericLength(text)
   const languageDistribution = detectLanguageDistribution(text)
   let tokens = 0

@@ -140,7 +140,9 @@ class MindsDBWebClient extends _Client {
 
   login () {
     const session = createAxiosSession({
-      'Referer': 'https://cloud.mindsdb.com/editor'
+      Host: 'cloud.mindsdb.com',
+      Origin: 'https://cloud.mindsdb.com',
+      Referer: 'https://cloud.mindsdb.com/editor',
     })
     session.post('https://cloud.mindsdb.com/cloud/login', {
       email: this.email,
@@ -148,7 +150,7 @@ class MindsDBWebClient extends _Client {
       rememberMe: true
     })
     this.lastLoggedIn = Date.now()
-    return session
+    return this.session = session
   }
 
   // Every 24 hours update session 

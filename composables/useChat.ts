@@ -10,6 +10,7 @@ import troll from '~/utils/troll'
 import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
 import type { ArchivedChatMessage } from '~/server/services/chatbots/curva/types'
+import useURLParams from './useURLParams'
 // import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 
 const model = ref('gpt4')
@@ -139,8 +140,6 @@ const createRequest = (() => {
       conv = random.base64(8)
       conversations.value.push({ id: conv, name: undefined })
       navigateTo(`/c/${conv}?feature=new`)
-    } else if (useNuxtApp()._route.query.feature === 'new') {
-      navigateTo(`/c/${conv}`)
     }
     return { conv, context: getContext(), prompt: message, model, temperature, t, tz, id: regenerateId }
   }
@@ -177,6 +176,16 @@ const clear = () => {
 }
 
 let first = true
+
+function clearUrlParamsFeatureNew () {
+  if (process.client) {
+    const urlParams = useURLParams()
+    if (urlParams.get('feature') === 'new') {
+      urlParams.delete('feature')
+      urlParams.save()
+    }
+  }
+}
 
 export default function () {
   const appName = useState('appName').value
@@ -263,7 +272,11 @@ export default function () {
   const loadChat = async (conv: string | null, isNew = false) => {
     const promise = Promise.all([...chatLoadings])
     const chat = first && isNew
-      ? new Promise((resolve) => resolve(navigateTo('/c/')))
+      ? new Promise(async (resolve) => {
+          await _loadChat(conv)
+          clearUrlParamsFeatureNew()
+          resolve(null)
+        })
       : isNew
         ? new Promise((resolve) => resolve(null))
         : _loadChat(conv)
@@ -304,6 +317,7 @@ export default function () {
     const more = _fetchSuggestions(messageText)
     createRequest(messageText, regenerateId)
       .then((res) => {
+        clearUrlParamsFeatureNew()
         const isAtBottom = getScrollTop() >= document.body.clientHeight
         const id = (res as any).id as string
         const answer = (res as any).answer as string

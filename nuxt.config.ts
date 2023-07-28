@@ -37,7 +37,7 @@ export default defineNuxtConfig({
     'element-plus/dist/index.css',
     'element-plus/theme-chalk/dark/css-vars.css',
     '~/assets/css/main.scss',
-    '~/assets/css/default.css'
+    '~/assets/css/default.css',
   ],
   postcss: {
     plugins: {

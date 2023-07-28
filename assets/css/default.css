@@ -62,3 +62,7 @@ html.dark {
   background-size: 14px 14px;
   background-position: 50%;
 }
+
+.el-button {
+  background-color: var(--el-button-bg-color) !important;
+}

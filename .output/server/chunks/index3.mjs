@@ -284,7 +284,9 @@ class MindsDBWebClient extends _Client {
   }
   login() {
     const session = createAxiosSession({
-      "Referer": "https://cloud.mindsdb.com/editor"
+      Host: "cloud.mindsdb.com",
+      Origin: "https://cloud.mindsdb.com",
+      Referer: "https://cloud.mindsdb.com/editor"
     });
     session.post("https://cloud.mindsdb.com/cloud/login", {
       email: this.email,
@@ -292,7 +294,7 @@ class MindsDBWebClient extends _Client {
       rememberMe: true
     });
     this.lastLoggedIn = Date.now();
-    return session;
+    return this.session = session;
   }
   // Every 24 hours update session 
   async _maintainSession() {
@@ -601,7 +603,8 @@ function detectLanguageDistribution(text, sampleMinSize = 100, sampleProportion 
   return languageDistribution;
 }
 
-function estimateTokens(text) {
+function estimateTokens(...texts) {
+  const text = texts.join("");
   const length = calculateAlphanumericLength(text);
   const languageDistribution = detectLanguageDistribution(text);
   let tokens = 0;
@@ -638,7 +641,7 @@ class Gpt3Chatbot {
     question = `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens(question) + 500;
+    const quetionTokens = estimateTokens(question, options.context || "") + 500;
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1e3)) {
         case 1:
@@ -674,7 +677,7 @@ class Gpt4Chatbot {
     question = `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens(question) + 500;
+    const quetionTokens = estimateTokens(question, options.context || "") + 500;
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1e3)) {
         case 1:

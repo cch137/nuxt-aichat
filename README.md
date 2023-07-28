@@ -47,7 +47,7 @@ Build, push and test:
 
 ```bash
 npm run build
-npm run preview
+npm run start
 
 ```
 
