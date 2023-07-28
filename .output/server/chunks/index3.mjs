@@ -9,6 +9,7 @@ import axios from 'axios';
 import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
+import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
 
 var __defProp$a = Object.defineProperty;
 var __defNormalProp$a = (obj, key, value) => key in obj ? __defProp$a(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -740,6 +741,22 @@ async function search(...queries) {
   return new WebSearcherResult(await googleSearch(...queries));
 }
 
+const ytLinkRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S+&)?v=|embed\/|v\/)|youtu\.be\/)([\w-]+)/g;
+function extractYouTubeLinks(text) {
+  const matches = text.match(ytLinkRegex);
+  return matches ? matches.filter((link) => link.startsWith("https://") || link.startsWith("http://")) : [];
+}
+function isYouTubeLink(url) {
+  return Boolean(extractYouTubeLinks(url).length > 0);
+}
+function getYouTubeVideoId(url) {
+  const match = ytLinkRegex.exec(url);
+  if (match !== null) {
+    return match[1];
+  }
+  return null;
+}
+
 var __defProp$2 = Object.defineProperty;
 var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$2 = (obj, key, value) => {
@@ -819,9 +836,30 @@ class WebCrawlerResult {
 ` : "") + "---\n" + trimText(this.markdown);
   }
 }
+class WebCrawlerResultYT extends WebCrawlerResult {
+  get summary() {
+    return (this.title ? `Title: ${this.title}
+` : "") + (this.description ? `Description: ${this.description}
+` : "") + "---\nCaptions:\n" + trimText(this.markdown);
+  }
+  constructor(res, data, textOnly = true) {
+    super(res, textOnly);
+    this.title = data.title;
+    this.description = data.description;
+    this.markdown = data.captions;
+  }
+}
 async function crawl(url, textOnly = true) {
   if (!(url.startsWith("http://") || url.startsWith("https://"))) {
     url = `http://${url}`;
+  }
+  if (isYouTubeLink(url)) {
+    const ytVideo = await crawlYouTubeVideo(getYouTubeVideoId(url));
+    return new WebCrawlerResultYT(ytVideo.axios, {
+      title: ytVideo.title || "",
+      description: ytVideo.description || "",
+      captions: (await ytVideo.getCaptions()).map((caption) => caption.text).join("\n")
+    });
   }
   const origin = new URL(url).origin;
   const headers = {
@@ -875,11 +913,16 @@ async function estimateQueriesAndUrls(engine, question, options = {}) {
   const { time = formatUserCurrentTime(0) } = options;
   const prompt = `User curent time: ${time}
 Your user need to know: ${question}
-Please list a few phrases (up to 5) that you need to use the search engine to query.
-Keep number of phases as small as possible (about 3).
+Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }
+"queries" must be phrases. "urls" must be URLs.
+You will search for "queries" in the search engine and visit the web pages in the "urls."
+List a few phrases that you need to use the search engine to query.
+Keep number of phases as small as possible (about 3, up to 5).
+The search engine will provide more optional URLs instead of serving as a source of available information.
+Thus, searching for tasks you have been assigned, such as "summarize <a url>" or "provide <information>", is prohibited.
 If the user input is not in English, make sure those phrases cover both languages.
-Also, provide the URLs that appear in the user prompt (if any).
-Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }`;
+Also, only provide the URLs that appear in the user prompt.
+`;
   const answer = (await engine.ask(prompt, { modelName: "gpt3_t00_3k", context: "" })).answer || "{}";
   try {
     return parseObjectFromText(answer, "{", "}");
@@ -904,8 +947,20 @@ function chunkParagraphs(article, chunkMaxTokens = 2e3) {
   }
   return chunks;
 }
+let lastSummaryArticle = 0;
 async function summaryArticle(engine, question, article, options = {}) {
-  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 2e3, summaryMaxTokens = 5700, modelName = "gpt3_t00_3k" } = options;
+  const now = Date.now();
+  if (now - lastSummaryArticle < 500) {
+    return await new Promise(async (resolve, reject) => {
+      try {
+        await sleep(Math.random() * 1e3);
+        resolve(await summaryArticle(engine, question, article, options));
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5e3, summaryMaxTokens = 5e3, modelName = "gpt4_t00_6k" } = options;
   const chunks = chunkParagraphs(article, chunkMaxTokens);
   const summary = (await Promise.all(chunks.map(async (chunk) => {
     const prompt = `
@@ -917,7 +972,7 @@ User curent time: ${time}
 Question: ${question}
 Webpage:
 ${chunk}`;
-    return await engine.ask(prompt, { modelName });
+    return (await engine.ask(prompt, { modelName })).answer;
   }))).join("\n");
   if (estimateTokens(summary) > summaryMaxTokens && maxTries > 1) {
     return await summaryArticle(engine, question, summary, { ...options, maxTries: maxTries - 1 });
@@ -948,17 +1003,21 @@ class GptWeb2Chatbot {
   async ask(question, options = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
     let { queries = [], urls = [] } = await estimateQueriesAndUrls(this.core, question, options);
-    const crawledPages1 = Promise.all(urls.map((url) => crawl(url)));
+    const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)));
     const searcherResult = await search(...queries);
     const selectedPages = await selectPages(this.core, question, searcherResult);
     urls.push(...selectedPages.map((page) => page.url));
-    const crawledPages2 = Promise.all(selectedPages.map((page) => crawl(page.url)));
+    const crawledPages2 = Promise.all(selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown)));
     const queriesSummary = searcherResult.summary();
-    const summary = await summaryArticle(this.core, question, [
-      queriesSummary,
-      ...(await crawledPages1).map((page) => page.markdown),
-      ...(await crawledPages2).map((page) => page.markdown)
-    ].join("\n---\n"));
+    let summary = (await Promise.all([
+      summaryArticle(this.core, question, queriesSummary),
+      ...await crawledPages1,
+      ...await crawledPages2
+    ])).join("\n---\n");
+    let tries = 3;
+    while (estimateTokens(summary) > 5e3 && tries-- > 0) {
+      summary = await summaryArticle(this.core, question, summary);
+    }
     const prompt = `
 Use references where possible and answer in detail.
 Ensure the overall coherence and consistency of the responses.

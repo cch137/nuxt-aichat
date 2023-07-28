@@ -34,6 +34,8 @@ import 'googlethis';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
+import './ytCrawler.mjs';
+import 'qs';
 
 const logger = model("Log", new Schema({
   type: { type: String, required: true },

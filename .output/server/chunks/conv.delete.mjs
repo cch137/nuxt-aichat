@@ -33,6 +33,8 @@ import 'googlethis';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
+import './ytCrawler.mjs';
+import 'qs';
 
 const conv_delete = defineEventHandler(async (event) => {
   var _a, _b, _c, _d;

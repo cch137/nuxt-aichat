@@ -17,16 +17,16 @@ function parseObjectFromText (text: string, startChar = '{', endChar = '}') {
 async function estimateQueriesAndUrls (engine: MindsDbGPTChatbotCore, question: string, options: { time?: string } = {}) {
   const { time = formatUserCurrentTime(0) } = options
   const prompt = `User curent time: ${time}
-Your user need to know: ${question}
+User prompt: ${question}
 Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }
 "queries" must be phrases. "urls" must be URLs.
 You will search for "queries" in the search engine and visit the web pages in the "urls."
 List a few phrases that you need to use the search engine to query.
 Keep number of phases as small as possible (about 3, up to 5).
-The search engine will provide more optional URLs instead of serving as a source of available information.
-Thus, searching for tasks you have been assigned, such as "summarize <a url>" or "provide <information>", is prohibited.
 If the user input is not in English, make sure those phrases cover both languages.
-Also, only provide the URLs that appear in the user prompt.
+The search engine will provide more optional URLs instead of serving as a source of available information.
+Thus, searching for tasks you have been assigned, such as "Summarize http://example.com" or "Provide the weather for today", is prohibited.
+Note also that only provide the URLs that appear in the user prompt.
 `
   const answer = (await engine.ask(prompt, { modelName: 'gpt3_t00_3k', context: '' })).answer || '{}'
   try {
