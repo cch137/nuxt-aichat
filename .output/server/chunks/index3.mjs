@@ -911,23 +911,36 @@ function parseObjectFromText(text, startChar = "{", endChar = "}") {
 }
 async function estimateQueriesAndUrls(engine, question, options = {}) {
   const { time = formatUserCurrentTime(0) } = options;
-  const prompt = `User curent time: ${time}
-Your user need to know: ${question}
-Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }
-"queries" must be phrases. "urls" must be URLs.
-You will search for "queries" in the search engine and visit the web pages in the "urls."
-List a few phrases that you need to use the search engine to query.
-Keep number of phases as small as possible (about 3, up to 5).
-The search engine will provide more optional URLs instead of serving as a source of available information.
-Thus, searching for tasks you have been assigned, such as "summarize <a url>" or "provide <information>", is prohibited.
-If the user input is not in English, make sure those phrases cover both languages.
-Also, only provide the URLs that appear in the user prompt.
+  const prompt = `\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
+\u56DE\u590D\u7684\u683C\u5F0F: { "queries": string[], "urls": string[], "answer"?: string }
+\u4F60\u7684\u7528\u6236\u88AB\u5206\u914D\u4E86\u4E00\u500B\u4EFB\u52D9\u3002
+\u8ACB\u6839\u64DA\u6587\u672B\u7684 "question" \u9810\u6E2C\u7528\u6236\u884C\u70BA\uFF0C"question" \u6B63\u662F\u7528\u6236\u88AB\u6307\u6D3E\u7684\u4EFB\u52D9\u3002
+\u4F60\u4E26\u6C92\u6709\u88AB\u5F37\u5236\u627E\u51FA "queries" \u6216 "urls"\u3002\u82E5\u67D0\u500B\u9375\u7121\u53EF\u7528\u5167\u5BB9\uFF0C\u8A72\u9375\u7684\u503C\u53EF\u4EE5\u662F\u7A7A array\u3002
+\u5982\u679C\u7528\u6236\u6709\u53EF\u80FD\u4F7F\u7528\u641C\u7D22\u5F15\u64CE\uFF0C\u8ACB\u9810\u6E2C\u7528\u6236\u9700\u8981\u641C\u7D22\u7684 "queries" \uFF08\u76E1\u91CF\u5C11\u65BC 3 \u500B\uFF0C\u4E0A\u9650\u70BA 5 \u500B\uFF09\u3002
+\u8ACB\u6CE8\u610F\uFF0C"queries" \u4E2D\u7684\u6BCF\u500B\u9805\u76EE\u9700\u8981\u9032\u884C\u5B8C\u5584\u548C\u5230\u4F4D\u7684\u63CF\u8FF0\uFF0C\u4EE5\u907F\u514D\u641C\u7D22\u7D50\u679C\u4E0D\u51C6\u78BA\u3002
+\u8ACB\u6CE8\u610F\uFF0C\u7528\u6236\u5C07\u901A\u904E "queries" \u641C\u7D22\u8CC7\u8A0A\u4E26\u6839\u64DA\u8CC7\u8A0A\u9032\u884C\u6C7A\u7B56\uFF0C\u56E0\u6B64\u7528\u6236\u4E0D\u6703\u9032\u884C\u201C\u4ED6\u5011\u61C9\u8A72\u9032\u884C\u4EC0\u9EBC\u6C7A\u7B56\u201D\u6216\u201C\u67D0\u7DB2\u5740\u7684\u7E3D\u7D50\u201D\u9019\u4E00\u985E\u7684\u641C\u7D22\u3002
+\u7531\u65BC\u7528\u6236\u9700\u8981\u4FDD\u8B49\u4FE1\u606F\u4F86\u6E90\u662F\u570B\u969B\u5316\u7684\uFF0C\u7528\u6236\u6703\u4F7F\u7528\u4E0D\u540C\u8A9E\u8A00\u641C\u7D22\uFF0C"queries" \u4E2D\u5FC5\u9808\u540C\u6642\u64C1\u6709\u82F1\u6587\u548C\u7528\u6236\u8A9E\u8A00\uFF08"question" \u6240\u4F7F\u7528\u7684\u8A9E\u8A00\uFF09\u7684\u9805\u76EE\u3002
+\u5982\u679C\u7528\u6236\u9700\u8981\u8A2A\u554F\u7DB2\u5740\uFF0C\u8ACB\u5728 "urls" \u5217\u51FA "\u7528\u6236 question" \u4E2D\u6307\u5B9A\u7684\u6240\u6709\u7DB2\u5740\uFF0C\u56B4\u7981\u5728 "urls" \u5217\u51FA\u4E0D\u662F\u7531 "question" \u4E2D\u6307\u5B9A\u9700\u8981\u8A2A\u554F\u7684\u7DB2\u5740\u3002
+\u8ACB\u6CE8\u610F\uFF0C"queries" \u4E0D\u63D0\u4F9B\u7E3D\u7D50\u4E5F\u7121\u6CD5\u627E\u5230\u6307\u5B9A\u7DB2\u5740\uFF0C\u5982\u679C\u4EFB\u52D9\u63CF\u8FF0\u6709\u7DB2\u5740\uFF0C\u8ACB\u512A\u5148\u653E\u5165 "urls" \u800C\u4E0D\u662F "queries"\u3002
+\u7531\u65BC\u7528\u6236\u6703\u8A2A\u554F "urls" \u4E2D\u7684\u7DB2\u5740\uFF0C\u56E0\u6B64\u56B4\u7981\u5728 "queries" \u5217\u51FA\u4EFB\u4F55\u5F62\u5F0F\u7684\u7DB2\u5740\u3002
+\u7531\u65BC\u7528\u6236\u50C5\u6703\u641C\u7D22\u6587\u7AE0\u548C\u65B0\u805E\uFF0C\u56E0\u6B64\u56B4\u7981\u5728 "queries" \u4E2D\u63CF\u8FF0\u7528\u6236\u9700\u8981\u9032\u884C\u7684\u4EFB\u52D9\u3002
+\u8ACB\u6CE8\u610F\uFF0C\u7531\u65BC\u4EFB\u52D9\u6703\u5728\u4E0B\u4E00\u6B21\u5C0D\u8A71\u6642\u88AB\u518D\u6B21\u63D0\u53CA\uFF0C\u56E0\u6B64\u4E0D\u8981\u5728 "queries" \u4E2D\u4EE5\u4EFB\u4F55\u5F62\u5F0F\u63CF\u8FF0\u7528\u6236\u7684\u4EFB\u52D9\u3002
+\u8ACB\u6CE8\u610F\uFF0C"answer" \u662F\u53EF\u9078\u9805\uFF0C\u4F60\u4E0D\u9700\u8981\u7E3D\u662F\u63D0\u4F9B "answer"\uFF0C\u50C5\u5728\u7528\u6236\u4EFB\u52D9\u4E0D\u9700\u8981\u806F\u7DB2\u5C31\u80FD\u5B8C\u6210\u6642\u63D0\u4F9B\u3002
+\u5728 "answer" \u56DE\u7B54\u904E\u7684\u554F\u984C\u4E0D\u518D\u9700\u8981\u88AB\u641C\u7D22\uFF0C\u56B4\u7981\u5728\u6C92\u6709\u76F8\u95DC\u7B54\u6848\u6216\u6700\u65B0\u8CC7\u8A0A\u6642\u63D0\u4F9B "answer"\u3002
+\u7576\u4F60\u6C7A\u5B9A\u63D0\u4F9B "answer" \u6642\uFF0C"queries" \u548C "urls" \u5FC5\u9808\u662F\u7A7A array\uFF0C\u56E0\u6B64\u56B4\u7981\u5C0D\u9700\u8981\u806F\u7DB2\u8A2A\u554F\u7684\u554F\u984C\u63D0\u4F9B "answer"\uFF0C\u4EE5\u907F\u514D\u63D0\u4F9B\u904E\u6642\u8CC7\u8A0A\u3002
+\u518D\u6B21\u63D0\u9192\uFF0C\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
+\u56DE\u590D\u7684\u683C\u5F0F: { "queries": string[], "urls": string[], "answer"?: string }
+\u7576\u524D\u6642\u9593: ${time}
+---
+question: ${question}
 `;
-  const answer = (await engine.ask(prompt, { modelName: "gpt3_t00_3k", context: "" })).answer || "{}";
+  let _answer = (await engine.ask(prompt, { modelName: "gpt4_t00_7k", context: "" })).answer || "{}";
+  _answer = `${_answer.includes("{") ? "" : "{"}${_answer}${_answer.includes("}") ? "" : "}"}`;
   try {
-    return parseObjectFromText(answer, "{", "}");
+    const { queries = [], urls = [], answer = "" } = parseObjectFromText(_answer, "{", "}");
+    return { queries, urls, answer: answer ? `${answer}` : "" };
   } catch {
-    return { queries: [], urls: [] };
+    return { queries: [], urls: [], answer: "" };
   }
 }
 function chunkParagraphs(article, chunkMaxTokens = 2e3) {
@@ -949,6 +962,9 @@ function chunkParagraphs(article, chunkMaxTokens = 2e3) {
 }
 let lastSummaryArticle = 0;
 async function summaryArticle(engine, question, article, options = {}) {
+  if (!article) {
+    return "";
+  }
   const now = Date.now();
   if (now - lastSummaryArticle < 500) {
     return await new Promise(async (resolve, reject) => {
@@ -960,6 +976,7 @@ async function summaryArticle(engine, question, article, options = {}) {
       }
     });
   }
+  lastSummaryArticle = now;
   const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5e3, summaryMaxTokens = 5e3, modelName = "gpt4_t00_6k" } = options;
   const chunks = chunkParagraphs(article, chunkMaxTokens);
   const summary = (await Promise.all(chunks.map(async (chunk) => {
@@ -1002,13 +1019,16 @@ class GptWeb2Chatbot {
   }
   async ask(question, options = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
-    let { queries = [], urls = [] } = await estimateQueriesAndUrls(this.core, question, options);
+    let { queries = [], urls = [], answer: answer1 = "" } = await estimateQueriesAndUrls(this.core, question, options);
+    if (queries.length === 0 && urls.length === 0 && answer1) {
+      return { queries, urls, answer: answer1 };
+    }
     const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)));
     const searcherResult = await search(...queries);
     const selectedPages = await selectPages(this.core, question, searcherResult);
     urls.push(...selectedPages.map((page) => page.url));
     const crawledPages2 = Promise.all(selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown)));
-    const queriesSummary = searcherResult.summary();
+    const queriesSummary = `${answer1 ? answer1 + "\n\n" : ""}${searcherResult.summary()}`;
     let summary = (await Promise.all([
       summaryArticle(this.core, question, queriesSummary),
       ...await crawledPages1,

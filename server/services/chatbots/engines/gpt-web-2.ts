@@ -16,23 +16,36 @@ function parseObjectFromText (text: string, startChar = '{', endChar = '}') {
 
 async function estimateQueriesAndUrls (engine: MindsDbGPTChatbotCore, question: string, options: { time?: string } = {}) {
   const { time = formatUserCurrentTime(0) } = options
-  const prompt = `User curent time: ${time}
-User prompt: ${question}
-Think of yourself as an API, do not make other descriptions, just reply a JSON: { queries: string[], urls: string[] }
-"queries" must be phrases. "urls" must be URLs.
-You will search for "queries" in the search engine and visit the web pages in the "urls."
-List a few phrases that you need to use the search engine to query.
-Keep number of phases as small as possible (about 3, up to 5).
-If the user input is not in English, make sure those phrases cover both languages.
-The search engine will provide more optional URLs instead of serving as a source of available information.
-Thus, searching for tasks you have been assigned, such as "Summarize http://example.com" or "Provide the weather for today", is prohibited.
-Note also that only provide the URLs that appear in the user prompt.
+  const prompt = `你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
+回复的格式: { "queries": string[], "urls": string[], "answer"?: string }
+你的用戶被分配了一個任務。
+請根據文末的 "question" 預測用戶行為，"question" 正是用戶被指派的任務。
+你並沒有被強制找出 "queries" 或 "urls"。若某個鍵無可用內容，該鍵的值可以是空 array。
+如果用戶有可能使用搜索引擎，請預測用戶需要搜索的 "queries" （盡量少於 3 個，上限為 5 個）。
+請注意，"queries" 中的每個項目需要進行完善和到位的描述，以避免搜索結果不准確。
+請注意，用戶將通過 "queries" 搜索資訊並根據資訊進行決策，因此用戶不會進行“他們應該進行什麼決策”或“某網址的總結”這一類的搜索。
+由於用戶需要保證信息來源是國際化的，用戶會使用不同語言搜索，"queries" 中必須同時擁有英文和用戶語言（"question" 所使用的語言）的項目。
+如果用戶需要訪問網址，請在 "urls" 列出 "用戶 question" 中指定的所有網址，嚴禁在 "urls" 列出不是由 "question" 中指定需要訪問的網址。
+請注意，"queries" 不提供總結也無法找到指定網址，如果任務描述有網址，請優先放入 "urls" 而不是 "queries"。
+由於用戶會訪問 "urls" 中的網址，因此嚴禁在 "queries" 列出任何形式的網址。
+由於用戶僅會搜索文章和新聞，因此嚴禁在 "queries" 中描述用戶需要進行的任務。
+請注意，由於任務會在下一次對話時被再次提及，因此不要在 "queries" 中以任何形式描述用戶的任務。
+請注意，"answer" 是可選項，你不需要總是提供 "answer"，僅在用戶任務不需要聯網就能完成時提供。
+在 "answer" 回答過的問題不再需要被搜索，嚴禁在沒有相關答案或最新資訊時提供 "answer"。
+當你決定提供 "answer" 時，"queries" 和 "urls" 必須是空 array，因此嚴禁對需要聯網訪問的問題提供 "answer"，以避免提供過時資訊。
+再次提醒，你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
+回复的格式: { "queries": string[], "urls": string[], "answer"?: string }
+當前時間: ${time}
+---
+question: ${question}
 `
-  const answer = (await engine.ask(prompt, { modelName: 'gpt3_t00_3k', context: '' })).answer || '{}'
+  let _answer = (await engine.ask(prompt, { modelName: 'gpt4_t00_7k', context: '' })).answer || '{}'
+  _answer = `${_answer.includes('{') ? '' : '{'}${_answer}${_answer.includes('}') ? '' : '}'}`
   try {
-    return parseObjectFromText(answer, '{', '}') as { queries: string[], urls: string[] }
+    const { queries = [], urls = [], answer = '' } = parseObjectFromText(_answer, '{', '}') as { queries?: string[], urls?: string[], answer?: null | string }
+    return { queries, urls, answer: answer ? `${answer}` : '' }
   } catch {
-    return { queries: [], urls: [] }
+    return { queries: [], urls: [], answer: '' }
   }
 }
 
@@ -57,6 +70,9 @@ function chunkParagraphs (article: string, chunkMaxTokens = 2000) {
 let lastSummaryArticle = 0
 
 async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, article: string, options: { time?: string, maxTries?: number, chunkMaxTokens?: number, summaryMaxTokens?: number, modelName?: string } = {}): Promise<string> {
+  if (!article) {
+    return ''
+  }
   const now = Date.now()
   if (now - lastSummaryArticle < 500) {
     return await new Promise(async (resolve, reject) => {
@@ -68,6 +84,7 @@ async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, 
       }
     })
   }
+  lastSummaryArticle = now
   const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5000, summaryMaxTokens = 5000, modelName = 'gpt4_t00_6k' } = options
   const chunks = chunkParagraphs(article, chunkMaxTokens)
   const summary = (await Promise.all(chunks.map(async (chunk) => {
@@ -112,13 +129,16 @@ class GptWeb2Chatbot {
   }
   async ask (question: string, options: { timezone?: number, time?: string } = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
-    let { queries = [], urls = [] } = await estimateQueriesAndUrls(this.core, question, options)
+    let { queries = [], urls = [], answer: answer1 = '' } = await estimateQueriesAndUrls(this.core, question, options)
+    if (queries.length === 0 && urls.length === 0 && answer1) {
+      return { queries, urls, answer: answer1 }
+    }
     const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)))
     const searcherResult = await search(...queries)
     const selectedPages = await selectPages(this.core, question, searcherResult)
     urls.push(...selectedPages.map((page) => page.url))
     const crawledPages2 = Promise.all(selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown)))
-    const queriesSummary = searcherResult.summary()
+    const queriesSummary = `${answer1 ? answer1 + '\n\n' : ''}${searcherResult.summary()}`
     let summary = (await Promise.all([
       summaryArticle(this.core, question, queriesSummary),
       ...await crawledPages1,
