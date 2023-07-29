@@ -99,15 +99,18 @@ const connect = async () => {
             interaction.reply("Error: Illegal Video ID");
             return;
           }
+          const replied = interaction.reply("Processing...");
           try {
-            const replied = interaction.reply("Processing...");
             const video = await crawlYouTubeVideo(videoId);
             const captions = (await video.getCaptions(lang)).map((caption) => caption.text).join("\n");
-            const textFile = new AttachmentBuilder(Buffer.from(captions, "utf8"), { name: `${video.title}.txt`, description: video.description });
+            const textFile = new AttachmentBuilder(
+              Buffer.from(captions, "utf8"),
+              { name: `${video.title}.txt` }
+            );
             const attatchment = await ((_d = interaction.channel) == null ? void 0 : _d.send({ files: [textFile] }));
             (await replied).edit((attatchment == null ? void 0 : attatchment.url) || "DONE");
           } catch (err) {
-            interaction.reply(str(err));
+            (await replied).edit(str(err));
           }
         }
         break;
@@ -116,7 +119,7 @@ const connect = async () => {
   console.log(`DC BOT conneted.`);
   return loggedIn;
 };
-if (+process.env.RUN_DC_BOT) {
+{
   connect();
 }
 const disconnect = () => {

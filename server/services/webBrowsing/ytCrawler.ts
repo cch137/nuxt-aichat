@@ -67,7 +67,8 @@ async function crawlYouTubeVideo (videoId: string) {
     async getCaptions (lang?: string) {
       return getYouTubeCaptions(axiosResult.data, lang)
     },
-    ...(parseVideoInfo(axiosResult.data) || {})
+    ...(parseVideoInfo(axiosResult.data) || {}),
+    id: videoId,
   }
 }
 
