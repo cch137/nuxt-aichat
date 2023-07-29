@@ -191,8 +191,9 @@ const connect = async () => {
             }
           try {
             const replied = interaction.reply('Processing...')
-            const captions = (await (await crawlYouTubeVideo(videoId)).getCaptions(lang)).map((caption) => caption.text).join('\n')
-            const textFile = new AttachmentBuilder(Buffer.from(captions), { name: 'captions.txt' })
+            const video = await crawlYouTubeVideo(videoId)
+            const captions = (await video.getCaptions(lang)).map((caption) => caption.text).join('\n')
+            const textFile = new AttachmentBuilder(Buffer.from(captions, 'utf8'), { name: `${video.title}.txt`, description: video.description })
             const attatchment = await interaction.channel?.send({ files: [textFile]});
             (await replied).edit(attatchment?.url || 'DONE')
           } catch (err) {
