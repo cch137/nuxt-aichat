@@ -6,6 +6,7 @@ import { r as random } from './random.mjs';
 import { a as auth } from './auth.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
+import './str.mjs';
 import 'nodemailer';
 import 'dotenv';
 import './index2.mjs';

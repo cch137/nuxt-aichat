@@ -7,6 +7,7 @@ import { m as message } from './index2.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
+import './str.mjs';
 import 'mongoose';
 import 'dotenv';
 import 'crypto';

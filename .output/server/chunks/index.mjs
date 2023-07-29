@@ -1,4 +1,7 @@
-import { Client, IntentsBitField } from 'discord.js';
+import { Client, IntentsBitField, AttachmentBuilder } from 'discord.js';
+import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
+import { i as isYouTubeLink, g as getYouTubeVideoId } from './ytLinks.mjs';
+import { s as str } from './str.mjs';
 
 const EVO_CLIENT_ID = "1056463118672351283";
 const EVO_ROLE_ID = "1056465043279052833";
@@ -79,6 +82,35 @@ const connect = async () => {
   });
   client.on("guildMemberRemove", () => {
     store.updateMemberCount();
+  });
+  client.on("interactionCreate", async (interaction) => {
+    var _a, _b, _c, _d;
+    if (!interaction.isChatInputCommand())
+      return;
+    `dc@${(_a = interaction.member) == null ? void 0 : _a.user.id}`;
+    interaction.channelId;
+    switch (interaction.commandName) {
+      case "yt-captions":
+        {
+          const videoLink = ((_b = interaction.options.get("id")) == null ? void 0 : _b.value) || "";
+          const lang = ((_c = interaction.options.get("lang")) == null ? void 0 : _c.value) || "";
+          const videoId = isYouTubeLink(videoLink) ? getYouTubeVideoId(videoLink) || "" : videoLink;
+          if (!videoId) {
+            interaction.reply("Error: Illegal Video ID");
+            return;
+          }
+          try {
+            const replied = interaction.reply("Processing...");
+            const captions = (await (await crawlYouTubeVideo(videoId)).getCaptions(lang)).map((caption) => caption.text).join("\n");
+            const textFile = new AttachmentBuilder(Buffer.from(captions), { name: "captions.txt" });
+            const attatchment = await ((_d = interaction.channel) == null ? void 0 : _d.send({ files: [textFile] }));
+            (await replied).edit((attatchment == null ? void 0 : attatchment.url) || "DONE");
+          } catch (err) {
+            interaction.reply(str(err));
+          }
+        }
+        break;
+    }
   });
   console.log(`DC BOT conneted.`);
   return loggedIn;

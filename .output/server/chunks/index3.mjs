@@ -1,7 +1,8 @@
 import { m as message, l as libExports } from './index2.mjs';
 import { t as troll } from './token.mjs';
-import { r as random, s as str } from './random.mjs';
+import { r as random } from './random.mjs';
 import { Bard } from 'googlebard';
+import { s as str } from './str.mjs';
 import { Sequelize, QueryTypes } from 'sequelize';
 import { c as createAxiosSession } from './createAxiosSession.mjs';
 import googlethis from 'googlethis';
@@ -9,6 +10,7 @@ import axios from 'axios';
 import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
+import { i as isYouTubeLink, g as getYouTubeVideoId } from './ytLinks.mjs';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
 
 var __defProp$a = Object.defineProperty;
@@ -741,22 +743,6 @@ async function search(...queries) {
   return new WebSearcherResult(await googleSearch(...queries));
 }
 
-const ytLinkRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S+&)?v=|embed\/|v\/)|youtu\.be\/)([\w-]+)/g;
-function extractYouTubeLinks(text) {
-  const matches = text.match(ytLinkRegex);
-  return matches ? matches.filter((link) => link.startsWith("https://") || link.startsWith("http://")) : [];
-}
-function isYouTubeLink(url) {
-  return Boolean(extractYouTubeLinks(url).length > 0);
-}
-function getYouTubeVideoId(url) {
-  const match = ytLinkRegex.exec(url);
-  if (match !== null) {
-    return match[1];
-  }
-  return null;
-}
-
 var __defProp$2 = Object.defineProperty;
 var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$2 = (obj, key, value) => {
@@ -858,7 +844,13 @@ async function crawl(url, textOnly = true) {
     return new WebCrawlerResultYT(ytVideo.axios, {
       title: ytVideo.title || "",
       description: ytVideo.description || "",
-      captions: (await ytVideo.getCaptions()).map((caption) => caption.text).join("\n")
+      captions: await (async () => {
+        try {
+          return (await ytVideo.getCaptions()).map((caption) => caption.text).join("\n");
+        } catch (err) {
+          return str(err);
+        }
+      })()
     });
   }
   const origin = new URL(url).origin;
@@ -872,7 +864,8 @@ async function crawl(url, textOnly = true) {
     const request = await axios.get(url, {
       headers,
       timeout: 1e4,
-      validateStatus: (_) => true
+      validateStatus: (_) => true,
+      responseEncoding: "utf8"
     });
     return new WebCrawlerResult(request, textOnly);
   } catch {
@@ -1020,17 +1013,20 @@ class GptWeb2Chatbot {
   async ask(question, options = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
     let { queries = [], urls = [], answer: answer1 = "" } = await estimateQueriesAndUrls(this.core, question, options);
-    if (queries.length === 0 && urls.length === 0 && answer1) {
+    if (queries.length === 0 && urls.length === 0 && answer1 !== "") {
       return { queries, urls, answer: answer1 };
     }
     const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)));
-    const searcherResult = await search(...queries);
-    const selectedPages = await selectPages(this.core, question, searcherResult);
-    urls.push(...selectedPages.map((page) => page.url));
-    const crawledPages2 = Promise.all(selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown)));
-    const queriesSummary = `${answer1 ? answer1 + "\n\n" : ""}${searcherResult.summary()}`;
+    const crawledPages2 = queries.length ? (async () => {
+      const searcherResult = await search(...queries);
+      const selectedPages = await selectPages(this.core, question, searcherResult);
+      urls.push(...selectedPages.map((page) => page.url));
+      const tasks = selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown));
+      const queriesSummary = `${answer1 ? answer1 + "\n\n" : ""}${searcherResult.summary()}`;
+      tasks.unshift(summaryArticle(this.core, question, queriesSummary));
+      return await Promise.all(tasks);
+    })() : Promise.all([new Promise((r) => r(""))]);
     let summary = (await Promise.all([
-      summaryArticle(this.core, question, queriesSummary),
       ...await crawledPages1,
       ...await crawledPages2
     ])).join("\n---\n");
@@ -1112,26 +1108,51 @@ function chooseEngine(model) {
       return Gpt4Chatbot$1;
   }
 }
+const token = troll.e({
+  email: process.env.CHAT_MDB_EMAIL_ADDRESS,
+  password: process.env.CHAT_MDB_PASSWORD
+  // email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
+  // password: 'M5Ij992bVsPWdZajh7fZqw',
+}, 1, 8038918216105477);
+const unlimitedUserList = /* @__PURE__ */ new Set(["Sy2RIxoAA0zpSO8r"]);
+const processingConversation = /* @__PURE__ */ new Map();
 const curva = {
   async ask(user, conv, model = "gpt4", temperature = 0.5, prompt = "Hi", context = "", tz = 0, _id) {
-    const core = await coreCollection$1.get(troll.e({
-      email: process.env.CHAT_MDB_EMAIL_ADDRESS,
-      password: process.env.CHAT_MDB_PASSWORD
-    }, 1, 8038918216105477), "MindsDB");
-    const Engine = chooseEngine(model);
-    const engine = new Engine(core);
-    const t0 = Date.now();
-    const result = await engine.ask(prompt, { timezone: tz, temperature, context });
-    const dt = Date.now() - t0;
-    const conversation = new Conversation$1(user, conv);
-    if (result.answer) {
-      _id = await conversation.saveMessage(prompt, result.answer, result.queries, result.urls, dt, _id);
+    if (processingConversation.has(user)) {
+      return {
+        answer: "",
+        error: "THINKING",
+        dt: 0
+      };
     }
-    return {
-      ...result,
-      dt,
-      id: _id
-    };
+    if (!unlimitedUserList.has(user)) {
+      processingConversation.set(user, conv);
+    }
+    try {
+      const core = await coreCollection$1.get(token, "MindsDB");
+      const Engine = chooseEngine(model);
+      const engine = new Engine(core);
+      const t0 = Date.now();
+      const result = await engine.ask(prompt, { timezone: tz, temperature, context });
+      const dt = Date.now() - t0;
+      if (result.answer) {
+        const conversation = new Conversation$1(user, conv);
+        _id = await conversation.saveMessage(prompt, result.answer, result.queries, result.urls, dt, _id);
+      }
+      return {
+        ...result,
+        dt,
+        id: _id
+      };
+    } catch (err) {
+      return {
+        answer: "",
+        error: str(err),
+        dt: 0
+      };
+    } finally {
+      processingConversation.delete(user);
+    }
   }
 };
 const curva$1 = curva;

@@ -4,7 +4,8 @@ import { v as version } from './server.mjs';
 import './index2.mjs';
 import { t as troll, r as read } from './token.mjs';
 import { c as curva } from './index3.mjs';
-import { b as baseConverter, s as str } from './random.mjs';
+import { s as str } from './str.mjs';
+import { b as baseConverter } from './random.mjs';
 import { model, Schema } from 'mongoose';
 import 'dotenv';
 import 'crypto';
@@ -34,6 +35,7 @@ import 'googlethis';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
+import './ytLinks.mjs';
 import './ytCrawler.mjs';
 import 'qs';
 

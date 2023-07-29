@@ -23,6 +23,7 @@ import 'net';
 import 'socks';
 import 'tls';
 import './random.mjs';
+import './str.mjs';
 
 const createVerification_post = defineEventHandler(async function(event) {
   const body = await readBody(event);

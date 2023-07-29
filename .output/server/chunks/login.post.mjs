@@ -25,6 +25,7 @@ import 'net';
 import 'socks';
 import 'tls';
 import './random.mjs';
+import './str.mjs';
 import 'crypto-js/md5.js';
 
 const login_post = defineEventHandler(async function(event) {

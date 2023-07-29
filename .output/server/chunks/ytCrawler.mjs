@@ -49,15 +49,7 @@ async function getYouTubeCaptions(html, lang, options = { ignoreNotSupportedLang
     if (!match3) {
       throw new Error("Caption Not Translatable");
     }
-    const translationLanguages = JSON.parse(`{${match3}0}`).translationLanguages;
-    const _lang = (lang || "").toLowerCase();
-    if (translationLanguages.map((l) => l.languageCode.toLowerCase()).includes(_lang)) {
-      apiOptions.tlang = _lang;
-    } else {
-      if (!options.ignoreNotSupportedLanguage) {
-        throw new Error("Language Not Supported");
-      }
-    }
+    apiOptions.tlang = lang;
   }
   const captionsSourceUrl = `${url.origin}${url.pathname}${decodeURIComponent(qs.stringify(apiOptions))}`;
   const captions = (_a = (await axios.get(captionsSourceUrl, { validateStatus: (_) => true })).data) == null ? void 0 : _a.events;

@@ -4,6 +4,7 @@ import { r as read } from './token.mjs';
 import { C as Conversation } from './index3.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
+import './str.mjs';
 import './random.mjs';
 import './index2.mjs';
 import 'mongoose';
@@ -33,6 +34,7 @@ import 'googlethis';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
+import './ytLinks.mjs';
 import './ytCrawler.mjs';
 import 'qs';
 
