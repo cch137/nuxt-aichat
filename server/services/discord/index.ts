@@ -1,5 +1,5 @@
 import type { Guild, Message, Role, TextBasedChannel, VoiceBasedChannel } from 'discord.js'
-import { Client, IntentsBitField, EmbedBuilder } from 'discord.js'
+import { Client, IntentsBitField, EmbedBuilder, ApplicationCommandOptionType, AttachmentBuilder } from 'discord.js'
 import {
   EVO_CLIENT_ID,
   EVO_ROLE_ID,
@@ -8,6 +8,9 @@ import {
   EVO_LOG_CHANNEL_ID,
   EVO_VERIFIED_ROLE_ID
 } from './ids'
+import { crawlYouTubeVideo } from '~/server/services/webBrowsing/ytCrawler'
+import { isYouTubeLink, getYouTubeVideoId } from '~/utils/ytLinks'
+import str from '~/utils/str'
 
 const useAdminTemplate = (text: string) => {
   return `
@@ -170,67 +173,59 @@ const connect = async () => {
   client.on('guildMemberRemove', () => {
     store.updateMemberCount()
   })
-  // client.on('interactionCreate', async (interaction) => {
-  //   if (!interaction.isChatInputCommand()) return
-  //   const user = `dc@${interaction.member?.user.id}`
-  //   const conv = interaction.channelId
-  //   switch (interaction.commandName) {
-  //     case 'chat':
-  //       const reply = await interaction.reply('Thinking...')
-  //       const interval = setInterval(() => {
-  //         interaction.channel?.sendTyping()
-  //       }, 3000)
-  //       try {
-  //         const question = (interaction.options.get('prompt')?.value || 'Hi') as string
-  //         const webBrowsing = interaction.options.get('web-browsing')?.value || 'OFF'
-  //         const temperature = interaction.options.get('temperature')?.value || '_t05'
-  //         const context = await getContext(user, conv)
-  //         const answer = DEPRECATED_MESSAGE
-  //         // const answer = (await evo.ask(
-  //         //   user,
-  //         //   conv,
-  //         //   `gpt4${temperature}`,
-  //         //   webBrowsing as 'OFF' | 'BASIC' | 'ADVANCED',
-  //         //   question,
-  //         //   context,
-  //         //   0
-  //         // // @ts-ignore
-  //         // ))?.answer as string || 'Oops! Something went wrong.'
-  //         clearInterval(interval)
-  //         const embed = new EmbedBuilder()
-  //         embed.addFields(
-  //           { name: 'Reply to:', value: `<@${interaction.member?.user.id}>` },
-  //           { name: 'Prompt:', value: question },
-  //         )
-  //         reply.edit({ content: answer, embeds: [embed] })
-  //       } catch (err) {
-  //         clearInterval(interval)
-  //         console.error(err)
-  //         await reply.edit('Oops! Something went wrong.')
-  //       }
-  //       break
-  //     case 'forget':
-  //       const response = interaction.reply('Deleting conversation...')
-  //       deleteConversation(user, conv)
-  //         .then(async () => {
-  //           (await response).edit('The conversation has been reset.')
-  //         })
-  //         .catch(async () => {
-  //           (await response).edit('Oops! Something went wrong.')
-  //         })
-  //       break
-  //   }
-  // })
+  client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isChatInputCommand()) return
+    const user = `dc@${interaction.member?.user.id}`
+    const conv = interaction.channelId
+    switch (interaction.commandName) {
+      case 'yt-captions':
+        {
+          const videoLink = (interaction.options.get('id')?.value || '') as string
+          const lang = (interaction.options.get('lang')?.value || '') as string
+          const videoId: string = isYouTubeLink(videoLink) 
+            ? getYouTubeVideoId(videoLink) || ''
+            : videoLink;
+            if (!videoId) {
+              interaction.reply('Error: Illegal Video ID')
+              return
+            }
+          try {
+            const replied = interaction.reply('Processing...')
+            const captions = (await (await crawlYouTubeVideo(videoId)).getCaptions(lang)).map((caption) => caption.text).join('\n')
+            const textFile = new AttachmentBuilder(Buffer.from(captions), { name: 'captions.txt' })
+            const attatchment = await interaction.channel?.send({ files: [textFile]});
+            (await replied).edit(attatchment?.url || 'DONE')
+          } catch (err) {
+            interaction.reply(str(err))
+          }
+        }
+        break
+    }
+  })
   console.log(`DC BOT conneted.`)
   return loggedIn
 }
 
 if (+(process.env.RUN_DC_BOT as string)) {
   connect()
-    // .then(() => {
-    //   (store.client as Client<boolean>).application?.commands.create({
-    //     name: 'forget',
-    //     description: 'To clear the conversation history between EvoGPT and you in the current channel.'
+    // .then(async () => {
+    //   await (store.client as Client<boolean>).application?.commands.create({
+    //     name: 'yt-captions',
+    //     description: 'Get subtitles for YouTube video.',
+    //     options: [
+    //       {
+    //         name: 'id',
+    //         description: 'Video link / id',
+    //         type: ApplicationCommandOptionType.String,
+    //         required: true
+    //       },
+    //       {
+    //         name: 'language',
+    //         description: 'language',
+    //         type: ApplicationCommandOptionType.String,
+    //         required: false
+    //       },
+    //     ]
     //   })
     // })
     // .then(() => {

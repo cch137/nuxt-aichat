@@ -11,6 +11,7 @@ import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
 import type { ArchivedChatMessage } from '~/server/services/chatbots/curva/types'
 import useURLParams from './useURLParams'
+import { customErrorCodes } from '~/config/customErrorCodes'
 // import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 
 const model = ref('gpt4')
@@ -321,12 +322,25 @@ export default function () {
         const isAtBottom = getScrollTop() >= document.body.clientHeight
         const id = (res as any).id as string
         const answer = (res as any).answer as string
+        const error = (res as any).error as string | undefined
         const urls = (res as any).urls as string[]
         const queries = (res as any).queries as string[]
         const dt = (res as any).dt as number
         const _version = (res as any).version as string
         // @ts-ignore
         if (!answer) {
+          if (error) {
+            const msgIndex = messages.value.indexOf(message)
+            switch (error) {
+              case 'THINKING':
+                messages.value.splice(msgIndex, 1)
+                ElMessage.warning(customErrorCodes.get(error))
+                inputValue.value = messageText
+                return
+              default:
+                throw error
+            }
+          }
           throw _t('error.plzRefresh')
         }
         message.id = id

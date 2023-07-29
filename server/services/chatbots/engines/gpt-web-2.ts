@@ -130,17 +130,20 @@ class GptWeb2Chatbot {
   async ask (question: string, options: { timezone?: number, time?: string } = {}) {
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
     let { queries = [], urls = [], answer: answer1 = '' } = await estimateQueriesAndUrls(this.core, question, options)
-    if (queries.length === 0 && urls.length === 0 && answer1) {
+    if (queries.length === 0 && urls.length === 0 && answer1 !== '') {
       return { queries, urls, answer: answer1 }
     }
     const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)))
-    const searcherResult = await search(...queries)
-    const selectedPages = await selectPages(this.core, question, searcherResult)
-    urls.push(...selectedPages.map((page) => page.url))
-    const crawledPages2 = Promise.all(selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown)))
-    const queriesSummary = `${answer1 ? answer1 + '\n\n' : ''}${searcherResult.summary()}`
+    const crawledPages2 = queries.length ? (async () => {
+      const searcherResult = await search(...queries)
+      const selectedPages = await selectPages(this.core, question, searcherResult)
+      urls.push(...selectedPages.map((page) => page.url))
+      const tasks = selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown))
+      const queriesSummary = `${answer1 ? answer1 + '\n\n' : ''}${searcherResult.summary()}`
+      tasks.unshift(summaryArticle(this.core, question, queriesSummary))
+      return await Promise.all(tasks)
+    })() : Promise.all([new Promise<string>((r) => r(''))])
     let summary = (await Promise.all([
-      summaryArticle(this.core, question, queriesSummary),
       ...await crawledPages1,
       ...await crawledPages2
     ])).join('\n---\n')

@@ -111,7 +111,13 @@ async function crawl (url: string, textOnly = true) {
     return new WebCrawlerResultYT(ytVideo.axios, {
       title: ytVideo.title || '',
       description: ytVideo.description || '',
-      captions: (await ytVideo.getCaptions()).map((caption) => caption.text).join('\n')
+      captions: await (async () => {
+        try {
+          return (await ytVideo.getCaptions()).map((caption) => caption.text).join('\n')
+        } catch (err) {
+          return str(err)
+        }
+      })()
     })
   }
   const origin = new URL(url).origin
@@ -125,7 +131,8 @@ async function crawl (url: string, textOnly = true) {
     const request = await axios.get(url, {
       headers,
       timeout: 10000,
-      validateStatus: (_) => true
+      validateStatus: (_) => true,
+      responseEncoding: 'utf8'
     })
     return new WebCrawlerResult(request, textOnly)
   } catch {

@@ -1,6 +1,7 @@
 import Conversation from './conversation'
 import { coreCollection, BardChatbot, Gpt3Chatbot, Gpt4Chatbot, GptWeb1Chatbot, GptWeb2Chatbot } from '../engines'
 import troll from '~/utils/troll'
+import str from '~/utils/str'
 
 function chooseEngine (model: string) {
   switch (model) {
@@ -19,26 +20,53 @@ function chooseEngine (model: string) {
   }
 }
 
+const token = troll.e({
+  email: process.env.CHAT_MDB_EMAIL_ADDRESS,
+  password: process.env.CHAT_MDB_PASSWORD,
+  // email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
+  // password: 'M5Ij992bVsPWdZajh7fZqw',
+}, 1, 8038918216105477)
+
+const unlimitedUserList = new Set<string>(['Sy2RIxoAA0zpSO8r'])
+const processingConversation = new Map<string, string>()
+
 const curva = {
   async ask (user: string, conv: string, model = 'gpt4', temperature = 0.5, prompt = 'Hi', context = '', tz = 0, _id?: string) {
-    const core = await coreCollection.get(troll.e({
-      email: process.env.CHAT_MDB_EMAIL_ADDRESS,
-      password: process.env.CHAT_MDB_PASSWORD
-    }, 1, 8038918216105477), 'MindsDB')
-    const Engine = chooseEngine(model)
-    // @ts-ignore
-    const engine = new Engine(core)
-    const t0 = Date.now()
-    const result = await engine.ask(prompt, { timezone: tz, temperature, context }) as { answer: string, queries?: string[], urls?: string[], error?: string }
-    const dt = Date.now() - t0
-    const conversation = new Conversation(user, conv)
-    if (result.answer) {
-      _id = await conversation.saveMessage(prompt, result.answer, result.queries, result.urls, dt, _id)
+    if (processingConversation.has(user)) {
+      return {
+        answer: '',
+        error: 'THINKING',
+        dt: 0
+      }
     }
-    return {
-      ...result,
-      dt,
-      id: _id
+    if (!unlimitedUserList.has(user)) {
+      processingConversation.set(user, conv)
+    }
+    try {
+      const core = await coreCollection.get(token, 'MindsDB')
+      const Engine = chooseEngine(model)
+      // @ts-ignore
+      const engine = new Engine(core)
+      const t0 = Date.now()
+      const result = await engine.ask(prompt, { timezone: tz, temperature, context }) as { answer: string, queries?: string[], urls?: string[], error?: string }
+      const dt = Date.now() - t0
+      if (result.answer) {
+        const conversation = new Conversation(user, conv)
+        _id = await conversation.saveMessage(prompt, result.answer, result.queries, result.urls, dt, _id)
+      }
+      return {
+        ...result,
+        dt,
+        id: _id
+      }
+    } catch (err) {
+      return {
+        answer: '',
+        error: str(err),
+        dt: 0
+      }
+    } finally {
+      processingConversation.delete(user)
     }
   }
 }
