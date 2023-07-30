@@ -7,6 +7,8 @@
       :active-icon="Moon"
       inactive-color="#afafaf"
       active-color="#3f3f3f"
+      size="large"
+      style="height: 24px;"
     />
   </div>
 </template>
