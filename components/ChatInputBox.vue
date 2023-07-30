@@ -70,6 +70,10 @@ const clickSendMessage = () => {
 .InputBox {
   background: linear-gradient(180deg, transparent, var(--el-bg-color) 58.85%);
 }
+html.light .InputBox {
+  padding-top: 3rem !important;
+  /* background: linear-gradient(180deg, transparent, transparent, rgba(255, 255, 255, 1), rgba(255, 255, 255)); */
+}
 .InputBox form {
   width: 100%;
 }

@@ -31,8 +31,13 @@ export default defineNuxtConfig({
     pageTransition: true
   },
   modules: [
-    '@element-plus/nuxt'
+    '@element-plus/nuxt',
+    '@nuxtjs/color-mode'
   ],
+  colorMode: {
+    classPrefix: '',
+    classSuffix: ''
+  },
   css: [
     'element-plus/dist/index.css',
     'element-plus/theme-chalk/dark/css-vars.css',

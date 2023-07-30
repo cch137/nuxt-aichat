@@ -287,6 +287,14 @@ setInterval(() => {
 .AMessageAvatar {
   background: hsl(150, 30%, 30%);
 }
+html.light .QMessageAvatar {
+  color: #fff;
+  background: hsl(246, 30%, 48%);
+}
+html.light .AMessageAvatar {
+  color: #fff;
+  background: hsl(150, 30%, 48%);
+}
 .Message {
   backdrop-filter: blur(8px);
 }
@@ -299,6 +307,12 @@ setInterval(() => {
 }
 .Message.A {
   background: #60606240;
+}
+html.light .Message.Q {
+  background: #60608210;
+}
+html.light .Message.A {
+  background: #60606210;
 }
 .MessageActionButton {
   height: 20px;
@@ -332,6 +346,9 @@ setInterval(() => {
   background: #3b3b3b;
   padding: .25rem .75rem;
   border-radius: .75rem .75rem 0 0;
+}
+html.light .CodeBlockHeader {
+  color: var(--el-color-info-light-7);
 }
 .CodeBlockWrapper pre {
   background: #1e1e1e;

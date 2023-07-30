@@ -2,6 +2,7 @@
   <div class="fixed z-50 w-full flex">
     <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
     <ChatSidebar />
+    <SettingsPanel />
     <div class="ChatHeader px-4 gap-4 flex items-stretch flex-1">
       <div :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" style="transition: .1s;">
         <el-button style="padding: 8px;" @click="openMenu = !openMenu">
@@ -11,7 +12,12 @@
       <HomeLink :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" />
       <div class="flex-1 flex items-center justify-end gap-2"></div>
       <div class="flex-center gap-2">
-        <el-button v-if="isLoggedIn" style="padding: 12px;" @click="logout" :loading="isLoading">
+        <el-button style="padding: 8px;" @click="openSettings = !openSettings">
+          <el-icon style="transform: scale(1.5);">
+            <Setting />
+          </el-icon>
+        </el-button>
+        <el-button v-if="isLoggedIn" style="padding: 12px; margin-left: 0 !important;" @click="logout" :loading="isLoading">
           {{ $t('auth.logout') }}
         </el-button>
         <NuxtLink v-else to="/login" :class="isLoading ? 'pointer-events-none' : ''">
@@ -31,8 +37,10 @@
 </template>
 
 <script setup>
+import { Setting } from '@element-plus/icons-vue'
 const { openMenu, openSidebar } = useChat()
 const { isLoggedIn, isLoading, logout } = useAuth()
+const { openSettings } = useSettings()
 openMenu.value = true
 </script>
 

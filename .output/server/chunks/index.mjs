@@ -84,7 +84,7 @@ const connect = async () => {
     store.updateMemberCount();
   });
   client.on("interactionCreate", async (interaction) => {
-    var _a, _b, _c, _d;
+    var _a, _b, _c;
     if (!interaction.isChatInputCommand())
       return;
     `dc@${(_a = interaction.member) == null ? void 0 : _a.user.id}`;
@@ -107,8 +107,7 @@ const connect = async () => {
               Buffer.from(captions, "utf8"),
               { name: `${video.title}.txt` }
             );
-            const attatchment = await ((_d = interaction.channel) == null ? void 0 : _d.send({ files: [textFile] }));
-            (await replied).edit((attatchment == null ? void 0 : attatchment.url) || "DONE");
+            (await replied).edit({ content: video.url, files: [textFile] });
           } catch (err) {
             (await replied).edit(str(err));
           }
@@ -119,7 +118,7 @@ const connect = async () => {
   console.log(`DC BOT conneted.`);
   return loggedIn;
 };
-{
+if (+process.env.RUN_DC_BOT) {
   connect();
 }
 const disconnect = () => {

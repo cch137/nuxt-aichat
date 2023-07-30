@@ -6,7 +6,7 @@ import { createMemoryHistory, createRouter, START_LOCATION, useRoute as useRoute
 import { createError as createError$1, sanitizeStatusCode } from 'h3';
 import { withQuery, hasProtocol, parseURL, joinURL } from 'ufo';
 import { renderSSRHead } from '@unhead/ssr';
-import { getActiveHead, createServerHead as createServerHead$1 } from 'unhead';
+import { composableNames, getActiveHead, createServerHead as createServerHead$1 } from 'unhead';
 import { defineHeadPlugin } from '@unhead/shared';
 import { useNavigatorLanguage } from '@vueuse/core';
 import { parse, serialize } from 'cookie';
@@ -369,7 +369,7 @@ const _routes = [
     meta: __nuxt_page_meta$6 || {},
     alias: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.alias) || [],
     redirect: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.redirect) || void 0,
-    component: () => import('./_nuxt/cch137-0fd2b510.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/cch137-a6390715.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.name) ?? "admin-entrance",
@@ -377,7 +377,7 @@ const _routes = [
     meta: __nuxt_page_meta$5 || {},
     alias: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.alias) || [],
     redirect: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.redirect) || void 0,
-    component: () => import('./_nuxt/entrance-5f71f7c7.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/entrance-b08bde99.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.name) ?? "c-conv",
@@ -385,7 +385,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-a4bdd928.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-1d5bad44.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "c",
@@ -393,7 +393,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-2750be11.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-de6731d6.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "index",
@@ -401,7 +401,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/index-bd3fc399.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-942e67f1.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "login",
@@ -409,7 +409,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/login-27fde28b.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-07b76c2f.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -425,7 +425,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/signup-404bb97a.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/signup-ba7701ee.mjs').then((m) => m.default || m)
   }
 ];
 const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "CH4" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "CH4" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
@@ -591,6 +591,12 @@ function useHead(input, options = {}) {
     return isBrowser ? clientUseHead(input, options) : serverUseHead(input, options);
   }
 }
+const coreComposableNames = [
+  "injectHead"
+];
+({
+  "@unhead/vue": [...coreComposableNames, ...composableNames]
+});
 function definePayloadReducer(name, reduce) {
   {
     useNuxtApp().ssrContext._payloadReducers[name] = reduce;
@@ -605,8 +611,8 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-915dd40c.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-8cd24b80.mjs')
+  chat: () => import('./_nuxt/chat-e5e691fc.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-9787e6f6.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
@@ -798,6 +804,29 @@ const unhead_KgADcZ0jPj = /* @__PURE__ */ defineNuxtPlugin({
       };
     }
   }
+});
+const preference = "system";
+const plugin_server_XNCxeHyTuP = /* @__PURE__ */ defineNuxtPlugin((nuxtApp) => {
+  const colorMode = useState("color-mode", () => reactive({
+    preference,
+    value: preference,
+    unknown: true,
+    forced: false
+  })).value;
+  const htmlAttrs = {};
+  {
+    useHead({ htmlAttrs });
+  }
+  useRouter().afterEach((to) => {
+    const forcedColorMode = to.meta.colorMode;
+    if (forcedColorMode && forcedColorMode !== "system") {
+      colorMode.value = htmlAttrs["data-color-mode-forced"] = forcedColorMode;
+      colorMode.forced = true;
+    } else if (forcedColorMode === "system") {
+      console.warn("You cannot force the colorMode to system at the page level.");
+    }
+  });
+  nuxtApp.provide("colorMode", colorMode);
 });
 const element_plus_teleports_plugin_h4Dmekbj62 = /* @__PURE__ */ defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook("app:rendered", (ctx) => {
@@ -4402,15 +4431,64 @@ Prism.manual = false;
 const renderCodeBlocks_qIyVp6jM6U = /* @__PURE__ */ defineNuxtPlugin(() => {
   return {};
 });
+const useColorMode = () => {
+  return useState("color-mode").value;
+};
+const themes_AdwqX1mhAQ = /* @__PURE__ */ defineNuxtPlugin(() => {
+  const colorMode = useColorMode();
+  const isDark = ref(false);
+  const isLight = ref(!isDark.value);
+  watch(isDark, (newVal) => {
+    if (isLight.value === newVal) {
+      isLight.value = !newVal;
+    }
+    if (newVal) {
+      colorMode.preference = "dark";
+    } else {
+      colorMode.preference = "light";
+    }
+  });
+  watch(isLight, (newVal) => {
+    if (isDark.value === newVal) {
+      isDark.value = !newVal;
+    }
+  });
+  const init = () => {
+    if (colorMode.preference === "system") {
+      colorMode.preference = colorMode.value;
+    }
+    const _isDark = colorMode.preference === "dark";
+    if (isDark.value !== _isDark) {
+      isDark.value = _isDark;
+    }
+  };
+  init();
+  return {
+    provide: {
+      themes: {
+        get isDark() {
+          init();
+          return isDark;
+        },
+        get isLight() {
+          init();
+          return isLight;
+        }
+      }
+    }
+  };
+});
 const plugins = [
   plugin,
   revive_payload_server_eJ33V7gbc6,
   components_plugin_KR1HBZs4kY,
   unhead_KgADcZ0jPj,
+  plugin_server_XNCxeHyTuP,
   element_plus_teleports_plugin_h4Dmekbj62,
   element_plus_injection_plugin_1RNPi6ogby,
   composables_BevcPrpBa3,
-  renderCodeBlocks_qIyVp6jM6U
+  renderCodeBlocks_qIyVp6jM6U,
+  themes_AdwqX1mhAQ
 ];
 const _wrapIf = (component, props, slots) => {
   props = props === true ? {} : props;
@@ -4700,8 +4778,8 @@ const _sfc_main$1 = {
     const statusMessage = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
     const description = _error.message || _error.toString();
     const stack = void 0;
-    const _Error404 = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-404-0d24ca1e.mjs').then((r) => r.default || r));
-    const _Error = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-500-0dde6313.mjs').then((r) => r.default || r));
+    const _Error404 = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-404-9489ec80.mjs').then((r) => r.default || r));
+    const _Error = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-500-69ea90bd.mjs').then((r) => r.default || r));
     const ErrorTemplate = is404 ? _Error404 : _Error;
     return (_ctx, _push, _parent, _attrs) => {
       _push(ssrRenderComponent(unref(ErrorTemplate), mergeProps({ statusCode: unref(statusCode), statusMessage: unref(statusMessage), description: unref(description), stack: unref(stack) }, _attrs), null, _parent));

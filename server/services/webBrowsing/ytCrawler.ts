@@ -60,7 +60,8 @@ async function getYouTubeCaptions (html: string, lang?: string, options = { igno
 }
 
 async function crawlYouTubeVideo (videoId: string) {
-  const axiosResult = await axios.get(`https://youtube.com/watch?v=${videoId}`, { validateStatus: (_) => true })
+  const url = `https://youtube.com/watch?v=${videoId}`
+  const axiosResult = await axios.get(url, { validateStatus: (_) => true })
   return {
     get axios () { return axiosResult },
     get html () { return axiosResult.data },
@@ -69,6 +70,7 @@ async function crawlYouTubeVideo (videoId: string) {
     },
     ...(parseVideoInfo(axiosResult.data) || {}),
     id: videoId,
+    url,
   }
 }
 

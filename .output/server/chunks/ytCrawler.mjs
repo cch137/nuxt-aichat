@@ -62,7 +62,8 @@ async function getYouTubeCaptions(html, lang, options = { ignoreNotSupportedLang
   });
 }
 async function crawlYouTubeVideo(videoId) {
-  const axiosResult = await axios.get(`https://youtube.com/watch?v=${videoId}`, { validateStatus: (_) => true });
+  const url = `https://youtube.com/watch?v=${videoId}`;
+  const axiosResult = await axios.get(url, { validateStatus: (_) => true });
   return {
     get axios() {
       return axiosResult;
@@ -74,7 +75,8 @@ async function crawlYouTubeVideo(videoId) {
       return getYouTubeCaptions(axiosResult.data, lang);
     },
     ...parseVideoInfo(axiosResult.data) || {},
-    id: videoId
+    id: videoId,
+    url
   };
 }
 

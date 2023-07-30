@@ -2,6 +2,7 @@ import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
 import { m as message } from './index2.mjs';
+import qs from 'qs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
@@ -27,18 +28,80 @@ import 'net';
 import 'socks';
 import 'tls';
 
+function validKeyValuePair(key, value) {
+  switch (key) {
+    case "model":
+      if (["gpt3", "gpt4", "gpt-web-1", "gpt-web-2"].includes(value)) {
+        return true;
+      }
+      break;
+    case "temperature":
+      if (typeof value === "number") {
+        if (value >= 0 && value <= 1) {
+          return true;
+        }
+      }
+      break;
+    case "context":
+      if (typeof value === "boolean") {
+        return true;
+      }
+      break;
+  }
+  return false;
+}
+function tryParseJson(obj) {
+  try {
+    return JSON.parse(obj);
+  } catch {
+    return obj;
+  }
+}
+function toStdConvConfig(obj) {
+  try {
+    const resultObj = {};
+    for (const key in obj) {
+      const value = tryParseJson(obj[key]);
+      if (validKeyValuePair(key, value)) {
+        resultObj[key] = value;
+      }
+    }
+    return resultObj;
+  } catch {
+    return {};
+  }
+}
+function parseConvConfig(objString) {
+  try {
+    return toStdConvConfig(qs.parse(objString));
+  } catch {
+    return {};
+  }
+}
+function stringifyConvConfig(obj) {
+  try {
+    return qs.stringify(toStdConvConfig(obj));
+  } catch {
+    return "";
+  }
+}
+function toStdConvConfigString(configString) {
+  return stringifyConvConfig(parseConvConfig(configString));
+}
+
 const conv_put = defineEventHandler(async (event) => {
   var _a, _b, _c;
   const body = await readBody(event);
   const conv = body == null ? void 0 : body.id;
   const name = (body == null ? void 0 : body.name) || "";
+  const config = toStdConvConfigString((body == null ? void 0 : body.config) || "");
   const rawCookie = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
   const user = token == null ? void 0 : token.user;
   if (!user) {
     return { error: "No permission" };
   }
-  if (typeof name !== "string") {
+  if (typeof name !== "string" || typeof config !== "string") {
     return { error: "Invalid value" };
   }
   const isExistConv = Boolean(await message.findOne({ user, conv }));
@@ -51,7 +114,7 @@ const conv_put = defineEventHandler(async (event) => {
   } else {
     await conversation.findOneAndUpdate(
       { id: conv },
-      { $set: { id: conv, user, name: trimmedName } },
+      { $set: { id: conv, user, name: trimmedName, config } },
       { upsert: true }
     );
   }

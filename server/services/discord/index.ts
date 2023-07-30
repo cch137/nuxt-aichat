@@ -196,9 +196,8 @@ const connect = async () => {
             const textFile = new AttachmentBuilder(
               Buffer.from(captions, 'utf8'),
               { name: `${video.title}.txt` }
-            )
-            const attatchment = await interaction.channel?.send({ files: [textFile]});
-            (await replied).edit(attatchment?.url || 'DONE')
+            );
+            (await replied).edit({ content: video.url, files: [textFile] })
           } catch (err) {
             (await replied).edit(str(err))
           }
@@ -210,7 +209,7 @@ const connect = async () => {
   return loggedIn
 }
 
-if (1 || +(process.env.RUN_DC_BOT as string)) {
+if (+(process.env.RUN_DC_BOT as string)) {
   connect()
     // .then(async () => {
     //   await (store.client as Client<boolean>).application?.commands.create({

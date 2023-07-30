@@ -11,12 +11,6 @@
       </div>
       <div class="flex flex-col pr-1 gap-1">
         <div class="flex gap-1">
-          <el-text class="flex-1">{{ $t('settings.lang') }}</el-text>
-          <div class="flex-1">
-            <LanguageSelect />
-          </div>
-        </div>
-        <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
           <ModelSelect class="flex-1" />
         </div>
@@ -89,7 +83,7 @@
             <el-icon>
               <ChatSquare />
             </el-icon>
-            <span>{{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}</span>
+            <span class="text-ellipsis overflow-hidden max-w-full">{{ conv.name || baseConverter.convert(conv.id, '64w', 10) }}</span>
           </NuxtLink>
           <div class="ConversationLinkButtons px-1 flex-center">
             <el-text type="info" class="flex gap-2">
@@ -177,13 +171,30 @@ watch(versionData, (newValue) => {
   font-size: 14px;
   transition: .3s ease;
 }
-.ConversationLink:hover, .ConversationLink[active="true"], .ConversationLink.MoreOptionsExpended {
+.ConversationLink:hover,
+.ConversationLink[active="true"],
+.ConversationLink.MoreOptionsExpended {
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
+}
+html.light .ConversationLink:hover,
+html.light .ConversationLink[active="true"],
+html.light .ConversationLink.MoreOptionsExpended {
+  color: var(--el-color-primary-dark-2);
+  background: var(--el-color-primary-light-7);
 }
 .ConversationLink[active="true"] {
   font-weight: 500;
   filter: brightness(1.25);
+}
+html.light .ConversationLink:hover {
+  filter: brightness(1.125);
+}
+html.light .ConversationLink[active="true"] {
+  filter: brightness(1);
+}
+.ConversationLink > a {
+  max-width: calc(100% - 24px);
 }
 .ConversationLinkButtons {
   opacity: 0;
