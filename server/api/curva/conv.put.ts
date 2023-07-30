@@ -2,18 +2,21 @@ import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
 import { read as tokenReader } from '~/server/services/token'
 import { message, conversation } from '~/server/services/mongoose/index'
+import { toStdConvConfigString } from '~/server/services/chatbots/curva/convConfig'
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event))
   const conv = body?.id as string | undefined
   const name = body?.name as string || ''
+  const config = toStdConvConfigString(body?.config as string || '')
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   const user = token?.user
   if (!user) {
     return { error: 'No permission' }
   }
-  if (typeof name !== 'string') {
+  const data = {}
+  if (typeof name !== 'string' || typeof config !== 'string') {
     return { error: 'Invalid value' }
   }
   const isExistConv = Boolean(await message.findOne({ user, conv }))
@@ -26,7 +29,7 @@ export default defineEventHandler(async (event) => {
   } else {
     await conversation.findOneAndUpdate(
       { id: conv },
-      { $set: { id: conv, user, name: trimmedName } },
+      { $set: { id: conv, user, name: trimmedName, config } },
       { upsert: true }
     )
   }
