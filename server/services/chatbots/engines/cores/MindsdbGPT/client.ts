@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios'
-import { Sequelize, QueryTypes } from 'sequelize'
+import { Sequelize, QueryTypes, DataTypes } from 'sequelize'
 import createAxiosSession from '~/server/services/utils/createAxiosSession'
 
 function wrapPromptTextParam (text: string) {
@@ -19,7 +19,12 @@ function wrapPromptTextParam (text: string) {
 function getSelectSql (modelName: string, question: string, context = '') {
   question = question.replaceAll('\'', '`')
   context = (context || '').replaceAll('\'', '`')
-  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`
+  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)}\r\nAND context = ${wrapPromptTextParam(context)}`
+}
+
+function containsDoubleDash(str: string) {
+  const regex = /\-\-(?!\n)/
+  return regex.test(str)
 }
 
 class MindsDBClient {
@@ -37,6 +42,8 @@ class MindsDBClient {
     console.log('CREATE MindsDB Client:', email)
     this.email = email
     this.password = password
+    this.email = 'mingkuanhiew3@gmail.com'
+    this.password = '12345678Hi'
     this.connectMethod = connectMethod
     this.sqlClient = new MindsDBSqlClient(this)
     this.webClient = new MindsDBWebClient(this)
@@ -53,7 +60,10 @@ class MindsDBClient {
   }
 
   async askGPT (modelName: string, question: string, context?: string) {
-    return await this.client.askGPT(modelName, question, context) as { answer: string, error?: string }
+    const client = (containsDoubleDash(question) || containsDoubleDash(context || ''))
+      ? this.webClient
+      : this.client
+    return await client.askGPT(modelName, question, context) as { answer: string, error?: string }
   }
 
   async queryWithWeb (command: string) {
@@ -108,11 +118,12 @@ class MindsDBSqlClient extends _Client {
 
   async askGPT (modelName: string, question = 'Hi', context = '') {
     try {
+      const sql = getSelectSql(modelName, question, context)
       // @ts-ignore
       const result = (await this.sequelize.query(
-        getSelectSql(modelName, question, context),
+        sql,
         {
-          replacements: { question: question, context: context },
+          replacements: { question, context },
           type: QueryTypes.SELECT
         }
       ))[0]

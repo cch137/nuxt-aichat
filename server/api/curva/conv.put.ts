@@ -15,23 +15,22 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     return { error: 'No permission' }
   }
-  const data = {}
-  if (typeof name !== 'string' || typeof config !== 'string') {
-    return { error: 'Invalid value' }
+  const data: { name?: string, config?: string } = {}
+  if (typeof name === 'string') {
+    const trimmedName = name.trim().substring(0, 64)
+    data.name = trimmedName
+  }
+  if (config) {
+    data.config = config
   }
   const isExistConv = Boolean(await message.findOne({ user, conv }))
   if (!isExistConv) {
     return {}
   }
-  const trimmedName = name.trim().substring(0, 64)
-  if (trimmedName.length === 0) {
-    await conversation.deleteOne({ id: conv })
-  } else {
-    await conversation.findOneAndUpdate(
-      { id: conv },
-      { $set: { id: conv, user, name: trimmedName, config } },
-      { upsert: true }
-    )
-  }
+  await conversation.findOneAndUpdate(
+    { id: conv, user },
+    { $set: { id: conv, user, ...data } },
+    { upsert: true }
+  )
   return {}
 })

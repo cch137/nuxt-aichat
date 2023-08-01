@@ -13,7 +13,7 @@ class MindsDbGPTChatbotCore implements ChatbotEngine {
 
   init (): Promise<true> {
     return new Promise((resolve) => {
-      setTimeout(() => resolve(true), 1000)
+      setTimeout(() => resolve(true), 5000)
     })
   }
 
@@ -46,8 +46,8 @@ class MindsDbGPTChatbotCore implements ChatbotEngine {
 
 // (async () => {
 //   const bot1 = new MindsDbGPTChatbotCore({
-//     email: 'betacheechorngherng@gmail.com',
-//     password: 'Curva&&cch137'
+//     email: 'HqhF714XxlOT_hlCQ0nCDA@hotmail.com',
+//     password: 'HqhF714XxlOT_hlCQ0nCDA'
 //   })
 //   await sleep(3000)
 //   console.log('OK')

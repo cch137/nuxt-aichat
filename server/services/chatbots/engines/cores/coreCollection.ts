@@ -1,6 +1,7 @@
 import troll from '~/utils/troll'
 import BardChatbotCore from './Bard'
 import MindsDbGPTChatbotCore from './MindsdbGPT'
+import OpenAiGPTChatbotCore from './OpenAiGPT'
 
 const coreCollection = {
   record: new Map<string, (BardChatbotCore | MindsDbGPTChatbotCore)>(),
@@ -20,6 +21,14 @@ const coreCollection = {
       this.record.delete(token)
     }
   }
-}
+};
+
+// (async () => {
+//   console.log('TESTING 1 STRAT')
+//   const bot = new OpenAiGPTChatbotCore()
+//   // console.log('OK', bot)
+//   const answer = await bot.ask('Hi', {})
+//   console.log(answer)
+// })()
 
 export default coreCollection

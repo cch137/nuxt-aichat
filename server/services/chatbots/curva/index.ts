@@ -20,12 +20,46 @@ function chooseEngine (model: string) {
   }
 }
 
-const token = troll.e({
-  email: process.env.CHAT_MDB_EMAIL_ADDRESS,
-  password: process.env.CHAT_MDB_PASSWORD,
-  // email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
-  // password: 'M5Ij992bVsPWdZajh7fZqw',
-}, 1, 8038918216105477)
+const getRandomToken = (() => {
+  const tokens: string[] = (() => {
+    const accounts: ({ email: string, password: string })[] = [
+      // {
+      //   email: 'betacheechorngherng@gmail.com',
+      //   password: 'Curva&&cch137',
+      // },
+      // {
+      //   email: 'mingkuanhiew3@gmail.com',
+      //   password: '12345678Hi',
+      // },
+      {
+        email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
+        password: 'M5Ij992bVsPWdZajh7fZqw',
+      },
+      {
+        email: 'O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com',
+        password: 'O1qNDwsOGUcQ1V5nfQmyMg',
+      },
+      {
+        email: 'TCBLoYSrSv8BGCSOKqbWUw@hotmail.com',
+        password: 'TCBLoYSrSv8BGCSOKqbWUw',
+      },
+      {
+        email: 'HqhF714XxlOT_hlCQ0nCDA@hotmail.com',
+        password: 'HqhF714XxlOT_hlCQ0nCDA',
+      },
+    ]
+    return accounts.map((acc) => troll.e(acc, 1, 8038918216105477))
+  })()
+  let lastIndex = 0
+  return function () {
+    if (lastIndex >= tokens.length - 1) {
+      lastIndex = 0
+    } else {
+      lastIndex++
+    }
+    return tokens[lastIndex]
+  }
+})()
 
 const unlimitedUserList = new Set<string>(['Sy2RIxoAA0zpSO8r'])
 const processingConversation = new Map<string, string>()
@@ -43,7 +77,7 @@ const curva = {
       processingConversation.set(user, conv)
     }
     try {
-      const core = await coreCollection.get(token, 'MindsDB')
+      const core = await coreCollection.get(getRandomToken(), 'MindsDB')
       const Engine = chooseEngine(model)
       // @ts-ignore
       const engine = new Engine(core)

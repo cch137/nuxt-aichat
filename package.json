@@ -36,6 +36,7 @@
     "element-plus": "^2.3.8",
     "googlebard": "^1.0.7",
     "googlethis": "^1.7.1",
+    "gpt-3-encoder": "^1.1.4",
     "marked": "^5.1.2",
     "mongoose": "^7.4.1",
     "mysql2": "^3.5.2",

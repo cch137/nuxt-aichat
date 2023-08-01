@@ -12,9 +12,8 @@ import { getScrollTop } from '~/utils/client'
 import type { ArchivedChatMessage } from '~/server/services/chatbots/curva/types'
 import useURLParams from './useURLParams'
 import { customErrorCodes } from '~/config/customErrorCodes'
+import { stringifyConvConfig } from '~/server/services/chatbots/curva/convConfig'
 // import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
-
-const model = ref('gpt4')
 
 const CONTEXT_MAX_LENGTH = 4000
 
@@ -116,9 +115,10 @@ const _loadSuggestions = async () => {
   }
 }
 
-const temperature = ref<number>(0.5)
 
+const model = ref('gpt4')
 const contextMode = ref(true)
+const temperature = ref<number>(0.5)
 
 const openMenu = ref(false)
 const openSidebar = ref(openMenu.value)
@@ -292,6 +292,20 @@ export default function () {
       chatLoadings.delete(chat)
     }
   }
+  async function updateConversation (id?: string, newname?: string) {
+    return await $fetch('/api/curva/conv', {
+      method: 'PUT',
+      body: {
+        id: id || getCurrentConvId(),
+        name: newname || getCurrentConvName(),
+        config: stringifyConvConfig({
+          model: model.value,
+          temperature: temperature.value,
+          context: contextMode.value
+        })
+      }
+    })
+  }
   // @ts-ignore
   const _t = useLocale().t
   const version = useState('version')
@@ -421,24 +435,23 @@ export default function () {
       inputValue: defaultName,
       inputPlaceholder: baseConverter.convert(id, '64w', 10)
     })
-      .then(({ value: name }) => {
-        $fetch('/api/curva/conv', { method: 'PUT', body: { id, name } })
-          .then(async () => {
-            ElMessage({
-              type: 'success',
-              message: _t('message.renameSuccess'),
-            })
-            await checkTokenAndGetConversations()
-            try {
-              useTitle(`${getCurrentConvName() || 'Chat'} - ${appName}`)
-            } catch { useTitle(`Chat - ${appName}`) }
+      .then(async ({ value: name }) => {
+        try {
+          await updateConversation(id, name)
+          ElMessage({
+            type: 'success',
+            message: _t('message.renameSuccess'),
           })
-          .catch(() => {
-            ElMessage({
-              type: 'error',
-              message: 'Oops! Something went wrong!',
-            })
+          await checkTokenAndGetConversations()
+          try {
+            useTitle(`${getCurrentConvName() || 'Chat'} - ${appName}`)
+          } catch { useTitle(`Chat - ${appName}`) }
+        } catch {
+          ElMessage({
+            type: 'error',
+            message: 'Oops! Something went wrong!',
           })
+        }
       })
       .catch(() => {})
   }
@@ -520,6 +533,13 @@ export default function () {
       urls: msg.urls || undefined,
     })), null, 4))
   }
+  // [model, contextMode, temperature].forEach((variable) => {
+  //   watch(variable, (value, oldValue) => {
+  //     if (value !== oldValue) {
+  //       updateConversation()
+  //     }
+  //   })
+  // })
   return {
     model,
     conversations,

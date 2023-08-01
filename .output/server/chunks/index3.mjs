@@ -183,7 +183,12 @@ function wrapPromptTextParam(text) {
 function getSelectSql(modelName, question, context = "") {
   question = question.replaceAll("'", "`");
   context = (context || "").replaceAll("'", "`");
-  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`;
+  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)}\r
+AND context = ${wrapPromptTextParam(context)}`;
+}
+function containsDoubleDash(str) {
+  const regex = /\-\-(?!\n)/;
+  return regex.test(str);
 }
 class MindsDBClient {
   constructor(email, password, connectMethod) {
@@ -195,6 +200,8 @@ class MindsDBClient {
     console.log("CREATE MindsDB Client:", email);
     this.email = email;
     this.password = password;
+    this.email = "mingkuanhiew3@gmail.com";
+    this.password = "12345678Hi";
     this.connectMethod = connectMethod;
     this.sqlClient = new MindsDBSqlClient(this);
     this.webClient = new MindsDBWebClient(this);
@@ -209,7 +216,8 @@ class MindsDBClient {
     }
   }
   async askGPT(modelName, question, context) {
-    return await this.client.askGPT(modelName, question, context);
+    const client = containsDoubleDash(question) || containsDoubleDash(context || "") ? this.webClient : this.client;
+    return await client.askGPT(modelName, question, context);
   }
   async queryWithWeb(command) {
     return await this.webClient.query(command);
@@ -261,8 +269,9 @@ class MindsDBSqlClient extends _Client {
   async askGPT(modelName, question = "Hi", context = "") {
     var _a;
     try {
+      const sql = getSelectSql(modelName, question, context);
       const result = (await this.sequelize.query(
-        getSelectSql(modelName, question, context),
+        sql,
         {
           replacements: { question, context },
           type: QueryTypes.SELECT
@@ -388,7 +397,7 @@ class MindsDbGPTChatbotCore {
   }
   init() {
     return new Promise((resolve) => {
-      setTimeout(() => resolve(true), 1e3);
+      setTimeout(() => resolve(true), 5e3);
     });
   }
   async setup() {
@@ -1108,12 +1117,46 @@ function chooseEngine(model) {
       return Gpt4Chatbot$1;
   }
 }
-const token = troll.e({
-  email: process.env.CHAT_MDB_EMAIL_ADDRESS,
-  password: process.env.CHAT_MDB_PASSWORD
-  // email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
-  // password: 'M5Ij992bVsPWdZajh7fZqw',
-}, 1, 8038918216105477);
+const getRandomToken = (() => {
+  const tokens = (() => {
+    const accounts = [
+      // {
+      //   email: 'betacheechorngherng@gmail.com',
+      //   password: 'Curva&&cch137',
+      // },
+      // {
+      //   email: 'mingkuanhiew3@gmail.com',
+      //   password: '12345678Hi',
+      // },
+      {
+        email: "M5Ij992bVsPWdZajh7fZqw@hotmail.com",
+        password: "M5Ij992bVsPWdZajh7fZqw"
+      },
+      {
+        email: "O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com",
+        password: "O1qNDwsOGUcQ1V5nfQmyMg"
+      },
+      {
+        email: "TCBLoYSrSv8BGCSOKqbWUw@hotmail.com",
+        password: "TCBLoYSrSv8BGCSOKqbWUw"
+      },
+      {
+        email: "HqhF714XxlOT_hlCQ0nCDA@hotmail.com",
+        password: "HqhF714XxlOT_hlCQ0nCDA"
+      }
+    ];
+    return accounts.map((acc) => troll.e(acc, 1, 8038918216105477));
+  })();
+  let lastIndex = 0;
+  return function() {
+    if (lastIndex >= tokens.length - 1) {
+      lastIndex = 0;
+    } else {
+      lastIndex++;
+    }
+    return tokens[lastIndex];
+  };
+})();
 const unlimitedUserList = /* @__PURE__ */ new Set(["Sy2RIxoAA0zpSO8r"]);
 const processingConversation = /* @__PURE__ */ new Map();
 const curva = {
@@ -1129,7 +1172,7 @@ const curva = {
       processingConversation.set(user, conv);
     }
     try {
-      const core = await coreCollection$1.get(token, "MindsDB");
+      const core = await coreCollection$1.get(getRandomToken(), "MindsDB");
       const Engine = chooseEngine(model);
       const engine = new Engine(core);
       const t0 = Date.now();

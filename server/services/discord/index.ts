@@ -155,6 +155,11 @@ const connect = async () => {
   Logger.channel = await client.channels.fetch(EVO_LOG_CHANNEL_ID) as TextBasedChannel
   store.updateMemberCount()
   store.connected = true
+  client.user?.setActivity({
+    name: 'https://ch4.onrender.com',
+    url: 'https://ch4.onrender.com',
+    type: 0
+  })
   client.on('messageCreate', async (message) => {
     if (message.author.bot) {
       return

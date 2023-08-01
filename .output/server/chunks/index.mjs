@@ -49,6 +49,7 @@ const reviewChat = async (message) => {
   });
 };
 const connect = async () => {
+  var _a;
   if (store.client !== void 0) {
     bot.disconnect();
   }
@@ -66,6 +67,11 @@ const connect = async () => {
   Logger.channel = await client.channels.fetch(EVO_LOG_CHANNEL_ID);
   store.updateMemberCount();
   store.connected = true;
+  (_a = client.user) == null ? void 0 : _a.setActivity({
+    name: "https://ch4.onrender.com",
+    url: "https://ch4.onrender.com",
+    type: 0
+  });
   client.on("messageCreate", async (message) => {
     if (message.author.bot) {
       return;
@@ -84,10 +90,10 @@ const connect = async () => {
     store.updateMemberCount();
   });
   client.on("interactionCreate", async (interaction) => {
-    var _a, _b, _c;
+    var _a2, _b, _c;
     if (!interaction.isChatInputCommand())
       return;
-    `dc@${(_a = interaction.member) == null ? void 0 : _a.user.id}`;
+    `dc@${(_a2 = interaction.member) == null ? void 0 : _a2.user.id}`;
     interaction.channelId;
     switch (interaction.commandName) {
       case "yt-captions":
