@@ -13,11 +13,9 @@ import type { ArchivedChatMessage } from '~/server/services/chatbots/curva/types
 import useURLParams from './useURLParams'
 import { customErrorCodes } from '~/config/customErrorCodes'
 import { stringifyConvConfig } from '~/server/services/chatbots/curva/convConfig'
-// import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 import { parseConvConfig } from '~/server/services/chatbots/curva/convConfig'
 import type { NuxtApp } from 'nuxt/app'
-
-const currentConvEvTarget = new EventTarget()
+import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/types'
 
 // @ts-ignore
 interface DisplayChatMessage extends ArchivedChatMessage {
@@ -97,7 +95,7 @@ const _loadSuggestions = async () => {
 }
 
 let nuxtApp: NuxtApp
-const model = ref<string>('gpt4')
+const model = ref<'gpt3'|'gpt4'|'gpt-web'|'claude-2-web'>('gpt4')
 const contextMode = ref<boolean>(true)
 const temperature = ref<number>(0.5)
 const messages = ref<DisplayChatMessage[]>([])
@@ -121,27 +119,40 @@ const createRequest = (() => {
   const { h: createHash } = troll
   const getHashType = () => [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
 
-  const createHeaders = (message: string, context: string, t: number) => ({
-    hash: createHash(`${message}${context}`, getHashType(), t),
+  const createHeaders = (messages: OpenAIMessage[], t: number) => ({
+    hash: createHash(messages, getHashType(), t),
     timestamp: str(t)
   })
 
-  const createBody = (message: string, model: string, temperature: number, t: number, tz: number, regenerateId?: string) => {
-    let conv = useNuxtApp()._route?.params?.conv as string
+  const createBody = (messages: OpenAIMessage[], model: string, temperature: number, t: number, tz: number, regenerateId?: string) => {
+    let conv = getCurrentConvId()
     if (!conv) {
       conv = random.base64(8)
       conversations.value.push({ id: conv, name: undefined })
       navigateTo(`/c/${conv}?feature=new`)
     }
-    return { conv, context: 'getContext()', prompt: message, model, temperature, t, tz, id: regenerateId }
+    return { conv, messages, model, temperature, t, tz, id: regenerateId }
   }
 
-  return (message: string, regenerateId?: string) => {
+  return (regenerateId?: string) => {
     const date = new Date()
     const t = date.getTime()
     const tz = (date.getTimezoneOffset() / 60) * -1
-    const body = createBody(message, model.value, temperature.value, t, tz, regenerateId)
-    const headers = createHeaders(message, body.context, t)
+    let formattedMessages = messages.value.map((message) => {
+      const { Q, A } = message
+      if (Q) {
+        if (A) {
+          return [{ role: 'user', content: Q }, { role: 'assistant', content: A }] as OpenAIMessage[]
+        }
+        return [{ role: 'user', content: Q }] as OpenAIMessage[]
+      } else if (A) {
+        return [{ role: 'assistant', content: A }] as OpenAIMessage[]
+      }
+      return []
+    }).flat()
+    formattedMessages = formattedMessages.slice(formattedMessages.length - 100)
+    const body = createBody(formattedMessages, model.value, temperature.value, t, tz, regenerateId)
+    const headers = createHeaders(formattedMessages, t)
     return $fetch('/api/curva/answer', { method: 'POST', headers, body })
   }
 })()
@@ -436,7 +447,7 @@ export default function () {
       focusInput()
     }, 500)
     const more = _fetchSuggestions(messageText)
-    createRequest(messageText, regenerateId)
+    createRequest(regenerateId)
       .then((res) => {
         clearUrlParamsFeatureNew()
         const isAtBottom = getScrollTop() >= document.body.clientHeight

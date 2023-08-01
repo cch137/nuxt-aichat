@@ -1,15 +1,20 @@
 import troll from '~/utils/troll'
-import BardChatbotCore from './Bard'
 import MindsDbGPTChatbotCore from './MindsdbGPT'
-import OpenAiGPTChatbotCore from './OpenAiGPT'
+import FreeGptAsiaChatbotCore from './FreeGPTAsia'
 
 const coreCollection = {
-  record: new Map<string, Promise<(BardChatbotCore | MindsDbGPTChatbotCore)>>(),
-  async get (token: string, engineName: 'Bard' | 'MindsDB') {
+  record: new Map<string, (Promise<MindsDbGPTChatbotCore | FreeGptAsiaChatbotCore>)>(),
+  async get (token: string) {
     return await this.record.get(token) || await (async () => {
-      const promise = new Promise<(BardChatbotCore | MindsDbGPTChatbotCore)>(async (resolve) => {
-        const EngineConstructor = engineName === 'Bard' ? BardChatbotCore : MindsDbGPTChatbotCore
-        const engine = new EngineConstructor(troll.d(token, 1, 8038918216105477, true))
+      const tokenObj = troll.d(token, 1, 8038918216105477, true)
+      const engineName = tokenObj?.type || 'MindsDB'
+      const promise = new Promise<(MindsDbGPTChatbotCore | FreeGptAsiaChatbotCore)>(async (resolve) => {
+        const EngineConstructor = engineName === 'MindsDB'
+          ? MindsDbGPTChatbotCore
+          : engineName === 'FreeGPTAsia'
+            ? FreeGptAsiaChatbotCore
+            : MindsDbGPTChatbotCore
+        const engine = new EngineConstructor(tokenObj)
         await engine.init()
         resolve(engine)
       })
@@ -28,7 +33,7 @@ const coreCollection = {
 
 // (async () => {
 //   console.log('TESTING 1 STRAT')
-//   const bot = new OpenAiGPTChatbotCore()
+//   const bot = new FreeGptAsiaChatbotCore()
 //   // console.log('OK', bot)
 //   const answer = await bot.ask('Hi', {})
 //   console.log(answer)

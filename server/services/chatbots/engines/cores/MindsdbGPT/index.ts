@@ -1,7 +1,8 @@
 import MindsDBClient from './client'
-import type { ChatbotEngine } from '../types'
+import type { ChatbotEngine, OpenAIMessage } from '../types'
 import { getAllCreateCommand, getAllDropCommand } from './utils'
 import sleep from '~/utils/sleep'
+import { messagesToQuestionContext } from '../../utils/openAiMessagesConverter'
 
 class MindsDbGPTChatbotCore implements ChatbotEngine {
   client: MindsDBClient
@@ -35,8 +36,11 @@ class MindsDbGPTChatbotCore implements ChatbotEngine {
     return await Promise.all(tasks)
   }
 
-  async ask (question: string, options: { modelName: string, context?: string}) {
-    return await this.client.askGPT(options.modelName, question, options.context)
+  async ask (questionOrMessages: string | OpenAIMessage[], options: { modelName: string, context?: string }) {
+    const { question = '', context = '' } = (typeof questionOrMessages === 'string')
+      ? ({ question: questionOrMessages, context: options?.context || '' })
+      : messagesToQuestionContext(questionOrMessages)
+    return await this.client.askGPT(options.modelName, question, context || '')
   }
 
   kill () {

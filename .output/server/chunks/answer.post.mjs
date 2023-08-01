@@ -3,7 +3,7 @@ import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index2.mjs';
 import { t as troll, r as read } from './token.mjs';
-import { c as curva } from './index3.mjs';
+import { e as estimateTokens, c as curva } from './index3.mjs';
 import { s as str } from './str.mjs';
 import { b as baseConverter } from './random.mjs';
 import { model, Schema } from 'mongoose';
@@ -27,10 +27,10 @@ import 'socks';
 import 'tls';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import 'googlebard';
 import 'sequelize';
 import './createAxiosSession.mjs';
 import 'axios';
+import 'gpt-3-encoder';
 import 'googlethis';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
@@ -53,12 +53,12 @@ const answer_post = defineEventHandler(async (event) => {
   if (!body) {
     return { error: 1 };
   }
-  const { conv, prompt, context = "", model, temperature, t, tz = 0, id } = body;
+  const { conv, messages = [], model, temperature, t, tz = 0, id } = body;
   const _id = id ? baseConverter.convert(id, "64w", 16) : id;
-  if (!conv || typeof prompt !== "string" || !model || !t) {
+  if (!conv || (messages == null ? void 0 : messages.length) < 1 || !model || !t) {
     return { error: 2, id: _id };
   }
-  const stdHash = troll.h(`${prompt}${context}`, "MD5", t);
+  const stdHash = troll.h(messages, "MD5", t);
   const hashFromClient = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.hash;
   const timestamp = Number((_f = (_e = (_d = event == null ? void 0 : event.node) == null ? void 0 : _d.req) == null ? void 0 : _e.headers) == null ? void 0 : _f.timestamp);
   if (stdHash !== hashFromClient || timestamp !== t) {
@@ -71,7 +71,15 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: 4, id: _id };
   }
   try {
-    const response = await curva.ask(user, conv, model, temperature, prompt, context, tz, _id);
+    const croppedMessages = (() => {
+      let _messages = messages;
+      const maxTokens = model.value === "gpt4" ? 6e3 : model.value === "gpt3" ? 3e3 : model.value === "gpt-web" ? 4e3 : 4e3;
+      while (estimateTokens(JSON.stringify(_messages)) > maxTokens) {
+        _messages.shift();
+      }
+      return _messages;
+    })();
+    const response = await curva.ask(user, conv, model, temperature, croppedMessages, tz, _id);
     response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64w") : _id;
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);

@@ -1,26 +1,7 @@
-import calculateAlphanumericLength from '~/utils/calculateAlphanumericLength'
-import detectLanguageDistribution from '~/utils/detectLanguageDistribution'
+import { encode } from 'gpt-3-encoder'
 
 function estimateTokens (...texts: string[]): number {
-  const text = texts.join('')
-  const length = calculateAlphanumericLength(text)
-  const languageDistribution = detectLanguageDistribution(text)
-  let tokens = 0
-  for (const languageCode in languageDistribution) {
-    switch (languageCode) {
-      case 'en':
-        tokens += (languageDistribution[languageCode] * length) / 4
-        break
-      case 'zh':
-      case 'ja':
-      case 'ko':
-        tokens += (languageDistribution[languageCode] * length) / 0.5
-        break
-      default:
-        tokens += (languageDistribution[languageCode] * length) / 0.75
-    }
-  }
-  return tokens
+  return encode(texts.join('\n')).length
 }
 
 export default estimateTokens

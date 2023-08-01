@@ -1,6 +1,8 @@
 import type { AxiosInstance } from 'axios'
 import { Sequelize, QueryTypes, DataTypes } from 'sequelize'
 import createAxiosSession from '~/server/services/utils/createAxiosSession'
+import type { OpenAIMessage } from '../types'
+import { messagesToQuestionContext } from '../../utils/openAiMessagesConverter'
 
 function wrapPromptTextParam (text: string) {
   const hasSingleQuotes = text.includes("'")
@@ -59,11 +61,11 @@ class MindsDBClient {
     }
   }
 
-  async askGPT (modelName: string, question: string, context?: string) {
+  async askGPT (modelName: string, question = '', context = '') {
     const client = (containsDoubleDash(question) || containsDoubleDash(context || ''))
       ? this.webClient
       : this.client
-    return await client.askGPT(modelName, question, context) as { answer: string, error?: string }
+    return await client.askGPT(modelName, question, context) as { question: string, answer: string, error?: string }
   }
 
   async queryWithWeb (command: string) {

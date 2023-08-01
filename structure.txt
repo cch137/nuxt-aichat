@@ -23,9 +23,8 @@
 │       │   ├── curva
 │       │   └── engines
 │       │       ├── cores
-│       │       │   ├── Bard
-│       │       │   ├── MindsdbGPT
-│       │       │   └── OpenAiGPT
+│       │       │   ├── FreeGPTAsia
+│       │       │   └── MindsdbGPT
 │       │       └── utils
 │       ├── discord
 │       ├── mongoose

@@ -28,11 +28,11 @@ const options = [
   },
   {
     label: 'GPT-Web',
-    value: 'gpt-web-1'
+    value: 'gpt-web'
   },
   {
-    label: 'GPT-Web+',
-    value: 'gpt-web-2'
+    label: 'Claude-2-Web',
+    value: 'claude-2-web'
   },
 ]
 </script>

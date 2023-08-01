@@ -34,7 +34,6 @@
     "discord.js": "^14.11.0",
     "dotenv": "^16.3.1",
     "element-plus": "^2.3.8",
-    "googlebard": "^1.0.7",
     "googlethis": "^1.7.1",
     "gpt-3-encoder": "^1.1.4",
     "marked": "^5.1.2",

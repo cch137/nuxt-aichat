@@ -1,7 +1,10 @@
 import Conversation from './conversation'
-import { coreCollection, BardChatbot, Gpt3Chatbot, Gpt4Chatbot, GptWeb1Chatbot, GptWeb2Chatbot } from '../engines'
+import { coreCollection, Gpt3Chatbot, Gpt4Chatbot, GptWebChatbot, Claude2WebChatbot } from '../engines'
+import type { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
+import type { OpenAIMessage } from '../engines/cores/types'
+import { messagesToQuestionContext } from '../engines/utils/openAiMessagesConverter'
 
 function chooseEngine (model: string) {
   switch (model) {
@@ -9,12 +12,10 @@ function chooseEngine (model: string) {
       return Gpt3Chatbot
     case 'gpt4':
       return Gpt4Chatbot
-    case 'gpt-web-1':
-      return GptWeb1Chatbot
-    case 'gpt-web-2':
-      return GptWeb2Chatbot
-    case 'bard':
-      return BardChatbot
+    case 'gpt-web':
+      return GptWebChatbot
+    case 'claude-2-web':
+      return Claude2WebChatbot
     default:
       return Gpt4Chatbot
   }
@@ -22,35 +23,41 @@ function chooseEngine (model: string) {
 
 const getRandomToken = (() => {
   const tokens: string[] = (() => {
-    const accounts: ({ email: string, password: string })[] = [
+    const accounts: ({ type: 'MindsDB', email: string, password: string })[] = [
       // {
+      //   type: 'MindsDB',
       //   email: 'betacheechorngherng@gmail.com',
       //   password: 'Curva&&cch137',
       // },
       // {
+      //   type: 'MindsDB',
       //   email: 'mingkuanhiew3@gmail.com',
       //   password: '12345678Hi',
       // },
       {
+        type: 'MindsDB',
         email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
         password: 'M5Ij992bVsPWdZajh7fZqw',
       },
       {
+        type: 'MindsDB',
         email: 'O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com',
         password: 'O1qNDwsOGUcQ1V5nfQmyMg',
       },
       {
+        type: 'MindsDB',
         email: 'TCBLoYSrSv8BGCSOKqbWUw@hotmail.com',
         password: 'TCBLoYSrSv8BGCSOKqbWUw',
       },
       {
+        type: 'MindsDB',
         email: 'HqhF714XxlOT_hlCQ0nCDA@hotmail.com',
         password: 'HqhF714XxlOT_hlCQ0nCDA',
       },
     ]
     return accounts.map((acc) => troll.e(acc, 1, 8038918216105477))
   })()
-  tokens.forEach((token) => coreCollection.get(token, 'MindsDB'))
+  tokens.forEach((token) => coreCollection.get(token))
   let lastIndex = 0
   return function () {
     if (lastIndex >= tokens.length - 1) {
@@ -64,9 +71,12 @@ const getRandomToken = (() => {
 
 const unlimitedUserList = new Set<string>(['Sy2RIxoAA0zpSO8r'])
 const processingConversation = new Map<string, string>()
+const freeGptAsiaToken = troll.e({
+  type: 'FreeGPTAsia'
+}, 1, 8038918216105477)
 
 const curva = {
-  async ask (user: string, conv: string, model = 'gpt4', temperature = 0.5, prompt = 'Hi', context = '', tz = 0, _id?: string) {
+  async ask (user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string) {
     if (processingConversation.has(user)) {
       return {
         answer: '',
@@ -78,16 +88,22 @@ const curva = {
       processingConversation.set(user, conv)
     }
     try {
-      const core = await coreCollection.get(getRandomToken(), 'MindsDB')
-      const Engine = chooseEngine(model)
       // @ts-ignore
-      const engine = new Engine(core)
+      const engine = await (async () => {
+        const Engine = chooseEngine(model)
+        return Engine === Claude2WebChatbot
+          ? new Engine(await coreCollection.get(freeGptAsiaToken) as FreeGPTAsiaChatbotCore)
+          // @ts-ignore
+          : new Engine(await coreCollection.get(getRandomToken()) as MindsDbGPTChatbotCore)
+      })()
       const t0 = Date.now()
-      const result = await engine.ask(prompt, { timezone: tz, temperature, context }) as { answer: string, queries?: string[], urls?: string[], error?: string }
+      const result = await engine.ask(messages, { timezone: tz, temperature }) as {
+        question: string, answer: string, queries?: string[], urls?: string[], error?: string
+      }
       const dt = Date.now() - t0
       if (result.answer) {
         const conversation = new Conversation(user, conv)
-        _id = await conversation.saveMessage(prompt, result.answer, result.queries, result.urls, dt, _id)
+        _id = await conversation.saveMessage(result.question, result.answer, result?.queries || [], result?.urls || [], dt, _id)
       }
       return {
         ...result,

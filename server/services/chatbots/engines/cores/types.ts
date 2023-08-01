@@ -1,7 +1,7 @@
 interface ChatbotEngine {
   client?: any
   init (): Promise<true>
-  ask (question: string, options: Record<string, any>): Promise<{
+  ask (questionOrMessages: string | OpenAIMessage[], options: Record<string, any>): Promise<{
     answer: string,
     error?: string,
     queries?: string[],
@@ -11,6 +11,12 @@ interface ChatbotEngine {
   kill (): void
 }
 
+interface OpenAIMessage {
+  role: 'user' | 'assistant',
+  content: string
+}
+
 export type {
-  ChatbotEngine
+  ChatbotEngine,
+  OpenAIMessage
 }

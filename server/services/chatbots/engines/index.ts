@@ -1,19 +1,17 @@
 import coreCollection from './cores/coreCollection'
-import BardChatbotCore from './cores/Bard'
 import MindsDbGPTChatbotCore from './cores/MindsdbGPT'
-import BardChatbot from './bard'
+import FreeGPTAsiaChatbotCore from './cores/FreeGPTAsia'
 import Gpt3Chatbot from './gpt3-5'
 import Gpt4Chatbot from './gpt4'
-import GptWeb1Chatbot from './gpt-web-1'
-import GptWeb2Chatbot from './gpt-web-2'
+import GptWebChatbot from './gpt-web'
+import Claude2WebChatbot from './claude-2-web'
 
 export {
   coreCollection,
-  BardChatbotCore,
   MindsDbGPTChatbotCore,
-  BardChatbot,
+  FreeGPTAsiaChatbotCore,
   Gpt3Chatbot,
   Gpt4Chatbot,
-  GptWeb1Chatbot,
-  GptWeb2Chatbot,
+  GptWebChatbot,
+  Claude2WebChatbot,
 }

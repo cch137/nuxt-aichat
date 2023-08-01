@@ -31,7 +31,7 @@ import 'tls';
 function validKeyValuePair(key, value) {
   switch (key) {
     case "model":
-      if (["gpt3", "gpt4", "gpt-web-1", "gpt-web-2"].includes(value)) {
+      if (["gpt3", "gpt4", "gpt-web", "claude-2-web"].includes(value)) {
         return true;
       }
       break;

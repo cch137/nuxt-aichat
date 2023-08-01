@@ -1,28 +1,27 @@
 import { m as message, l as libExports } from './index2.mjs';
 import { t as troll } from './token.mjs';
-import { r as random } from './random.mjs';
-import { Bard } from 'googlebard';
-import { s as str } from './str.mjs';
 import { Sequelize, QueryTypes } from 'sequelize';
 import { c as createAxiosSession } from './createAxiosSession.mjs';
-import googlethis from 'googlethis';
 import axios from 'axios';
+import { s as str } from './str.mjs';
+import { encode } from 'gpt-3-encoder';
+import googlethis from 'googlethis';
 import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
 import { i as isYouTubeLink, g as getYouTubeVideoId } from './ytLinks.mjs';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
 
-var __defProp$a = Object.defineProperty;
-var __defNormalProp$a = (obj, key, value) => key in obj ? __defProp$a(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$a = (obj, key, value) => {
-  __defNormalProp$a(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$9 = Object.defineProperty;
+var __defNormalProp$9 = (obj, key, value) => key in obj ? __defProp$9(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$9 = (obj, key, value) => {
+  __defNormalProp$9(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Conversation {
   constructor(user, conv) {
-    __publicField$a(this, "conv");
-    __publicField$a(this, "user");
+    __publicField$9(this, "conv");
+    __publicField$9(this, "user");
     this.user = user;
     this.conv = conv;
   }
@@ -132,35 +131,6 @@ ${joinedMessages}`;
 }
 const Conversation$1 = Conversation;
 
-var __defProp$9 = Object.defineProperty;
-var __defNormalProp$9 = (obj, key, value) => key in obj ? __defProp$9(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$9 = (obj, key, value) => {
-  __defNormalProp$9(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-class BardChatbotCore {
-  constructor(options) {
-    __publicField$9(this, "client");
-    this.client = new Bard(options.cookies);
-  }
-  init() {
-    return new Promise((resolve) => resolve(true));
-  }
-  async ask(question, options) {
-    try {
-      const { conversationId = random.base64(64) } = options;
-      return { answer: await this.client.ask(question, conversationId) };
-    } catch (err) {
-      return { answer: "", error: str(err) };
-    }
-  }
-  setup() {
-  }
-  kill() {
-  }
-}
-const BardChatbotCore$1 = BardChatbotCore;
-
 var __defProp$8 = Object.defineProperty;
 var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$8 = (obj, key, value) => {
@@ -215,7 +185,7 @@ class MindsDBClient {
         return this.sqlClient;
     }
   }
-  async askGPT(modelName, question, context) {
+  async askGPT(modelName, question = "", context = "") {
     const client = containsDoubleDash(question) || containsDoubleDash(context || "") ? this.webClient : this.client;
     return await client.askGPT(modelName, question, context);
   }
@@ -383,6 +353,21 @@ async function sleep(timeoutMs = 0) {
   });
 }
 
+const contextHead = "Conversation History\n\n";
+function messagesToQuestionContext(messages) {
+  let questionMessageObj = messages.filter((value) => value.role === "user").at(-1);
+  if (questionMessageObj) {
+    messages.splice(messages.indexOf(questionMessageObj), 1);
+  } else {
+    questionMessageObj = { role: "user", content: "" };
+  }
+  const context = `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join("\n\n")}`;
+  return {
+    question: questionMessageObj.content,
+    context
+  };
+}
+
 var __defProp$7 = Object.defineProperty;
 var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$7 = (obj, key, value) => {
@@ -417,8 +402,9 @@ class MindsDbGPTChatbotCore {
     }
     return await Promise.all(tasks);
   }
-  async ask(question, options) {
-    return await this.client.askGPT(options.modelName, question, options.context);
+  async ask(questionOrMessages, options) {
+    const { question = "", context = "" } = typeof questionOrMessages === "string" ? { question: questionOrMessages, context: (options == null ? void 0 : options.context) || "" } : messagesToQuestionContext(questionOrMessages);
+    return await this.client.askGPT(options.modelName, question, context || "");
   }
   kill() {
     this.client.kill();
@@ -426,13 +412,71 @@ class MindsDbGPTChatbotCore {
 }
 const MindsDbGPTChatbotCore$1 = MindsDbGPTChatbotCore;
 
+var __defProp$6 = Object.defineProperty;
+var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$6 = (obj, key, value) => {
+  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+const defaultApiHost = "https://api.freegpt.asia";
+const defaultApiKey = "sk-kwyp3zashYLHfeGA371f49E9Ee46471dBd6e9b434d68Bc2a";
+class Client {
+  constructor(host = defaultApiHost, apiKey = defaultApiKey) {
+    __publicField$6(this, "host");
+    __publicField$6(this, "apiKey");
+    this.host = host || defaultApiHost;
+    this.apiKey = apiKey || defaultApiKey;
+  }
+  async askGPT(messages, options = {}) {
+    const { model = "gpt-3.5-turbo", temperature = 0.3, top_p = 0.7, stream = false } = options;
+    const url = `${this.host}/v1/chat/completions`;
+    const headers = { "Content-Type": "application/json" };
+    headers["Authorization"] = `Bearer ${this.apiKey}`;
+    const data = {
+      messages,
+      model,
+      temperature,
+      top_p,
+      stream
+    };
+    return (await axios.post(url, data, { headers, validateStatus: (_) => true })).data;
+  }
+}
+class FreeGptAsiaChatbotCore {
+  constructor(options = {}) {
+    __publicField$6(this, "client");
+    const { host, apiKey } = options;
+    this.client = new Client(host, apiKey);
+  }
+  init() {
+    return new Promise((r) => r(true));
+  }
+  async ask(questionOrMessages, options = {}) {
+    try {
+      const messages = typeof questionOrMessages === "string" ? [{ role: "user", content: questionOrMessages }] : questionOrMessages;
+      const res = await this.client.askGPT(messages, options);
+      const answer = res.choices[0].message.content;
+      return { answer };
+    } catch (err) {
+      return { answer: "", error: str(err) };
+    }
+  }
+  setup() {
+  }
+  kill() {
+  }
+}
+const FreeGptAsiaChatbotCore$1 = FreeGptAsiaChatbotCore;
+
 const coreCollection = {
   record: /* @__PURE__ */ new Map(),
-  async get(token, engineName) {
+  async get(token) {
     return await this.record.get(token) || await (async () => {
+      const tokenObj = troll.d(token, 1, 8038918216105477, true);
+      const engineName = (tokenObj == null ? void 0 : tokenObj.type) || "MindsDB";
       const promise = new Promise(async (resolve) => {
-        const EngineConstructor = engineName === "Bard" ? BardChatbotCore$1 : MindsDbGPTChatbotCore$1;
-        const engine = new EngineConstructor(troll.d(token, 1, 8038918216105477, true));
+        const EngineConstructor = engineName === "MindsDB" ? MindsDbGPTChatbotCore$1 : engineName === "FreeGPTAsia" ? FreeGptAsiaChatbotCore$1 : MindsDbGPTChatbotCore$1;
+        const engine = new EngineConstructor(tokenObj);
         await engine.init();
         resolve(engine);
       });
@@ -449,23 +493,6 @@ const coreCollection = {
   }
 };
 const coreCollection$1 = coreCollection;
-
-var __defProp$6 = Object.defineProperty;
-var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$6 = (obj, key, value) => {
-  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-class BardChatbot {
-  constructor(core) {
-    __publicField$6(this, "core");
-    this.core = core;
-  }
-  async ask(question, options = {}) {
-    return await this.core.ask(question, options);
-  }
-}
-const BardChatbot$1 = BardChatbot;
 
 const round = (num, digits = 0) => {
   digits = digits ** 10;
@@ -538,106 +565,8 @@ function formatUserCurrentTime(userTimeZone = 0) {
   ), "yyyy-MM-dd ddd HH:mm:ss");
 }
 
-function calculateAlphanumericLength(text) {
-  const regex = /[\p{L}\p{N}]/gu;
-  const matches = text.match(regex);
-  const length = matches ? matches.length : 0;
-  return length;
-}
-
-function detectLanguageDistribution(text, sampleMinSize = 100, sampleProportion = 0.1) {
-  const cleanedText = text.replace(/\s/g, "");
-  let sampleSize;
-  if (cleanedText.length < sampleMinSize) {
-    sampleSize = cleanedText.length;
-  } else if (cleanedText.length < sampleMinSize / sampleProportion) {
-    sampleSize = sampleMinSize;
-  } else {
-    sampleSize = Math.floor(cleanedText.length * sampleProportion);
-  }
-  let selectedIndices = [];
-  if (sampleSize < cleanedText.length) {
-    selectedIndices = getRandomIndices(sampleSize, cleanedText.length);
-  }
-  function getRandomIndices(count, max) {
-    const indices = /* @__PURE__ */ new Set();
-    while (indices.size < count) {
-      const randomIndex = Math.floor(Math.random() * max);
-      indices.add(randomIndex);
-    }
-    return Array.from(indices);
-  }
-  if (selectedIndices.length === 0) {
-    for (let i = 0; i < cleanedText.length; i++) {
-      selectedIndices.push(i);
-    }
-  }
-  const languageCodeRanges = {
-    en: [[0, 127]],
-    // Basic Latin (ASCII)
-    zh: [[19968, 40959], [13312, 19903], [131072, 173791], [173824, 177983], [177984, 178207]],
-    // Chinese
-    ja: [[12352, 12447], [12448, 12543], [12784, 12799], [110592, 110847], [127488, 127743]],
-    // Japanese
-    ko: [[44032, 55215]]
-    // Korean
-    // Add more languages and their corresponding Unicode ranges as needed
-  };
-  const characterCounts = {};
-  selectedIndices.forEach((index) => {
-    const character = cleanedText[index];
-    if (!characterCounts[character]) {
-      characterCounts[character] = 0;
-    }
-    characterCounts[character]++;
-  });
-  const languageDistribution = {};
-  for (const character in characterCounts) {
-    let detectedLanguageCode = "other";
-    for (const languageCode in languageCodeRanges) {
-      let isCharacterInRange = false;
-      languageCodeRanges[languageCode].forEach((range) => {
-        if (character.charCodeAt(0) >= range[0] && character.charCodeAt(0) <= range[1]) {
-          isCharacterInRange = true;
-        }
-      });
-      if (isCharacterInRange) {
-        detectedLanguageCode = languageCode;
-        break;
-      }
-    }
-    if (!languageDistribution[detectedLanguageCode]) {
-      languageDistribution[detectedLanguageCode] = 0;
-    }
-    languageDistribution[detectedLanguageCode] += characterCounts[character];
-  }
-  const totalCharacters = selectedIndices.length;
-  for (const languageCode in languageDistribution) {
-    languageDistribution[languageCode] /= totalCharacters;
-  }
-  return languageDistribution;
-}
-
 function estimateTokens(...texts) {
-  const text = texts.join("");
-  const length = calculateAlphanumericLength(text);
-  const languageDistribution = detectLanguageDistribution(text);
-  let tokens = 0;
-  for (const languageCode in languageDistribution) {
-    switch (languageCode) {
-      case "en":
-        tokens += languageDistribution[languageCode] * length / 4;
-        break;
-      case "zh":
-      case "ja":
-      case "ko":
-        tokens += languageDistribution[languageCode] * length / 0.5;
-        break;
-      default:
-        tokens += languageDistribution[languageCode] * length / 0.75;
-    }
-  }
-  return tokens;
+  return encode(texts.join("\n")).length;
 }
 
 var __defProp$5 = Object.defineProperty;
@@ -651,12 +580,13 @@ class Gpt3Chatbot {
     __publicField$5(this, "core");
     this.core = core;
   }
-  async ask(question, options = {}) {
+  async ask(messages, options = {}) {
     const { timezone = 0, temperature = 0.5 } = options;
-    question = `User current time: ${formatUserCurrentTime(timezone)}
+    const { question = "", context = "" } = messagesToQuestionContext(messages);
+    const prompt = `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens(question, options.context || "") + 500;
+    const quetionTokens = estimateTokens(question, context) + 500;
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1e3)) {
         case 1:
@@ -671,7 +601,10 @@ Question: ${question}`;
       }
     })();
     const modelName = `gpt3${temperatureSuffix}${tokensSuffix}`;
-    return await this.core.ask(question, { ...options, modelName });
+    return {
+      ...await this.core.ask(prompt, { ...options, modelName, context }),
+      question
+    };
   }
 }
 const Gpt3Chatbot$1 = Gpt3Chatbot;
@@ -687,12 +620,13 @@ class Gpt4Chatbot {
     __publicField$4(this, "core");
     this.core = core;
   }
-  async ask(question, options = {}) {
+  async ask(messages, options = {}) {
     const { timezone = 0, temperature = 0.5 } = options;
-    question = `User current time: ${formatUserCurrentTime(timezone)}
+    const { question = "", context = "" } = messagesToQuestionContext(messages);
+    const prompt = `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens(question, options.context || "") + 500;
+    const quetionTokens = estimateTokens(question, context) + 500;
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1e3)) {
         case 1:
@@ -715,7 +649,10 @@ Question: ${question}`;
       }
     })();
     const modelName = `gpt4${temperatureSuffix}${tokensSuffix}`;
-    return await this.core.ask(question, { ...options, modelName });
+    return {
+      ...await this.core.ask(prompt, { ...options, modelName, context }),
+      question
+    };
   }
 }
 const Gpt4Chatbot$1 = Gpt4Chatbot;
@@ -885,22 +822,6 @@ async function crawl(url, textOnly = true) {
   }
 }
 
-function extractUrls(text, noRepeat = true) {
-  const urlRegex = /((?:https?:\/\/)(?:www\.)?[a-zA-Z0-9\u4e00-\u9fa5-]+(?:\.[a-zA-Z0-9\u4e00-\u9fa5-]+)+(?:\/[^\s]*)?)/g;
-  const matches = text.match(urlRegex);
-  if (matches) {
-    const urls = matches.map((url) => {
-      if (/^https?:\/\//i.test(url)) {
-        return url;
-      }
-      return `http://${url}`;
-    });
-    return noRepeat ? [...new Set(urls)] : urls;
-  } else {
-    return [];
-  }
-}
-
 var __defProp$1 = Object.defineProperty;
 var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$1 = (obj, key, value) => {
@@ -908,6 +829,7 @@ var __publicField$1 = (obj, key, value) => {
   return value;
 };
 function parseObjectFromText(text, startChar = "{", endChar = "}") {
+  text = `${text.includes(startChar) ? "" : startChar}${text}${text.includes("}") ? "" : "}"}`;
   try {
     return JSON.parse(text.substring(text.indexOf(startChar), text.lastIndexOf(endChar) + 1));
   } catch {
@@ -916,7 +838,7 @@ function parseObjectFromText(text, startChar = "{", endChar = "}") {
 }
 async function estimateQueriesAndUrls(engine, question, options = {}) {
   const { time = formatUserCurrentTime(0) } = options;
-  const prompt = `\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
+  question = `\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
 \u56DE\u590D\u7684\u683C\u5F0F: { "queries": string[], "urls": string[], "answer"?: string }
 \u4F60\u7684\u7528\u6236\u88AB\u5206\u914D\u4E86\u4E00\u500B\u4EFB\u52D9\u3002
 \u8ACB\u6839\u64DA\u6587\u672B\u7684 "question" \u9810\u6E2C\u7528\u6236\u884C\u70BA\uFF0C"question" \u6B63\u662F\u7528\u6236\u88AB\u6307\u6D3E\u7684\u4EFB\u52D9\u3002
@@ -932,15 +854,14 @@ async function estimateQueriesAndUrls(engine, question, options = {}) {
 \u8ACB\u6CE8\u610F\uFF0C\u7531\u65BC\u4EFB\u52D9\u6703\u5728\u4E0B\u4E00\u6B21\u5C0D\u8A71\u6642\u88AB\u518D\u6B21\u63D0\u53CA\uFF0C\u56E0\u6B64\u4E0D\u8981\u5728 "queries" \u4E2D\u4EE5\u4EFB\u4F55\u5F62\u5F0F\u63CF\u8FF0\u7528\u6236\u7684\u4EFB\u52D9\u3002
 \u8ACB\u6CE8\u610F\uFF0C"answer" \u662F\u53EF\u9078\u9805\uFF0C\u4F60\u4E0D\u9700\u8981\u7E3D\u662F\u63D0\u4F9B "answer"\uFF0C\u50C5\u5728\u7528\u6236\u4EFB\u52D9\u4E0D\u9700\u8981\u806F\u7DB2\u5C31\u80FD\u5B8C\u6210\u6642\u63D0\u4F9B\u3002
 \u5728 "answer" \u56DE\u7B54\u904E\u7684\u554F\u984C\u4E0D\u518D\u9700\u8981\u88AB\u641C\u7D22\uFF0C\u56B4\u7981\u5728\u6C92\u6709\u76F8\u95DC\u7B54\u6848\u6216\u6700\u65B0\u8CC7\u8A0A\u6642\u63D0\u4F9B "answer"\u3002
-\u7576\u4F60\u6C7A\u5B9A\u63D0\u4F9B "answer" \u6642\uFF0C"queries" \u548C "urls" \u5FC5\u9808\u662F\u7A7A array\uFF0C\u56E0\u6B64\u56B4\u7981\u5C0D\u9700\u8981\u806F\u7DB2\u8A2A\u554F\u7684\u554F\u984C\u63D0\u4F9B "answer"\uFF0C\u4EE5\u907F\u514D\u63D0\u4F9B\u904E\u6642\u8CC7\u8A0A\u3002
+\u7576\u4F60\u6C7A\u5B9A\u63D0\u4F9B "answer" \u6642\uFF0C\u4EE5\u7528\u6236\u8A9E\u8A00\u56DE\u7B54\uFF0C\u4E26\u4E14 "queries" \u548C "urls" \u5FC5\u9808\u662F\u7A7A array\uFF0C\u56E0\u6B64\u56B4\u7981\u5C0D\u9700\u8981\u806F\u7DB2\u8A2A\u554F\u7684\u554F\u984C\u63D0\u4F9B "answer"\uFF0C\u4EE5\u907F\u514D\u63D0\u4F9B\u904E\u6642\u8CC7\u8A0A\u3002
 \u518D\u6B21\u63D0\u9192\uFF0C\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
 \u56DE\u590D\u7684\u683C\u5F0F: { "queries": string[], "urls": string[], "answer"?: string }
 \u7576\u524D\u6642\u9593: ${time}
 ---
 question: ${question}
 `;
-  let _answer = (await engine.ask(prompt, { modelName: "gpt4_t00_7k", context: "" })).answer || "{}";
-  _answer = `${_answer.includes("{") ? "" : "{"}${_answer}${_answer.includes("}") ? "" : "}"}`;
+  let _answer = (await engine.ask(question, { modelName: "gpt4_t00_7k", context: options.context })).answer || "{}";
   try {
     const { queries = [], urls = [], answer = "" } = parseObjectFromText(_answer, "{", "}");
     return { queries, urls, answer: answer ? `${answer}` : "" };
@@ -985,7 +906,7 @@ async function summaryArticle(engine, question, article, options = {}) {
   const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5e3, summaryMaxTokens = 5e3, modelName = "gpt4_t00_6k" } = options;
   const chunks = chunkParagraphs(article, chunkMaxTokens);
   const summary = (await Promise.all(chunks.map(async (chunk) => {
-    const prompt = `
+    question = `
 Summarizes information relevant to the question from the following content.
 Ensure overall coherence and consistency of the responses, and provide clear conclusions.
 Content is sourced from webpages, completely ignore content not related to the question.
@@ -994,7 +915,7 @@ User curent time: ${time}
 Question: ${question}
 Webpage:
 ${chunk}`;
-    return (await engine.ask(prompt, { modelName })).answer;
+    return (await engine.ask(question, { modelName })).answer;
   }))).join("\n");
   if (estimateTokens(summary) > summaryMaxTokens && maxTries > 1) {
     return await summaryArticle(engine, question, summary, { ...options, maxTries: maxTries - 1 });
@@ -1003,41 +924,56 @@ ${chunk}`;
 }
 async function selectPages(engine, question, result, options = {}) {
   const { time = formatUserCurrentTime(0), modelName = "gpt4_t00_7k" } = options;
-  const prompt = `
-Please select some pages (up to 8) from the search engine results that can help you answer your question.
-Keep number of pages as small as possible (about 3).
-If it is impossible to determine from the description of website whether it contains useful information, do not choose that website.
-Pay attention to the release time and avoid outdated information.
-Language is not limited.
-Think of yourself as an API, do not make other descriptions, just reply a JSON array.
-Each element in the array should be an object with two properties: "url" (string) and "title" (string).
-User current time: ${time}
-Question: ${question}
-Search engine results:
+  question = `\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
+\u56DE\u590D\u7684\u683C\u5F0F: { "selectedUrls"?: string[], "answer"?: string }
+\u4F60\u7684\u7528\u6236\u4F7F\u7528\u641C\u7D22\u5F15\u64CE\u627E\u5230\u4E86\u4E00\u4E9B\u7DB2\u9801\uFF0C\u8ACB\u5206\u6790\u641C\u7D22\u5F15\u64CE\u7D50\u679C\u3002
+\u5982\u679C\u4F60\u8A8D\u70BA\u641C\u7D22\u5F15\u64CE\u6240\u63D0\u4F9B\u7684\u7D50\u679C\u5DF2\u7D93\u80FD\u5920\u8B93\u4F60\u5168\u9762\u548C\u6E96\u78BA\u5730\u56DE\u7B54\uFF0C\u8ACB\u5728 "answer" \u5BEB\u5165\u4F60\u7684\u7B54\u6848\u4E26\u76F4\u63A5\u56DE\u50B3\u3002
+\u5982\u679C\u4F60\u8A8D\u70BA\u4F60\u9700\u8981\u8A2A\u554F\u7DB2\u9801\u624D\u80FD\u4F5C\u51FA\u5168\u9762\u7684\u56DE\u7B54\uFF0C\u8ACB\u5728 "selectedUrls" \u63D0\u4F9B\u4F60\u60F3\u8981\u8A2A\u554F\u7684\u7DB2\u7AD9\uFF08\u76E1\u91CF\u5C11\u65BC 3 \u500B\uFF0C\u4E0A\u9650\u70BA 5 \u500B\uFF09\u3002
+\u8ACB\u6CE8\u610F\uFF0C\u4F60\u53EA\u80FD\u9078\u64C7\u63D0\u4F9B "selectedUrls" \u6216 "answer" \u5176\u4E2D\u4E00\u500B\u503C\uFF0C\u56B4\u7981\u540C\u6642\u63D0\u4F9B\u4E8C\u8005\u3002
+\u56E0\u6B64\uFF0C\u50C5\u5728\u53C3\u8003\u8CC7\u6599\u5145\u8DB3\u6642\u63D0\u4F9B "answer"\uFF0C\u4EE5\u907F\u514D\u932F\u8AA4\u6216\u904E\u6642\u8CC7\u8A0A\u3002
+\u7528\u6236\u53EF\u80FD\u6703\u4F7F\u7528\u4E0D\u540C\u8A9E\u8A00\u641C\u7D22\uFF0C\u5982\u679C\u4F60\u9700\u8981\u9078\u64C7\u7DB2\u9801\uFF0C\u4E0D\u4E00\u5B9A\u8981\u9078\u64C7\u8207\u7528\u6236\u8A9E\u8A00\u76F8\u540C\u7684\u7DB2\u9801\uFF0C\u4F60\u53EA\u8981\u78BA\u4FDD\u7DB2\u9801\u7684\u5167\u5BB9\u5C0D\u554F\u984C\u7684\u89E3\u7B54\u6709\u7528\u5373\u53EF\u3002
+\u5982\u679C\u4F60\u9078\u64C7\u76F4\u63A5\u56DE\u7B54\u7528\u6236\u554F\u984C\uFF0C\u56B4\u7981\u6458\u6284\u641C\u7D22\u5F15\u64CE\u7D50\u679C\u4E2D\u7684\u7DB2\u9801\u7C21\u4ECB\uFF0C\u8ACB\u6839\u64DA\u4F60\u7684\u77E5\u8B58\u4EE5\u53CA\u641C\u7D22\u5F15\u64CE\u7D50\u679C\uFF0C\u5728\u7D93\u904E\u7E3D\u7D50\u5F8C\u56DE\u7B54\u7528\u6236\u7684\u554F\u984C\uFF0C\u4EE5\u7528\u6236\u554F\u984C\u4E2D\u4F7F\u7528\u7684\u8A9E\u8A00\u9032\u884C\u56DE\u7B54\u3002
+\u518D\u6B21\u63D0\u9192\uFF0C\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
+\u56DE\u590D\u7684\u683C\u5F0F: { "selectedUrls"?: string[], "answer"?: string }
+\u7576\u524D\u6642\u9593: ${time}
+---
+question: ${question}
+---
+search results:
+
 ${result.summary(true)}`;
-  return parseObjectFromText((await engine.ask(prompt, { modelName })).answer, "[", "]");
+  return parseObjectFromText((await engine.ask(question, { modelName })).answer, "{", "}");
 }
-class GptWeb2Chatbot {
+class GptWebChatbot {
   constructor(core) {
     __publicField$1(this, "core");
     this.core = core;
   }
-  async ask(question, options = {}) {
+  async ask(messages, options = {}) {
+    const { question, context } = messagesToQuestionContext(messages);
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
-    let { queries = [], urls = [], answer: answer1 = "" } = await estimateQueriesAndUrls(this.core, question, options);
+    let { queries = [], urls = [], answer: answer1 = "" } = await estimateQueriesAndUrls(this.core, question, { ...options, context });
     if (queries.length === 0 && urls.length === 0 && answer1 !== "") {
-      return { queries, urls, answer: answer1 };
+      return { question, queries, urls, answer: answer1 };
     }
     const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)));
+    let isDirectAnswerInWhenSelectPages = false;
     const crawledPages2 = queries.length ? (async () => {
       const searcherResult = await search(...queries);
-      const selectedPages = await selectPages(this.core, question, searcherResult);
-      urls.push(...selectedPages.map((page) => page.url));
-      const tasks = selectedPages.map(async (page) => await summaryArticle(this.core, question, (await crawl(page.url)).markdown));
+      const { selectedUrls = [], answer = "" } = await selectPages(this.core, question, searcherResult);
+      if (answer) {
+        isDirectAnswerInWhenSelectPages = true;
+        return [answer];
+      }
+      urls.push(...selectedUrls);
+      const tasks = selectedUrls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown));
       const queriesSummary = `${answer1 ? answer1 + "\n\n" : ""}${searcherResult.summary()}`;
       tasks.unshift(summaryArticle(this.core, question, queriesSummary));
       return await Promise.all(tasks);
     })() : Promise.all([new Promise((r) => r(""))]);
+    if (isDirectAnswerInWhenSelectPages && queries.length && urls.length === 0) {
+      return { question, queries, answer: (await crawledPages2)[0] };
+    }
     let summary = (await Promise.all([
       ...await crawledPages1,
       ...await crawledPages2
@@ -1046,8 +982,7 @@ class GptWeb2Chatbot {
     while (estimateTokens(summary) > 5e3 && tries-- > 0) {
       summary = await summaryArticle(this.core, question, summary);
     }
-    const prompt = `
-Use references where possible and answer in detail.
+    const prompt = `Use references where possible and answer in detail.
 Ensure the overall coherence and consistency of the responses.
 Ensure that the release time of news is relevant to the responses, avoiding outdated information.
 User current time: ${options.time}
@@ -1055,8 +990,9 @@ Question: ${question}
 
 References:
 ${summary}`;
-    const result = await this.core.ask(prompt, { modelName: "gpt4_t00_6k" });
+    const result = await this.core.ask(prompt, { modelName: "gpt4_t00_6k", context });
     return {
+      question,
       queries,
       urls,
       answer: result.answer,
@@ -1064,7 +1000,7 @@ ${summary}`;
     };
   }
 }
-const GptWeb2Chatbot$1 = GptWeb2Chatbot;
+const GptWebChatbot$1 = GptWebChatbot;
 
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -1072,37 +1008,26 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-class GptWeb1Chatbot {
+class Claude2WebChatbot {
   constructor(core) {
     __publicField(this, "core");
-    this.core = core;
+    this.core = core || new FreeGptAsiaChatbotCore$1();
   }
-  async ask(question, options = {}) {
-    options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
-    const urls = extractUrls(question);
-    const crawledPages1 = Promise.all(urls.map((url) => crawl(url)));
-    const references = [
-      (await search(question.replace(/\s+/g, " ").trim())).summary(),
-      ...(await crawledPages1).map((page) => page.markdown)
-    ].join("\n---\n");
-    const prompt = `
-Use references where possible and answer in detail.
-Ensure the overall coherence and consistency of the responses.
-Ensure that the release time of news is relevant to the responses, avoiding outdated information.
-User current time: ${options.time}
-Question: ${question}
+  async ask(messages, options = {}) {
+    const { question = "", context = "" } = messagesToQuestionContext(messages);
+    const prompt = `${question}
 
-References:
-${estimateTokens(references) > 5700 ? await summaryArticle(this.core, question, references) : references}`;
-    const result = await this.core.ask(prompt, { modelName: "gpt4_t00_6k" });
+---
+SYSTEM PROMPT: Please continue to reply to the user according to the following conversation history.
+
+${context}`;
     return {
-      urls,
-      answer: result.answer,
-      error: result.error
+      ...await this.core.ask(prompt, { model: "claude-2-web" }),
+      question
     };
   }
 }
-const GptWeb1Chatbot$1 = GptWeb1Chatbot;
+const Claude2WebChatbot$1 = Claude2WebChatbot;
 
 function chooseEngine(model) {
   switch (model) {
@@ -1110,12 +1035,10 @@ function chooseEngine(model) {
       return Gpt3Chatbot$1;
     case "gpt4":
       return Gpt4Chatbot$1;
-    case "gpt-web-1":
-      return GptWeb1Chatbot$1;
-    case "gpt-web-2":
-      return GptWeb2Chatbot$1;
-    case "bard":
-      return BardChatbot$1;
+    case "gpt-web":
+      return GptWebChatbot$1;
+    case "claude-2-web":
+      return Claude2WebChatbot$1;
     default:
       return Gpt4Chatbot$1;
   }
@@ -1124,33 +1047,39 @@ const getRandomToken = (() => {
   const tokens = (() => {
     const accounts = [
       // {
+      //   type: 'MindsDB',
       //   email: 'betacheechorngherng@gmail.com',
       //   password: 'Curva&&cch137',
       // },
       // {
+      //   type: 'MindsDB',
       //   email: 'mingkuanhiew3@gmail.com',
       //   password: '12345678Hi',
       // },
       {
+        type: "MindsDB",
         email: "M5Ij992bVsPWdZajh7fZqw@hotmail.com",
         password: "M5Ij992bVsPWdZajh7fZqw"
       },
       {
+        type: "MindsDB",
         email: "O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com",
         password: "O1qNDwsOGUcQ1V5nfQmyMg"
       },
       {
+        type: "MindsDB",
         email: "TCBLoYSrSv8BGCSOKqbWUw@hotmail.com",
         password: "TCBLoYSrSv8BGCSOKqbWUw"
       },
       {
+        type: "MindsDB",
         email: "HqhF714XxlOT_hlCQ0nCDA@hotmail.com",
         password: "HqhF714XxlOT_hlCQ0nCDA"
       }
     ];
     return accounts.map((acc) => troll.e(acc, 1, 8038918216105477));
   })();
-  tokens.forEach((token) => coreCollection$1.get(token, "MindsDB"));
+  tokens.forEach((token) => coreCollection$1.get(token));
   let lastIndex = 0;
   return function() {
     if (lastIndex >= tokens.length - 1) {
@@ -1163,8 +1092,11 @@ const getRandomToken = (() => {
 })();
 const unlimitedUserList = /* @__PURE__ */ new Set(["Sy2RIxoAA0zpSO8r"]);
 const processingConversation = /* @__PURE__ */ new Map();
+const freeGptAsiaToken = troll.e({
+  type: "FreeGPTAsia"
+}, 1, 8038918216105477);
 const curva = {
-  async ask(user, conv, model = "gpt4", temperature = 0.5, prompt = "Hi", context = "", tz = 0, _id) {
+  async ask(user, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id) {
     if (processingConversation.has(user)) {
       return {
         answer: "",
@@ -1176,15 +1108,16 @@ const curva = {
       processingConversation.set(user, conv);
     }
     try {
-      const core = await coreCollection$1.get(getRandomToken(), "MindsDB");
-      const Engine = chooseEngine(model);
-      const engine = new Engine(core);
+      const engine = await (async () => {
+        const Engine = chooseEngine(model);
+        return Engine === Claude2WebChatbot$1 ? new Engine(await coreCollection$1.get(freeGptAsiaToken)) : new Engine(await coreCollection$1.get(getRandomToken()));
+      })();
       const t0 = Date.now();
-      const result = await engine.ask(prompt, { timezone: tz, temperature, context });
+      const result = await engine.ask(messages, { timezone: tz, temperature });
       const dt = Date.now() - t0;
       if (result.answer) {
         const conversation = new Conversation$1(user, conv);
-        _id = await conversation.saveMessage(prompt, result.answer, result.queries, result.urls, dt, _id);
+        _id = await conversation.saveMessage(result.question, result.answer, (result == null ? void 0 : result.queries) || [], (result == null ? void 0 : result.urls) || [], dt, _id);
       }
       return {
         ...result,
@@ -1204,5 +1137,5 @@ const curva = {
 };
 const curva$1 = curva;
 
-export { Conversation$1 as C, curva$1 as c };
+export { Conversation$1 as C, curva$1 as c, estimateTokens as e };
 //# sourceMappingURL=index3.mjs.map

@@ -1,17 +1,20 @@
 import type { MindsDbGPTChatbotCore } from './cores/MindsdbGPT'
 import formatUserCurrentTime from './utils/formatUserCurrentTime'
 import estimateTokens from "./utils/estimateTokens"
+import type { OpenAIMessage } from './cores/types'
+import { messagesToQuestionContext } from './utils/openAiMessagesConverter'
 
 class Gpt3Chatbot {
   core: MindsDbGPTChatbotCore
   constructor (core: MindsDbGPTChatbotCore) {
-    this.core= core
+    this.core = core
   }
-  async ask (question: string, options: { timezone?: number, temperature?: number, context?: string } = {}) {
+  async ask (messages: OpenAIMessage[], options: { timezone?: number, temperature?: number, context?: string } = {}) {
     const { timezone = 0, temperature = 0.5 } = options
-    question = `User current time: ${formatUserCurrentTime(timezone)}\nQuestion: ${question}`
+    const { question = '', context = '' } = messagesToQuestionContext(messages)
+    const prompt = `User current time: ${formatUserCurrentTime(timezone)}\nQuestion: ${question}`
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, '0')}`
-    const quetionTokens = estimateTokens(question, options.context || '') + 500
+    const quetionTokens = estimateTokens(question, context) + 500
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1000)) {
         case 1:
@@ -26,7 +29,10 @@ class Gpt3Chatbot {
       }
     })()
     const modelName = `gpt3${temperatureSuffix}${tokensSuffix}`
-    return await this.core.ask(question, { ...options, modelName })
+    return {
+      ...await this.core.ask(prompt, { ...options, modelName, context }),
+      question
+    }
   }
 }
 
