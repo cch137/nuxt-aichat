@@ -2,8 +2,10 @@ import axios from 'axios'
 import { ChatbotEngine } from '../types'
 import str from '~/utils/str'
 
-const defaultApiHost = 'https://api.spaxe.top'
-const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
+// const defaultApiHost = 'https://api.spaxe.top'
+// const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
+const defaultApiHost = 'https://api.freegpt.asia'
+const defaultApiKey = 'sk-kwyp3zashYLHfeGA371f49E9Ee46471dBd6e9b434d68Bc2a'
 
 class Client {
   host: string
@@ -14,6 +16,7 @@ class Client {
     this.apiKey = apiKey || defaultApiKey
   }
 
+  // models: gpt-3.5-turbo, claude-2-web
   async askGPT (messages: ({ role: 'user' | 'assistant', content: string })[], model = 'gpt-3.5-turbo', temperature = 0.3, top_p = 0.7, stream = false) {
     const url = `${this.host}/v1/chat/completions`
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }

@@ -50,6 +50,7 @@ const getRandomToken = (() => {
     ]
     return accounts.map((acc) => troll.e(acc, 1, 8038918216105477))
   })()
+  tokens.forEach((token) => coreCollection.get(token, 'MindsDB'))
   let lastIndex = 0
   return function () {
     if (lastIndex >= tokens.length - 1) {

@@ -57,19 +57,19 @@ const check_post = defineEventHandler(async (event) => {
       { $project: { _id: 0, conv: 1 } }
     ]).exec())[0]) == null ? void 0 : _a.conv;
     if (Array.isArray(conversations)) {
-      const record = {};
+      const saved = {};
       const items = await conversation.find(
         { $or: conversations.map((id) => ({ user, id })) },
-        { _id: 0, id: 1, name: 1 }
+        { _id: 0, id: 1, name: 1, config: 1 }
       );
       for (const item of items) {
         if (typeof item.name === "string") {
-          record[item.id] = item.name;
+          saved[item.id] = { name: item.name, config: item.config || "" };
         }
       }
       return {
         list: conversations.filter((c) => !c.startsWith("~")),
-        named: record
+        saved
       };
     }
   } catch (err) {
@@ -77,7 +77,7 @@ const check_post = defineEventHandler(async (event) => {
   }
   return {
     list: [],
-    named: {}
+    saved: {}
   };
 });
 

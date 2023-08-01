@@ -19,14 +19,14 @@ export default defineEventHandler(async (event) => {
   const _id = id ? baseConverter.convert(id, '64w', 16) : id
   // @ts-ignore
   if (!conv || typeof prompt !== 'string' || !model || !t) {
-    return { error: 2 }
+    return { error: 2, id: _id }
   }
   const stdHash = troll.h(`${prompt}${context}`, 'MD5', t)
   const hashFromClient = event?.node?.req?.headers?.hash
   const timestamp = Number(event?.node?.req?.headers?.timestamp)
   // Validate hash and timestamp
   if (stdHash !== hashFromClient || timestamp !== t) {
-    return { error: 3 }
+    return { error: 3, id: _id }
   }
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
@@ -34,19 +34,21 @@ export default defineEventHandler(async (event) => {
   // const ip = getIp(event.node.req)
   // Validate token
   if (token === null || typeof user !== 'string') {
-    return { error: 4 }
+    return { error: 4, id: _id }
   }
   try {
     const response = await curva.ask(user, conv, model, temperature, prompt, context, tz, _id)
-    if (typeof response.id === 'string') {
-      response.id = baseConverter.convert(response.id, 16, '64w')
-    }
+    //@ts-ignore
+    response.id = typeof response.id === 'string'
+    //@ts-ignore
+      ? baseConverter.convert(response.id, 16, '64w')
+      : _id
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }
     return { version, ...response }
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })
-    return { error: 5 }
+    return { error: 5, id: _id }
   }
 })

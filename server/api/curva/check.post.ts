@@ -36,19 +36,19 @@ export default defineEventHandler(async (event) => {
       { $project: { _id: 0, conv: 1 } }
     ]).exec())[0]?.conv as string[]
     if (Array.isArray(conversations)) {
-      const record: Record<string, string>  = {}
+      const saved: Record<string, { name: string, config: string }>  = {}
       const items = await conversation.find(
         { $or: conversations.map((id) => ({ user, id })) },
-        { _id: 0, id: 1, name: 1 }
+        { _id: 0, id: 1, name: 1, config: 1 }
       )
       for (const item of items) {
         if (typeof item.name === 'string') {
-          record[item.id] = item.name
+          saved[item.id] = { name: item.name, config: item.config || '' }
         }
       }
       return {
         list: conversations.filter((c) => !c.startsWith('~')),
-        named: record
+        saved
       }
     }
   } catch (err) {
@@ -56,6 +56,6 @@ export default defineEventHandler(async (event) => {
   }
   return {
     list: [] as string[],
-    named: {} as Record<string, string>
+    saved: {} as Record<string, { name: string, config: string }>
   }
 })

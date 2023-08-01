@@ -31,7 +31,7 @@ function tryParseJson (obj: any) {
   }
 }
 
-function toStdConvConfig (obj: any) {
+function toStdConvConfig (obj: any): Record<string, any> {
   try {
     const resultObj: any = {}
     for (const key in obj) {

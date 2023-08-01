@@ -4,18 +4,21 @@ import MindsDbGPTChatbotCore from './MindsdbGPT'
 import OpenAiGPTChatbotCore from './OpenAiGPT'
 
 const coreCollection = {
-  record: new Map<string, (BardChatbotCore | MindsDbGPTChatbotCore)>(),
+  record: new Map<string, Promise<(BardChatbotCore | MindsDbGPTChatbotCore)>>(),
   async get (token: string, engineName: 'Bard' | 'MindsDB') {
-    const EngineConstructor = engineName === 'Bard' ? BardChatbotCore : MindsDbGPTChatbotCore
-    return this.record.get(token) || await (async () => {
-      const engine = new EngineConstructor(troll.d(token, 1, 8038918216105477, true))
-      await engine.init()
-      this.record.set(token, engine)
-      return engine
+    return await this.record.get(token) || await (async () => {
+      const promise = new Promise<(BardChatbotCore | MindsDbGPTChatbotCore)>(async (resolve) => {
+        const EngineConstructor = engineName === 'Bard' ? BardChatbotCore : MindsDbGPTChatbotCore
+        const engine = new EngineConstructor(troll.d(token, 1, 8038918216105477, true))
+        await engine.init()
+        resolve(engine)
+      })
+      this.record.set(token, promise)
+      return await promise
     })()
   },
-  delete (token: string) {
-    const engine = this.record.get(token)
+  async delete (token: string) {
+    const engine = await this.record.get(token)
     if (engine !== undefined) {
       engine.kill()
       this.record.delete(token)

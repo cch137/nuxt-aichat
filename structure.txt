@@ -14,22 +14,24 @@
 ├── server
 │   ├── api
 │   │   ├── auth
-│   │   ├── chat
-│   │   ├── crawler
+│   │   ├── curva
 │   │   ├── perspective
+│   │   ├── services
 │   │   └── token
 │   └── services
 │       ├── chatbots
+│       │   ├── curva
 │       │   └── engines
-│       │       ├── Bard
-│       │       └── MindsdbGPT
+│       │       ├── cores
+│       │       │   ├── Bard
+│       │       │   ├── MindsdbGPT
+│       │       │   └── OpenAiGPT
+│       │       └── utils
 │       ├── discord
-│       ├── evo
-│       │   ├── templates
-│       │   └── utils
 │       ├── mongoose
 │       │   └── models
-│       └── utils
+│       ├── utils
+│       └── webBrowsing
 └── utils
     └── zhConverter
         └── data

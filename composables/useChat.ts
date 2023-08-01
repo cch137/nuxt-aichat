@@ -14,29 +14,10 @@ import useURLParams from './useURLParams'
 import { customErrorCodes } from '~/config/customErrorCodes'
 import { stringifyConvConfig } from '~/server/services/chatbots/curva/convConfig'
 // import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
+import { parseConvConfig } from '~/server/services/chatbots/curva/convConfig'
+import type { NuxtApp } from 'nuxt/app'
 
-const CONTEXT_MAX_LENGTH = 4000
-
-const getContext = () => {
-  if (!contextMode.value) {
-    return ''
-  }
-  const contexts = messages.value.filter((msg) => msg.done)
-    .map((message) => {
-      return (message.Q ? `Question:\n${message.Q}` : '')
-        + (message.Q && message.A ? '\n\n' : '')
-        + (message.A ? `Answer:\n${message.A}` : '')
-    })
-  while (contexts.length > 1 && contexts.slice(1, contexts.length).join('').length > CONTEXT_MAX_LENGTH) {
-    contexts.shift()
-  }
-  const joinedContexts = contexts.join('\n---\n')
-  if (joinedContexts.length === 0) {
-    return ''
-  }
-  contexts.push()
-  return `Conversation History\n===\n${joinedContexts}`
-}
+const currentConvEvTarget = new EventTarget()
 
 // @ts-ignore
 interface DisplayChatMessage extends ArchivedChatMessage {
@@ -45,10 +26,6 @@ interface DisplayChatMessage extends ArchivedChatMessage {
   id?: string;
   more?: string[];
 }
-
-const messages = ref<DisplayChatMessage[]>([])
-
-const conversations = ref<Array<{ id: string, name: string | undefined }>>([])
 
 const focusInput = () => {
   try {
@@ -60,8 +37,12 @@ const checkTokenAndGetConversations = () => {
   return new Promise((resolve, reject) => {
     $fetch('/api/curva/check', { method: 'POST' })
       .then((_conversations) => {
-        const { list, named } = _conversations
-        conversations.value = list.sort().map((id) => ({ id, name: named[id] as string | undefined }))
+        const { list, saved } = _conversations
+        conversations.value = list.sort().map((id) => ({
+          id,
+          name: saved[id]?.name,
+          config: saved[id]?.config || '',
+        }))
         resolve(true)
       })
       .catch((err) => {
@@ -115,10 +96,20 @@ const _loadSuggestions = async () => {
   }
 }
 
-
-const model = ref('gpt4')
-const contextMode = ref(true)
+let nuxtApp: NuxtApp
+const model = ref<string>('gpt4')
+const contextMode = ref<boolean>(true)
 const temperature = ref<number>(0.5)
+const messages = ref<DisplayChatMessage[]>([])
+const conversations = ref<Array<{ id: string, name?: string, config?: string }>>([])
+
+const resetConvConfig = () => {
+  model.value = 'gpt4'
+  contextMode.value = true
+  temperature.value = 0.5
+}
+
+resetConvConfig()
 
 const openMenu = ref(false)
 const openSidebar = ref(openMenu.value)
@@ -142,7 +133,7 @@ const createRequest = (() => {
       conversations.value.push({ id: conv, name: undefined })
       navigateTo(`/c/${conv}?feature=new`)
     }
-    return { conv, context: getContext(), prompt: message, model, temperature, t, tz, id: regenerateId }
+    return { conv, context: 'getContext()', prompt: message, model, temperature, t, tz, id: regenerateId }
   }
 
   return (message: string, regenerateId?: string) => {
@@ -167,7 +158,7 @@ const createMessage = (Q = '', A = '', done = false) => {
   })
 }
 
-let chatLoadings = new Set<Promise<any>>()
+const chatLoadings = new Set<Promise<any>>()
 
 const clear = () => {
   conversations.value = []
@@ -188,6 +179,142 @@ function clearUrlParamsFeatureNew () {
   }
 }
 
+const downloadTextFile = (filename: string, content: string) => {
+  const a = document.createElement('a')
+  a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content))
+  a.setAttribute('download', filename)
+  a.style.display = 'none'
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+}
+
+const getCurrentConvId = () => {
+  return nuxtApp._route?.params?.conv as string
+}
+
+const getCurrentConvName = () => {
+  const currentConvId = getCurrentConvId()
+  return conversations.value
+    .filter((conv) => conv.id === currentConvId)[0]?.name || ''
+}
+
+async function updateConversation (id?: string, newname?: string) {
+  return await $fetch('/api/curva/conv', {
+    method: 'PUT',
+    body: {
+      id: id || getCurrentConvId(),
+      name: newname || getCurrentConvName(),
+      config: stringifyConvConfig({
+        model: model.value,
+        temperature: temperature.value,
+        context: contextMode.value
+      })
+    }
+  })
+}
+
+let isLoadingConvConfig = false
+
+const loadConvConfig = (convId?: string | null) => {
+  if (convId === undefined) {
+    convId = getCurrentConvId()
+  }
+  if (convId === undefined || convId === null) {
+    return
+  }
+  const config = parseConvConfig(conversations.value.filter((conv) => conv.id === convId)[0]?.config || '')
+  const keys = Object.keys(config)
+  if (keys.length === 0) {
+    resetConvConfig()
+  } else {
+    isLoadingConvConfig = true
+    try {
+      for (const key of keys) {
+        const value = config[key]
+        switch (key) {
+          case 'model':
+            model.value = value
+            break
+          case 'temperature':
+            temperature.value = value
+            break
+          case 'context':
+            contextMode.value = value
+            break
+        }
+      }
+    } finally {
+      isLoadingConvConfig = false
+    }
+  }
+  ElMessage.info('Conversation settings have been loaded.')
+}
+
+setTimeout(() => {
+  // Automatic update conversation config 自動更新對話設置
+  let timeout: NodeJS.Timeout;
+  [model, contextMode, temperature].forEach((variable) => {
+    watch(variable, (newValue, oldValue) => {
+      if (process.client && nuxtApp && (!isLoadingConvConfig) && newValue !== oldValue && chatLoadings.size === 0) {
+        clearTimeout(timeout)
+        timeout = setTimeout(async () => {
+          try {
+            await updateConversation()
+            ElMessage.info('Conversation settings have been saved.')
+          } catch (err) {
+            console.error(err)
+            ElMessage.warning('Failed to save conversation settings.')
+          } finally {
+            clearTimeout(timeout)
+          }
+        }, typeof variable.value === 'number' ? 500 : 0)
+      }
+    })
+  })
+}, 1000)
+
+const deleteMessage = (base64MessageId: string) => {
+  messages.value = messages.value.filter((msg) => msg.id !== base64MessageId)
+  $fetch('/api/curva/answer', {
+    method: 'DELETE',
+    body: {
+      conv: getCurrentConvId(),
+      id: base64MessageId
+    }
+  })
+    .then(() => ElMessage.info('The message has been deleted.'))
+    .catch(() => ElMessage.error('An error occurred while deleting the message.'))
+}
+
+const exportAsMarkdown = () => {
+  let i = 0
+  const filename = `${baseConverter.convert(getCurrentConvId(), '64w', 10)}.md`
+  const markdownContent = messages.value.map((message) => {
+    i++
+    try {
+      return (message.t ? `${new Date(message.t.getTime() - (message.dt || 0)).toLocaleString()}${message.dt === undefined ? '' : ' (Δt: ' + message.dt.toString() + 'ms)'}\n\n` : '')
+        + (message.Q ? `QUESTION ${i}:\n\n${message.Q.replaceAll('\n', '\n\n')}` : '')
+        + (message.Q && message.A ? '\n\n' : '')
+        + (message.A ? `ANSWER ${i}:\n\n${message.A}` : '')
+    } catch {
+      return '(Unknown message)'
+    }
+  }).join('\n\n---\n\n') + '\n\n---\n\n'
+  downloadTextFile(filename, markdownContent)
+}
+
+const exportAsJson = () => {
+  downloadTextFile(`${baseConverter.convert(getCurrentConvId(), '64w', 10)}.json`, JSON.stringify(messages.value.map((msg) => ({
+    question: msg.Q,
+    answer: msg.A,
+    created: new Date(msg.t.getTime()).toUTCString(),
+    timeUsed: msg.dt || undefined,
+    queries: msg.queries || undefined,
+    urls: msg.urls || undefined,
+  })), null, 4))
+}
+
 export default function () {
   const appName = useState('appName').value
   const cookie = useUniCookie()
@@ -205,15 +332,7 @@ export default function () {
       path: '/'
     })
   })
-  const nuxtApp = useNuxtApp()
-  const getCurrentConvId = () => {
-    return nuxtApp._route?.params?.conv as string
-  }
-  const getCurrentConvName = () => {
-    const currentConvId = getCurrentConvId()
-    return conversations.value
-      .filter((conv) => conv.id === currentConvId)[0].name || ''
-  }
+  nuxtApp = useNuxtApp()
   watch(openMenu, (value) => {
     if (useDevice().isMobileScreen) {
       openSidebar.value = false
@@ -245,6 +364,7 @@ export default function () {
         (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations(),
         (conv === null) ? null : _fetchHistory(conv)
       ])
+      loadConvConfig(conv)
       const displayChatMessages = archived[1]
       if (displayChatMessages !== null && getCurrentConvId() === conv) {
         messages.value = displayChatMessages
@@ -292,20 +412,6 @@ export default function () {
       chatLoadings.delete(chat)
     }
   }
-  async function updateConversation (id?: string, newname?: string) {
-    return await $fetch('/api/curva/conv', {
-      method: 'PUT',
-      body: {
-        id: id || getCurrentConvId(),
-        name: newname || getCurrentConvName(),
-        config: stringifyConvConfig({
-          model: model.value,
-          temperature: temperature.value,
-          context: contextMode.value
-        })
-      }
-    })
-  }
   // @ts-ignore
   const _t = useLocale().t
   const version = useState('version')
@@ -341,6 +447,9 @@ export default function () {
         const queries = (res as any).queries as string[]
         const dt = (res as any).dt as number
         const _version = (res as any).version as string
+        if (id) {
+          message.id = id
+        }
         // @ts-ignore
         if (!answer) {
           if (error) {
@@ -357,7 +466,6 @@ export default function () {
           }
           throw _t('error.plzRefresh')
         }
-        message.id = id
         message.A = answer
         message.urls = urls || []
         message.queries = queries || []
@@ -408,18 +516,6 @@ export default function () {
     if (!sendMessage(lastMessage.Q, lastMessage.id)) {
       messages.value.push(lastMessage)
     }
-  }
-  const deleteMessage = (base64MessageId: string) => {
-    messages.value = messages.value.filter((msg) => msg.id !== base64MessageId)
-    $fetch('/api/curva/answer', {
-      method: 'DELETE',
-      body: {
-        conv: getCurrentConvId(),
-        id: base64MessageId
-      }
-    })
-      .then(() => ElMessage.info('The message has been deleted.'))
-      .catch(() => ElMessage.error('An error occurred while deleting the message.'))
   }
   const refreshConversation = () => {
     loadChat(getCurrentConvId())
@@ -498,48 +594,6 @@ export default function () {
           })
       })
   }
-  const downloadTextFile = (filename: string, content: string) => {
-    const a = document.createElement('a')
-    a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content))
-    a.setAttribute('download', filename)
-    a.style.display = 'none'
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-  }
-  const exportAsMarkdown = () => {
-    let i = 0
-    const filename = `${baseConverter.convert(getCurrentConvId(), '64w', 10)}.md`
-    const markdownContent = messages.value.map((message) => {
-      i++
-      try {
-        return (message.t ? `${new Date(message.t.getTime() - (message.dt || 0)).toLocaleString()}${message.dt === undefined ? '' : ' (Δt: ' + message.dt.toString() + 'ms)'}\n\n` : '')
-          + (message.Q ? `QUESTION ${i}:\n\n${message.Q.replaceAll('\n', '\n\n')}` : '')
-          + (message.Q && message.A ? '\n\n' : '')
-          + (message.A ? `ANSWER ${i}:\n\n${message.A}` : '')
-      } catch {
-        return '(Unknown message)'
-      }
-    }).join('\n\n---\n\n') + '\n\n---\n\n'
-    downloadTextFile(filename, markdownContent)
-  }
-  const exportAsJson = () => {
-    downloadTextFile(`${baseConverter.convert(getCurrentConvId(), '64w', 10)}.json`, JSON.stringify(messages.value.map((msg) => ({
-      question: msg.Q,
-      answer: msg.A,
-      created: new Date(msg.t.getTime()).toUTCString(),
-      timeUsed: msg.dt || undefined,
-      queries: msg.queries || undefined,
-      urls: msg.urls || undefined,
-    })), null, 4))
-  }
-  // [model, contextMode, temperature].forEach((variable) => {
-  //   watch(variable, (value, oldValue) => {
-  //     if (value !== oldValue) {
-  //       updateConversation()
-  //     }
-  //   })
-  // })
   return {
     model,
     conversations,
@@ -561,6 +615,7 @@ export default function () {
     refreshConversation,
     renameConversation,
     deleteConversation,
+    resetConvConfig,
     exportAsMarkdown,
     exportAsJson,
     clear

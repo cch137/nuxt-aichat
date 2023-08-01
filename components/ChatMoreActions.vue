@@ -19,6 +19,15 @@
             <div>
               <el-button
                 class="MoreOptionButton"
+                :icon="RefreshRight"
+                @click="resetConvConfig()"
+              >
+                {{ 'Reset conversation settings' }}
+              </el-button>
+            </div>
+            <div>
+              <el-button
+                class="MoreOptionButton"
                 :icon="Download"
                 @click="exportAsMarkdown()"
               >
@@ -63,7 +72,7 @@
 
 <script setup>
 import { More, EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
-const { refreshConversation, renameConversation, deleteConversation, exportAsMarkdown, exportAsJson } = useChat()
+const { refreshConversation, renameConversation, deleteConversation, resetConvConfig, exportAsMarkdown, exportAsJson } = useChat()
 </script>
 
 <style scoped>

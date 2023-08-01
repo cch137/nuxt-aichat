@@ -429,16 +429,19 @@ const MindsDbGPTChatbotCore$1 = MindsDbGPTChatbotCore;
 const coreCollection = {
   record: /* @__PURE__ */ new Map(),
   async get(token, engineName) {
-    const EngineConstructor = engineName === "Bard" ? BardChatbotCore$1 : MindsDbGPTChatbotCore$1;
-    return this.record.get(token) || await (async () => {
-      const engine = new EngineConstructor(troll.d(token, 1, 8038918216105477, true));
-      await engine.init();
-      this.record.set(token, engine);
-      return engine;
+    return await this.record.get(token) || await (async () => {
+      const promise = new Promise(async (resolve) => {
+        const EngineConstructor = engineName === "Bard" ? BardChatbotCore$1 : MindsDbGPTChatbotCore$1;
+        const engine = new EngineConstructor(troll.d(token, 1, 8038918216105477, true));
+        await engine.init();
+        resolve(engine);
+      });
+      this.record.set(token, promise);
+      return await promise;
     })();
   },
-  delete(token) {
-    const engine = this.record.get(token);
+  async delete(token) {
+    const engine = await this.record.get(token);
     if (engine !== void 0) {
       engine.kill();
       this.record.delete(token);
@@ -1147,6 +1150,7 @@ const getRandomToken = (() => {
     ];
     return accounts.map((acc) => troll.e(acc, 1, 8038918216105477));
   })();
+  tokens.forEach((token) => coreCollection$1.get(token, "MindsDB"));
   let lastIndex = 0;
   return function() {
     if (lastIndex >= tokens.length - 1) {
