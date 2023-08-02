@@ -3,11 +3,11 @@ import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
 import { r as read, p as pack, g as generate } from './token.mjs';
 import { r as random } from './random.mjs';
-import { m as message } from './index2.mjs';
+import { m as message } from './index3.mjs';
 import { c as conversation } from './conversation.mjs';
+import './troll.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 import 'mongoose';
 import 'dotenv';
 import 'crypto';
@@ -60,11 +60,11 @@ const check_post = defineEventHandler(async (event) => {
       const saved = {};
       const items = await conversation.find(
         { $or: conversations.map((id) => ({ user, id })) },
-        { _id: 0, id: 1, name: 1, config: 1 }
+        { _id: 0, id: 1, name: 1, config: 1, mtime: 1 }
       );
       for (const item of items) {
         if (typeof item.name === "string") {
-          saved[item.id] = { name: item.name, config: item.config || "" };
+          saved[item.id] = { name: item.name, config: item.config || "", mtime: item.mtime || 0 };
         }
       }
       return {

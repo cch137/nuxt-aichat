@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3';
-import { l as libExports, m as message } from './index2.mjs';
+import { l as libExports, m as message } from './index3.mjs';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
 import { b as baseConverter } from './random.mjs';
@@ -22,9 +22,9 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
+import './troll.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 
 const answer_delete = defineEventHandler(async (event) => {
   var _a, _b, _c;

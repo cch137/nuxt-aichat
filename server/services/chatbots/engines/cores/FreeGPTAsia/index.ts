@@ -5,6 +5,8 @@ import { questionContextToMessages } from '../../utils/openAiMessagesConverter'
 
 // const defaultApiHost = 'https://api.spaxe.top'
 // const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
+// const defaultApiHost = 'https://apx.spaxe.top'
+// const defaultApiKey = 'sk-nWpqLgtXfIJRPav42146Bf4374A64c359aB77e810847CcBa'
 const defaultApiHost = 'https://api.freegpt.asia'
 const defaultApiKey = 'sk-QcG4uyr8zgufaZb30067Dc6eCf3e489f9f34185aC7D63538'
 
@@ -56,6 +58,7 @@ class FreeGptAsiaChatbotCore implements ChatbotEngine {
         ? questionContextToMessages(questionOrMessages, options?.context || '')
         : questionOrMessages
       const res = (await this.client.askGPT(messages, options))
+      console.log(res)
       const answer = res.choices[0].message.content
       return { answer }
     } catch (err) {

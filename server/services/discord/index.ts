@@ -11,6 +11,8 @@ import {
 import { crawlYouTubeVideo } from '~/server/services/webBrowsing/ytCrawler'
 import { isYouTubeLink, getYouTubeVideoId } from '~/utils/ytLinks'
 import str from '~/utils/str'
+import curva, { Conversation } from '../chatbots/curva'
+import { OpenAIMessage } from '../chatbots/engines/cores/types'
 
 const useAdminTemplate = (text: string) => {
   return `
@@ -101,8 +103,6 @@ const Logger = {
   }
 } as ILogger
 
-const DEPRECATED_MESSAGE = 'This service has been deprecated.'
-
 const reviewChat = async (message: Message<boolean>) => {
   // 必須要檢測訊息是否為空，因為 welcome 訊息是空的，welcome 並不需要被認證。
   if (!message.content.trim()) {
@@ -137,6 +137,10 @@ const reviewChat = async (message: Message<boolean>) => {
   // return reply
 }
 
+const createTextFile = (filename: string, content: string) => {
+  return new AttachmentBuilder(Buffer.from(content, 'utf8'), { name: filename })
+}
+
 const connect = async () => {
   if (store.client !== undefined) {
     bot.disconnect()
@@ -164,10 +168,53 @@ const connect = async () => {
     if (message.author.bot) {
       return
     }
+    if (message.guildId !== EVO_GUILD_ID) {
+      return
+    }
     const { content } = message
     if (content.includes(`<@${EVO_CLIENT_ID}>`) || content.includes(`<@${EVO_ROLE_ID}>`)) {
-      // message.reply('Please use the `/chat` command to chat with me.')
-      message.reply(DEPRECATED_MESSAGE)
+      const user = `dc@${message.member?.user.id}`
+      const conv = message.channelId
+      const replied = message.reply('Thinking...')
+      const interval = setInterval(() => {
+        message.channel.sendTyping()
+      }, 3000)
+      try {
+        message.channel.sendTyping()
+        const question = message.content.replaceAll(`<@${EVO_CLIENT_ID}>`, '').trim() || 'Hi'
+        const messages = [...await new Conversation(user, conv).getContext(), { role: 'user', content: question }] as OpenAIMessage[]
+        const response = await curva.ask(user, conv, 'gpt-web', 0, messages, 0)
+        const { answer, error } = response
+        // @ts-ignore
+        const queries: string[] = response?.queries || []
+        // @ts-ignore
+        const urls: string[] = response?.urls || []
+        if (error) {
+          throw error
+        }
+        (await replied).delete()
+        message.reply({
+          [answer.length < 1000 ? 'content' : 'files']: answer.length < 1000
+            ? answer
+            : [createTextFile('answer.txt', answer)],
+          embeds: (queries.length + urls.length) > 0
+            ? ((): EmbedBuilder[] => {
+                const embed = new EmbedBuilder()
+                embed.setTitle('References')
+                  .setColor(0x409EFF)
+                  .setFields(...[
+                    { name: 'Queries', value: `${queries.join('\n')}` },
+                    { name: 'Urls', value: `${urls.join('\n')}` },
+                  ].filter(l => l))
+                return [embed]
+              })()
+            : []
+        });
+      } catch (err) {
+        (await replied).edit({ content: `ERROR: ${str(err)}` })
+      } finally {
+        clearInterval(interval)
+      }
     } else {
       reviewChat(message)
     }
@@ -180,9 +227,13 @@ const connect = async () => {
   })
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand()) return
-    const user = `dc@${interaction.member?.user.id}`
-    const conv = interaction.channelId
     switch (interaction.commandName) {
+      case 'clear-chatbot-memory':
+        const user = `dc@${interaction.member?.user.id}`
+        const conv = interaction.channelId
+        await new Conversation(user, conv).delete()
+        interaction.reply({embeds: [new EmbedBuilder().setTitle('The conversation history between you and the AI chatbot in this channel has been cleared.')]})
+        break
       case 'yt-captions':
         {
           const videoLink = (interaction.options.get('id')?.value || '') as string
@@ -198,10 +249,7 @@ const connect = async () => {
           try {
             const video = await crawlYouTubeVideo(videoId)
             const captions = (await video.getCaptions(lang)).map((caption) => caption.text).join('\n')
-            const textFile = new AttachmentBuilder(
-              Buffer.from(captions, 'utf8'),
-              { name: `${video.title}.txt` }
-            );
+            const textFile = createTextFile(`${video.title}.txt`, captions);
             (await replied).edit({ content: video.url, files: [textFile] })
           } catch (err) {
             (await replied).edit(str(err))
@@ -216,6 +264,12 @@ const connect = async () => {
 
 if (+(process.env.RUN_DC_BOT as string)) {
   connect()
+    .then(() => {
+      (store.client as Client<boolean>).application?.commands.create({
+        name: 'clear-chatbot-memory',
+        description: 'Clear the conversation history between you and the AI chatbot in this channel.',
+      })
+    })
     // .then(async () => {
     //   await (store.client as Client<boolean>).application?.commands.create({
     //     name: 'yt-captions',

@@ -1,7 +1,7 @@
-import { Client, IntentsBitField, AttachmentBuilder } from 'discord.js';
+import { Client, IntentsBitField, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
-import { i as isYouTubeLink, g as getYouTubeVideoId } from './ytLinks.mjs';
-import { s as str } from './str.mjs';
+import { C as Conversation, c as curva, i as isYouTubeLink, g as getYouTubeVideoId } from './index2.mjs';
+import { s as str } from './random.mjs';
 
 const EVO_CLIENT_ID = "1056463118672351283";
 const EVO_ROLE_ID = "1056465043279052833";
@@ -31,7 +31,6 @@ const Logger = {
     Logger.channel.sendTyping();
   }
 };
-const DEPRECATED_MESSAGE = "This service has been deprecated.";
 const reviewChat = async (message) => {
   if (!message.content.trim()) {
     return;
@@ -47,6 +46,9 @@ const reviewChat = async (message) => {
       role: verifiedRole
     });
   });
+};
+const createTextFile = (filename, content) => {
+  return new AttachmentBuilder(Buffer.from(content, "utf8"), { name: filename });
 };
 const connect = async () => {
   var _a;
@@ -73,12 +75,49 @@ const connect = async () => {
     type: 0
   });
   client.on("messageCreate", async (message) => {
+    var _a2;
     if (message.author.bot) {
+      return;
+    }
+    if (message.guildId !== EVO_GUILD_ID) {
       return;
     }
     const { content } = message;
     if (content.includes(`<@${EVO_CLIENT_ID}>`) || content.includes(`<@${EVO_ROLE_ID}>`)) {
-      message.reply(DEPRECATED_MESSAGE);
+      const user = `dc@${(_a2 = message.member) == null ? void 0 : _a2.user.id}`;
+      const conv = message.channelId;
+      const replied = message.reply("Thinking...");
+      const interval = setInterval(() => {
+        message.channel.sendTyping();
+      }, 3e3);
+      try {
+        message.channel.sendTyping();
+        const question = message.content.replaceAll(`<@${EVO_CLIENT_ID}>`, "").trim() || "Hi";
+        const messages = [...await new Conversation(user, conv).getContext(), { role: "user", content: question }];
+        const response = await curva.ask(user, conv, "gpt-web", 0, messages, 0);
+        const { answer: answer2, error } = response;
+        const queries = (response == null ? void 0 : response.queries) || [];
+        const urls = (response == null ? void 0 : response.urls) || [];
+        if (error) {
+          throw error;
+        }
+        (await replied).delete();
+        message.reply({
+          [answer2.length < 1e3 ? "content" : "files"]: answer2.length < 1e3 ? answer2 : [createTextFile("answer.txt", answer2)],
+          embeds: queries.length + urls.length > 0 ? (() => {
+            const embed = new EmbedBuilder();
+            embed.setTitle("References").setColor(4235007).setFields(...[
+              { name: "Queries", value: `${queries.join("\n")}` },
+              { name: "Urls", value: `${urls.join("\n")}` }
+            ].filter((l) => l));
+            return [embed];
+          })() : []
+        });
+      } catch (err) {
+        (await replied).edit({ content: `ERROR: ${str(err)}` });
+      } finally {
+        clearInterval(interval);
+      }
     } else {
       reviewChat(message);
     }
@@ -93,9 +132,13 @@ const connect = async () => {
     var _a2, _b, _c;
     if (!interaction.isChatInputCommand())
       return;
-    `dc@${(_a2 = interaction.member) == null ? void 0 : _a2.user.id}`;
-    interaction.channelId;
     switch (interaction.commandName) {
+      case "clear-chatbot-memory":
+        const user = `dc@${(_a2 = interaction.member) == null ? void 0 : _a2.user.id}`;
+        const conv = interaction.channelId;
+        await new Conversation(user, conv).delete();
+        interaction.reply({ embeds: [new EmbedBuilder().setTitle("The conversation history between you and the AI chatbot in this channel has been cleared.")] });
+        break;
       case "yt-captions":
         {
           const videoLink = ((_b = interaction.options.get("id")) == null ? void 0 : _b.value) || "";
@@ -109,10 +152,7 @@ const connect = async () => {
           try {
             const video = await crawlYouTubeVideo(videoId);
             const captions = (await video.getCaptions(lang)).map((caption) => caption.text).join("\n");
-            const textFile = new AttachmentBuilder(
-              Buffer.from(captions, "utf8"),
-              { name: `${video.title}.txt` }
-            );
+            const textFile = createTextFile(`${video.title}.txt`, captions);
             (await replied).edit({ content: video.url, files: [textFile] });
           } catch (err) {
             (await replied).edit(str(err));
@@ -125,7 +165,13 @@ const connect = async () => {
   return loggedIn;
 };
 if (+process.env.RUN_DC_BOT) {
-  connect();
+  connect().then(() => {
+    var _a;
+    (_a = store.client.application) == null ? void 0 : _a.commands.create({
+      name: "clear-chatbot-memory",
+      description: "Clear the conversation history between you and the AI chatbot in this channel."
+    });
+  });
 }
 const disconnect = () => {
   try {

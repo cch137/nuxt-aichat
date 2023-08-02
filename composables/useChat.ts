@@ -40,6 +40,7 @@ const checkTokenAndGetConversations = () => {
           id,
           name: saved[id]?.name,
           config: saved[id]?.config || '',
+          mtime: saved[id]?.mtime || '',
         }))
         resolve(true)
       })

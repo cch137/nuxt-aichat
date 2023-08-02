@@ -77,6 +77,7 @@ const freeGptAsiaToken = troll.e({
 }, 1, 8038918216105477)
 
 const curva = {
+  name: 'Curva',
   async ask (user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string) {
     if (processingConversation.has(user)) {
       return {
@@ -106,6 +107,7 @@ const curva = {
       if (result.answer) {
         const conversation = new Conversation(user, conv)
         _id = await conversation.saveMessage(result.question, result.answer, result?.queries || [], result?.urls || [], dt, _id)
+        conversation.updateMtime()
       }
       return {
         ...result,

@@ -35,7 +35,8 @@ async function estimateQueriesAndUrls (engine: MindsDbGPTChatbotCore, question: 
 請注意，由於任務會在下一次對話時被再次提及，因此不要在 "queries" 中以任何形式描述用戶的任務。
 請注意，"answer" 是可選項，你不需要總是提供 "answer"，僅在用戶任務不需要聯網就能完成時提供。
 在 "answer" 回答過的問題不再需要被搜索，嚴禁在沒有相關答案或最新資訊時提供 "answer"。
-當你決定提供 "answer" 時，以用戶語言回答，並且 "queries" 和 "urls" 必須是空 array，因此嚴禁對需要聯網訪問的問題提供 "answer"，以避免提供過時資訊。
+當你決定提供 "answer" 時，並且 "queries" 和 "urls" 必須是空 array，因此嚴禁對需要聯網訪問的問題提供 "answer"，以避免提供過時資訊。
+請注意，你僅限使用 "question" 的語言進行回答，不一定是中文，嚴禁在 "answer" 使用不是 "question" 的語言。
 再次提醒，你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
 回复的格式: { "queries": string[], "urls": string[], "answer"?: string }
 當前時間: ${time}
@@ -90,7 +91,7 @@ async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, 
   const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5000, summaryMaxTokens = 5000, modelName = 'gpt4_t00_6k' } = options
   const chunks = chunkParagraphs(article, chunkMaxTokens)
   const summary = (await Promise.all(chunks.map(async (chunk) => {
-  question = `
+  const prompt = `
 Summarizes information relevant to the question from the following content.
 Ensure overall coherence and consistency of the responses, and provide clear conclusions.
 Content is sourced from webpages, completely ignore content not related to the question.
@@ -99,7 +100,7 @@ User curent time: ${time}
 Question: ${question}
 Webpage:
 ${chunk}`
-    return (await engine.ask(question, { modelName })).answer
+    return (await engine.ask(prompt, { modelName })).answer
   }))).join('\n')
   if (estimateTokens(summary) > summaryMaxTokens && maxTries > 1) {
     return await summaryArticle(engine, question, summary, { ...options, maxTries: maxTries - 1 })

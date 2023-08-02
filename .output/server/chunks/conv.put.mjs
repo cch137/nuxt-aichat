@@ -1,12 +1,12 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
-import { m as message } from './index2.mjs';
+import { m as message } from './index3.mjs';
 import qs from 'qs';
 import { c as conversation } from './conversation.mjs';
+import './troll.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 import './random.mjs';
 import 'mongoose';
 import 'dotenv';

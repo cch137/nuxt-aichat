@@ -1,5 +1,10 @@
-import { message as messageCollection, ObjectId } from '~/server/services/mongoose'
+import {
+  message as messageCollection,
+  conversation as conversationCollection,
+  ObjectId
+} from '~/server/services/mongoose'
 import { ArchivedChatMessage } from './types'
+import { OpenAIMessage } from '../engines/cores/types'
 
 class Conversation {
   conv: string
@@ -8,6 +13,23 @@ class Conversation {
   constructor (user: string, conv: string) {
     this.user = user
     this.conv = conv
+  }
+
+  async updateMtime () {
+    const { user, conv } = this
+    if (!(user && conv)) {
+      return
+    }
+    return (await conversationCollection.updateOne({
+      user,
+      conv
+    }, {
+      $set: {
+        mtime: Date.now()
+      }
+    }, {
+      projection: { _id: 0 }
+    }).exec())
   }
 
   async delete () {
@@ -57,14 +79,19 @@ class Conversation {
   async getContext () {
     const { user, conv } = this
     if (!(user && conv)) {
-      return ''
+      return []
     }
-    const getJoinedMessages = (messages: { Q: string, A: string }[]) => {
-      return messages.map((message) => {
-        return (message.Q ? `Question:\n${message.Q}` : '')
-          + (message.Q && message.A ? '\n\n' : '')
-          + (message.A ? `Answer:\n${message.A}` : '')
-      }).filter((m) => m).join('\n---\n')
+    const processMessage = (message: { Q?: string, A?: string }): OpenAIMessage[] => {
+      const { Q, A } = message
+      if (Q) {
+        if (A) {
+          return [{ role: 'user', content: Q }, { role: 'assistant', content: A }]
+        }
+        return [{ role: 'user', content: Q }]
+      } else if (A) {
+        return [{ role: 'assistant', content: A }]
+      }
+      return []
     }
     const messages = (await messageCollection.find({
       user,
@@ -79,14 +106,9 @@ class Conversation {
       t: doc._id.getTimestamp().getTime()
     }))
     if (messages.length === 0) {
-      return ''
+      return []
     }
-    let joinedMessages = getJoinedMessages(messages)
-    while (joinedMessages.length > 8192) {
-      messages.shift()
-      joinedMessages = getJoinedMessages(messages)
-    }
-    return `Conversation History\n===\n${joinedMessages}`
+    return messages.map(processMessage).flat()
   }
 
   async saveMessage (Q: string, A: string, queries: string[] = [], urls: string[] = [], dt?: number, regenerateId?: string) {

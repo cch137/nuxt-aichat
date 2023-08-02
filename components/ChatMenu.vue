@@ -18,7 +18,7 @@
           <el-text class="flex-1">{{ $t('settings.context') }}</el-text>
           <ContextSelect class="flex-1" />
         </div>
-        <div v-if="['gpt4', 'gpt3'].includes(model)" class="flex gap-1">
+        <div v-if="['gpt4', 'gpt3', 'gpt3-fga'].includes(model)" class="flex gap-1">
           <el-text class="flex flex-1 items-center">
             <span class="mr-2">Temperature</span>
             <ClientOnly>

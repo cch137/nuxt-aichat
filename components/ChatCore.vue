@@ -218,7 +218,7 @@ function scrollToBottomOnclick () {
       }
     })
 }
-scrollToBottomOnclick()
+
 if (process.client) {
   document.addEventListener('scroll', () => {
     showScrollToBottomButton.value = !isScrolledToBottom()
