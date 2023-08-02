@@ -2,6 +2,9 @@
   <ClientOnly>
     <div class="flex w-full">
       <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
+      <div style="position: fixed; bottom: 110px; right: 20px;" class="z-50" v-show="showScrollToBottomButton">
+        <el-button class="ChatScrollToBottom drop-shadow-2xl" :icon="Bottom" circle @click="scrollToBottomOnclick()"/>
+      </div>
       <div class="flex-1 flex-center" :style="`max-width: ${openSidebar ? 'calc(100% - 280px)' : '100%'}; transition: .1s;`">
         <div class="w-full mx-auto">
           <div class="Messages flex flex-col gap-2 pt-4 px-2 pb-10 mb-40 mx-auto">
@@ -201,8 +204,26 @@
 import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import random from '~/utils/random'
-import { CopyDocument, Refresh, VideoPlay, ChatDotRound, User, Cpu, Search, Paperclip } from '@element-plus/icons-vue'
+import { getScrollTop, isScrolledToBottom } from '~/utils/client'
+import { CopyDocument, Refresh, VideoPlay, ChatDotRound, User, Cpu, Search, Paperclip, Bottom } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
+
+const showScrollToBottomButton = ref(true)
+
+function scrollToBottomOnclick () {
+  useScrollToBottom()
+    .then(() => {
+      if (isScrolledToBottom()) {
+        showScrollToBottomButton.value = false
+      }
+    })
+}
+scrollToBottomOnclick()
+if (process.client) {
+  document.addEventListener('scroll', () => {
+    showScrollToBottomButton.value = !isScrolledToBottom()
+  })
+}
 
 const popoverVisibles = {
   map: new Map(),
@@ -377,5 +398,8 @@ html.light .CodeBlockHeader {
 .CopyCodeButton:hover {
   color: var(--el-color-primary);
   border-color: var(--el-color-primary);
+}
+.ChatScrollToBottom svg {
+  transform: scale(1.25) translate(-0.2px, -0.2px);
 }
 </style>

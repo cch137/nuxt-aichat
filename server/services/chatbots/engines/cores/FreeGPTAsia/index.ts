@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { ChatbotEngine, OpenAIMessage } from '../types'
 import str from '~/utils/str'
+import { questionContextToMessages } from '../../utils/openAiMessagesConverter'
 
 // const defaultApiHost = 'https://api.spaxe.top'
 // const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
@@ -49,10 +50,10 @@ class FreeGptAsiaChatbotCore implements ChatbotEngine {
   init() {
     return new Promise<true>((r) =>r(true))
   }
-  async ask (questionOrMessages: string | OpenAIMessage[], options: { model?: string, temperature?: number, top_p?: number, stream?: boolean } = {}) {
+  async ask (questionOrMessages: string | OpenAIMessage[], options: { context?: string, model?: string, temperature?: number, top_p?: number, stream?: boolean } = {}) {
     try {
       const messages = typeof questionOrMessages === 'string'
-        ? [{ role: 'user', content: questionOrMessages }] as OpenAIMessage[]
+        ? questionContextToMessages(questionOrMessages, options?.context || '')
         : questionOrMessages
       const res = (await this.client.askGPT(messages, options))
       const answer = res.choices[0].message.content

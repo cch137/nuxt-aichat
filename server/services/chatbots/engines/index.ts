@@ -5,6 +5,7 @@ import Gpt3Chatbot from './gpt3-5'
 import Gpt4Chatbot from './gpt4'
 import GptWebChatbot from './gpt-web'
 import Claude2WebChatbot from './claude-2-web'
+import Gpt3FgaChatbot from './gpt3-fga'
 
 export {
   coreCollection,
@@ -14,4 +15,5 @@ export {
   Gpt4Chatbot,
   GptWebChatbot,
   Claude2WebChatbot,
+  Gpt3FgaChatbot
 }

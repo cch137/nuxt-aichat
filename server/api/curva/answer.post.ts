@@ -41,14 +41,16 @@ export default defineEventHandler(async (event) => {
   try {
     const croppedMessages = (() => {
       let _messages = messages as OpenAIMessage[]
-      const maxTokens = model.value === 'gpt4'
+      const maxTokens = model === 'gpt4'
         ? 6000
-        : model.value === 'gpt3'
+        : model.startsWith('gpt3')
           ? 3000
-          : model.value === 'gpt-web'
+          : model === 'gpt-web'
             ? 4000
-            : 4000
-      while (estimateTokens(JSON.stringify(_messages)) > maxTokens) {
+            : model === 'claude-2-web'
+              ? 80000
+              : 4000
+      while (estimateTokens(JSON.stringify(_messages)) > maxTokens && _messages.length > 1) {
         _messages.shift()
       }
       return _messages

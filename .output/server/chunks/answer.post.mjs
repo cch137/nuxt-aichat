@@ -73,8 +73,8 @@ const answer_post = defineEventHandler(async (event) => {
   try {
     const croppedMessages = (() => {
       let _messages = messages;
-      const maxTokens = model.value === "gpt4" ? 6e3 : model.value === "gpt3" ? 3e3 : model.value === "gpt-web" ? 4e3 : 4e3;
-      while (estimateTokens(JSON.stringify(_messages)) > maxTokens) {
+      const maxTokens = model === "gpt4" ? 6e3 : model.startsWith("gpt3") ? 3e3 : model === "gpt-web" ? 4e3 : model === "claude-2-web" ? 8e4 : 4e3;
+      while (estimateTokens(JSON.stringify(_messages)) > maxTokens && _messages.length > 1) {
         _messages.shift();
       }
       return _messages;

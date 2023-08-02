@@ -3,7 +3,7 @@ import qs from 'qs'
 function validKeyValuePair (key: string, value: string) {
   switch (key) {
     case 'model':
-      if (['gpt3', 'gpt4', 'gpt-web', 'claude-2-web'].includes(value)) {
+      if (['gpt3', 'gpt4', 'gpt-web', 'claude-2-web', 'gpt3-fga'].includes(value)) {
         return true
       }
       break

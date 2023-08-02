@@ -44,8 +44,6 @@ class MindsDBClient {
     console.log('CREATE MindsDB Client:', email)
     this.email = email
     this.password = password
-    this.email = 'mingkuanhiew3@gmail.com'
-    this.password = '12345678Hi'
     this.connectMethod = connectMethod
     this.sqlClient = new MindsDBSqlClient(this)
     this.webClient = new MindsDBWebClient(this)

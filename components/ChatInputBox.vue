@@ -11,7 +11,7 @@
                 :autosize="{ minRows: 2, maxRows: 16 }"
                 type="textarea"
                 size="large"
-                :maxlength="model === 'gpt4' ? 4000 : 2000"
+                :maxlength="model.startsWith('gpt3') ? 16000 : 32000"
                 :autofocus="true"
                 @keydown="(evt) => keyboardSendMessage(evt as KeyboardEvent)"
               />

@@ -34,5 +34,9 @@ const options = [
     label: 'Claude-2-Web',
     value: 'claude-2-web'
   },
+  {
+    label: 'GPT3.5-FGA',
+    value: 'gpt3-fga'
+  },
 ]
 </script>

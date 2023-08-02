@@ -45,7 +45,9 @@
         </div>
       </div>
       <div style="line-height: 1rem;" class="mt-2 text-center">
-        <el-text size="small" type="info">{{ $t('auth.loginTip1') }}</el-text>
+        <el-text size="small" type="info" style="word-break: break-word;">
+          {{ $t('auth.loginTip1') }}
+        </el-text>
       </div>
       <div class="p-8" />
     </el-form>

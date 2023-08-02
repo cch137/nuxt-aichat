@@ -95,7 +95,7 @@ const _loadSuggestions = async () => {
 }
 
 let nuxtApp: NuxtApp
-const model = ref<'gpt3'|'gpt4'|'gpt-web'|'claude-2-web'>('gpt4')
+const model = ref<string>('gpt4')
 const contextMode = ref<boolean>(true)
 const temperature = ref<number>(0.5)
 const messages = ref<DisplayChatMessage[]>([])
@@ -138,18 +138,20 @@ const createRequest = (() => {
     const date = new Date()
     const t = date.getTime()
     const tz = (date.getTimezoneOffset() / 60) * -1
-    let formattedMessages = messages.value.map((message) => {
-      const { Q, A } = message
-      if (Q) {
-        if (A) {
-          return [{ role: 'user', content: Q }, { role: 'assistant', content: A }] as OpenAIMessage[]
-        }
-        return [{ role: 'user', content: Q }] as OpenAIMessage[]
-      } else if (A) {
-        return [{ role: 'assistant', content: A }] as OpenAIMessage[]
-      }
-      return []
-    }).flat()
+    let formattedMessages = contextMode.value 
+      ? messages.value.map((message) => {
+          const { Q, A } = message
+          if (Q) {
+            if (A) {
+              return [{ role: 'user', content: Q }, { role: 'assistant', content: A }] as OpenAIMessage[]
+            }
+            return [{ role: 'user', content: Q }] as OpenAIMessage[]
+          } else if (A) {
+            return [{ role: 'assistant', content: A }] as OpenAIMessage[]
+          }
+          return []
+        }).flat()
+      : [{ role: 'user', content: messages.value.at(-1)?.Q || '' }] as OpenAIMessage[]
     formattedMessages = formattedMessages.slice(formattedMessages.length - 100)
     const body = createBody(formattedMessages, model.value, temperature.value, t, tz, regenerateId)
     const headers = createHeaders(formattedMessages, t)

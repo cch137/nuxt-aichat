@@ -3,6 +3,7 @@ import type { OpenAIMessage } from '../cores/types'
 const contextHead = 'Conversation History\n\n'
 
 function messagesToQuestionContext (messages: OpenAIMessage[]) {
+  messages = [...messages]
   let questionMessageObj = messages.filter((value) => value.role === 'user').at(-1)
   if (questionMessageObj) {
     messages.splice(messages.indexOf(questionMessageObj), 1)
