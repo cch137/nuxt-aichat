@@ -58,7 +58,6 @@ class FreeGptAsiaChatbotCore implements ChatbotEngine {
         ? questionContextToMessages(questionOrMessages, options?.context || '')
         : questionOrMessages
       const res = (await this.client.askGPT(messages, options))
-      console.log(res)
       const answer = res.choices[0].message.content
       return { answer }
     } catch (err) {

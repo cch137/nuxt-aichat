@@ -180,7 +180,7 @@ const connect = async () => {
         message.channel.sendTyping()
       }, 3000)
       try {
-        message.channel.sendTyping()
+        replied.then(() => message.channel.sendTyping())
         const question = message.content.replaceAll(`<@${EVO_CLIENT_ID}>`, '').trim() || 'Hi'
         const messages = [...await new Conversation(user, conv).getContext(), { role: 'user', content: question }] as OpenAIMessage[]
         const response = await curva.ask(user, conv, 'gpt-web', 0, messages, 0)
@@ -192,27 +192,34 @@ const connect = async () => {
         if (error) {
           throw error
         }
-        (await replied).delete()
-        message.reply({
-          [answer.length < 1000 ? 'content' : 'files']: answer.length < 1000
-            ? answer
-            : [createTextFile('answer.txt', answer)],
-          embeds: (queries.length + urls.length) > 0
-            ? ((): EmbedBuilder[] => {
-                const embed = new EmbedBuilder()
-                embed.setTitle('References')
-                  .setColor(0x409EFF)
-                  .setFields(...[
-                    { name: 'Queries', value: `${queries.join('\n')}` },
-                    { name: 'Urls', value: `${urls.join('\n')}` },
-                  ].filter(l => l))
-                return [embed]
-              })()
-            : []
-        });
+        const embeds = (() => {
+          if (queries.length + urls.length === 0) {
+            return []
+          }
+          const embed = new EmbedBuilder()
+          embed.setTitle('References')
+          embed.setColor('Blue')
+          embed.setFields(...[
+            { name: 'Queries', value: `${queries.join('\n')}` },
+            { name: 'Urls', value: `${urls.join('\n')}` },
+          ].filter(l => l.value))
+          return [embed]
+        })()
+        const files = answer.length > 1000 ? [createTextFile('answer.txt', answer)] : []
+        message.reply(files.length ? { files, embeds } : { content: answer, embeds });
       } catch (err) {
-        (await replied).edit({ content: `ERROR: ${str(err)}` })
+        console.log(err)
+        message.reply({
+          content: '',
+          embeds: [
+            new EmbedBuilder()
+              .setDescription(err === 'THINKING'
+                ? 'Request denied. Please wait for the reply to the previous question to complete.'
+                : `ERROR: ${str(err)}`).setColor('Red')
+          ]
+        })
       } finally {
+        (await replied).delete()
         clearInterval(interval)
       }
     } else {
@@ -232,7 +239,7 @@ const connect = async () => {
         const user = `dc@${interaction.member?.user.id}`
         const conv = interaction.channelId
         await new Conversation(user, conv).delete()
-        interaction.reply({embeds: [new EmbedBuilder().setTitle('The conversation history between you and the AI chatbot in this channel has been cleared.')]})
+        interaction.reply({embeds: [new EmbedBuilder().setDescription('The conversation history between you and the AI chatbot in this channel has been cleared.').setColor('Green')]})
         break
       case 'yt-captions':
         {
@@ -262,7 +269,7 @@ const connect = async () => {
   return loggedIn
 }
 
-if (+(process.env.RUN_DC_BOT as string)) {
+if (1 || +(process.env.RUN_DC_BOT as string)) {
   connect()
     .then(() => {
       (store.client as Client<boolean>).application?.commands.create({

@@ -48,7 +48,7 @@ class Conversation {
     }
     return await conversation.updateOne({
       user,
-      conv
+      id: conv
     }, {
       $set: {
         mtime: Date.now()
@@ -512,7 +512,6 @@ class FreeGptAsiaChatbotCore {
     try {
       const messages = typeof questionOrMessages === "string" ? questionContextToMessages(questionOrMessages, (options == null ? void 0 : options.context) || "") : questionOrMessages;
       const res = await this.client.askGPT(messages, options);
-      console.log(res);
       const answer = res.choices[0].message.content;
       return { answer };
     } catch (err) {

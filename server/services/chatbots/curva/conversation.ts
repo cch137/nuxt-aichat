@@ -22,7 +22,7 @@ class Conversation {
     }
     return (await conversationCollection.updateOne({
       user,
-      conv
+      id: conv
     }, {
       $set: {
         mtime: Date.now()
