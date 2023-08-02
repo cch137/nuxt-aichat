@@ -1,8 +1,15 @@
 const str = (obj: any): string => {
-  if (obj?.toString === undefined) {
+  try {
+    if (obj?.toString === undefined) {
+      return `${obj}`
+    } else {
+      const _str = obj.toString() as string
+      return (_str.startsWith('[object ') && _str.endsWith(']'))
+        ? JSON.stringify(obj)
+        : _str
+    }
+  } catch {
     return ''
-  } else {
-    return obj.toString()
   }
 }
 

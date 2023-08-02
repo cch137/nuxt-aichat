@@ -496,7 +496,8 @@ class Client {
       top_p,
       stream
     };
-    return (await axios.post(url, data, { headers, validateStatus: (_) => true })).data;
+    const req = await axios.post(url, data, { headers, validateStatus: (_) => true });
+    return req.data;
   }
 }
 class FreeGptAsiaChatbotCore {
@@ -512,8 +513,12 @@ class FreeGptAsiaChatbotCore {
     try {
       const messages = typeof questionOrMessages === "string" ? questionContextToMessages(questionOrMessages, (options == null ? void 0 : options.context) || "") : questionOrMessages;
       const res = await this.client.askGPT(messages, options);
-      const answer = res.choices[0].message.content;
-      return { answer };
+      try {
+        const answer = res.choices[0].message.content;
+        return { answer };
+      } catch {
+        throw str(res);
+      }
     } catch (err) {
       return { answer: "", error: str(err) };
     }
@@ -1076,11 +1081,12 @@ class Claude2WebChatbot {
     const prompt = `${question}
 
 ---
-SYSTEM PROMPT: Please continue to reply to the user according to the following conversation history.
+DEVELOPER PROMPT: continue the conversation
 
 ${context}`;
     return {
       ...await this.core.ask(prompt, { model: "claude-2-web" }),
+      // ...await this.core.ask(prompt, { model: 'PaLM-2' }),
       question
     };
   }

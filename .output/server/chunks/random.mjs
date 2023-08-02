@@ -1,10 +1,15 @@
 import sha3 from 'crypto-js/sha3.js';
 
 const str = (obj) => {
-  if ((obj == null ? void 0 : obj.toString) === void 0) {
+  try {
+    if ((obj == null ? void 0 : obj.toString) === void 0) {
+      return `${obj}`;
+    } else {
+      const _str = obj.toString();
+      return _str.startsWith("[object ") && _str.endsWith("]") ? JSON.stringify(obj) : _str;
+    }
+  } catch {
     return "";
-  } else {
-    return obj.toString();
   }
 };
 const lower = (o) => {

@@ -32,7 +32,8 @@ class Client {
       stream
     }
     // created unit: seconds
-    return (await axios.post(url, data, { headers, validateStatus: (_) => true })).data as {
+    const req = (await axios.post(url, data, { headers, validateStatus: (_) => true }))
+    return req.data as {
       id: string,
       object: string,
       created: number,
@@ -58,8 +59,12 @@ class FreeGptAsiaChatbotCore implements ChatbotEngine {
         ? questionContextToMessages(questionOrMessages, options?.context || '')
         : questionOrMessages
       const res = (await this.client.askGPT(messages, options))
-      const answer = res.choices[0].message.content
-      return { answer }
+      try {
+        const answer = res.choices[0].message.content
+        return { answer }
+      } catch {
+        throw str(res)
+      }
     } catch (err) {
       return { answer: '', error: str(err) }
     }

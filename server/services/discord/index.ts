@@ -269,7 +269,7 @@ const connect = async () => {
   return loggedIn
 }
 
-if (1 || +(process.env.RUN_DC_BOT as string)) {
+if (+(process.env.RUN_DC_BOT as string)) {
   connect()
     .then(() => {
       (store.client as Client<boolean>).application?.commands.create({

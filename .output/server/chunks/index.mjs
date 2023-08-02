@@ -174,7 +174,7 @@ const connect = async () => {
   console.log(`DC BOT conneted.`);
   return loggedIn;
 };
-{
+if (+process.env.RUN_DC_BOT) {
   connect().then(() => {
     var _a;
     (_a = store.client.application) == null ? void 0 : _a.commands.create({
