@@ -65,7 +65,11 @@ class MindsDBClient {
     const client = (containsDoubleDash(question) || containsDoubleDash(context || ''))
       ? this.webClient
       : this.client
-    return await client.askGPT(modelName, question, context) as { question: string, answer: string, error?: string }
+    return await client.askGPT(
+      modelName,
+      question.replace(/[^\p{L}\p{N}\p{M}\p{P}\p{Z}\p{S}\n\t\r]/gu, ''),
+      context.replace(/[^\p{L}\p{N}\p{M}\p{P}\p{Z}\p{S}\n\t\r]/gu, '')
+    ) as { question: string, answer: string, error?: string }
   }
 
   async queryWithWeb (command: string) {
