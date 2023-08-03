@@ -22,7 +22,9 @@ export default defineNuxtPlugin(() => {
 
   const init = () => {
     if (colorMode.preference === 'system') {
-      colorMode.preference = colorMode.value
+      // 這裡設置默認為 dark
+      // 假如以後想要改成跟系統主題，就是 colorMode.value
+      colorMode.preference = 'dark'
     }
     const _isDark = colorMode.preference === 'dark'
     if (isDark.value !== _isDark) {

@@ -4455,7 +4455,7 @@ const themes_AdwqX1mhAQ = /* @__PURE__ */ defineNuxtPlugin(() => {
   });
   const init = () => {
     if (colorMode.preference === "system") {
-      colorMode.preference = colorMode.value;
+      colorMode.preference = "dark";
     }
     const _isDark = colorMode.preference === "dark";
     if (isDark.value !== _isDark) {
