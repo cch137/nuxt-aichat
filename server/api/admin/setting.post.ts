@@ -4,7 +4,7 @@ import discordBot from '~/server/services/discord/index'
 import { readBody } from 'h3'
 
 export default defineEventHandler(async function (event) {
-  if (!checkPassword(event)) {
+  if (!await checkPassword(event)) {
     return null
   }
   const body = await readBody(event)

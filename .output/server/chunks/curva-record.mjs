@@ -39,7 +39,7 @@ import './ytCrawler.mjs';
 import 'qs';
 
 const curvaRecord = defineEventHandler(async (event) => {
-  if (!checkPassword(event)) {
+  if (!await checkPassword(event)) {
     return null;
   }
   return curva.record.getItems();

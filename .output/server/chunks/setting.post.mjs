@@ -47,7 +47,7 @@ function getSettings() {
 }
 
 const setting_post = defineEventHandler(async function(event) {
-  if (!checkPassword(event)) {
+  if (!await checkPassword(event)) {
     return null;
   }
   const body = await readBody(event);

@@ -83,10 +83,7 @@ const goCheck = async () => {
 
 
 if (process.client) {
-  (async () => {
-    checkAdminLogin()
-    updateCurvaUsageList()
-  })()
+  checkAdminLogin()
 }
 
 const analysedCurvaUsageList: ({user: string, times: number})[] = reactive([])

@@ -40,13 +40,14 @@ export default function () {
       method: 'POST',
       body: packAdminApiData()
     })
-    if (res === null) {
-      haveAccess.value = false
-      ElMessage.error('Password incorrect')
-    } else {
+    if (res) {
       haveAccess.value = true
       saveSettings(res)
       ElMessage.success('Logged in')
+      await updateCurvaUsageList()
+    } else {
+      haveAccess.value = false
+      ElMessage.error('Password incorrect')
     }
   }
   
