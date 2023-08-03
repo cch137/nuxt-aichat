@@ -25,6 +25,8 @@ interface DisplayChatMessage extends ArchivedChatMessage {
   more?: string[];
 }
 
+let lastModifiedConv: string = ''
+
 const focusInput = () => {
   try {
     (document.querySelector('.InputBox textarea') as HTMLElement).focus()
@@ -56,6 +58,7 @@ const _fetchHistory = (conv: string | null) => {
     if (conv === null || conv === undefined) {
       return resolve([])
     }
+    // @ts-ignore
     const archived = await $fetch('/api/curva/history', {
       method: 'POST',
       body: { id: conv }
@@ -430,7 +433,6 @@ export default function () {
   // @ts-ignore
   const _t = useLocale().t
   const version = useState('version')
-  let isFirstSendMessage = true
   const sendMessage = (forceMessage?: string, regenerateId?: string): boolean => {
     const loadingMessagesAmount = document.querySelectorAll('.Message.T').length
     if (loadingMessagesAmount > 0) {
@@ -452,11 +454,12 @@ export default function () {
       focusInput()
     }, 500)
     const more = _fetchSuggestions(messageText)
+    const convId = getCurrentConvId()
     createRequest(regenerateId)
       .then((res) => {
         clearUrlParamsFeatureNew()
-        if (isFirstSendMessage) {
-          isFirstSendMessage = false
+        if (lastModifiedConv !== convId) {
+          lastModifiedConv = convId
           checkTokenAndGetConversations()
         }
         const isAtBottom = getScrollTop() >= document.body.clientHeight
