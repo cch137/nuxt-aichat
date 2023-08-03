@@ -40,8 +40,8 @@ const checkTokenAndGetConversations = () => {
           id,
           name: saved[id]?.name,
           config: saved[id]?.config || '',
-          mtime: saved[id]?.mtime || '',
-        }))
+          mtime: saved[id]?.mtime || 0,
+        })).sort((a, b) => a.mtime - b.mtime).reverse()
         resolve(true)
       })
       .catch((err) => {
@@ -77,8 +77,9 @@ const _fetchHistory = (conv: string | null) => {
 }
 
 const _fetchSuggestions = async function (question: string) {
+  return []
   // @ts-ignore
-  return (await $fetch('/api/curva/suggestions', { method: 'POST', body: { question } })) as string[]
+  // return (await $fetch('/api/curva/suggestions', { method: 'POST', body: { question } })) as string[]
 }
 
 const _loadSuggestions = async () => {
@@ -429,6 +430,7 @@ export default function () {
   // @ts-ignore
   const _t = useLocale().t
   const version = useState('version')
+  let isFirstSendMessage = true
   const sendMessage = (forceMessage?: string, regenerateId?: string): boolean => {
     const loadingMessagesAmount = document.querySelectorAll('.Message.T').length
     if (loadingMessagesAmount > 0) {
@@ -453,6 +455,10 @@ export default function () {
     createRequest(regenerateId)
       .then((res) => {
         clearUrlParamsFeatureNew()
+        if (isFirstSendMessage) {
+          isFirstSendMessage = false
+          checkTokenAndGetConversations()
+        }
         const isAtBottom = getScrollTop() >= document.body.clientHeight
         const id = (res as any).id as string
         const answer = (res as any).answer as string

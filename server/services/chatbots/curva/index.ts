@@ -1,4 +1,5 @@
 import Conversation from './conversation'
+import chatbotUsageRecord from './chatbotUsageRecord'
 import { coreCollection, Gpt3Chatbot, Gpt4Chatbot, GptWebChatbot, Claude2WebChatbot, Gpt3FgaChatbot } from '../engines'
 import type { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
 import troll from '~/utils/troll'
@@ -78,6 +79,7 @@ const freeGptAsiaToken = troll.e({
 
 const curva = {
   name: 'Curva',
+  record: chatbotUsageRecord,
   async ask (user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string) {
     if (processingConversation.has(user)) {
       return {

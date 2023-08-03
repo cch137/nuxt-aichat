@@ -125,11 +125,30 @@
         </div>
       </div>
     </div>
+    <div class="flex flex-col mt-4 gap-1">
+      <div>
+        <el-link href="https://www.buymeacoffee.com/cch137" target="_blank" :icon="Coffee">
+          <div class="pl-1"><el-text size="large" style="color: inherit">Buy me a coffee</el-text></div>
+        </el-link>
+      </div>
+      <div>
+        <el-link @click="openAboutMe()" target="_blank" :icon="Message">
+          <div class="pl-1"><el-text size="large" style="color: inherit">About me</el-text></div>
+        </el-link>
+      </div>
+      <div>
+        <el-link @click="openFeedback()" target="_blank" :icon="ChatDotRound">
+          <div class="pl-1"><el-text size="large" style="color: inherit">Feedback</el-text></div>
+        </el-link>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { InfoFilled, Plus, ChatSquare, More, EditPen, Delete } from '@element-plus/icons-vue'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { InfoFilled, Plus, ChatSquare, More, EditPen, Delete,
+  Coffee, Message, ChatDotRound } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 
 const version = useState('version', () => '')
@@ -143,6 +162,49 @@ const {
 watch(versionData, (newValue) => {
   version.value = newValue.version
 })
+
+const openAboutMe = () => {
+  ElMessageBox({
+    title: 'Aboute Me',
+    message: () => h('div', [
+      h('div', 'I\'m a web developer, and I can create a great website that suits your needs perfectly! Feel free to reach out to me to learn more.'),
+      h('br', ''),
+      h('div', [h('strong', 'Email: '), h('span', '137emailservice@gmail.com')]),
+    ])
+  })
+}
+
+const openFeedback = () => {
+  ElMessageBox.prompt('Your name:', 'What should we call you?')
+    .then(({ value: name }) => {
+      name = name.trim()
+      if (!name) {
+        throw 'Name cannot be empty'
+      }
+      ElMessageBox.prompt('What would you like to tell us?', 'We value your feedback, thank you!')
+        .then(async ({ value: feedback }) => {
+          feedback = feedback.trim()
+          if (!feedback) {
+            throw 'Feedback cannot be empty'
+          }
+          const res = await $fetch('/api/stats/feedback', {
+            method: 'POST',
+            body: { name, feedback }
+          })
+          if (!res || 'error' in res) {
+            ElMessage.error('Feedback submission failed.')
+          } else {
+            ElMessage.success('Feedback submitted successfully')
+          }
+        })
+        .catch(() => {
+          ElMessage.info('Feedback has been cancelled.')
+        })
+    })
+    .catch(() => {
+      ElMessage.info('Feedback has been cancelled.')
+    })
+}
 </script>
 
 <style scoped>

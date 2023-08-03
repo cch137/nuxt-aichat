@@ -56,6 +56,6 @@ export default defineEventHandler(async (event) => {
   }
   return {
     list: [] as string[],
-    saved: {} as Record<string, { name: string, config: string, mtime: string }>
+    saved: {} as Record<string, { name: string, config: string, mtime: number }>
   }
 })

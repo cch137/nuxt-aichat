@@ -1,49 +1,94 @@
 import { useLocalStorage } from "@vueuse/core"
+import type { RemovableRef } from "@vueuse/core"
+import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
+import type { ChatbotUsageRecordItem } from '~/server/services/chatbots/curva/chatbotUsageRecord'
+
+let adminStorage: RemovableRef<Record<string, any>>
 
 const haveAccess = ref(false)
 const adminPassword = ref('')
 const adminStorageName = 'm'
+const adminSettings = reactive({
+  dcBotConnected: false
+})
 
-const dcBotConnected = ref(false)
-const mdbConnectMethod = ref('')
+function savePassword () {
+  adminStorage.value.k = adminPassword.value
+}
+
+function packAdminApiData (data: Record<string, any> = {}) {
+  savePassword()
+  return {
+    passwd: adminPassword.value,
+    ...data
+  }
+}
+
+function saveSettings (settings: Record<string, any> | null) {
+  if (null) {
+    return
+  }
+  for (const key in settings) {
+    // @ts-ignore
+    adminSettings[key] = settings[key]
+  }
+}
+
+async function checkAdminLogin () {
+  const res = await $fetch('/api/admin/check', {
+    method: 'POST',
+    body: packAdminApiData()
+  })
+  if (res === null) {
+    haveAccess.value = false
+    ElMessage.error('Password incorrect')
+  } else {
+    haveAccess.value = true
+    saveSettings(res)
+    ElMessage.success('Logged in')
+  }
+}
+
+async function changeSetting (name: string, value: any, loadingReactive?: Record<string, boolean>) {
+  if (loadingReactive) {
+    loadingReactive[name] = true
+  }
+  saveSettings(await $fetch('/api/admin/setting', {
+    method: 'POST',
+    body: packAdminApiData({ name, value })
+  }))
+  console.log(loadingReactive)
+  if (loadingReactive) {
+    loadingReactive[name] = false
+  }
+}
+
+const curvaUsageList: ChatbotUsageRecordItem[] = reactive([])
+async function updateCurvaUsageList () {
+  const lastestList = await $fetch('/api/admin/data/curva-record', {
+    method: 'POST',
+    body: packAdminApiData()
+  })
+  if (!lastestList) {
+    ElMessage.error('Curva usage record update failed')
+    return
+  }
+  curvaUsageList.splice(0, curvaUsageList.length)
+  curvaUsageList.push(...lastestList)
+}
 
 export default function () {
-  const adminStorage = useLocalStorage(adminStorageName, {} as Record<string, any>)
-  const savePassword = () => {
-    adminStorage.value.k = adminPassword.value
-  }
+  adminStorage = useLocalStorage(adminStorageName, {})
   if (process.client) {
     adminPassword.value = adminStorage.value.k || ''
   }
-  const adminAction = (action: string, loading?: Ref) => {
-    if (loading) {
-      loading.value = true
-    }
-    savePassword()
-    $fetch('/api/admin', {
-      method: 'POST',
-      body: {
-        passwd: adminPassword.value,
-        action
-      }
-    })
-      .then((res) => {
-        haveAccess.value = Boolean(res?.pass)
-        if (res === null) { return }
-        dcBotConnected.value = res.dcBotConnected
-        mdbConnectMethod.value = res.mdbConnectMethod
-      })
-      .finally(() => {
-        if (loading) {
-          loading.value = false
-        }
-      })
-  }
   return {
     haveAccess,
-    dcBotConnected,
-    mdbConnectMethod,
-    adminAction,
-    password: adminPassword
+    adminPassword,
+    adminSettings,
+    checkAdminLogin,
+    changeSetting,
+    curvaUsageList,
+    updateCurvaUsageList,
   }
 }

@@ -11,7 +11,7 @@ class Claude2WebChatbot {
   async ask (messages: OpenAIMessage[], options: { timezone?: number, context?: string } = {}) {
     const { timezone = 0 } = options
     const { question = '', context = '' } = messagesToQuestionContext(messages)
-    const prompt = `${question}\n\n---\nDEVELOPER PROMPT: continue the conversation\n\n${context}`
+    const prompt = `${question}\n\n---\nDEVELOPER PROMPT: Reply to the above message.\n\n${context}`
     return {
       ...await this.core.ask(prompt, { model: 'claude-2-web' }),
       // ...await this.core.ask(prompt, { model: 'PaLM-2' }),

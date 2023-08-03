@@ -4,7 +4,7 @@ import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
 import curva from '~/server/services/chatbots/curva'
-// import getIp from '~/server/services/getIp'
+import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
 import troll from '~/utils/troll'
 import baseConverter from '~/utils/baseConverter'
@@ -33,11 +33,11 @@ export default defineEventHandler(async (event) => {
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   const user = token?.user
-  // const ip = getIp(event.node.req)
   // Validate token
   if (token === null || typeof user !== 'string') {
     return { error: 4, id: _id }
   }
+  const ip = getIp(event.node.req)
   try {
     const croppedMessages = (() => {
       let _messages = messages as OpenAIMessage[]
@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }
+    curva.record.add({ ip, user, conv, model, error: response?.error || '', t: Date.now() })
     return { version, ...response }
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })
