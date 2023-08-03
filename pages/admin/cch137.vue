@@ -39,7 +39,7 @@
           <h3>Log</h3>
           <el-table :data="curvaUsageList" table-layout="auto">
             <el-table-column prop="t" label="t" :formatter="(item) => formatDate(new Date(item.t))" />
-            <el-table-column prop="ip" label="ip" />
+            <el-table-column prop="ip" label="ip" :formatter="(item) => (item?.ip||'').split(',')[0].trim()" />
             <el-table-column prop="user" label="user" />
             <el-table-column prop="conv" label="conv" />
             <el-table-column prop="model" label="model" />

@@ -163,24 +163,7 @@ const Conversation$1 = Conversation;
 
 let minSizeAllowedToBeDeleted = 1e3;
 let ageAllowedToBeDeleted = 5 * 60 * 1e3;
-const usageRecord = [
-  {
-    "ip": "::1",
-    "user": "Sy2RIxoAA0zpSO8r",
-    "conv": "2DOoI4Ek",
-    "model": "claude-2-web",
-    "error": '{"error":{"message":"bad status code: 500","type":"one_api_error","param":"","code":"bad_status_code"}}',
-    "t": 1691055806953
-  },
-  {
-    "ip": "::1",
-    "user": "Sy2RIxoAA0zpSO8r",
-    "conv": "2DOoI4Ek",
-    "model": "claude-2-web",
-    "error": "",
-    "t": 1691055859264
-  }
-];
+const usageRecord = [];
 let lastAdded = 0;
 const chatbotUsageRecord = {
   add(item) {
@@ -1121,15 +1104,15 @@ class Claude2WebChatbot {
   }
   async ask(messages, options = {}) {
     const { question = "", context = "" } = messagesToQuestionContext(messages);
-    const prompt = `${question}
+    const prompt = question + context ? `
 
 ---
 DEVELOPER PROMPT: Reply to the above message.
 
-${context}`;
+${context}` : "";
     return {
       ...await this.core.ask(prompt, { model: "claude-2-web" }),
-      // ...await this.core.ask(prompt, { model: 'PaLM-2' }),
+      // ...await this.core.ask(question, { model: 'PaLM-2' }),
       question
     };
   }
