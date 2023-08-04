@@ -1220,8 +1220,10 @@ const curva = {
         dt: 0
       };
     }
+    let debugTimeout = void 0;
     if (!unlimitedUserList.has(user)) {
       processingConversation.set(user, conv);
+      debugTimeout = setTimeout(() => processingConversation.delete(user), 5 * 60 * 1e3);
     }
     try {
       const engine = await (async () => {
@@ -1252,6 +1254,7 @@ const curva = {
       };
     } finally {
       processingConversation.delete(user);
+      clearTimeout(debugTimeout);
     }
   }
 };

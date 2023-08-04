@@ -1,4 +1,4 @@
-import type { Guild, Message, Role, TextBasedChannel, VoiceBasedChannel } from 'discord.js'
+import type { Guild, Message, Role, TextBasedChannel, VoiceBasedChannel, ChatInputCommandInteraction, CacheType } from 'discord.js'
 import { Client, IntentsBitField, EmbedBuilder, ApplicationCommandOptionType, AttachmentBuilder } from 'discord.js'
 import {
   EVO_CLIENT_ID,
@@ -145,6 +145,47 @@ const connect = async () => {
     url: 'https://ch4.onrender.com',
     type: 0
   })
+  const askCurva = async (user: string, conv: string, model: string, messageContent: string, temperature = 0.5) => {
+    const question = messageContent.replaceAll(`<@${EVO_CLIENT_ID}>`, '').trim() || 'Hi'
+    const messages = [...await new Conversation(user, conv).getContext(), { role: 'user', content: question }] as OpenAIMessage[]
+    try {
+      const response = await curva.ask('discord', user, conv, model, temperature, messages, 0)
+      const { answer, error } = response
+      // @ts-ignore
+      const queries: string[] = response?.queries || []
+      // @ts-ignore
+      const urls: string[] = response?.urls || []
+      if (error) {
+        throw error
+      }
+      const embeds = (() => {
+        if (queries.length + urls.length === 0) {
+          return []
+        }
+        const embed = new EmbedBuilder()
+        embed.setTitle('References')
+        embed.setColor('Blue')
+        embed.setFields(...[
+          { name: 'Queries', value: `${queries.join('\n')}` },
+          { name: 'Urls', value: `${urls.join('\n')}` },
+        ].filter(l => l.value))
+        return [embed]
+      })()
+      const files = answer.length > 1000 ? [createTextFile('answer.txt', answer)] : []
+      return files.length ? { files, embeds } : { content: answer, embeds }
+    } catch (err) {
+      console.log(err)
+      return {
+        content: '',
+        embeds: [
+          new EmbedBuilder()
+            .setDescription(err === 'THINKING'
+              ? 'Request denied. Please wait for the reply to the previous question to complete.'
+              : `ERROR: ${str(err)}`).setColor('Red')
+        ]
+      }
+    }
+  }
   client.on('messageCreate', async (message) => {
     if (message.author.bot) {
       return
@@ -152,59 +193,17 @@ const connect = async () => {
     if (message.guildId !== EVO_GUILD_ID) {
       return
     }
+    reviewChat(message)
     const { content } = message
-    if (content.includes(`<@${EVO_CLIENT_ID}>`) || content.includes(`<@${EVO_ROLE_ID}>`)) {
+    if (content.includes(`<@${EVO_CLIENT_ID}>`)) {
       const user = `dc@${message.member?.user.id}`
       const conv = message.channelId
       const replied = message.reply('Thinking...')
-      const interval = setInterval(() => {
-        message.channel.sendTyping()
-      }, 3000)
-      try {
-        replied.then(() => message.channel.sendTyping())
-        const question = message.content.replaceAll(`<@${EVO_CLIENT_ID}>`, '').trim() || 'Hi'
-        const messages = [...await new Conversation(user, conv).getContext(), { role: 'user', content: question }] as OpenAIMessage[]
-        const response = await curva.ask('discord', user, conv, 'gpt-web', 0, messages, 0)
-        const { answer, error } = response
-        // @ts-ignore
-        const queries: string[] = response?.queries || []
-        // @ts-ignore
-        const urls: string[] = response?.urls || []
-        if (error) {
-          throw error
-        }
-        const embeds = (() => {
-          if (queries.length + urls.length === 0) {
-            return []
-          }
-          const embed = new EmbedBuilder()
-          embed.setTitle('References')
-          embed.setColor('Blue')
-          embed.setFields(...[
-            { name: 'Queries', value: `${queries.join('\n')}` },
-            { name: 'Urls', value: `${urls.join('\n')}` },
-          ].filter(l => l.value))
-          return [embed]
-        })()
-        const files = answer.length > 1000 ? [createTextFile('answer.txt', answer)] : []
-        message.reply(files.length ? { files, embeds } : { content: answer, embeds });
-      } catch (err) {
-        console.log(err)
-        message.reply({
-          content: '',
-          embeds: [
-            new EmbedBuilder()
-              .setDescription(err === 'THINKING'
-                ? 'Request denied. Please wait for the reply to the previous question to complete.'
-                : `ERROR: ${str(err)}`).setColor('Red')
-          ]
-        })
-      } finally {
-        (await replied).delete()
-        clearInterval(interval)
-      }
-    } else {
-      reviewChat(message)
+      const interval = setInterval(() => message.channel.sendTyping(), 3000)
+      replied.then(() => message.channel.sendTyping())
+      message.reply(await askCurva(user, conv, 'gpt-web', message.content, 0));
+      (await replied).delete()
+      clearInterval(interval)
     }
   })
   client.on('guildMemberAdd', () => {
@@ -213,15 +212,33 @@ const connect = async () => {
   client.on('guildMemberRemove', () => {
     store.updateMemberCount()
   })
+  const replyCurvaInteraction = async (interaction: ChatInputCommandInteraction<CacheType>, model: string) => {
+    const message = (interaction.options.get('message')?.value || '') as string
+    const temperature = (interaction.options.get('temperature')?.value) as number
+    const dcUid = interaction.member?.user.id || ''
+    const user = `dc@${dcUid}`
+    const conv = interaction.channelId
+    const replied = interaction.reply('Thinking...')
+    const interval = setInterval(() => {
+      try{
+        // @ts-ignore
+        interaction.channel.sendTyping()
+      } catch {}
+    }, 3000)
+    replied.then(() => {
+      try{
+        // @ts-ignore
+        interaction.channel.sendTyping()
+      } catch {}
+    })
+    const { content, embeds = [], files = [] } = await askCurva(user, conv, model, message, temperature === undefined ? 0.5 : temperature)
+    clearInterval(interval)
+    const answered = await interaction.channel?.send({ content: `<@${dcUid}> ${content}`, embeds, files });
+    (await replied).edit({ content: answered?.url })
+  }
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand()) return
     switch (interaction.commandName) {
-      case 'clear-chatbot-memory':
-        const user = `dc@${interaction.member?.user.id}`
-        const conv = interaction.channelId
-        await new Conversation(user, conv).delete()
-        interaction.reply({embeds: [new EmbedBuilder().setDescription('The conversation history between you and the AI chatbot in this channel has been cleared.').setColor('Green')]})
-        break
       case 'yt-captions':
         {
           const videoLink = (interaction.options.get('id')?.value || '') as string
@@ -244,6 +261,21 @@ const connect = async () => {
           }
         }
         break
+      case 'gpt3':
+        replyCurvaInteraction(interaction, 'gpt3')
+        break
+      case 'gpt4':
+        replyCurvaInteraction(interaction, 'gpt4')
+        break
+      case 'gpt-web':
+        replyCurvaInteraction(interaction, 'gpt-web')
+        break
+      case 'clear-chatbot-memory':
+        const user = `dc@${interaction.member?.user.id}`
+        const conv = interaction.channelId
+        await new Conversation(user, conv).delete()
+        interaction.reply({embeds: [new EmbedBuilder().setDescription('The conversation history between you and the AI chatbot in this channel has been cleared.').setColor('Green')]})
+        break
     }
   })
   console.log(`DC BOT conneted.`)
@@ -252,12 +284,7 @@ const connect = async () => {
 
 if (+(process.env.RUN_DC_BOT as string)) {
   connect()
-    .then(() => {
-      (store.client as Client<boolean>).application?.commands.create({
-        name: 'clear-chatbot-memory',
-        description: 'Clear the conversation history between you and the AI chatbot in this channel.',
-      })
-    })
+    .then(() => {})
     // .then(async () => {
     //   await (store.client as Client<boolean>).application?.commands.create({
     //     name: 'yt-captions',

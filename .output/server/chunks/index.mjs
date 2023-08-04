@@ -1,10 +1,9 @@
 import { Client, IntentsBitField, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
-import { C as Conversation, c as curva, i as isYouTubeLink, g as getYouTubeVideoId } from './index2.mjs';
+import { C as Conversation, i as isYouTubeLink, g as getYouTubeVideoId, c as curva } from './index2.mjs';
 import { s as str } from './random.mjs';
 
 const EVO_CLIENT_ID = "1056463118672351283";
-const EVO_ROLE_ID = "1056465043279052833";
 const EVO_GUILD_ID = "730345526360539197";
 const EVO_TOTAL_MEMBERS_CHANNERL_ID = "1113758792430145547";
 const EVO_LOG_CHANNEL_ID = "1113752420623851602";
@@ -62,6 +61,42 @@ const connect = async () => {
     url: "https://ch4.onrender.com",
     type: 0
   });
+  const askCurva = async (user, conv, model, messageContent, temperature = 0.5) => {
+    const question = messageContent.replaceAll(`<@${EVO_CLIENT_ID}>`, "").trim() || "Hi";
+    const messages = [...await new Conversation(user, conv).getContext(), { role: "user", content: question }];
+    try {
+      const response = await curva.ask("discord", user, conv, model, temperature, messages, 0);
+      const { answer, error } = response;
+      const queries = (response == null ? void 0 : response.queries) || [];
+      const urls = (response == null ? void 0 : response.urls) || [];
+      if (error) {
+        throw error;
+      }
+      const embeds = (() => {
+        if (queries.length + urls.length === 0) {
+          return [];
+        }
+        const embed = new EmbedBuilder();
+        embed.setTitle("References");
+        embed.setColor("Blue");
+        embed.setFields(...[
+          { name: "Queries", value: `${queries.join("\n")}` },
+          { name: "Urls", value: `${urls.join("\n")}` }
+        ].filter((l) => l.value));
+        return [embed];
+      })();
+      const files = answer.length > 1e3 ? [createTextFile("answer.txt", answer)] : [];
+      return files.length ? { files, embeds } : { content: answer, embeds };
+    } catch (err) {
+      console.log(err);
+      return {
+        content: "",
+        embeds: [
+          new EmbedBuilder().setDescription(err === "THINKING" ? "Request denied. Please wait for the reply to the previous question to complete." : `ERROR: ${str(err)}`).setColor("Red")
+        ]
+      };
+    }
+  };
   client.on("messageCreate", async (message) => {
     var _a2;
     if (message.author.bot) {
@@ -70,54 +105,17 @@ const connect = async () => {
     if (message.guildId !== EVO_GUILD_ID) {
       return;
     }
+    reviewChat(message);
     const { content } = message;
-    if (content.includes(`<@${EVO_CLIENT_ID}>`) || content.includes(`<@${EVO_ROLE_ID}>`)) {
+    if (content.includes(`<@${EVO_CLIENT_ID}>`)) {
       const user = `dc@${(_a2 = message.member) == null ? void 0 : _a2.user.id}`;
       const conv = message.channelId;
       const replied = message.reply("Thinking...");
-      const interval = setInterval(() => {
-        message.channel.sendTyping();
-      }, 3e3);
-      try {
-        replied.then(() => message.channel.sendTyping());
-        const question = message.content.replaceAll(`<@${EVO_CLIENT_ID}>`, "").trim() || "Hi";
-        const messages = [...await new Conversation(user, conv).getContext(), { role: "user", content: question }];
-        const response = await curva.ask("discord", user, conv, "gpt-web", 0, messages, 0);
-        const { answer, error } = response;
-        const queries = (response == null ? void 0 : response.queries) || [];
-        const urls = (response == null ? void 0 : response.urls) || [];
-        if (error) {
-          throw error;
-        }
-        const embeds = (() => {
-          if (queries.length + urls.length === 0) {
-            return [];
-          }
-          const embed = new EmbedBuilder();
-          embed.setTitle("References");
-          embed.setColor("Blue");
-          embed.setFields(...[
-            { name: "Queries", value: `${queries.join("\n")}` },
-            { name: "Urls", value: `${urls.join("\n")}` }
-          ].filter((l) => l.value));
-          return [embed];
-        })();
-        const files = answer.length > 1e3 ? [createTextFile("answer.txt", answer)] : [];
-        message.reply(files.length ? { files, embeds } : { content: answer, embeds });
-      } catch (err) {
-        console.log(err);
-        message.reply({
-          content: "",
-          embeds: [
-            new EmbedBuilder().setDescription(err === "THINKING" ? "Request denied. Please wait for the reply to the previous question to complete." : `ERROR: ${str(err)}`).setColor("Red")
-          ]
-        });
-      } finally {
-        (await replied).delete();
-        clearInterval(interval);
-      }
-    } else {
-      reviewChat(message);
+      const interval = setInterval(() => message.channel.sendTyping(), 3e3);
+      replied.then(() => message.channel.sendTyping());
+      message.reply(await askCurva(user, conv, "gpt-web", message.content, 0));
+      (await replied).delete();
+      clearInterval(interval);
     }
   });
   client.on("guildMemberAdd", () => {
@@ -126,21 +124,40 @@ const connect = async () => {
   client.on("guildMemberRemove", () => {
     store.updateMemberCount();
   });
+  const replyCurvaInteraction = async (interaction, model) => {
+    var _a2, _b, _c, _d;
+    const message = ((_a2 = interaction.options.get("message")) == null ? void 0 : _a2.value) || "";
+    const temperature = (_b = interaction.options.get("temperature")) == null ? void 0 : _b.value;
+    const dcUid = ((_c = interaction.member) == null ? void 0 : _c.user.id) || "";
+    const user = `dc@${dcUid}`;
+    const conv = interaction.channelId;
+    const replied = interaction.reply("Thinking...");
+    const interval = setInterval(() => {
+      try {
+        interaction.channel.sendTyping();
+      } catch {
+      }
+    }, 3e3);
+    replied.then(() => {
+      try {
+        interaction.channel.sendTyping();
+      } catch {
+      }
+    });
+    const { content, embeds = [], files = [] } = await askCurva(user, conv, model, message, temperature === void 0 ? 0.5 : temperature);
+    clearInterval(interval);
+    const answered = await ((_d = interaction.channel) == null ? void 0 : _d.send({ content: `<@${dcUid}> ${content}`, embeds, files }));
+    (await replied).edit({ content: answered == null ? void 0 : answered.url });
+  };
   client.on("interactionCreate", async (interaction) => {
     var _a2, _b, _c;
     if (!interaction.isChatInputCommand())
       return;
     switch (interaction.commandName) {
-      case "clear-chatbot-memory":
-        const user = `dc@${(_a2 = interaction.member) == null ? void 0 : _a2.user.id}`;
-        const conv = interaction.channelId;
-        await new Conversation(user, conv).delete();
-        interaction.reply({ embeds: [new EmbedBuilder().setDescription("The conversation history between you and the AI chatbot in this channel has been cleared.").setColor("Green")] });
-        break;
       case "yt-captions":
         {
-          const videoLink = ((_b = interaction.options.get("id")) == null ? void 0 : _b.value) || "";
-          const lang = ((_c = interaction.options.get("lang")) == null ? void 0 : _c.value) || "";
+          const videoLink = ((_a2 = interaction.options.get("id")) == null ? void 0 : _a2.value) || "";
+          const lang = ((_b = interaction.options.get("lang")) == null ? void 0 : _b.value) || "";
           const videoId = isYouTubeLink(videoLink) ? getYouTubeVideoId(videoLink) || "" : videoLink;
           if (!videoId) {
             interaction.reply("Error: Illegal Video ID");
@@ -157,6 +174,21 @@ const connect = async () => {
           }
         }
         break;
+      case "gpt3":
+        replyCurvaInteraction(interaction, "gpt3");
+        break;
+      case "gpt4":
+        replyCurvaInteraction(interaction, "gpt4");
+        break;
+      case "gpt-web":
+        replyCurvaInteraction(interaction, "gpt-web");
+        break;
+      case "clear-chatbot-memory":
+        const user = `dc@${(_c = interaction.member) == null ? void 0 : _c.user.id}`;
+        const conv = interaction.channelId;
+        await new Conversation(user, conv).delete();
+        interaction.reply({ embeds: [new EmbedBuilder().setDescription("The conversation history between you and the AI chatbot in this channel has been cleared.").setColor("Green")] });
+        break;
     }
   });
   console.log(`DC BOT conneted.`);
@@ -164,11 +196,6 @@ const connect = async () => {
 };
 if (+process.env.RUN_DC_BOT) {
   connect().then(() => {
-    var _a;
-    (_a = store.client.application) == null ? void 0 : _a.commands.create({
-      name: "clear-chatbot-memory",
-      description: "Clear the conversation history between you and the AI chatbot in this channel."
-    });
   });
 }
 const disconnect = () => {

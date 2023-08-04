@@ -88,8 +88,10 @@ const curva = {
         dt: 0
       }
     }
+    let debugTimeout: NodeJS.Timeout | undefined = undefined
     if (!unlimitedUserList.has(user)) {
       processingConversation.set(user, conv)
+      debugTimeout = setTimeout(() => processingConversation.delete(user), 5 * 60 * 1000)
     }
     try {
       // @ts-ignore
@@ -127,6 +129,7 @@ const curva = {
       }
     } finally {
       processingConversation.delete(user)
+      clearTimeout(debugTimeout)
     }
   }
 }
