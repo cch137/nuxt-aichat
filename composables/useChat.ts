@@ -461,6 +461,11 @@ export default function () {
         if (lastModifiedConv !== convId) {
           lastModifiedConv = convId
           checkTokenAndGetConversations()
+            .then(() => {
+              try {
+                (document.querySelector('.ConversationList') as Element).scrollTop = 0
+              } catch {}
+            })
         }
         const isAtBottom = getScrollTop() >= document.body.clientHeight
         const id = (res as any).id as string

@@ -16,7 +16,7 @@ class Gpt4Chatbot {
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, '0')}`
     const quetionTokens = estimateTokens(question, context) + 500
     const tokensSuffix = (() => {
-      switch (Math.ceil(quetionTokens / 1000)) {
+      switch (Math.ceil(quetionTokens / 1024)) {
         case 1:
           return '_1k'
         case 2:
@@ -24,7 +24,7 @@ class Gpt4Chatbot {
         case 3:
           return '_3k'
         case 4:
-          return '_3k'
+          return '_4k'
         case 5:
           return '_5k'
         case 6:

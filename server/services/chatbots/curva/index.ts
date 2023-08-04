@@ -80,7 +80,7 @@ const freeGptAsiaToken = troll.e({
 const curva = {
   name: 'Curva',
   record: chatbotUsageRecord,
-  async ask (user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string) {
+  async ask (ip: string, user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string) {
     if (processingConversation.has(user)) {
       return {
         answer: '',
@@ -111,15 +111,18 @@ const curva = {
         _id = await conversation.saveMessage(result.question, result.answer, result?.queries || [], result?.urls || [], dt, _id)
         conversation.updateMtime()
       }
+      curva.record.add({ ip, user, conv, model, error: result?.error || '', t: Date.now() })
       return {
         ...result,
         dt,
         id: _id
       }
     } catch (err) {
+      const error = str(err)
+      curva.record.add({ ip, user, conv, model, error, t: Date.now() })
       return {
         answer: '',
-        error: str(err),
+        error,
         dt: 0
       }
     } finally {

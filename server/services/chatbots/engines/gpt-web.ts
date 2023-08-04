@@ -165,7 +165,7 @@ class GptWebChatbot {
       ...await crawledPages1,
       ...await crawledPages2
     ])).join('\n---\n')
-    let tries = 3
+    let tries = 2
     while (estimateTokens(summary) > 5000 && tries-- > 0) {
       summary = await summaryArticle(this.core, question, summary)
     }

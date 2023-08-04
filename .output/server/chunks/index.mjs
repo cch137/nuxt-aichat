@@ -94,7 +94,7 @@ const connect = async () => {
         replied.then(() => message.channel.sendTyping());
         const question = message.content.replaceAll(`<@${EVO_CLIENT_ID}>`, "").trim() || "Hi";
         const messages = [...await new Conversation(user, conv).getContext(), { role: "user", content: question }];
-        const response = await curva.ask(user, conv, "gpt-web", 0, messages, 0);
+        const response = await curva.ask("discord", user, conv, "gpt-web", 0, messages, 0);
         const { answer: answer2, error } = response;
         const queries = (response == null ? void 0 : response.queries) || [];
         const urls = (response == null ? void 0 : response.urls) || [];

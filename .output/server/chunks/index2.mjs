@@ -676,7 +676,7 @@ Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
     const quetionTokens = estimateTokens(question, context) + 500;
     const tokensSuffix = (() => {
-      switch (Math.ceil(quetionTokens / 1e3)) {
+      switch (Math.ceil(quetionTokens / 1024)) {
         case 1:
           return "_1k";
         case 2:
@@ -716,7 +716,7 @@ Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
     const quetionTokens = estimateTokens(question, context) + 500;
     const tokensSuffix = (() => {
-      switch (Math.ceil(quetionTokens / 1e3)) {
+      switch (Math.ceil(quetionTokens / 1024)) {
         case 1:
           return "_1k";
         case 2:
@@ -724,7 +724,7 @@ Question: ${question}`;
         case 3:
           return "_3k";
         case 4:
-          return "_3k";
+          return "_4k";
         case 5:
           return "_5k";
         case 6:
@@ -1067,7 +1067,7 @@ class GptWebChatbot {
       ...await crawledPages1,
       ...await crawledPages2
     ])).join("\n---\n");
-    let tries = 3;
+    let tries = 2;
     while (estimateTokens(summary) > 5e3 && tries-- > 0) {
       summary = await summaryArticle(this.core, question, summary);
     }
@@ -1212,7 +1212,7 @@ const freeGptAsiaToken = troll.e({
 const curva = {
   name: "Curva",
   record: chatbotUsageRecord$1,
-  async ask(user, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id) {
+  async ask(ip, user, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id) {
     if (processingConversation.has(user)) {
       return {
         answer: "",
@@ -1236,15 +1236,18 @@ const curva = {
         _id = await conversation.saveMessage(result.question, result.answer, (result == null ? void 0 : result.queries) || [], (result == null ? void 0 : result.urls) || [], dt, _id);
         conversation.updateMtime();
       }
+      curva.record.add({ ip, user, conv, model, error: (result == null ? void 0 : result.error) || "", t: Date.now() });
       return {
         ...result,
         dt,
         id: _id
       };
     } catch (err) {
+      const error = str(err);
+      curva.record.add({ ip, user, conv, model, error, t: Date.now() });
       return {
         answer: "",
-        error: str(err),
+        error,
         dt: 0
       };
     } finally {

@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
       }
       return _messages
     })()
-    const response = await curva.ask(user, conv, model, temperature, croppedMessages, tz, _id)
+    const response = await curva.ask(ip, user, conv, model, temperature, croppedMessages, tz, _id)
     //@ts-ignore
     response.id = typeof response.id === 'string'
     //@ts-ignore
@@ -64,7 +64,6 @@ export default defineEventHandler(async (event) => {
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }
-    curva.record.add({ ip, user, conv, model, error: response?.error || '', t: Date.now() })
     return { version, ...response }
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })

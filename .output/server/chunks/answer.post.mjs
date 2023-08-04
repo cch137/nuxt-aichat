@@ -81,12 +81,11 @@ const answer_post = defineEventHandler(async (event) => {
       }
       return _messages;
     })();
-    const response = await curva.ask(user, conv, model, temperature, croppedMessages, tz, _id);
+    const response = await curva.ask(ip, user, conv, model, temperature, croppedMessages, tz, _id);
     response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64w") : _id;
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);
     }
-    curva.record.add({ ip, user, conv, model, error: (response == null ? void 0 : response.error) || "", t: Date.now() });
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });
