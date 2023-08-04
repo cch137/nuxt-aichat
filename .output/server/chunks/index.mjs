@@ -23,20 +23,8 @@ const store = {
     });
   }
 };
-const Logger = {
-  log(text) {
-    Logger.channel.send(text);
-  },
-  typing() {
-    Logger.channel.sendTyping();
-  }
-};
 const reviewChat = async (message) => {
   if (!message.content.trim()) {
-    return;
-  }
-  Logger.typing();
-  if (typeof answer !== "string") {
     return;
   }
   const { guild } = store;
@@ -66,7 +54,7 @@ const connect = async () => {
   store.client = client;
   const loggedIn = await client.login(process.env.DC_BOT_TOKEN);
   store.guild = await client.guilds.fetch(EVO_GUILD_ID);
-  Logger.channel = await client.channels.fetch(EVO_LOG_CHANNEL_ID);
+  await client.channels.fetch(EVO_LOG_CHANNEL_ID);
   store.updateMemberCount();
   store.connected = true;
   (_a = client.user) == null ? void 0 : _a.setActivity({
@@ -95,7 +83,7 @@ const connect = async () => {
         const question = message.content.replaceAll(`<@${EVO_CLIENT_ID}>`, "").trim() || "Hi";
         const messages = [...await new Conversation(user, conv).getContext(), { role: "user", content: question }];
         const response = await curva.ask("discord", user, conv, "gpt-web", 0, messages, 0);
-        const { answer: answer2, error } = response;
+        const { answer, error } = response;
         const queries = (response == null ? void 0 : response.queries) || [];
         const urls = (response == null ? void 0 : response.urls) || [];
         if (error) {
@@ -114,8 +102,8 @@ const connect = async () => {
           ].filter((l) => l.value));
           return [embed];
         })();
-        const files = answer2.length > 1e3 ? [createTextFile("answer.txt", answer2)] : [];
-        message.reply(files.length ? { files, embeds } : { content: answer2, embeds });
+        const files = answer.length > 1e3 ? [createTextFile("answer.txt", answer)] : [];
+        message.reply(files.length ? { files, embeds } : { content: answer, embeds });
       } catch (err) {
         console.log(err);
         message.reply({

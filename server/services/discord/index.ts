@@ -108,12 +108,6 @@ const reviewChat = async (message: Message<boolean>) => {
   if (!message.content.trim()) {
     return
   }
-  Logger.typing()
-  // @ts-ignore
-  // const answer = (await dcBotMdbClient.gpt('gpt4_dc_bot', useAdminTemplate(message.content), ''))?.answer
-  if (typeof answer !== 'string') {
-    return
-  }
   const { guild } = store
   guild.roles.fetch(EVO_VERIFIED_ROLE_ID)
     .then((verifiedRole) => {
@@ -122,19 +116,6 @@ const reviewChat = async (message: Message<boolean>) => {
         role: verifiedRole as Role
       })
     })
-  // if (answer.trim() === '' || answer.includes('NO-REPLY')) {
-  //   return
-  // }
-  // const reply = await message.reply(answer)
-  // const embed = new EmbedBuilder()
-  // embed.setTitle('Violation of rules or misconduct | Evo')
-  //   .setColor(0x409EFF)
-  //   .setFields(
-  //     { name: 'MESSAGE', value: `${message.url}\n${message.content}` },
-  //     { name: 'REPLY', value: `${reply.url}\n${answer}` },
-  //   )
-  // Logger.log({ embeds: [embed] })
-  // return reply
 }
 
 const createTextFile = (filename: string, content: string) => {
