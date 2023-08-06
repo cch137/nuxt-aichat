@@ -23,16 +23,18 @@ const store = {
   }
 };
 const reviewChat = async (message) => {
-  if (!message.content.trim()) {
-    return;
-  }
-  const { guild } = store;
-  guild.roles.fetch(EVO_VERIFIED_ROLE_ID).then((verifiedRole) => {
-    guild.members.addRole({
+  try {
+    if (!message.content.trim()) {
+      return;
+    }
+    const { guild } = store;
+    const verifiedRole = await guild.roles.fetch(EVO_VERIFIED_ROLE_ID);
+    await guild.members.addRole({
       user: message.author,
       role: verifiedRole
     });
-  });
+  } catch {
+  }
 };
 const createTextFile = (filename, content) => {
   return new AttachmentBuilder(Buffer.from(content, "utf8"), { name: filename });
@@ -105,7 +107,6 @@ const connect = async () => {
     if (message.guildId !== EVO_GUILD_ID) {
       return;
     }
-    reviewChat(message);
     const { content } = message;
     if (content.includes(`<@${EVO_CLIENT_ID}>`)) {
       const user = `dc@${(_a2 = message.member) == null ? void 0 : _a2.user.id}`;
@@ -117,6 +118,7 @@ const connect = async () => {
       (await replied).delete();
       clearInterval(interval);
     }
+    reviewChat(message);
   });
   client.on("guildMemberAdd", () => {
     store.updateMemberCount();

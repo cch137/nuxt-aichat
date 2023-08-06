@@ -104,18 +104,18 @@ const Logger = {
 } as ILogger
 
 const reviewChat = async (message: Message<boolean>) => {
-  // 必須要檢測訊息是否為空，因為 welcome 訊息是空的，welcome 並不需要被認證。
-  if (!message.content.trim()) {
-    return
-  }
-  const { guild } = store
-  guild.roles.fetch(EVO_VERIFIED_ROLE_ID)
-    .then((verifiedRole) => {
-      guild.members.addRole({
-        user: message.author,
-        role: verifiedRole as Role
-      })
+  try {
+    // 必須要檢測訊息是否為空，因為 welcome 訊息是空的，welcome 並不需要被認證。
+    if (!message.content.trim()) {
+      return
+    }
+    const { guild } = store
+    const verifiedRole = await guild.roles.fetch(EVO_VERIFIED_ROLE_ID)
+    await guild.members.addRole({
+      user: message.author,
+      role: verifiedRole as Role
     })
+  } catch {}
 }
 
 const createTextFile = (filename: string, content: string) => {
@@ -193,7 +193,6 @@ const connect = async () => {
     if (message.guildId !== EVO_GUILD_ID) {
       return
     }
-    reviewChat(message)
     const { content } = message
     if (content.includes(`<@${EVO_CLIENT_ID}>`)) {
       const user = `dc@${message.member?.user.id}`
@@ -205,6 +204,7 @@ const connect = async () => {
       (await replied).delete()
       clearInterval(interval)
     }
+    reviewChat(message)
   })
   client.on('guildMemberAdd', () => {
     store.updateMemberCount()
