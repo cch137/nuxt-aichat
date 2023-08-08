@@ -88,7 +88,7 @@ const connect = async () => {
         return [embed];
       })();
       const files = answer.length > 1e3 ? [createTextFile("answer.txt", answer)] : [];
-      return files.length ? { files, embeds } : { content: answer, embeds };
+      return { content: answer || "", files, embeds };
     } catch (err) {
       console.log(err);
       return {
