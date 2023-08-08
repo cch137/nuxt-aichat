@@ -413,15 +413,19 @@ async function sleep(timeoutMs = 0) {
 
 const contextHead = "Conversation History\n\n";
 function messagesToQuestionContext(messages) {
+  var _a;
   messages = [...messages];
-  let questionMessageObj = messages.filter((value) => value.role === "user").at(-1);
+  const isContinueGenerate = ((_a = messages.at(-1)) == null ? void 0 : _a.role) === "assistant";
+  const questionMessageObj = isContinueGenerate ? { role: "user", content: "[[ CONTINUE GENERATE (Provide more details or keep creating) ]]" } : messages.at(-1) || { role: "user", content: "Hi" };
   if (questionMessageObj) {
-    messages.splice(messages.indexOf(questionMessageObj), 1);
-  } else {
-    questionMessageObj = { role: "user", content: "" };
+    const indexOfMsgObj = messages.indexOf(questionMessageObj);
+    if (indexOfMsgObj !== -1) {
+      messages.splice(indexOfMsgObj, 1);
+    }
   }
   const context = `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join("\n\n")}`;
   return {
+    isContinueGenerate,
     question: questionMessageObj.content,
     context
   };
@@ -670,8 +674,8 @@ class Gpt3Chatbot {
   }
   async ask(messages, options = {}) {
     const { timezone = 0, temperature = 0.5 } = options;
-    const { question = "", context = "" } = messagesToQuestionContext(messages);
-    const prompt = `User current time: ${formatUserCurrentTime(timezone)}
+    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
+    const prompt = isContinueGenerate ? question : `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
     const quetionTokens = estimateTokens(question, context) + 500;
@@ -691,7 +695,8 @@ Question: ${question}`;
     const modelName = `gpt3${temperatureSuffix}${tokensSuffix}`;
     return {
       ...await this.core.ask(prompt, { ...options, modelName, context }),
-      question
+      question,
+      isContinueGenerate
     };
   }
 }
@@ -710,8 +715,8 @@ class Gpt4Chatbot {
   }
   async ask(messages, options = {}) {
     const { timezone = 0, temperature = 0.5 } = options;
-    const { question = "", context = "" } = messagesToQuestionContext(messages);
-    const prompt = `User current time: ${formatUserCurrentTime(timezone)}
+    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
+    const prompt = isContinueGenerate ? question : `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
     const quetionTokens = estimateTokens(question, context) + 500;
@@ -739,7 +744,8 @@ Question: ${question}`;
     const modelName = `gpt4${temperatureSuffix}${tokensSuffix}`;
     return {
       ...await this.core.ask(prompt, { ...options, modelName, context }),
-      question
+      question,
+      isContinueGenerate
     };
   }
 }
@@ -1039,11 +1045,11 @@ class GptWebChatbot {
     this.core = core;
   }
   async ask(messages, options = {}) {
-    const { question, context } = messagesToQuestionContext(messages);
+    const { question, context, isContinueGenerate } = messagesToQuestionContext(messages);
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) };
     let { queries = [], urls = [], answer: answer1 = "" } = await estimateQueriesAndUrls(this.core, question, { ...options, context });
     if (queries.length === 0 && urls.length === 0 && answer1 !== "") {
-      return { question, queries, urls, answer: answer1 };
+      return { question, queries, urls, answer: answer1, isContinueGenerate };
     }
     const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)));
     let isDirectAnswerInWhenSelectPages = false;
@@ -1061,7 +1067,7 @@ class GptWebChatbot {
       return await Promise.all(tasks);
     })() : Promise.all([new Promise((r) => r(""))]);
     if (isDirectAnswerInWhenSelectPages && queries.length && urls.length === 0) {
-      return { question, queries, answer: (await crawledPages2)[0] };
+      return { question, queries, answer: (await crawledPages2)[0], isContinueGenerate };
     }
     let summary = (await Promise.all([
       ...await crawledPages1,
@@ -1085,7 +1091,8 @@ ${summary}`;
       queries,
       urls,
       answer: result.answer,
-      error: result.error
+      error: result.error,
+      isContinueGenerate
     };
   }
 }
@@ -1103,7 +1110,7 @@ class Claude2WebChatbot {
     this.core = core || new FreeGptAsiaChatbotCore$1();
   }
   async ask(messages, options = {}) {
-    const { question = "", context = "" } = messagesToQuestionContext(messages);
+    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     const prompt = question + context ? `
 
 ---
@@ -1113,7 +1120,8 @@ ${context}` : "";
     return {
       ...await this.core.ask(prompt, { model: "claude-2-web" }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
-      question
+      question,
+      isContinueGenerate
     };
   }
 }
@@ -1131,11 +1139,12 @@ class Gpt3FgaChatbot {
     this.core = core || new FreeGptAsiaChatbotCore$1();
   }
   async ask(messages, options = {}) {
-    const { question = "", context = "" } = messagesToQuestionContext(messages);
+    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     return {
       // ...await this.core.ask(messages, { model: 'gpt-4' }),
       ...await this.core.ask(messages, { model: "gpt-3.5-turbo" }),
-      question
+      question,
+      isContinueGenerate
     };
   }
 }
@@ -1235,7 +1244,14 @@ const curva = {
       const dt = Date.now() - t0;
       if (result.answer) {
         const conversation = new Conversation$1(user, conv);
-        _id = await conversation.saveMessage(result.question, result.answer, (result == null ? void 0 : result.queries) || [], (result == null ? void 0 : result.urls) || [], dt, _id);
+        _id = await conversation.saveMessage(
+          result.isContinueGenerate ? "" : result.question,
+          result.answer,
+          (result == null ? void 0 : result.queries) || [],
+          (result == null ? void 0 : result.urls) || [],
+          dt,
+          _id
+        );
         conversation.updateMtime();
       }
       curva.record.add({ ip, user, conv, model, error: (result == null ? void 0 : result.error) || "", t: Date.now() });
