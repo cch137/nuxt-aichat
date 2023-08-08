@@ -8,7 +8,7 @@
     class="flex-col flex-center w-full max-w-xs px-4 m-auto"
     style="height: calc(100vh - 56px);"
   >
-      <h1 class="mt-0 mb-6">{{ $t('auth.signup') }}</h1>
+      <h1 class="mt-0 mb-6">Reset Password</h1>
       <el-form-item :label="$t('auth.email')" :style="step === 1 ? 'margin-bottom: 0;' : ''" prop="email" class="inputWrapper SignupInputAnim1">
         <el-input
           :key="step"
@@ -26,17 +26,6 @@
           <span>{{ $t('action.change') }}</span>
         </el-link>
       </div>
-      <el-form-item v-if="step === 1" :label="$t('auth.username')" prop="username" class="inputWrapper SignupInputAnim1">
-        <el-input
-          v-model="ruleForm.username"
-          type="text"
-          size="large"
-          :prefix-icon="User"
-          :formatter="//@ts-ignore
-            (v) => v.replace(/[^\w]+/g, '')"
-          :parser="(v) => v.replace(/[^\w]+/g, '')"
-        ></el-input>
-      </el-form-item>
       <el-form-item v-if="step === 1" :label="$t('auth.passwd')" prop="password" class="inputWrapper SignupInputAnim2 SignupPasswordInputWrapper">
         <el-input
           v-model="ruleForm.password"
@@ -71,21 +60,17 @@
         </el-button>
       </div>
       <div v-if="step === 1" class="flex-center">
-        <el-button size="large" type="primary" @click="signUp(ruleFormRef as FormInstance)">
-          {{ $t('auth.signup') }}
+        <el-button size="large" type="primary" @click="resetPw(ruleFormRef as FormInstance)">
+          Reset
         </el-button>
       </div>
       <div class="p-2"></div>
       <div class="flex-center flex-col gap-1">
         <div class="flex-center flex-wrap gap-1" style="line-height: 1rem;">
-          <el-text type="info">{{ $t('auth.alreadyHaveAnAcc') }}</el-text>
           <el-link type="primary">
-            <NuxtLink to="/login">{{ $t('auth.login') }}</NuxtLink>
+            <NuxtLink to="/login">Back to Home</NuxtLink>
           </el-link>
         </div>
-      </div>
-      <div style="line-height: 1rem;" class="mt-2 text-center">
-        <el-text size="small" type="info">{{ $t('auth.loginTip1') }}</el-text>
       </div>
       <div class="p-8" />
     </el-form>
@@ -112,14 +97,13 @@ const resent = ref(false)
 
 // STEPS:
 // 0: input email & password, get verification code
-// 1: verify, sign up
+// 1: verify, reset pw
 const step = ref(0)
 
 const ruleFormRef = ref<FormInstance>()
 
 const ruleForm = reactive({
   email: '',
-  username: '',
   password: '',
   veriCode: ''
 })
@@ -128,10 +112,6 @@ const rules = reactive<FormRules>({
   email: [
     { required: true, message: _t('auth.emailRequired'), trigger: 'change' },
     { type: 'email', message: _t('auth.emailInvalid'), trigger: 'change' }
-  ],
-  username: [
-    { required: true, message: _t('auth.usernameRequired'), trigger: 'change' },
-    { min: 5, max: 32, message: _t('auth.usernameLength'), trigger: 'change' },
   ],
   password: [
     { required: true, message: _t('auth.passwdRequired'), trigger: 'change' },
@@ -200,17 +180,16 @@ const getVerifictionCode = async (formEl: FormInstance, resend = false) => {
   })
 }
 
-const signUp = async (formEl: FormInstance) => {
+const resetPw = async (formEl: FormInstance) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       const loading = ElLoading.service({
         text: _t('auth.sendingVeriCode')
       })
-      $fetch('/api/auth/signup', {
+      $fetch('/api/auth/resetPassword', {
         method: 'POST',
         body: {
           email: ruleForm.email,
-          username: ruleForm.username,
           password: ruleForm.password,
           code: ruleForm.veriCode
         }
@@ -220,9 +199,8 @@ const signUp = async (formEl: FormInstance) => {
           if (res?.error) {
             ElMessage.error(res?.error)
           } else {
-            ElMessage.success('Sign up successful.')
-            navigateTo('/c/')
-            auth.setIsLoggedIn(true)
+            ElMessage.success('Password reset successful.')
+            navigateTo('/login')
           }
         })
         .catch(() => {
@@ -237,10 +215,10 @@ const signUp = async (formEl: FormInstance) => {
   })
 }
 
-useTitle(`${_t('auth.signup')} - ${useState('appName').value}`)
+useTitle(`Reset Password - ${useState('appName').value}`)
 definePageMeta({
   layout: 'default',
-  middleware: ['only-no-auth']
+  middleware: []
 })
 </script>
 

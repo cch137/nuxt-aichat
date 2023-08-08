@@ -6,7 +6,7 @@
           <el-text size="large">{{ $t('settings.lang') }}</el-text>
         </div>
         <div>
-          <LanguageSelect />
+          <ChatbotLanguageSelect />
         </div>
       </div>
       <div class="flex flex-col gap-1">
@@ -15,6 +15,13 @@
         </div>
         <div>
           <ColorModeSelect />
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <div>
+          <NuxtLink href="/acc/reset-password">
+            <el-link>> Reset Password</el-link>
+          </NuxtLink>
         </div>
       </div>
     </div>

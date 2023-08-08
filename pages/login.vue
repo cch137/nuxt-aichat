@@ -36,11 +36,16 @@
         </el-button>
       </div>
       <div class="p-2"></div>
-      <div class="flex-center flex-col gap-1">
+      <div class="flex-center flex-col gap-2">
         <div class="flex-center flex-wrap gap-1" style="line-height: 1rem;">
           <el-text type="info">{{ $t('auth.createNewAcc') }}</el-text>
           <el-link type="primary">
             <NuxtLink to="/signup">{{ $t('auth.signup') }}</NuxtLink>
+          </el-link>
+        </div>
+        <div class="flex-center flex-wrap gap-1" style="line-height: 1rem;">
+          <el-link type="primary">
+            <NuxtLink to="/acc/reset-password">Reset Password</NuxtLink>
           </el-link>
         </div>
       </div>
@@ -54,7 +59,7 @@
     <div class="absolute w-screen flex-center gap-2 p-3" style="bottom: 0;">
       <el-text type="info" class="opacity-75">More languages:</el-text>
       <span style="width: 120px;">
-        <LanguageSelect size="small" />
+        <ChatbotLanguageSelect size="small" />
       </span>
     </div>
   </ClientOnly>

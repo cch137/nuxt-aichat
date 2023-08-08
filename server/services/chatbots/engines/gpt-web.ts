@@ -136,12 +136,12 @@ class GptWebChatbot {
   constructor (core: MindsDbGPTChatbotCore) {
     this.core = core
   }
-  async ask (messages: OpenAIMessage[], options: { timezone?: number, time?: string } = {}): Promise<{ question: string, answer: string, queries?: string[], urls?: string[], error?: string }> {
-    const { question, context } = messagesToQuestionContext(messages)
+  async ask (messages: OpenAIMessage[], options: { timezone?: number, time?: string } = {}): Promise<{ question: string, answer: string, queries?: string[], urls?: string[], isContinueGenerate: boolean, error?: string }> {
+    const { question, context, isContinueGenerate } = messagesToQuestionContext(messages)
     options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
     let { queries = [], urls = [], answer: answer1 = '' } = await estimateQueriesAndUrls(this.core, question, { ...options, context })
     if (queries.length === 0 && urls.length === 0 && answer1 !== '') {
-      return { question, queries, urls, answer: answer1 }
+      return { question, queries, urls, answer: answer1, isContinueGenerate }
     }
     const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)))
     let isDirectAnswerInWhenSelectPages = false
@@ -159,7 +159,7 @@ class GptWebChatbot {
       return await Promise.all(tasks)
     })() : Promise.all([new Promise<string>((r) => r(''))])
     if (isDirectAnswerInWhenSelectPages && queries.length && urls.length === 0) {
-      return { question, queries, answer: (await crawledPages2)[0] }
+      return { question, queries, answer: (await crawledPages2)[0], isContinueGenerate }
     }
     let summary = (await Promise.all([
       ...await crawledPages1,
@@ -183,7 +183,8 @@ ${summary}`
       queries,
       urls,
       answer: result.answer,
-      error: result.error
+      error: result.error,
+      isContinueGenerate,
     }
   }
 }

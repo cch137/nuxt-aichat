@@ -11,8 +11,10 @@ class Gpt3Chatbot {
   }
   async ask (messages: OpenAIMessage[], options: { timezone?: number, temperature?: number, context?: string } = {}) {
     const { timezone = 0, temperature = 0.5 } = options
-    const { question = '', context = '' } = messagesToQuestionContext(messages)
-    const prompt = `User current time: ${formatUserCurrentTime(timezone)}\nQuestion: ${question}`
+    const { question = '', context = '', isContinueGenerate } = messagesToQuestionContext(messages)
+    const prompt = isContinueGenerate
+      ? question
+      : `User current time: ${formatUserCurrentTime(timezone)}\nQuestion: ${question}`
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, '0')}`
     const quetionTokens = estimateTokens(question, context) + 500
     const tokensSuffix = (() => {
@@ -31,7 +33,8 @@ class Gpt3Chatbot {
     const modelName = `gpt3${temperatureSuffix}${tokensSuffix}`
     return {
       ...await this.core.ask(prompt, { ...options, modelName, context }),
-      question
+      question,
+      isContinueGenerate,
     }
   }
 }

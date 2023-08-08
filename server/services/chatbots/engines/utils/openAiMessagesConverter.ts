@@ -4,14 +4,19 @@ const contextHead = 'Conversation History\n\n'
 
 function messagesToQuestionContext (messages: OpenAIMessage[]) {
   messages = [...messages]
-  let questionMessageObj = messages.filter((value) => value.role === 'user').at(-1)
+  const isContinueGenerate = messages.at(-1)?.role === 'assistant'
+  const questionMessageObj: OpenAIMessage = isContinueGenerate
+    ? { role: 'user', content: '[[ CONTINUE GENERATE (Provide more details or keep creating) ]]'}
+    : messages.at(-1) || { role: 'user', content: 'Hi' }
   if (questionMessageObj) {
-    messages.splice(messages.indexOf(questionMessageObj), 1)
-  } else {
-    questionMessageObj = { role: 'user', content: '' }
+    const indexOfMsgObj = messages.indexOf(questionMessageObj)
+    if (indexOfMsgObj !== -1) {
+      messages.splice(indexOfMsgObj, 1)
+    }
   }
-  const context = `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join('\n\n')}`
+  const context: string = `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join('\n\n')}`
   return {
+    isContinueGenerate,
     question: questionMessageObj.content,
     context
   }

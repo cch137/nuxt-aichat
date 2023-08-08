@@ -12,11 +12,11 @@
       <div class="flex flex-col pr-1 gap-1">
         <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.model') }}</el-text>
-          <ModelSelect class="flex-1" />
+          <ChatbotModelSelect class="flex-1" />
         </div>
         <div class="flex gap-1">
           <el-text class="flex-1">{{ $t('settings.context') }}</el-text>
-          <ContextSelect class="flex-1" />
+          <ChatbotContextSelect class="flex-1" />
         </div>
         <div v-if="['gpt4', 'gpt3', 'gpt3-fga'].includes(model)" class="flex gap-1">
           <el-text class="flex flex-1 items-center">
@@ -49,7 +49,7 @@
             <div class="flex-1 text-right pr-2">
               <el-text size="small" type="info">{{ $t('action.more') }}</el-text>
             </div>
-            <ChatMoreActions />
+            <ChatbotMoreActions />
           </div>
         </div>
       </div>

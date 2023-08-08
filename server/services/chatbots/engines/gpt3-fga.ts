@@ -10,11 +10,12 @@ class Gpt3FgaChatbot {
   }
   async ask (messages: OpenAIMessage[], options: { timezone?: number, context?: string } = {}) {
     const { timezone = 0 } = options
-    const { question = '', context = '' } = messagesToQuestionContext(messages)
+    const { question = '', context = '', isContinueGenerate } = messagesToQuestionContext(messages)
     return {
       // ...await this.core.ask(messages, { model: 'gpt-4' }),
       ...await this.core.ask(messages, { model: 'gpt-3.5-turbo' }),
-      question
+      question,
+      isContinueGenerate,
     }
   }
 }

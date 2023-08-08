@@ -1,9 +1,9 @@
 <template>
   <div class="fixed z-50 w-full flex">
     <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
-    <ChatSidebar />
+    <ChatbotConvSidebar />
     <SettingsPanel />
-    <div class="ChatHeader px-4 gap-4 flex items-stretch flex-1">
+    <div class="ChatbotConvHeader px-4 gap-4 flex items-stretch flex-1">
       <div :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" style="transition: .1s;">
         <el-button style="padding: 8px;" @click="openMenu = !openMenu">
           <MenuIcon />
@@ -26,9 +26,9 @@
           </el-button>
         </NuxtLink>
         <a href="https://discord.gg/5v49JKKmzJ" target="_blank">
-          <el-button class="ChatHeaderDCJoinButton" style="padding: 12px;">
+          <el-button class="ChatbotConvHeaderDCJoinButton" style="padding: 12px;">
             <DiscordIconSvg style="height: 24px; width: 24px;" />
-            <span class="ml-2 ChatHeaderDCJoinText">{{ $t('header.joinDc') }}</span>
+            <span class="ml-2 ChatbotConvHeaderDCJoinText">{{ $t('header.joinDc') }}</span>
           </el-button>
         </a>
       </div>
@@ -45,23 +45,23 @@ openMenu.value = true
 </script>
 
 <style>
-.ChatHeader {
+.ChatbotConvHeader {
   background: var(--el-bg-color);
   border-bottom: 1px solid var(--el-border-color);
   min-height: 56px;
 }
-.ChatHeaderMenuButton i {
+.ChatbotConvHeaderMenuButton i {
   transform: scale(1.25);
 }
-.ChatHeader > * {
+.ChatbotConvHeader > * {
   display: flex;
   align-items: center;
 }
 @media screen and (max-width: 600px) {
-  .ChatHeaderDCJoinButton {
+  .ChatbotConvHeaderDCJoinButton {
     padding: 12px 8px !important;
   }
-  .ChatHeaderDCJoinText {
+  .ChatbotConvHeaderDCJoinText {
     display: none;
   }
 }

@@ -106,10 +106,13 @@ const temperature = ref<number>(0.5)
 const messages = ref<DisplayChatMessage[]>([])
 const conversations = ref<Array<{ id: string, name?: string, config?: string }>>([])
 
-const resetConvConfig = () => {
+const resetConvConfig = (showElMessage = false) => {
   model.value = 'gpt4'
   contextMode.value = true
   temperature.value = 0.5
+  if (showElMessage) {
+    ElMessage.success('Conversation settings have been reset.')
+  }
 }
 
 resetConvConfig()
@@ -439,13 +442,9 @@ export default function () {
       ElMessage.info('Thinking too many questions.')
       return false
     }
-    const _messageText = forceMessage === undefined ? inputValue.value : forceMessage
-    const messageText = _messageText.trim()
-    if (_messageText === inputValue.value) {
+    const messageText = (forceMessage !== undefined ? forceMessage : inputValue.value).trim()
+    if (forceMessage === undefined) {
       inputValue.value = ''
-      if (messageText === '') {
-        return false
-      }
     }
     const message = createMessage(messageText, '', false)
     messages.value.push(message)

@@ -1,16 +1,16 @@
 <template>
   <div
-    class="ChatSidebar flex flex-col z-50"
+    class="ChatbotConvSidebar flex flex-col z-50"
     :style="`transform: translateX(${openSidebar ? '0' : '-100%'});`"
   >
     <div class="flex">
       <div class="flex flex-1">
         <HomeLink />
       </div>
-      <el-button class="ChatHeaderMenuButton" :icon="DArrowLeft" style="padding: 8px;" @click="openSidebar = false">
+      <el-button class="ChatbotConvHeaderMenuButton" :icon="DArrowLeft" style="padding: 8px;" @click="openSidebar = false">
       </el-button>
     </div>
-    <ChatMenu class="flex-1 mt-4" />
+    <ChatbotConvMenu class="flex-1 mt-4" />
   </div>
 </template>
 
@@ -20,7 +20,7 @@ const { openSidebar } = useChat()
 </script>
 
 <style scoped>
-.ChatSidebar {
+.ChatbotConvSidebar {
   border-right: 1px solid var(--el-border-color);
   position: absolute;
   top: 0;

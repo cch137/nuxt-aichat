@@ -105,12 +105,24 @@ const curva = {
       })()
       const t0 = Date.now()
       const result = await engine.ask(messages, { timezone: tz, temperature }) as {
-        question: string, answer: string, queries?: string[], urls?: string[], error?: string
+        question: string,
+        answer: string,
+        isContinueGenerate: boolean,
+        queries?: string[],
+        urls?: string[],
+        error?: string
       }
       const dt = Date.now() - t0
       if (result.answer) {
         const conversation = new Conversation(user, conv)
-        _id = await conversation.saveMessage(result.question, result.answer, result?.queries || [], result?.urls || [], dt, _id)
+        _id = await conversation.saveMessage(
+          result.isContinueGenerate ? '' : result.question,
+          result.answer,
+          result?.queries || [],
+          result?.urls || [],
+          dt,
+          _id
+        )
         conversation.updateMtime()
       }
       curva.record.add({ ip, user, conv, model, error: result?.error || '', t: Date.now() })

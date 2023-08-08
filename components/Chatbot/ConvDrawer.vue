@@ -7,7 +7,7 @@
       style="min-width: 320px; max-width: 100vw;"
     >
       <div style="margin-top: -1.5rem; height: calc(100% + 1.5rem);">
-        <ChatMenu />
+        <ChatbotConvMenu />
       </div>
     </el-drawer>
   </ClientOnly>

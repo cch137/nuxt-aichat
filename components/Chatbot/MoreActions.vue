@@ -20,7 +20,7 @@
               <el-button
                 class="MoreOptionButton"
                 :icon="RefreshRight"
-                @click="resetConvConfig()"
+                @click="resetConvConfig(true)"
               >
                 {{ 'Reset conversation settings' }}
               </el-button>

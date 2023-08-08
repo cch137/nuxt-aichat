@@ -3,7 +3,7 @@
     <el-select
       v-model="model"
       placeholder="Select model"
-      class="ModelSelect"
+      class="ChatbotModelSelect"
     >
       <el-option
         v-for="item in options"
