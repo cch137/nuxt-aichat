@@ -131,6 +131,10 @@ const connect = async () => {
     const message = ((_a2 = interaction.options.get("message")) == null ? void 0 : _a2.value) || "";
     const temperature = (_b = interaction.options.get("temperature")) == null ? void 0 : _b.value;
     const dcUid = ((_c = interaction.member) == null ? void 0 : _c.user.id) || "";
+    if (dcUid === "") {
+      interaction.reply({ embeds: [new EmbedBuilder().setDescription("Direct messaging with the bot is currently not supported.").setColor("Yellow")] });
+      return;
+    }
     const user = `dc@${dcUid}`;
     const conv = interaction.channelId;
     const replied = interaction.reply("Thinking...");

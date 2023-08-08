@@ -216,6 +216,10 @@ const connect = async () => {
     const message = (interaction.options.get('message')?.value || '') as string
     const temperature = (interaction.options.get('temperature')?.value) as number
     const dcUid = interaction.member?.user.id || ''
+    if (dcUid === '') {
+      interaction.reply({embeds: [new EmbedBuilder().setDescription('Direct messaging with the bot is currently not supported.').setColor('Yellow')]})
+      return
+    }
     const user = `dc@${dcUid}`
     const conv = interaction.channelId
     const replied = interaction.reply('Thinking...')
