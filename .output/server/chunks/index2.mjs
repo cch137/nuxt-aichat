@@ -12,22 +12,6 @@ import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
 
-const ytLinkRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S+&)?v=|embed\/|v\/)|youtu\.be\/)([\w-]+)/g;
-function extractYouTubeLinks(text) {
-  const matches = text.match(ytLinkRegex);
-  return matches ? matches.filter((link) => link.startsWith("https://") || link.startsWith("http://")) : [];
-}
-function isYouTubeLink(url) {
-  return Boolean(extractYouTubeLinks(url).length > 0);
-}
-function getYouTubeVideoId(url) {
-  const match = ytLinkRegex.exec(url);
-  if (match !== null) {
-    return match[1];
-  }
-  return null;
-}
-
 var __defProp$a = Object.defineProperty;
 var __defNormalProp$a = (obj, key, value) => key in obj ? __defProp$a(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$a = (obj, key, value) => {
@@ -308,7 +292,7 @@ class MindsDBSqlClient extends _Client {
       if (result == null ? void 0 : result.answer) {
         return { answer: result.answer };
       }
-      return { answer: "", error: "MindsDB did not return a valid response." };
+      return { answer: "", error: "The source did not return a valid response." };
     } catch (err) {
       console.log(err);
       return { answer: "", error: (_a = err == null ? void 0 : err.original) == null ? void 0 : _a.sqlMessage };
@@ -357,7 +341,7 @@ class MindsDBWebClient extends _Client {
       return { answer: data.data[0][answerIndex] };
     } catch (err) {
       console.log(err);
-      return { answer: "", error: "MindsDB did not return a valid response." };
+      return { answer: "", error: "The source did not return a valid response." };
     }
   }
   async query(command) {
@@ -784,6 +768,22 @@ ${r.description}`))
 }
 async function search(...queries) {
   return new WebSearcherResult(await googleSearch(...queries));
+}
+
+const ytLinkRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S+&)?v=|embed\/|v\/)|youtu\.be\/)([\w-]+)/g;
+function extractYouTubeLinks(text) {
+  const matches = text.match(ytLinkRegex);
+  return matches ? matches.filter((link) => link.startsWith("https://") || link.startsWith("http://")) : [];
+}
+function isYouTubeLink(url) {
+  return Boolean(extractYouTubeLinks(url).length > 0);
+}
+function getYouTubeVideoId(url) {
+  const match = ytLinkRegex.exec(url);
+  if (match !== null) {
+    return match[1];
+  }
+  return null;
 }
 
 var __defProp$3 = Object.defineProperty;

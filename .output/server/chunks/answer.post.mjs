@@ -55,7 +55,7 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: 1 };
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id } = body;
-  const _id = id ? baseConverter.convert(id, "64w", 16) : id;
+  const _id = id ? baseConverter.convert(id, "64", 16) : id;
   if (!conv || (messages == null ? void 0 : messages.length) < 1 || !model || !t) {
     return { error: 2, id: _id };
   }

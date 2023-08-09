@@ -2,9 +2,8 @@ import { defineEventHandler } from 'h3';
 import { c as checkPassword } from './checkPassword.mjs';
 import { d as discordBot } from './index.mjs';
 import 'discord.js';
-import './ytCrawler.mjs';
-import 'qs';
-import 'axios';
+import './random.mjs';
+import 'crypto-js/sha3.js';
 import './index2.mjs';
 import './index3.mjs';
 import 'mongoose';
@@ -28,17 +27,18 @@ import 'socks';
 import 'tls';
 import './conversation.mjs';
 import './troll.mjs';
-import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './random.mjs';
 import 'sequelize';
 import './createAxiosSession.mjs';
+import 'axios';
 import 'cookie';
 import 'gpt-3-encoder';
 import 'googlethis';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
+import './ytCrawler.mjs';
+import 'qs';
 
 const check_post = defineEventHandler(async function(event) {
   return await checkPassword(event) ? {
