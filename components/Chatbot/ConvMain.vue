@@ -47,7 +47,7 @@
                         <el-text
                           type="info"
                           class="MessageActionButton flex-center"
-                          @click="ElMessage.info('Edit')"
+                          @click="callEditMessageDialog(message)"
                         >
                           <el-icon size="large">
                             <Edit />
@@ -127,6 +127,22 @@
                         </el-text>
                       </div>
                       <div class="flex gap-3">
+                        <el-tooltip
+                          v-if="!message.Q"
+                          :key="messages"
+                          :content="'Edit'"
+                          placement="bottom"
+                        >
+                          <el-text
+                            type="info"
+                            class="MessageActionButton flex-center"
+                            @click="callEditMessageDialog(message)"
+                          >
+                            <el-icon size="large">
+                              <Edit />
+                            </el-icon>
+                          </el-text>
+                        </el-tooltip>
                         <el-tooltip
                           v-if="message === messages.at(-1)"
                           :key="messages"
@@ -250,7 +266,7 @@ const popoverVisibles = {
   }
 }
 
-const { messages, openSidebar, sendMessage, deleteMessage, regenerateMessage } = useChat()
+const { messages, openSidebar, callEditMessageDialog, sendMessage, deleteMessage, regenerateMessage } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 

@@ -3,6 +3,7 @@
     <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
     <ChatbotConvSidebar />
     <SettingsPanel />
+    <ChatbotEditMessageDialog />
     <div class="ChatbotConvHeader px-4 gap-4 flex items-stretch flex-1">
       <div :style="openSidebar ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" style="transition: .1s;">
         <el-button style="padding: 8px;" @click="openMenu = !openMenu">

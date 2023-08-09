@@ -208,9 +208,29 @@ const openFeedback = () => {
 </script>
 
 <style scoped>
+/* 暫時採用 #COM0809 */
 .ConversationList::-webkit-scrollbar {
-  height: 7px;
-  width: 7px;
+  height: 10px;
+  width: 10px;
+}
+.ConversationList::-webkit-scrollbar-corner {
+  background: #4448;
+}
+.ConversationList::-webkit-scrollbar-track {
+  background: #4448;
+}
+.ConversationList::-webkit-scrollbar-thumb {
+  background: #8888;
+  border-radius: 10px;
+}
+.ConversationList::-webkit-scrollbar-thumb:hover {
+  background: #8888;
+}
+/* 暫時採用 --結束處-- */
+.ConversationList::-webkit-scrollbar {
+  /* 暫時不採用 #COM0809 */
+  /* height: 7px;
+  width: 7px; */
 }
 .ConversationList, #createNewChat {
   background: var(--el-bg-color);

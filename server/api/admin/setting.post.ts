@@ -15,7 +15,7 @@ export default defineEventHandler(async function (event) {
       if (value) {
         await discordBot.connect()
       } else {
-        discordBot.disconnect()
+        await discordBot.disconnect()
       }
       break
   }

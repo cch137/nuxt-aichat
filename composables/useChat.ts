@@ -25,7 +25,35 @@ interface DisplayChatMessage extends ArchivedChatMessage {
   more?: string[];
 }
 
+let nuxtApp: NuxtApp
 let lastModifiedConv: string = ''
+const editingMessage = ref<DisplayChatMessage>()
+const isEditingMessage = ref<boolean>(false)
+const editingMessageContent = ref<string>('')
+const model = ref<string>('gpt4')
+const contextMode = ref<boolean>(true)
+const temperature = ref<number>(0.5)
+const messages = ref<DisplayChatMessage[]>([])
+const conversations = ref<Array<{ id: string, name?: string, config?: string }>>([])
+
+watch(isEditingMessage, (value) => {
+  if (!value) {
+    focusInput()
+  }
+})
+
+const callEditMessageDialog = (message: DisplayChatMessage) => {
+  isEditingMessage.value = true
+  editingMessage.value = message
+  editingMessageContent.value = message.Q
+  setTimeout(() => focusEditMessageInput(), 0)
+}
+
+function focusEditMessageInput () {
+  try {
+    (document.querySelector('.EditMessageInput textarea') as HTMLTextAreaElement).focus()
+  } catch {}
+}
 
 const focusInput = () => {
   try {
@@ -99,13 +127,6 @@ const _loadSuggestions = async () => {
   }
 }
 
-let nuxtApp: NuxtApp
-const model = ref<string>('gpt4')
-const contextMode = ref<boolean>(true)
-const temperature = ref<number>(0.5)
-const messages = ref<DisplayChatMessage[]>([])
-const conversations = ref<Array<{ id: string, name?: string, config?: string }>>([])
-
 const resetConvConfig = (showElMessage = false) => {
   model.value = 'gpt4'
   contextMode.value = true
@@ -122,6 +143,7 @@ const openSidebar = ref(openMenu.value)
 const openDrawer = ref(openMenu.value)
 
 const inputValue = ref('')
+const inputMaxLength = computed(() => model.value.startsWith('gpt3') ? 16000 : 32000)
 
 const createRequest = (() => {
   const { h: createHash } = troll
@@ -470,13 +492,10 @@ export default function () {
       messages.value.push(message)
     }
     message.done = false
+    message.Q = messageText
     message.A = ''
     message.urls = []
     message.queries = []
-
-    // 優化用戶體驗：(1) 滑到底部 (2) focus 輸入組件
-    useScrollToBottom()
-    setTimeout(() => focusInput(), 500)
 
     // 【已被暫時取消功能】獲取更多問題建議
     const suggestionsResponse = _fetchSuggestions(messageText)
@@ -542,12 +561,13 @@ export default function () {
       }
     })());
 
-    setTimeout(() => {
-      // 優化用戶體驗：滑到底部，選取輸入框
-      if (isAtBottom) {
-        useScrollToBottom()
-          .finally(() => focusInput())
+    setTimeout(async () => {
+      // 優化用戶體驗：(1) 滑到底部 (2) focus 輸入組件
+      if (!regenerateId && isAtBottom) {
+        await useScrollToBottom()
       }
+      focusInput()
+
       // 檢查版本更新
       if (_version && _version !== version.value) {
         ElMessageBox.confirm(_t('action.newVersion'), _t('message.notice'), {
@@ -564,6 +584,7 @@ export default function () {
       }
     }, 0);
 
+    // 之後修復這裡的時候要注意，因為 sendMessage 可能由於修改以前的對話，這樣的情況不需要 suggestions
     suggestionsResponse
       .then((more) => {
         const isAtBottom = getScrollTop() >= document.body.clientHeight
@@ -660,6 +681,11 @@ export default function () {
       })
   }
   return {
+    isEditingMessage,
+    editingMessage,
+    callEditMessageDialog,
+    editingMessageContent,
+    focusEditMessageInput,
     model,
     conversations,
     messages,
@@ -669,6 +695,7 @@ export default function () {
     openSidebar,
     openDrawer,
     inputValue,
+    inputMaxLength,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,
