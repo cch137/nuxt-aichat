@@ -9,7 +9,7 @@ import random from '~/utils/random'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
-import type { ArchivedChatMessage } from '~/server/services/chatbots/curva/types'
+import type { ArchivedChatMessage, CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 import useURLParams from './useURLParams'
 import { customErrorCodes } from '~/config/customErrorCodes'
 import { stringifyConvConfig } from '~/server/services/chatbots/curva/convConfig'
@@ -79,7 +79,7 @@ const _fetchHistory = (conv: string | null) => {
   })
 }
 
-const _fetchSuggestions = async function (question: string) {
+const _fetchSuggestions = async function (question: string): Promise<string[]> {
   return []
   // @ts-ignore
   // return (await $fetch('/api/curva/suggestions', { method: 'POST', body: { question } })) as string[]
@@ -142,28 +142,32 @@ const createRequest = (() => {
     return { conv, messages, model, temperature, t, tz, id: regenerateId }
   }
 
-  return (regenerateId?: string) => {
+  return async (message: DisplayChatMessage): Promise<CurvaStandardResponse> => {
     const date = new Date()
     const t = date.getTime()
     const tz = (date.getTimezoneOffset() / 60) * -1
-    let formattedMessages = contextMode.value 
-      ? messages.value.map((message) => {
-          const { Q, A } = message
-          if (Q) {
-            if (A) {
-              return [{ role: 'user', content: Q }, { role: 'assistant', content: A }] as OpenAIMessage[]
-            }
-            return [{ role: 'user', content: Q }] as OpenAIMessage[]
-          } else if (A) {
-            return [{ role: 'assistant', content: A }] as OpenAIMessage[]
-          }
-          return []
+    const formattedMessages = (() => {
+      if (!contextMode.value) {
+        return [{ role: 'user', content: message?.Q || '' }] as OpenAIMessage[]
+      }
+      const endIndex = (messages.value.lastIndexOf(message) + 1) || messages.value.length
+      let _formattedMessages = messages.value.slice(0, endIndex)
+      _formattedMessages = _formattedMessages.slice(_formattedMessages.length - 100)
+      return _formattedMessages.map((message) => {
+          return [
+            { role: 'user', content: message.Q },
+            { role: 'assistant', content: message.A }
+          ].filter((m) => m.content) as OpenAIMessage[]
         }).flat()
-      : [{ role: 'user', content: messages.value.at(-1)?.Q || '' }] as OpenAIMessage[]
-    formattedMessages = formattedMessages.slice(formattedMessages.length - 100)
-    const body = createBody(formattedMessages, model.value, temperature.value, t, tz, regenerateId)
-    const headers = createHeaders(formattedMessages, t)
-    return $fetch('/api/curva/answer', { method: 'POST', headers, body })
+    })()
+    try {
+      const body = createBody(formattedMessages, model.value, temperature.value, t, tz, message?.id)
+      const headers = createHeaders(formattedMessages, t)
+      // @ts-ignore
+      return await $fetch('/api/curva/answer', { method: 'POST', headers, body })
+    } catch {
+      return { answer: '', error: 'Error while sending request.' }
+    }
   }
 })()
 
@@ -436,113 +440,147 @@ export default function () {
   // @ts-ignore
   const _t = useLocale().t
   const version = useState('version')
-  const sendMessage = (forceMessage?: string, regenerateId?: string): boolean => {
+  const sendMessage = async (forceMessage?: string, regenerateId?: string): Promise<boolean> => {
+    // 如果頁面中有其它問題正在回答，拒絕提交請求
     const loadingMessagesAmount = document.querySelectorAll('.Message.T').length
     if (loadingMessagesAmount > 0) {
-      ElMessage.info('Thinking too many questions.')
+      ElMessage.info('Please wait for the completion of the previous question.')
+      focusInput()
       return false
     }
+    
+    // 整理 (trim) 訊息文字
     const messageText = (forceMessage !== undefined ? forceMessage : inputValue.value).trim()
+    // 由當訊息文字由用戶輸入時：
     if (forceMessage === undefined) {
+      // (1) 清空輸入組件
       inputValue.value = ''
+      // (2) 輸入為空時拒絕提交請求
+      if (messageText === '') {
+        focusInput()
+        return false
+      }
     }
-    const message = createMessage(messageText, '', false)
-    messages.value.push(message)
+
+    // 創建 message 對象，並添加到 messages
+    const message = (regenerateId
+      ? messages.value.filter((msg) => msg.id === regenerateId).at(-1)
+      : undefined) || createMessage(messageText, '', false)
+    if (!messages.value.includes(message)){
+      messages.value.push(message)
+    }
+    message.done = false
+    message.A = ''
+    message.urls = []
+    message.queries = []
+
+    // 優化用戶體驗：(1) 滑到底部 (2) focus 輸入組件
     useScrollToBottom()
-    setTimeout(() => {
-      focusInput()
-    }, 500)
-    const more = _fetchSuggestions(messageText)
+    setTimeout(() => focusInput(), 500)
+
+    // 【已被暫時取消功能】獲取更多問題建議
+    const suggestionsResponse = _fetchSuggestions(messageText)
+
+    // 記錄一些對話狀態（在完成請求後使用）
+    const isAtBottom = getScrollTop() >= document.body.clientHeight
     const convId = getCurrentConvId()
-    createRequest(regenerateId)
-      .then((res) => {
-        clearUrlParamsFeatureNew()
-        if (lastModifiedConv !== convId) {
-          lastModifiedConv = convId
-          checkTokenAndGetConversations()
-            .then(() => {
-              try {
-                (document.querySelector('.ConversationList') as Element).scrollTop = 0
-              } catch {}
-            })
+
+    // 發送請求
+    const response = await createRequest(message)
+
+    // 更新對話狀態
+    clearUrlParamsFeatureNew()
+    if (lastModifiedConv !== convId) {
+      lastModifiedConv = convId
+      checkTokenAndGetConversations()
+        .then(() => {
+          try {
+            (document.querySelector('.ConversationList') as Element).scrollTop = 0
+          } catch {}
+        })
+    }
+
+    // 更新訊息狀態
+    const { id, answer = '', error, urls = [], queries = [], dt = 0, version: _version } = response
+    message.done = true
+    message.t = new Date()
+    message.dt = dt || undefined
+    message.id = id || undefined
+    message.A = answer || ''
+    message.urls = urls || []
+    message.queries = queries || [];
+
+    // 檢查錯誤
+    const isErrorExists = ((errorMessage?: { content?: string, type?: string }) => {
+      if (errorMessage) {
+        if (errorMessage.type === 'warning') {
+          ElMessage.warning(errorMessage.content)
+        } else {
+          ElMessage.error(errorMessage.content)
         }
-        const isAtBottom = getScrollTop() >= document.body.clientHeight
-        const id = (res as any).id as string
-        const answer = (res as any).answer as string
-        const error = (res as any).error as string | undefined
-        const urls = (res as any).urls as string[]
-        const queries = (res as any).queries as string[]
-        const dt = (res as any).dt as number
-        const _version = (res as any).version as string
-        if (id) {
-          message.id = id
-        }
-        // @ts-ignore
-        if (!answer) {
-          if (error) {
-            const msgIndex = messages.value.indexOf(message)
-            switch (error) {
-              case 'THINKING':
-                messages.value.splice(msgIndex, 1)
-                ElMessage.warning(customErrorCodes.get(error))
-                inputValue.value = messageText
-                return
-              default:
-                throw error
-            }
+        message.A = 'Oops! Something went wrong!'
+        return true
+      }
+      return false
+    })((() => {
+      if (answer === '') {
+        if (error) {
+          const msgIndex = messages.value.indexOf(message)
+          switch (error) {
+            case 'THINKING':
+              // 正在回答其它問題
+              messages.value.splice(msgIndex, 1)
+              inputValue.value = messageText
+              return { type: 'warning', content: customErrorCodes.get(error) }
+            default:
+              // 其他錯誤
+              return { type: 'error', content: error }
           }
-          throw _t('error.plzRefresh')
         }
-        message.A = answer
-        message.urls = urls || []
-        message.queries = queries || []
-        message.dt = dt || undefined
-        if (_version !== version.value) {
-          ElMessageBox.confirm(
-            _t('action.newVersion'),
-            _t('message.notice'), {
-              confirmButtonText: _t('message.ok'),
-              cancelButtonText: _t('message.cancel'),
-              type: 'warning'
-            })
-            .then(() => {
-              location.reload()
-            })
-            .finally(() => {
-              focusInput()
-            })
-        }
+        // 未知錯誤
+        return { type: 'error', content: _t('error.plzRefresh') }
+      }
+    })());
+
+    setTimeout(() => {
+      // 優化用戶體驗：滑到底部，選取輸入框
+      if (isAtBottom) {
+        useScrollToBottom()
+          .finally(() => focusInput())
+      }
+      // 檢查版本更新
+      if (_version && _version !== version.value) {
+        ElMessageBox.confirm(_t('action.newVersion'), _t('message.notice'), {
+          confirmButtonText: _t('message.ok'),
+          cancelButtonText: _t('message.cancel'),
+          type: 'warning'
+        })
+          .then(() => {
+            const loading = ElLoading.service()
+            location.reload()
+            setTimeout(() => loading.close(), 3000)
+          })
+          .catch(() => focusInput())
+      }
+    }, 0);
+
+    suggestionsResponse
+      .then((more) => {
+        const isAtBottom = getScrollTop() >= document.body.clientHeight
+        message.more = more
         if (isAtBottom) {
           useScrollToBottom()
         }
-        more
-          .then((more) => {
-            const isAtBottom = getScrollTop() >= document.body.clientHeight
-            message.more = more
-            if (isAtBottom) {
-              useScrollToBottom()
-            }
-          })
-          .catch(() => {})
       })
-      .catch((err) => {
-        ElMessage.error(err || 'Oops! Something went wrong!' as string)
-        message.A = 'Oops! Something went wrong!'
-      })
-      .finally(() => {
-        message.done = true
-        message.t = new Date()
-      })
-    return true
+
+    return isErrorExists
   }
-  const regenerateMessage = async () => {
-    const lastMessage = messages.value.pop()
-    if (lastMessage === undefined) {
+  const regenerateMessage = async (message?: DisplayChatMessage) => {
+    if (messages.value.length === 0) {
       return
     }
-    if (!sendMessage(lastMessage.Q, lastMessage.id)) {
-      messages.value.push(lastMessage)
-    }
+    const { Q, id } = message || messages.value.at(-1) as DisplayChatMessage
+    sendMessage(Q || '', id)
   }
   const refreshConversation = () => {
     loadChat(getCurrentConvId())

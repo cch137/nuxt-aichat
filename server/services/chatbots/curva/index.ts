@@ -5,6 +5,7 @@ import type { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
 import troll from '~/utils/troll'
 import str from '~/utils/str'
 import type { OpenAIMessage } from '../engines/cores/types'
+import type { CurvaStandardResponse } from './types'
 
 function chooseEngine (model: string) {
   switch (model) {
@@ -80,7 +81,7 @@ const freeGptAsiaToken = troll.e({
 const curva = {
   name: 'Curva',
   record: chatbotUsageRecord,
-  async ask (ip: string, user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string) {
+  async ask (ip: string, user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string): Promise<CurvaStandardResponse> {
     if (processingConversation.has(user)) {
       return {
         answer: '',

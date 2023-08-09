@@ -112,7 +112,6 @@
                         </el-text>
                       </div>
                       <div class="flex gap-3">
-                        <ChatMessageDeleteButton v-if="!message.Q" :confirm="() => deleteMessage(message.id)" />
                         <el-tooltip
                           v-if="message === messages.at(-1)"
                           :key="messages"
@@ -130,7 +129,6 @@
                           </el-text>
                         </el-tooltip>
                         <el-tooltip
-                          v-if="message === messages.at(-1)"
                           :key="messages"
                           :content="$t('action.regenerate')"
                           placement="bottom"
@@ -138,13 +136,14 @@
                           <el-text
                             type="info"
                             class="MessageActionButton flex-center"
-                            @click="regenerateMessage()"
+                            @click="regenerateMessage(message)"
                           >
                             <el-icon size="large">
                               <Refresh />
                             </el-icon>
                           </el-text>
                         </el-tooltip>
+                        <ChatMessageDeleteButton v-if="!message.Q" :confirm="() => deleteMessage(message.id)" />
                         <el-tooltip
                           :content="$t('action.copy')"
                           placement="bottom"

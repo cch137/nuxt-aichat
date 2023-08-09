@@ -136,7 +136,7 @@ class MindsDBSqlClient extends _Client {
         // @ts-ignore
         return { answer: result.answer }
       }
-      return { answer: '', error: 'MindsDB did not return a valid response.' }
+      return { answer: '', error: 'The source did not return a valid response.' }
     } catch (err) {
       console.log(err)
       return { answer: '', error: (err as any)?.original?.sqlMessage as string }
@@ -190,7 +190,7 @@ class MindsDBWebClient extends _Client {
       return { answer: data.data[0][answerIndex] }
     } catch (err) {
       console.log(err)
-      return { answer: '', error: 'MindsDB did not return a valid response.' }
+      return { answer: '', error: 'The source did not return a valid response.' }
     }
   }
 

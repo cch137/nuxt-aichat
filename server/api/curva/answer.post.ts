@@ -10,6 +10,7 @@ import troll from '~/utils/troll'
 import baseConverter from '~/utils/baseConverter'
 import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/types'
+import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     return { error: 1 }
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id } = body
-  const _id = id ? baseConverter.convert(id, '64w', 16) : id
+  const _id = id ? baseConverter.convert(id, '64', 16) : id
   // @ts-ignore
   if (!conv || messages?.length < 1 || !model || !t) {
     return { error: 2, id: _id }
@@ -64,7 +65,7 @@ export default defineEventHandler(async (event) => {
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }
-    return { version, ...response }
+    return { version, ...response } as CurvaStandardResponse
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })
     return { error: 5, id: _id }

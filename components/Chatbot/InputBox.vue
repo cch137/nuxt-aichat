@@ -45,19 +45,17 @@
 
 <script setup lang="ts">
 import { Position } from '@element-plus/icons-vue'
-const { model, sendMessage, focusInput, openSidebar, inputValue } = useChat()
+const { model, sendMessage, openSidebar, inputValue } = useChat()
 
 const keyboardSendMessage = (evt: KeyboardEvent) => {
   if (evt.key === 'Enter' && !evt.shiftKey) {
     sendMessage()
     evt.preventDefault()
-    focusInput()
   }
 }
 
 const clickSendMessage = () => {
   sendMessage()
-  focusInput()
 }
 </script>
 

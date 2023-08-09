@@ -8,6 +8,19 @@ interface ArchivedChatMessage {
   dt?: number;
 }
 
+interface CurvaStandardResponse {
+  question?: string;
+  answer: string;
+  isContinueGenerate?: boolean;
+  queries?: string[] | undefined;
+  urls?: string[] | undefined;
+  error?: string | undefined;
+  dt?: number;
+  id?: string;
+  version?: string;
+}
+
 export type {
-  ArchivedChatMessage
+  ArchivedChatMessage,
+  CurvaStandardResponse
 }

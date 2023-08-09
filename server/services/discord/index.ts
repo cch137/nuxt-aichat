@@ -151,19 +151,16 @@ const connect = async () => {
     try {
       const response = await curva.ask('discord', user, conv, model, temperature, messages, 0)
       const { answer, error } = response
-      // @ts-ignore
-      const queries: string[] = response?.queries || []
-      // @ts-ignore
-      const urls: string[] = response?.urls || []
       if (error) {
         throw error
       }
+      const queries = response?.queries || []
+      const urls = response?.urls || []
       const embeds = (() => {
         if (queries.length + urls.length === 0) {
           return []
         }
         const embed = new EmbedBuilder()
-        embed.setTitle('References')
         embed.setColor('Blue')
         embed.setFields(...[
           { name: 'Queries', value: `${queries.join('\n')}` },
@@ -172,7 +169,7 @@ const connect = async () => {
         return [embed]
       })()
       const files = answer.length > 1000 ? [createTextFile('answer.txt', answer)] : []
-      return { content: answer || '', files, embeds }
+      return { content: files.length === 0 ? answer : '', files, embeds }
     } catch (err) {
       console.log(err)
       return {
