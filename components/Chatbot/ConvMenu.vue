@@ -61,7 +61,7 @@
           <el-button
             :icon="Plus"
             class="ConversationLink w-full"
-            style="border: none;"
+            style="border: none; background: transparent !important;"
           >
             {{ $t('chat.newChat') }}
           </el-button>
@@ -213,18 +213,21 @@ const openFeedback = () => {
   width: 8px;
 }
 .ConversationList::-webkit-scrollbar-corner {
-  background: #4448;
+  background: #4446;
 }
 .ConversationList::-webkit-scrollbar-track {
   background: #0000;
   border-left: 1px solid var(--el-border-color);
 }
 .ConversationList::-webkit-scrollbar-thumb {
-  background: #8888;
+  background: #8886;
   border-radius: 12px;
 }
 .ConversationList::-webkit-scrollbar-thumb:hover {
-  background: #aaa8;
+  background: #aaa6;
+}
+.ConversationList, #createNewChat {
+  background: var(--el-bg-color-page);
 }
 .ConversationLink {
   justify-content: start !important;

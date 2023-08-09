@@ -1,5 +1,5 @@
 {
-  "version": "0.3.2",
+  "version": "0.3.3",
   "name": "evogpt",
   "description": "A free GPT-4 AI chatbot that can browse the web. This is for everyone.",
   "private": true,

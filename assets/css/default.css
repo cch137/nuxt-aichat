@@ -11,8 +11,32 @@ body {
   backdrop-filter: blur(5px);
 }
 
+/* Element Plus 自定義主題 */
 html.dark {
+  /* 原版 HSL 數值參考 */
+  /* --el-bg-color-page: hsl(0, 0%, 4%);
+  --el-bg-color: hsl(0, 0%, 8%);
+  --el-bg-color-overlay: hsl(210, 3%, 12%);
+  --el-fill-color-darker: hsl(240, 1%, 26%);
+  --el-fill-color-dark: hsl(240, 1%, 23%);
+  --el-fill-color: hsl(0, 0%, 19%);
+  --el-fill-color-light: hsl(180, 1%, 15%);
+  --el-fill-color-lighter: hsl(0, 0%, 11%);
+  --el-fill-color-extra-light: hsl(0, 0%, 10%);
+  --el-fill-color-blank: var(--el-bg-color) !important; */
+  --el-bg-color-page: hsl(270, 6%, 4%);
+  --el-bg-color: hsl(270, 7%, 7%);
+  --el-bg-color-overlay: hsl(270, 15%, 12%);
+  --el-fill-color-darker: hsl(270, 10%, 26%);
+  --el-fill-color-dark: hsl(270, 10%, 23%);
+  --el-fill-color: hsl(270, 5%, 19%);
+  --el-fill-color-light: hsl(270, 10%, 15%);
+  --el-fill-color-lighter: hsl(270, 5%, 11%);
+  --el-fill-color-extra-light: hsl(270, 5%, 10%);
   --el-fill-color-blank: var(--el-bg-color) !important;
+}
+html.dark > body {
+  background: var(--el-bg-color-page);
 }
 
 * {

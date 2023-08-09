@@ -204,7 +204,7 @@ import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import random from '~/utils/random'
 import { isScrolledToBottom } from '~/utils/client'
-import { CopyDocument, Refresh, VideoPlay, ChatDotRound, User, Cpu, Search, Paperclip, Bottom } from '@element-plus/icons-vue'
+import { CopyDocument, Refresh, VideoPlay, ChatDotRound, Edit, User, Cpu, Search, Paperclip, Bottom } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
 
 const showScrollToBottomButton = ref(false)
