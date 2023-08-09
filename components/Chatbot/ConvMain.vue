@@ -39,6 +39,21 @@
                       </el-text>
                     </div>
                     <div class="flex gap-3">
+                      <el-tooltip
+                        :key="messages"
+                        :content="'Edit'"
+                        placement="bottom"
+                      >
+                        <el-text
+                          type="info"
+                          class="MessageActionButton flex-center"
+                          @click="ElMessage.info('Edit')"
+                        >
+                          <el-icon size="large">
+                            <Edit />
+                          </el-icon>
+                        </el-text>
+                      </el-tooltip>
                       <ChatMessageDeleteButton :confirm="() => deleteMessage(message.id)" />
                       <el-tooltip
                         :content="$t('action.copy')"

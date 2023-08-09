@@ -209,25 +209,13 @@ const openFeedback = () => {
 
 <style scoped>
 .ConversationList::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
-.ConversationList::-webkit-scrollbar-corner {
-  background: #4446;
-}
-.ConversationList::-webkit-scrollbar-track {
-  background: #0000;
-  border-left: 1px solid var(--el-border-color);
-}
-.ConversationList::-webkit-scrollbar-thumb {
-  background: #8886;
-  border-radius: 12px;
-}
-.ConversationList::-webkit-scrollbar-thumb:hover {
-  background: #aaa6;
+  height: 7px;
+  width: 7px;
 }
 .ConversationList, #createNewChat {
-  background: var(--el-bg-color-page);
+  background: var(--el-bg-color);
+  /* 暫時不採用 #COM0809 */
+  /* background: var(--el-bg-color-page); */
 }
 .ConversationLink {
   justify-content: start !important;

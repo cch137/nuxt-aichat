@@ -24,7 +24,8 @@ html.dark {
   --el-fill-color-lighter: hsl(0, 0%, 11%);
   --el-fill-color-extra-light: hsl(0, 0%, 10%);
   --el-fill-color-blank: var(--el-bg-color) !important; */
-  --el-bg-color-page: hsl(270, 6%, 4%);
+  /* 暫時不採用 #COM0809 */
+  /* --el-bg-color-page: hsl(270, 6%, 4%);
   --el-bg-color: hsl(270, 7%, 7%);
   --el-bg-color-overlay: hsl(270, 15%, 12%);
   --el-fill-color-darker: hsl(270, 10%, 26%);
@@ -32,11 +33,12 @@ html.dark {
   --el-fill-color: hsl(270, 5%, 19%);
   --el-fill-color-light: hsl(270, 10%, 15%);
   --el-fill-color-lighter: hsl(270, 5%, 11%);
-  --el-fill-color-extra-light: hsl(270, 5%, 10%);
+  --el-fill-color-extra-light: hsl(270, 5%, 10%); */
   --el-fill-color-blank: var(--el-bg-color) !important;
 }
 html.dark > body {
-  background: var(--el-bg-color-page);
+  /* 暫時不採用 #COM0809 */
+  /* background: var(--el-bg-color-page); */
 }
 
 * {
@@ -47,6 +49,24 @@ html.dark > body {
   -ms-text-size-adjust: none;
   -moz-text-size-adjust: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+::-webkit-scrollbar-corner {
+  background: rgba(202, 204, 206, 0.04);
+}
+::-webkit-scrollbar-track {
+  background: rgba(202, 204, 206, 0.04);
+}
+::-webkit-scrollbar-thumb {
+  background: #474c50;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(207, 6%, 39%);
 }
 
 ::-moz-selection {
