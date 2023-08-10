@@ -67,9 +67,7 @@
       <div class="p-2"></div>
       <div class="flex-center flex-col gap-1">
         <div class="flex-center flex-wrap gap-1" style="line-height: 1rem;">
-          <el-link type="primary">
-            <NuxtLink to="/login">Back to Home</NuxtLink>
-          </el-link>
+          <el-link type="primary" @click="historyBack()">Back</el-link>
         </div>
       </div>
       <div class="p-8" />
@@ -86,9 +84,8 @@
 <script setup lang="ts">
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
-import { Message, User, Key, CircleCheck, EditPen } from '@element-plus/icons-vue'
+import { Message, Key, CircleCheck, EditPen } from '@element-plus/icons-vue'
 
-const auth = useAuth()
 const i18n = useLocale()
 // @ts-ignore
 const _t = i18n.t
@@ -107,6 +104,10 @@ const ruleForm = reactive({
   password: '',
   veriCode: ''
 })
+
+const historyBack = () => {
+  history.back()
+}
 
 const rules = reactive<FormRules>({
   email: [

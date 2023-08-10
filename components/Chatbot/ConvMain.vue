@@ -54,7 +54,7 @@
                           </el-icon>
                         </el-text>
                       </el-tooltip>
-                      <ChatMessageDeleteButton :confirm="() => deleteMessage(message.id)" />
+                      <ChatbotMessageDeleteButton :confirm="() => deleteMessage(message.id)" />
                       <el-tooltip
                         :content="$t('action.copy')"
                         placement="bottom"
@@ -174,7 +174,7 @@
                             </el-icon>
                           </el-text>
                         </el-tooltip>
-                        <ChatMessageDeleteButton v-if="!message.Q" :confirm="() => deleteMessage(message.id)" />
+                        <ChatbotMessageDeleteButton v-if="!message.Q" :confirm="() => deleteMessage(message.id)" />
                         <el-tooltip
                           :content="$t('action.copy')"
                           placement="bottom"

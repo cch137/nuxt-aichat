@@ -13,14 +13,17 @@ import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/typ
 import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 
 export default defineEventHandler(async (event) => {
+  const now = Date.now()
   const body = await readBody(event)
-  // @ts-ignore
   if (!body) {
-    return { error: 1 }
+    return { error: 0 }
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id } = body
+  // 驗證：大於 5 分鐘時差的請求不允許
+  if (t > now + 300000 || t < now - 300000) {
+    return { error: 1 }
+  }
   const _id = id ? baseConverter.convert(id, '64', 16) : id
-  // @ts-ignore
   if (!conv || messages?.length < 1 || !model || !t) {
     return { error: 2, id: _id }
   }

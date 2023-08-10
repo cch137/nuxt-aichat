@@ -504,6 +504,12 @@ export default function () {
     const isAtBottom = getScrollTop() >= document.body.clientHeight
     const convId = getCurrentConvId()
 
+    // 發送請求前：(1) 滑到底部 (2) focus 輸入組件
+    if (isAtBottom) {
+      useScrollToBottom()
+        .finally(() => focusInput())
+    }
+
     // 發送請求
     const response = await createRequest(message)
 
@@ -562,11 +568,10 @@ export default function () {
     })());
 
     setTimeout(async () => {
-      // 優化用戶體驗：(1) 滑到底部 (2) focus 輸入組件
+      // 回答結束後滑到底部
       if (!regenerateId && isAtBottom) {
         await useScrollToBottom()
       }
-      focusInput()
 
       // 檢查版本更新
       if (_version && _version !== version.value) {

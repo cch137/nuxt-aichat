@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="isEditingMessage" title="Edit message" width="80%" style="max-width: 600px;">
+  <el-dialog v-model="isEditingMessage" title="Edit Question" width="80%" style="max-width: 600px;">
     <div class="px-2 pb-4 flex flex-col gap-4">
       <el-input
         v-model="editingMessageContent"
