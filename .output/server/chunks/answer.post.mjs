@@ -50,11 +50,15 @@ const logger = model("Log", new Schema({
 
 const answer_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+  const now = Date.now();
   const body = await readBody(event);
   if (!body) {
-    return { error: 1 };
+    return { error: 0 };
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id } = body;
+  if (t > now + 3e5 || t < now - 3e5) {
+    return { error: 1 };
+  }
   const _id = id ? baseConverter.convert(id, "64", 16) : id;
   if (!conv || (messages == null ? void 0 : messages.length) < 1 || !model || !t) {
     return { error: 2, id: _id };
