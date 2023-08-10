@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     return { error: 4, id: _id }
   }
   const ip = getIp(event.node.req)
-  if (ip.includes('106.40.15.110')) {
+  if (ip.includes('106.40.15.110') || ip.includes('31.128.156.67')) {
     return { error: 5, id: _id }
   }
   try {
