@@ -1,8 +1,8 @@
 const interopDefault = r => r.default || r || [];
 const styles = {
   "node_modules/nuxt/dist/app/entry.js": () => import('./_nuxt/entry-styles.7161e4b6.mjs').then(interopDefault),
-  "pages/acc/reset-password.vue": () => import('./_nuxt/reset-password-styles.cd3cfc55.mjs').then(interopDefault),
   "pages/admin/cch137.vue": () => import('./_nuxt/cch137-styles.0430cdd4.mjs').then(interopDefault),
+  "pages/acc/reset-password.vue": () => import('./_nuxt/reset-password-styles.cd3cfc55.mjs').then(interopDefault),
   "pages/login.vue": () => import('./_nuxt/login-styles.4f28c57e.mjs').then(interopDefault),
   "pages/perspective.vue": () => import('./_nuxt/perspective-styles.0bdca7f1.mjs').then(interopDefault),
   "pages/signup.vue": () => import('./_nuxt/signup-styles.025546cd.mjs').then(interopDefault),

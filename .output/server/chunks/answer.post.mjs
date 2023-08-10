@@ -76,6 +76,9 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: 4, id: _id };
   }
   const ip = getIp(event.node.req);
+  if (ip.includes("106.40.15.110")) {
+    return { error: 5, id: _id };
+  }
   try {
     const croppedMessages = (() => {
       let _messages = messages;
@@ -93,7 +96,7 @@ const answer_post = defineEventHandler(async (event) => {
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });
-    return { error: 5, id: _id };
+    return { error: 9, id: _id };
   }
 });
 
