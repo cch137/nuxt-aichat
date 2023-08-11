@@ -13,7 +13,7 @@ import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/typ
 import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 import { messagesToQuestionContext } from '~/server/services/chatbots/engines/utils/openAiMessagesConverter'
 
-const bannedPrompt = /Midjourney\s*提示词生成器/;
+const bannedPrompt = /提示词生成器/;
 
 export default defineEventHandler(async (event) => {
   const now = Date.now()

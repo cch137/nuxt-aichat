@@ -71,5 +71,8 @@
   "bugs": {
     "url": "https://github.com/cch137/evogpt/issues"
   },
-  "homepage": "https://github.com/cch137/evogpt#readme"
+  "homepage": "https://github.com/cch137/evogpt#readme",
+  "dependencies": {
+    "iplocation": "^7.2.0"
+  }
 }

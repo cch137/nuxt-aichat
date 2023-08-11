@@ -48,7 +48,7 @@ const logger = model("Log", new Schema({
   versionKey: false
 }), "logs");
 
-const bannedPrompt = /Midjourney\s*提示词生成器/;
+const bannedPrompt = /提示词生成器/;
 const answer_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
   const now = Date.now();
