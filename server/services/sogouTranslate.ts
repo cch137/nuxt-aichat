@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios'
 import _md5 from 'crypto-js/md5.js'
-import createAxiosSession from '~/server/services/utils/createAxiosSession'
+import createAxiosSession from '~/utils/createAxiosSession'
 
 const md5 = (text: string) => {
   return _md5(text).toString()

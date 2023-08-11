@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios'
 import { Sequelize, QueryTypes, DataTypes } from 'sequelize'
-import createAxiosSession from '~/server/services/utils/createAxiosSession'
+import createAxiosSession from '~/utils/createAxiosSession'
 import type { OpenAIMessage } from '../types'
 import { messagesToQuestionContext } from '../../utils/openAiMessagesConverter'
 

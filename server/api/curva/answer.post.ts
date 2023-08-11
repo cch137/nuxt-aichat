@@ -16,34 +16,34 @@ export default defineEventHandler(async (event) => {
   const now = Date.now()
   const body = await readBody(event)
   if (!body) {
-    return { error: 0 }
+    return { error: 'CH4 API ERROR 01' }
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id } = body
-  // 驗證：大於 5 分鐘時差的請求不允許
   if (t > now + 300000 || t < now - 300000) {
-    return { error: 1 }
+    // 拒絕請求：時差大於 5 分鐘
+    return { error: 'CH4 API ERROR 12', id }
   }
   const _id = id ? baseConverter.convert(id, '64', 16) : id
   if (!conv || messages?.length < 1 || !model || !t) {
-    return { error: 2, id: _id }
+    return { error: 'CH4 API ERROR 11', id }
   }
   const stdHash = troll.h(messages, 'MD5', t)
   const hashFromClient = event?.node?.req?.headers?.hash
   const timestamp = Number(event?.node?.req?.headers?.timestamp)
   // Validate hash and timestamp
   if (stdHash !== hashFromClient || timestamp !== t) {
-    return { error: 3, id: _id }
+    return { error: 'CH4 API ERROR 32', id }
   }
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   const user = token?.user
   // Validate token
   if (token === null || typeof user !== 'string') {
-    return { error: 4, id: _id }
+    return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
-  if (ip.includes('106.40.15.110') || ip.includes('31.128.156.67')) {
-    return { error: 5, id: _id }
+  if (ip.includes('106.40.15.110') || ip.includes('36.102.154.131')) {
+    return { error: 'CH4 API ERROR 02', id }
   }
   try {
     const croppedMessages = (() => {
@@ -67,13 +67,13 @@ export default defineEventHandler(async (event) => {
     response.id = typeof response.id === 'string'
     //@ts-ignore
       ? baseConverter.convert(response.id, 16, '64w')
-      : _id
+      : id
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }
     return { version, ...response } as CurvaStandardResponse
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })
-    return { error: 9, id: _id }
+    return { error: 500, id }
   }
 })

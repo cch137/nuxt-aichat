@@ -1,3 +1,4 @@
+import type { AxiosHeaders } from 'axios'
 import axios from 'axios'
 import { parse as parseCookie, serialize as serializeCookie } from 'cookie'
 
