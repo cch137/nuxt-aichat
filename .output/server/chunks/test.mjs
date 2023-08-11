@@ -1,17 +1,10 @@
 import { defineEventHandler } from 'h3';
-import { g as getDefaultExportFromNamespaceIfNotNamed, a as getDefaultExportFromCjs } from './rollup/_commonjsHelpers.mjs';
-import * as querystring$1 from 'querystring';
-import * as got$1 from 'got';
+import qs from 'qs';
+import { c as createAxiosSession } from './createAxiosSession.mjs';
+import 'axios';
+import 'cookie';
 
-var googleTranslateApi = {exports: {}};
-
-const require$$0 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(querystring$1);
-
-const require$$1 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(got$1);
-
-var languages$1 = {exports: {}};
-
-var langs = {
+const supportedLanguages = {
   "auto": "Automatic",
   "af": "Afrikaans",
   "sq": "Albanian",
@@ -121,157 +114,146 @@ var langs = {
 };
 function getCode(desiredLang) {
   if (!desiredLang) {
-    return false;
+    return void 0;
   }
-  if (langs[desiredLang]) {
+  if (desiredLang in supportedLanguages) {
     return desiredLang;
   }
-  var keys = Object.keys(langs).filter(function(key) {
-    if (typeof langs[key] !== "string") {
-      return false;
-    }
-    return langs[key].toLowerCase() === desiredLang.toLowerCase();
-  });
-  return keys[0] || false;
+  const lowerCaseDesiredLang = desiredLang.toLowerCase();
+  for (const langCode in supportedLanguages) {
+    const langName = supportedLanguages[langCode];
+    if (typeof langName !== "string")
+      continue;
+    if (langName.toLowerCase() === lowerCaseDesiredLang)
+      return langCode;
+  }
+  return void 0;
 }
 function isSupported(desiredLang) {
-  return Boolean(getCode(desiredLang));
+  return desiredLang in supportedLanguages;
 }
-languages$1.exports = langs;
-languages$1.exports.isSupported = isSupported;
-languages$1.exports.getCode = getCode;
+const languages = {
+  ...supportedLanguages,
+  getCode,
+  isSupported
+};
 
-var languagesExports = languages$1.exports;
-
-var querystring = require$$0;
-var got = require$$1;
-var languages = languagesExports;
-function extract(key, res) {
-  var re = new RegExp(`"${key}":".*?"`);
-  var result = re.exec(res.body);
+const rpcids = "MkEWBc";
+const fSidKey = "FdrFJe";
+const bdKey = "cfb2h";
+async function extract(key, res) {
+  const re = new RegExp(`"${key}":".*?"`);
+  const result = re.exec(res.data);
   if (result !== null) {
     return result[0].replace(`"${key}":"`, "").slice(0, -1);
   }
   return "";
 }
-function translate(text, opts, gotopts) {
-  opts = opts || {};
-  gotopts = gotopts || {};
-  var e;
-  [opts.from, opts.to].forEach(function(lang) {
-    if (lang && !languages.isSupported(lang)) {
-      e = new Error();
-      e.code = 400;
-      e.message = "The language '" + lang + "' is not supported";
+const origin = "https://translate.google.com";
+const [getApiUrl, getSession] = (() => {
+  let lastUpdated = 0;
+  let session;
+  let apiUrl;
+  let bactchExecuteData = {};
+  return [
+    () => apiUrl,
+    async function() {
+      if (Date.now() > lastUpdated + 3e5) {
+        session = createAxiosSession({});
+        const res = await session.get(origin);
+        bactchExecuteData = {
+          "rpcids": rpcids,
+          "source-path": "/",
+          "f.sid": await extract(fSidKey, res),
+          "bl": await extract(bdKey, res),
+          "hl": "en-US",
+          "soc-app": 1,
+          "soc-platform": 1,
+          "soc-device": 1,
+          "_reqid": 0,
+          "rt": "c"
+        };
+      }
+      bactchExecuteData["_reqid"] = Math.floor(1e5 + Math.random() * 9e5);
+      apiUrl = `${origin}/_/TranslateWebserverUi/data/batchexecute?${qs.stringify(bactchExecuteData)}`;
+      return session;
+    }
+  ];
+})();
+async function translate(text, _opts = {}, axiosOpts) {
+  _opts = _opts || {};
+  _opts.from = languages.getCode(_opts.from) || "auto";
+  _opts.to = languages.getCode(_opts.to) || "en";
+  _opts.autoCorrect = _opts.autoCorrect === void 0 ? true : Boolean(_opts.autoCorrect);
+  const opts = { ..._opts };
+  [opts.from, opts.to].forEach((lang) => {
+    if (!languages.isSupported(lang)) {
+      throw new Error(`The language '${lang}' is not supported`);
     }
   });
-  if (e) {
-    return new Promise(function(resolve, reject) {
-      reject(e);
-    });
+  const fReq = [[[rpcids, JSON.stringify([[text, opts.from, opts.to, opts.autoCorrect], [null]]), null, "generic"]]];
+  const translatedData = await (await getSession()).post(
+    getApiUrl(),
+    `f.req=${fReq}&`,
+    { headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" } }
+  );
+  let json = translatedData.data.slice(6);
+  let length = "";
+  const result = {
+    text: "",
+    pronunciation: "",
+    from: {
+      language: {
+        didYouMean: false,
+        iso: ""
+      },
+      text: {
+        autoCorrected: false,
+        value: "",
+        didYouMean: false
+      }
+    },
+    raw: ""
+  };
+  try {
+    length = /^\d+/.exec(json)[0];
+    json = JSON.parse(json.slice(length.length, parseInt(length, 10) + length.length));
+    json = JSON.parse(json[0][2]);
+    result.raw = json;
+  } catch (e) {
+    return result;
   }
-  opts.from = opts.from || "auto";
-  opts.to = opts.to || "en";
-  opts.tld = opts.tld || "com";
-  opts.autoCorrect = opts.autoCorrect === void 0 ? false : Boolean(opts.autoCorrect);
-  opts.from = languages.getCode(opts.from);
-  opts.to = languages.getCode(opts.to);
-  var url = "https://translate.google." + opts.tld;
-  var rpcids = "MkEWBc";
-  return got(url, gotopts).then(function(res) {
-    var data = {
-      "rpcids": rpcids,
-      "source-path": "/",
-      "f.sid": extract("FdrFJe", res),
-      "bl": extract("cfb2h", res),
-      "hl": "en-US",
-      "soc-app": 1,
-      "soc-platform": 1,
-      "soc-device": 1,
-      "_reqid": Math.floor(1e3 + Math.random() * 9e3),
-      "rt": "c"
-    };
-    return data;
-  }).then(function(data) {
-    url = url + "/_/TranslateWebserverUi/data/batchexecute?" + querystring.stringify(data);
-    var freq = [[[rpcids, JSON.stringify([[text, opts.from, opts.to, opts.autoCorrect], [null]]), null, "generic"]]];
-    gotopts.body = "f.req=" + encodeURIComponent(JSON.stringify(freq)) + "&";
-    gotopts.headers["content-type"] = "application/x-www-form-urlencoded;charset=UTF-8";
-    return got.post(url, gotopts).then(function(res) {
-      var json = res.body.slice(6);
-      var length = "";
-      var result = {
-        text: "",
-        pronunciation: "",
-        from: {
-          language: {
-            didYouMean: false,
-            iso: ""
-          },
-          text: {
-            autoCorrected: false,
-            value: "",
-            didYouMean: false
-          }
-        },
-        raw: ""
-      };
-      try {
-        length = /^\d+/.exec(json)[0];
-        json = JSON.parse(json.slice(length.length, parseInt(length, 10) + length.length));
-        json = JSON.parse(json[0][2]);
-        result.raw = json;
-      } catch (e2) {
-        return result;
-      }
-      if (json[1][0][0][5] === void 0 || json[1][0][0][5] === null) {
-        result.text = json[1][0][0][0];
-      } else {
-        result.text = json[1][0][0][5].map(function(obj) {
-          return obj[0];
-        }).filter(Boolean).join(" ");
-      }
-      result.pronunciation = json[1][0][0][1];
-      if (json[0] && json[0][1] && json[0][1][1]) {
-        result.from.language.didYouMean = true;
-        result.from.language.iso = json[0][1][1][0];
-      } else if (json[1][3] === "auto") {
-        result.from.language.iso = json[2];
-      } else {
-        result.from.language.iso = json[1][3];
-      }
-      if (json[0] && json[0][1] && json[0][1][0]) {
-        var str = json[0][1][0][0][1];
-        str = str.replace(/<b>(<i>)?/g, "[");
-        str = str.replace(/(<\/i>)?<\/b>/g, "]");
-        result.from.text.value = str;
-        if (json[0][1][0][2] === 1) {
-          result.from.text.autoCorrected = true;
-        } else {
-          result.from.text.didYouMean = true;
-        }
-      }
-      return result;
-    }).catch(function(err) {
-      err.message += `
-Url: ${url}`;
-      if (err.statusCode !== void 0 && err.statusCode !== 200) {
-        err.code = "BAD_REQUEST";
-      } else {
-        err.code = "BAD_NETWORK";
-      }
-      throw err;
-    });
-  });
+  if (json[1][0][0][5] === void 0 || json[1][0][0][5] === null) {
+    result.text = json[1][0][0][0];
+  } else {
+    result.text = json[1][0][0][5].map((obj) => obj[0]).filter(Boolean).join(" ");
+  }
+  result.pronunciation = json[1][0][0][1];
+  if (json[0] && json[0][1] && json[0][1][1]) {
+    result.from.language.didYouMean = true;
+    result.from.language.iso = json[0][1][1][0];
+  } else if (json[1][3] === "auto") {
+    result.from.language.iso = json[2];
+  } else {
+    result.from.language.iso = json[1][3];
+  }
+  if (json[0] && json[0][1] && json[0][1][0]) {
+    var str = json[0][1][0][0][1];
+    str = str.replace(/<b>(<i>)?/g, "[");
+    str = str.replace(/(<\/i>)?<\/b>/g, "]");
+    result.from.text.value = str;
+    if (json[0][1][0][2] === 1) {
+      result.from.text.autoCorrected = true;
+    } else {
+      result.from.text.didYouMean = true;
+    }
+  }
+  return result;
 }
-googleTranslateApi.exports = translate;
-googleTranslateApi.exports.languages = languages;
-
-var googleTranslateApiExports = googleTranslateApi.exports;
-const translate$1 = /*@__PURE__*/getDefaultExportFromCjs(googleTranslateApiExports);
+translate.languages = translate;
 
 const test = defineEventHandler(async () => {
-  return translate$1("Hi");
+  return translate("\u4F60\u597D\u5148\u751F");
 });
 
 export { test as default };

@@ -9,7 +9,6 @@ import './index3.mjs';
 import 'mongoose';
 import 'dotenv';
 import 'crypto';
-import './rollup/_commonjsHelpers.mjs';
 import 'http';
 import 'url';
 import 'bson';
