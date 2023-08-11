@@ -1,7 +1,6 @@
 import qs from 'qs';
 import type { AxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
-import axios from 'axios';
-import createAxiosSession from 'utils/createAxiosSession';
+import createAxiosSession from '~/utils/createAxiosSession';
 import languages from './languages';
 
 // Reference from: https://www.npmjs.com/package/@saipulanuar/google-translate-api
@@ -27,24 +26,7 @@ interface TranslationResult {
   raw: string;
 }
 
-function getOrigin (tld = 'com') {
-  return `https://translate.google.${tld}`
-}
-
-const getSession = (() => {
-  let lastUpdated = 0
-  let session: AxiosInstance
-  return async function () {
-    if (!session || Date.now() > lastUpdated + 300000) {
-      session = createAxiosSession()
-      await session.get(getOrigin())
-      return session
-    }
-    return session
-  }
-})()
-
-async function extract(key: string, res: AxiosResponse<string>): Promise<string> {
+async function extract (key: string, res: AxiosResponse<string>): Promise<string> {
   const re = new RegExp(`"${key}":".*?"`);
   const result = re.exec(res.data);
   if (result !== null) {
@@ -53,17 +35,49 @@ async function extract(key: string, res: AxiosResponse<string>): Promise<string>
   return '';
 }
 
+const origin = 'https://translate.google.com'
+
+const [getApiUrl, getSession] = (() => {
+  let lastUpdated = 0
+  let session: AxiosInstance
+  let apiUrl: string
+  let bactchExecuteData: Record<string, string | number> = {}
+  return [
+    () => apiUrl,
+    async function () {
+      if (Date.now() > lastUpdated + 300000) {
+        session = createAxiosSession({  })
+        const res = await session.get(origin)
+        bactchExecuteData = {
+          'rpcids': rpcids,
+          'source-path': '/',
+          'f.sid': await extract(fSidKey, res),
+          'bl': await extract(bdKey, res),
+          'hl': 'en-US',
+          'soc-app': 1,
+          'soc-platform': 1,
+          'soc-device': 1,
+          '_reqid': 0,
+          'rt': 'c',
+        };
+      }
+      bactchExecuteData['_reqid'] = Math.floor(100000 + Math.random() * 900000)
+      apiUrl = `${origin}/_/TranslateWebserverUi/data/batchexecute?${qs.stringify(bactchExecuteData)}`
+      return session
+    }
+  ]
+})()
+
 async function translate(
   text: string,
-  _opts: { from?: string; to?: string; tld?: string; autoCorrect?: boolean } = {},
+  _opts: { from?: string; to?: string; autoCorrect?: boolean } = {},
   axiosOpts?: AxiosRequestConfig
 ): Promise<TranslationResult> {
   _opts = _opts || {}
   _opts.from = languages.getCode(_opts.from) || 'auto'
   _opts.to = languages.getCode(_opts.to) || 'en'
-  _opts.tld = _opts.tld || 'com'
   _opts.autoCorrect = _opts.autoCorrect === undefined ? true : Boolean(_opts.autoCorrect);
-  const opts = { ..._opts } as { from: string; to: string; tld: string; autoCorrect: boolean };
+  const opts = { ..._opts } as { from: string; to: string; autoCorrect: boolean };
   axiosOpts = axiosOpts || {};
 
   [opts.from, opts.to].forEach((lang) => {
@@ -72,26 +86,11 @@ async function translate(
     }
   })
 
-  const url = getOrigin(opts.tld);
-
-  const res = await (await getSession()).get(url, axiosOpts);
-  const data = {
-    'rpcids': rpcids,
-    'source-path': '/',
-    'f.sid': await extract(fSidKey, res),
-    'bl': await extract(bdKey, res),
-    'hl': 'en-US',
-    'soc-app': 1,
-    'soc-platform': 1,
-    'soc-device': 1,
-    '_reqid': Math.floor(1000 + Math.random() * 9000),
-    'rt': 'c',
-  };
-
-  const translatedData = await axios.post(
-    `${url}/_/TranslateWebserverUi/data/batchexecute?${qs.stringify(data)}`,
-    undefined,
-    { ...axiosOpts, headers: { ...axiosOpts.headers, 'content-type': 'application/x-www-form-urlencoded;charset=UTF-8' } }
+  const fReq = [[[rpcids, JSON.stringify([[text, opts.from, opts.to, opts.autoCorrect], [null]]), null, 'generic']]]
+  const translatedData = await (await getSession()).post(
+    getApiUrl(),
+    `f.req=${fReq}&`,
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' } }
   );
   let json = translatedData.data.slice(6);
   let length = '';
@@ -163,5 +162,6 @@ async function translate(
   return result;
 }
 
+translate.languages = translate
+
 export default translate;
-export { languages as languages };

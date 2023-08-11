@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
-  if (ip.includes('106.40.15.110') || ip.includes('36.102.154.131')) {
+  if (ip.includes('106.40.15.110') || ip.includes('36.102.154.131') || ip.includes('123.178.34.190')) {
     return { error: 'CH4 API ERROR 02', id }
   }
   try {

@@ -1,5 +1,5 @@
-import translate from '~/utils/google-translate-api'
+import translate from '~/utils/google-translate'
 
 export default defineEventHandler(async () => {
-  return translate('Hi')
+  return translate('你好先生')
 })
