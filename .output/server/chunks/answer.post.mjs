@@ -3,7 +3,7 @@ import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index3.mjs';
 import { r as read } from './token.mjs';
-import { e as estimateTokens, c as curva } from './index2.mjs';
+import { m as messagesToQuestionContext, e as estimateTokens, c as curva } from './index2.mjs';
 import { g as getIp } from './getIp.mjs';
 import { b as baseConverter, s as str } from './random.mjs';
 import { t as troll } from './troll.mjs';
@@ -48,6 +48,7 @@ const logger = model("Log", new Schema({
   versionKey: false
 }), "logs");
 
+const bannedPrompt = /你现在是\s*[1一]\s*个\s*Midjourney\s*提示词生成器。/;
 const answer_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
   const now = Date.now();
@@ -77,6 +78,9 @@ const answer_post = defineEventHandler(async (event) => {
   }
   const ip = getIp(event.node.req);
   if (ip.includes("106.40.15.110") || ip.includes("36.102.154.131") || ip.includes("123.178.34.190")) {
+    return { error: "CH4 API ERROR 02", id };
+  }
+  if (bannedPrompt.test(messagesToQuestionContext(messages).question)) {
     return { error: "CH4 API ERROR 02", id };
   }
   try {
