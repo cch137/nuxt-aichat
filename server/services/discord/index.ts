@@ -66,18 +66,19 @@ async function connect () {
   }
 
   (async () => {
+    const reactionEmoji = '✨'
     const getRoleChannelId = '1138887783927263283'
     const getRoleMessageId = '1138889775487668224'
     const guild = await ch4Guild.getGuild()
     const getRoleMessage = await (await guild.channels.fetch(getRoleChannelId) as TextBasedChannel)
       .messages.fetch(getRoleMessageId)
     guild.channels.cache.clear()
-    getRoleMessage.react('✨')
+    getRoleMessage.react(reactionEmoji)
     client.on('messageReactionAdd', async (reaction, user) => {
       if (client === null
         || reaction.message.id !== getRoleMessageId
         || reaction.message.channelId !== getRoleChannelId
-        || reaction.emoji.name !== '✨'
+        || reaction.emoji.name !== reactionEmoji
         || reaction.emoji.id !== null
         || user.bot
         || !ch4Guild.isOwnMessage(reaction.message)) {
@@ -90,7 +91,7 @@ async function connect () {
       if (client === null
         || reaction.message.id !== getRoleMessageId
         || reaction.message.channelId !== getRoleChannelId
-        || reaction.emoji.name !== '✨'
+        || reaction.emoji.name !== reactionEmoji
         || reaction.emoji.id !== null
         || user.bot
         || !ch4Guild.isOwnMessage(reaction.message)) {
@@ -98,6 +99,18 @@ async function connect () {
       }
       ch4Guild.removeUserRole(user, ch4Guild.roles.explorer.id)
     })
+    // 创建一个反应收集器
+    const collector = getRoleMessage.createReactionCollector({
+      filter: (reaction, user) => reaction.emoji.name === reactionEmoji,
+    });
+    // 监听 'collect' 事件
+    collector.on('collect', (reaction, user) => {
+      console.log(`${user.tag} 添加了反应 ${reaction.emoji.name}`);
+    });
+    // 监听 'end' 事件
+    collector.on('end', collected => {
+      console.log(`添加反应 ${reactionEmoji} 的总人数：${collected.size}`);
+    });
   })()
 
   client.on('messageCreate', async (message) => {

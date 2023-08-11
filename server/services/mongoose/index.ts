@@ -14,13 +14,13 @@ void mongoose.connect(process.env.MONGODB_KEY as string)
 
 export default mongoose
 
-;(async () => {
-  console.log('START DOWNLOAD')
-  const data = await message.deleteMany({ Q: { $regex: '你现在是一个Midjourney提示词生成器。' } })
-  // console.log(data.length)
-  // writeFileSync('log.json', JSON.stringify(data, null, 2), 'utf8')
-  console.log('END DOWNLOAD')
-})();
+// ;(async () => {
+//   console.log('START DOWNLOAD')
+//   const data = await message.find({ Q: { $regex: 'Midjourney' } })
+//   console.log(data.length)
+//   writeFileSync('log.json', JSON.stringify(data, null, 2), 'utf8')
+//   console.log('END DOWNLOAD')
+// })();
 
 export {
   ObjectId,

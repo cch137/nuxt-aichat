@@ -225,24 +225,34 @@ async function connect() {
     console.log("DCBOT setActivity Failed:", err);
   }
   (async () => {
+    const reactionEmoji = "\u2728";
     const getRoleChannelId = "1138887783927263283";
     const getRoleMessageId = "1138889775487668224";
     const guild = await ch4Guild.getGuild();
     const getRoleMessage = await (await guild.channels.fetch(getRoleChannelId)).messages.fetch(getRoleMessageId);
     guild.channels.cache.clear();
-    getRoleMessage.react("\u2728");
+    getRoleMessage.react(reactionEmoji);
     client.on("messageReactionAdd", async (reaction, user) => {
-      if (client === null || reaction.message.id !== getRoleMessageId || reaction.message.channelId !== getRoleChannelId || reaction.emoji.name !== "\u2728" || reaction.emoji.id !== null || user.bot || !ch4Guild.isOwnMessage(reaction.message)) {
+      if (client === null || reaction.message.id !== getRoleMessageId || reaction.message.channelId !== getRoleChannelId || reaction.emoji.name !== reactionEmoji || reaction.emoji.id !== null || user.bot || !ch4Guild.isOwnMessage(reaction.message)) {
         return;
       }
       ch4Guild.addRoleToUser(user, ch4Guild.roles.explorer.id);
       return;
     });
     client.on("messageReactionRemove", async (reaction, user) => {
-      if (client === null || reaction.message.id !== getRoleMessageId || reaction.message.channelId !== getRoleChannelId || reaction.emoji.name !== "\u2728" || reaction.emoji.id !== null || user.bot || !ch4Guild.isOwnMessage(reaction.message)) {
+      if (client === null || reaction.message.id !== getRoleMessageId || reaction.message.channelId !== getRoleChannelId || reaction.emoji.name !== reactionEmoji || reaction.emoji.id !== null || user.bot || !ch4Guild.isOwnMessage(reaction.message)) {
         return;
       }
       ch4Guild.removeUserRole(user, ch4Guild.roles.explorer.id);
+    });
+    const collector = getRoleMessage.createReactionCollector({
+      filter: (reaction, user) => reaction.emoji.name === reactionEmoji
+    });
+    collector.on("collect", (reaction, user) => {
+      console.log(`${user.tag} \u6DFB\u52A0\u4E86\u53CD\u5E94 ${reaction.emoji.name}`);
+    });
+    collector.on("end", (collected) => {
+      console.log(`\u6DFB\u52A0\u53CD\u5E94 ${reactionEmoji} \u7684\u603B\u4EBA\u6570\uFF1A${collected.size}`);
     });
   })();
   client.on("messageCreate", async (message) => {

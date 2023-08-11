@@ -13,7 +13,7 @@ import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/typ
 import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 import { messagesToQuestionContext } from '~/server/services/chatbots/engines/utils/openAiMessagesConverter'
 
-const bannedPrompt = /你现在是\s*[1一]\s*个\s*Midjourney\s*提示词生成器。/;
+const bannedPrompt = /Midjourney\s*提示词生成器/;
 
 export default defineEventHandler(async (event) => {
   const now = Date.now()
@@ -45,9 +45,6 @@ export default defineEventHandler(async (event) => {
     return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
-  if (ip.includes('106.40.15.110') || ip.includes('36.102.154.131') || ip.includes('123.178.34.190')) {
-    return { error: 'CH4 API ERROR 02', id }
-  }
   if (bannedPrompt.test(messagesToQuestionContext(messages).question)) {
     return { error: 'CH4 API ERROR 02', id }
   }
