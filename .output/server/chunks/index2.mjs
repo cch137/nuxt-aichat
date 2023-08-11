@@ -1170,25 +1170,20 @@ function chooseEngine(model) {
 const getRandomToken = (() => {
   const tokens = (() => {
     const accounts = [
+      {
+        type: "MindsDB",
+        email: "gammacheechorngherng@gmail.com",
+        password: "Curva&&cch137"
+      },
+      {
+        type: "MindsDB",
+        email: "deltacheechorngherng@gmail.com",
+        password: "Curva&&cch137"
+      }
       // {
       //   type: 'MindsDB',
       //   email: 'chorngherngchee@gmail.com',
       //   password: 'Curva&&cch137',
-      // },
-      {
-        type: "MindsDB",
-        email: "kosifir138@weishu8.com",
-        password: "12345678Ss"
-      },
-      {
-        type: "MindsDB",
-        email: "rexic98209@weishu8.com",
-        password: "12345678sS"
-      }
-      // {
-      //   type: 'MindsDB',
-      //   email: 'mingkuanhiew3@gmail.com',
-      //   password: '12345678Hi',
       // },
       // {
       //   type: 'MindsDB',
