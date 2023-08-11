@@ -1,6 +1,7 @@
 import mongoose, { model, Schema } from 'mongoose';
 import { config } from 'dotenv';
 import * as crypto$4 from 'crypto';
+import { g as getDefaultExportFromNamespaceIfNotNamed } from './rollup/_commonjsHelpers.mjs';
 import * as http from 'http';
 import * as url from 'url';
 import * as bson$1 from 'bson';
@@ -17,10 +18,6 @@ import * as zlib from 'zlib';
 import * as net from 'net';
 import * as socks from 'socks';
 import * as tls from 'tls';
-
-function getDefaultExportFromNamespaceIfNotNamed (n) {
-	return n && Object.prototype.hasOwnProperty.call(n, 'default') && Object.keys(n).length === 1 ? n['default'] : n;
-}
 
 var lib = {};
 

@@ -10,6 +10,7 @@ import { t as troll } from './troll.mjs';
 import { model, Schema } from 'mongoose';
 import 'dotenv';
 import 'crypto';
+import './rollup/_commonjsHelpers.mjs';
 import 'http';
 import 'url';
 import 'bson';
@@ -53,31 +54,31 @@ const answer_post = defineEventHandler(async (event) => {
   const now = Date.now();
   const body = await readBody(event);
   if (!body) {
-    return { error: 0 };
+    return { error: "CH4 API ERROR 01" };
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id } = body;
   if (t > now + 3e5 || t < now - 3e5) {
-    return { error: 1 };
+    return { error: "CH4 API ERROR 12", id };
   }
   const _id = id ? baseConverter.convert(id, "64", 16) : id;
   if (!conv || (messages == null ? void 0 : messages.length) < 1 || !model || !t) {
-    return { error: 2, id: _id };
+    return { error: "CH4 API ERROR 11", id };
   }
   const stdHash = troll.h(messages, "MD5", t);
   const hashFromClient = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.hash;
   const timestamp = Number((_f = (_e = (_d = event == null ? void 0 : event.node) == null ? void 0 : _d.req) == null ? void 0 : _e.headers) == null ? void 0 : _f.timestamp);
   if (stdHash !== hashFromClient || timestamp !== t) {
-    return { error: 3, id: _id };
+    return { error: "CH4 API ERROR 32", id };
   }
   const rawCookie = (_i = (_h = (_g = event == null ? void 0 : event.node) == null ? void 0 : _g.req) == null ? void 0 : _h.headers) == null ? void 0 : _i.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
   const user = token == null ? void 0 : token.user;
   if (token === null || typeof user !== "string") {
-    return { error: 4, id: _id };
+    return { error: "CH4 API ERROR 31", id };
   }
   const ip = getIp(event.node.req);
-  if (ip.includes("106.40.15.110")) {
-    return { error: 5, id: _id };
+  if (ip.includes("106.40.15.110") || ip.includes("36.102.154.131")) {
+    return { error: "CH4 API ERROR 02", id };
   }
   try {
     const croppedMessages = (() => {
@@ -89,14 +90,14 @@ const answer_post = defineEventHandler(async (event) => {
       return _messages;
     })();
     const response = await curva.ask(ip, user, conv, model, temperature, croppedMessages, tz, _id);
-    response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64w") : _id;
+    response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64w") : id;
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);
     }
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });
-    return { error: 9, id: _id };
+    return { error: 500, id };
   }
 });
 

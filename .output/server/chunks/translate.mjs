@@ -82,8 +82,9 @@ const translateZh2En = async (text) => {
 };
 
 const translate = defineEventHandler(async (event) => {
-  var _a, _b, _c;
-  const text = qs.parse((_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.url) == null ? void 0 : _c.split("?")[1]).text;
+  var _a, _b;
+  const text = qs.parse((_b = (_a = event.node.req) == null ? void 0 : _a.url) == null ? void 0 : _b.split("?")[1]).text;
+  event.node.res.setHeader("Content-Type", "text/plain; charset=utf-8");
   return (await translateZh2En(text)).text;
 });
 
