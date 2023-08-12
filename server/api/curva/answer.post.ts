@@ -1,5 +1,6 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
+import iplocation from 'iplocation'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
@@ -13,7 +14,8 @@ import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/typ
 import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 import { messagesToQuestionContext } from '~/server/services/chatbots/engines/utils/openAiMessagesConverter'
 
-const bannedPrompt = /提示词生成器/;
+const bannedPrompt = /提示词生成/;
+const bannedIpSet = new Set<string>(['106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253']);
 
 export default defineEventHandler(async (event) => {
   const now = Date.now()
@@ -45,8 +47,12 @@ export default defineEventHandler(async (event) => {
     return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
+  if ([...bannedIpSet].filter((_ip) => ip.includes(_ip)).length) {
+    return { error: '来自维尼中共国的朋友，请停止你的恶心行为，别给中国人丢脸', id }
+  }
   if (bannedPrompt.test(messagesToQuestionContext(messages).question)) {
-    return { error: 'CH4 API ERROR 02', id }
+    bannedIpSet.add(ip)
+    return { error: '来自维尼中共国的朋友，请停止你的恶心行为，别给中国人丢脸', id }
   }
   try {
     const croppedMessages = (() => {
