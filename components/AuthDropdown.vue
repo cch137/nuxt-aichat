@@ -15,7 +15,7 @@
           <el-dropdown-item v-if="isLoggedIn && currentRoute.path !== '/acc/profile'" size="large" :icon="Avatar" @click="navigateTo('/acc/profile')">
             {{ $t('auth.profile') }}
           </el-dropdown-item>
-          <el-dropdown-item v-if="isLoggedIn && currentRoute.path !== '/c/'" size="large" :icon="ChatLineRound" @click="navigateTo('/c/')">
+          <el-dropdown-item v-if="isLoggedIn && !currentRoute.path.startsWith('/c/')" size="large" :icon="ChatLineRound" @click="navigateTo('/c/')">
             {{ $t('page.aiChat') }}
           </el-dropdown-item>
           <el-dropdown-item v-if="currentRoute.path !== '/acc/profile'" size="large" :icon="Setting" @click="openSettings = true">
