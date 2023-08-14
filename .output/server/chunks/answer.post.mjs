@@ -48,7 +48,8 @@ const logger = model("Log", new Schema({
   versionKey: false
 }), "logs");
 
-const bannedPrompt = /提示词生成器/;
+const bannedPrompt = /提示词生成/;
+const bannedIpSet = /* @__PURE__ */ new Set(["106.40.15.110", "36.102.154.131", "123.178.34.190", "123.178.40.253"]);
 const answer_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
   const now = Date.now();
@@ -77,8 +78,12 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: "CH4 API ERROR 31", id };
   }
   const ip = getIp(event.node.req);
+  if ([...bannedIpSet].filter((_ip) => ip.includes(_ip)).length) {
+    return { error: "\u6765\u81EA\u7EF4\u5C3C\u4E2D\u5171\u56FD\u7684\u670B\u53CB\uFF0C\u8BF7\u505C\u6B62\u4F60\u7684\u6076\u5FC3\u884C\u4E3A\uFF0C\u522B\u7ED9\u4E2D\u56FD\u4EBA\u4E22\u8138", id };
+  }
   if (bannedPrompt.test(messagesToQuestionContext(messages).question)) {
-    return { error: "CH4 API ERROR 02", id };
+    bannedIpSet.add(ip);
+    return { error: "\u6765\u81EA\u7EF4\u5C3C\u4E2D\u5171\u56FD\u7684\u670B\u53CB\uFF0C\u8BF7\u505C\u6B62\u4F60\u7684\u6076\u5FC3\u884C\u4E3A\uFF0C\u522B\u7ED9\u4E2D\u56FD\u4EBA\u4E22\u8138", id };
   }
   try {
     const croppedMessages = (() => {
