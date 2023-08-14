@@ -5,7 +5,9 @@
 </template>
 
 <script setup>
-useTitle(`Chat - ${useState('appName').value}`)
+const i18n = useLocale()
+const _t = i18n.t
+useTitle(`${_t('chat.title')} - ${useState('appName').value}`)
 definePageMeta({
   layout: 'chat',
   middleware: ['chat']

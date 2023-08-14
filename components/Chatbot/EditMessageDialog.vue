@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="isEditingMessage" title="Edit Question" width="80%" style="max-width: 600px;">
+  <el-dialog v-model="isEditingMessage" :title="$t('chat.editQues')" width="80%" style="max-width: 600px;">
     <div class="px-2 pb-4 flex flex-col gap-4">
       <el-input
         v-model="editingMessageContent"
@@ -12,8 +12,8 @@
         @keydown="(evt) => keyboardSendMessage(evt as KeyboardEvent)"
       />
       <div class="flex items-center justify-end">
-        <el-button @click="closeDialog()" :icon="Close">Cancel</el-button>
-        <el-button @click="saveAndSubmit()" type="primary" :icon="Check">Save & Submit</el-button>
+        <el-button @click="closeDialog()" :icon="Close">{{ $t('message.cancel') }}</el-button>
+        <el-button @click="saveAndSubmit()" type="primary" :icon="Check">{{ $t('action.saveNSubmit') }}</el-button>
       </div>
     </div>
   </el-dialog>

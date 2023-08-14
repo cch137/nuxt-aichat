@@ -14,14 +14,14 @@ export default defineEventHandler(async (event) => {
   const rawCookie = req.headers.cookie
   const oldToken = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   let token: string
-  let user: string
+  let uid: string
   if (oldToken !== null) {
     oldToken.checked = Date.now()
-    user = oldToken.user
+    uid = oldToken.user
     token = tokenPacker(oldToken)
   } else {
-    user = random.base64(16)
-    token = tokenGenerator(user, ip)
+    uid = random.base64(16)
+    token = tokenGenerator(uid, ip)
   }
   res.setHeader('Set-Cookie', serializeCookie('token', token, {
     path: '/',
@@ -29,7 +29,9 @@ export default defineEventHandler(async (event) => {
     sameSite: true,
     secure: true
   }))
+  const user = await auth.getUser(uid || '-')
   return {
-    isLoggedIn: Boolean(await auth.getUser(user || '-'))
+    isLoggedIn: Boolean(user) as boolean,
+    user
   }
 })

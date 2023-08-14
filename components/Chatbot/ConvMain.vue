@@ -41,7 +41,7 @@
                     <div class="flex gap-3">
                       <el-tooltip
                         :key="messages"
-                        :content="'Edit'"
+                        :content="$t('action.edit')"
                         placement="bottom"
                       >
                         <el-text
@@ -130,7 +130,7 @@
                         <el-tooltip
                           v-if="!message.Q"
                           :key="messages"
-                          :content="'Edit'"
+                          :content="$t('action.edit')"
                           placement="bottom"
                         >
                           <el-text
@@ -235,6 +235,7 @@ import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import random from '~/utils/random'
 import { isScrolledToBottom } from '~/utils/client'
+// #com0809 Paperclip 改成 Link
 import { CopyDocument, Refresh, VideoPlay, ChatDotRound, Edit, User, Cpu, Search, Paperclip, Bottom } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
 

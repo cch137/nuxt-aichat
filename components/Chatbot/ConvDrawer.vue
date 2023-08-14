@@ -16,7 +16,13 @@
 <script setup>
 const { openMenu, openDrawer } = useChat()
 if (process.client) {
+  let winWidth = window.innerWidth
   window.onresize = () => {
+    const currWinWidth = window.innerWidth
+    if (currWinWidth === winWidth) {
+      return
+    }
+    winWidth = currWinWidth
     openMenu.value = false
     if (!useDevice().isTouchScreen) {
       setTimeout(() => {

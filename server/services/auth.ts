@@ -75,12 +75,19 @@ const resendVerificationCode = async (email: string) => {
   return await verifier.resend()
 }
 
+const toValidUsername = (username: string) => {
+  if (username.length < 5) {
+    throw 'Username length must be at least 5'
+  }
+  return username.replace(/[^\w]+/g, '').substring(0, 32)
+}
+
 const createUser = async (uid: string, email: string, username: string, password: string) => {
   const hashedPassword = sha256(password)
-  const validUsername = username.replace(/[^\w]+/g, '')
+  username = toValidUsername(username)
   const checkId = userCollection.findOne({ uid })
   const checkEmail = userCollection.findOne({ email })
-  const checkUsername = userCollection.findOne({ username: validUsername })
+  const checkUsername = userCollection.findOne({ username })
   if (Boolean(await checkId)) {
     throw 'User ID already exists.'
   }
@@ -93,7 +100,7 @@ const createUser = async (uid: string, email: string, username: string, password
   await userCollection.create({
     uid,
     email,
-    username: validUsername,
+    username,
     password: hashedPassword,
   })
 }
@@ -116,8 +123,9 @@ const getUid = async (usernameOrEmail: string, password: string) => {
   return user?.uid || false
 }
 
-const getUser = async (uid: string) => {
-  return await userCollection.findOne({ uid })
+const getUser = async (uid: string): Promise<{ username: string }> => {
+  // @ts-ignore
+  return await userCollection.findOne({ uid }, { _id: 0, username: 1 })
 }
 
 const mergeUser = async (uidToBeRetained: string, uidToBeRemoved: string) => {
@@ -130,6 +138,21 @@ const mergeUser = async (uidToBeRetained: string, uidToBeRemoved: string) => {
   await messageCollection.updateMany({ user: uidToBeRemoved }, { $set: { user: uidToBeRetained } })
 }
 
+const changeUsername = async (uid: string, username: string) => {
+  username = toValidUsername(username)
+  const isExistUser = await userCollection.findOne({ username }, { uid: 1 })
+  if (isExistUser?.uid === uid) {
+    return { username }
+  }
+  if (Boolean(isExistUser)) {
+    throw 'This username is already in use.'
+  }
+  await userCollection.updateOne({ uid }, {
+    $set: { username }
+  })
+  return { username }
+}
+
 const auth = {
   createEmailVerification,
   verifyEmail,
@@ -139,6 +162,7 @@ const auth = {
   getUid,
   getUser,
   mergeUser,
+  changeUsername,
 }
 
 export default auth

@@ -8,7 +8,7 @@
     class="flex-col flex-center w-full max-w-xs px-4 m-auto"
     style="height: calc(100vh - 56px);"
   >
-      <h1 class="mt-0 mb-6">Reset Password</h1>
+      <h1 class="mt-0 mb-6">{{ $t('auth.resetPw') }}</h1>
       <el-form-item :label="$t('auth.email')" :style="step === 1 ? 'margin-bottom: 0;' : ''" prop="email" class="inputWrapper SignupInputAnim1">
         <el-input
           :key="step"
@@ -61,13 +61,13 @@
       </div>
       <div v-if="step === 1" class="flex-center">
         <el-button size="large" type="primary" @click="resetPw(ruleFormRef as FormInstance)">
-          Reset
+          {{ $t('action.submit') }}
         </el-button>
       </div>
       <div class="p-2"></div>
       <div class="flex-center flex-col gap-1">
         <div class="flex-center flex-wrap gap-1" style="line-height: 1rem;">
-          <el-link type="primary" @click="historyBack()">Back</el-link>
+          <el-link type="primary" @click="historyBack()">{{ $t('action.back') }}</el-link>
         </div>
       </div>
       <div class="p-8" />
@@ -201,7 +201,7 @@ const resetPw = async (formEl: FormInstance) => {
             ElMessage.error(res?.error)
           } else {
             ElMessage.success('Password reset successful.')
-            navigateTo('/login')
+            navigateTo('/acc/profile')
           }
         })
         .catch(() => {
@@ -216,7 +216,7 @@ const resetPw = async (formEl: FormInstance) => {
   })
 }
 
-useTitle(`Reset Password - ${useState('appName').value}`)
+useTitle(`${_t('auth.resetPw')} - ${useState('appName').value}`)
 definePageMeta({
   layout: 'default',
   middleware: []

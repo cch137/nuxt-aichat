@@ -1,21 +1,27 @@
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
 
-const isLoading = ref(false)
+const username = ref<string>('')
+const authIsLoading = ref(false)
 const isLoggedIn = ref(false)
 
+function setIsLoggedIn (value: boolean) {
+  isLoggedIn.value = value
+}
+
 const logout = async () => {
-  isLoading.value = true
+  authIsLoading.value = true
   try {
     await $fetch('/api/auth/logout', {
       method: 'POST'
     })
-    isLoggedIn.value = false
+    username.value = ''
+    setIsLoggedIn(false)
     ElMessage.success('Logged out.')
     useChat().clear()
   } catch {
     ElMessage.error('Log out failed.')
   } finally {
-    isLoading.value = false
+    authIsLoading.value = false
   }
 }
 
@@ -26,17 +32,19 @@ const checkIsLoggedIn = async () => {
   if (now - lastChecked < 60000) {
     return isLoggedIn.value
   }
-  isLoading.value = true
+  authIsLoading.value = true
   try {
-    const _isLoggedIn = (await $fetch('/api/auth/check', {
+    const { isLoggedIn: _isLoggedIn, user } = (await $fetch('/api/auth/check', {
       method: 'POST'
-    })).isLoggedIn
+    }))
     lastChecked = now
-    isLoggedIn.value = _isLoggedIn
-    isLoading.value = false
+    username.value = user?.username || ''
+    authIsLoading.value = false
+    // isLoggedIn 一定要最後才賦值，為了避免 user 讀取不了
+    setTimeout(() => setIsLoggedIn(_isLoggedIn), 0)
     return _isLoggedIn
   } catch {
-    isLoading.value = false
+    authIsLoading.value = false
   }
 }
 
@@ -50,47 +58,64 @@ const checkIsLoggedIn = async () => {
   }
 })()
 
+const changeUsername = async (newUsername: string) => {
+  try {
+    const { error, username: _username } = (await $fetch('/api/auth/username', {
+      method: 'PUT',
+      body: { username: newUsername }
+    }))
+    if (error) {
+      throw error
+    }
+    if (_username) {
+      username.value = _username
+    }
+    ElMessage.success('The username has been changed.')
+    return true
+  } catch (err) {
+    ElMessage.error(typeof err === 'string' ? err : 'Oops! Something went wrong.')
+    return false
+  }
+}
+
 export default function () {
   // @ts-ignore
   const _t = useLocale().t
 
-  const login = (usernameOrEmail: string, password: string) => {
-    const loading = ElLoading.service({
-      text: _t('auth.loggingIn')
-    })
-    isLoading.value = true
-    $fetch('/api/auth/login', {
-      method: 'POST',
-      body: { usernameOrEmail, password }
-    })
-      .then((_res) => {
-        const res = _res as any
-        if (res?.error) {
-          ElMessage.error(res?.error)
-        } else {
-          ElMessage.success('Logged in.')
-          navigateTo('/c/')
-          isLoggedIn.value = true
-        }
+  const login = async (usernameOrEmail: string, password: string) => {
+    const loading = ElLoading.service({ text: _t('auth.loggingIn') })
+    authIsLoading.value = true
+    try {
+      const res = await $fetch('/api/auth/login', {
+        method: 'POST',
+        body: { usernameOrEmail, password }
       })
-      .catch(() => {
-        ElMessage.error('Oops! Something went wrong.')
-      })
-      .finally(() => {
-        loading.close()
-        isLoading.value = false
-      })
+      const { error, isLoggedIn: _isLoggedIn = false, user } = res
+      if (error) {
+        throw error
+      }
+      ElMessage.success('Logged in.')
+      navigateTo('/c/')
+      username.value = user?.username || ''
+      // isLoggedIn 一定要最後才賦值，為了避免 user 讀取不了
+      setTimeout(() => setIsLoggedIn(_isLoggedIn), 0)
+    } catch (err) {
+      ElMessage.error(typeof err === 'string' ? err : 'Oops! Something went wrong.')
+    } finally {
+      loading.close()
+      authIsLoading.value = false
+    }
   }
 
   return {
-    isLoading,
+    authIsLoading,
     isLoggedIn,
+    username,
     login,
     logout,
     checkIsLoggedIn,
-    setIsLoggedIn (value: boolean) {
-      isLoggedIn.value = value
-    },
+    setIsLoggedIn,
+    changeUsername,
     goToHome () {
       useNuxtApp().$router.replace('/')
     },

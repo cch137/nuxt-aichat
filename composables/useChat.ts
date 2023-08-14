@@ -400,6 +400,13 @@ export default function () {
   })
   watch(openDrawer, (value) => {openMenu.value = value})
   watch(openSidebar, (value) => {openMenu.value = value})
+  const refreshPageTitle = () => {
+    try {
+      useTitle(`${getCurrentConvName() || _t('chat.title')} - ${appName}`)
+    } catch {
+      useTitle(`${_t('chat.title')} - ${appName}`)
+    }
+  }
   const _loadChat = async (conv: string | null) => {
     if (useDevice().isMobileScreen) {
       openMenu.value = false
@@ -418,11 +425,6 @@ export default function () {
         _loadSuggestions()
       }
     } finally {
-      try {
-        useTitle(`${getCurrentConvName() || 'Chat'} - ${appName}`)
-      } catch {
-        useTitle(`Chat - ${appName}`)
-      }
       useScrollToBottom()
       if (loading !== null) {
         try {
@@ -630,9 +632,7 @@ export default function () {
             message: _t('message.renameSuccess'),
           })
           await checkTokenAndGetConversations()
-          try {
-            useTitle(`${getCurrentConvName() || 'Chat'} - ${appName}`)
-          } catch { useTitle(`Chat - ${appName}`) }
+          refreshPageTitle()
         } catch {
           ElMessage({
             type: 'error',

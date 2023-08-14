@@ -45,7 +45,7 @@
         </div>
         <div class="flex-center flex-wrap gap-1" style="line-height: 1rem;">
           <el-link type="primary">
-            <NuxtLink to="/acc/reset-password">Reset Password</NuxtLink>
+            <NuxtLink to="/acc/reset-password">{{ $t('auth.resetPw') }}</NuxtLink>
           </el-link>
         </div>
       </div>

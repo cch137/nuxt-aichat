@@ -4,7 +4,7 @@ import { parse as parseCookie, serialize as serializeCookie } from 'cookie'
 import { read as tokenReader, pack as tokenPacker } from '~/server/services/token'
 import type { TokenObject } from '~/server/services/token'
 
-export default defineEventHandler(async function (event) {
+export default defineEventHandler(async function (event): Promise<{ error?: string, isLoggedIn?: boolean, user?: { username: string } }> {
   const { req, res } = event.node
   const body = await readBody(event)
   // @ts-ignore
@@ -37,5 +37,5 @@ export default defineEventHandler(async function (event) {
     sameSite: true,
     secure: true
   }))
-  return { error: false }
+  return { isLoggedIn: true, user: await auth.getUser(uid) }
 })

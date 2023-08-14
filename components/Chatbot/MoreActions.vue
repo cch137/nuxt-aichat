@@ -22,7 +22,7 @@
                 :icon="RefreshRight"
                 @click="resetConvConfig(true)"
               >
-                {{ 'Reset conversation settings' }}
+                {{ $t('action.resetConv') }}
               </el-button>
             </div>
             <div>
