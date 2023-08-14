@@ -77,12 +77,18 @@ const resendVerificationCode = async (email) => {
   }
   return await verifier.resend();
 };
+const toValidUsername = (username) => {
+  if (username.length < 5) {
+    throw "Username length must be at least 5";
+  }
+  return username.replace(/[^\w]+/g, "").substring(0, 32);
+};
 const createUser = async (uid, email, username, password) => {
   const hashedPassword = sha256(password);
-  const validUsername = username.replace(/[^\w]+/g, "");
+  username = toValidUsername(username);
   const checkId = userCollection.findOne({ uid });
   const checkEmail = userCollection.findOne({ email });
-  const checkUsername = userCollection.findOne({ username: validUsername });
+  const checkUsername = userCollection.findOne({ username });
   if (Boolean(await checkId)) {
     throw "User ID already exists.";
   }
@@ -95,7 +101,7 @@ const createUser = async (uid, email, username, password) => {
   await userCollection.create({
     uid,
     email,
-    username: validUsername,
+    username,
     password: hashedPassword
   });
 };
@@ -116,7 +122,7 @@ const getUid = async (usernameOrEmail, password) => {
   return (user == null ? void 0 : user.uid) || false;
 };
 const getUser = async (uid) => {
-  return await userCollection.findOne({ uid });
+  return await userCollection.findOne({ uid }, { _id: 0, username: 1 });
 };
 const mergeUser = async (uidToBeRetained, uidToBeRemoved) => {
   if (typeof uidToBeRetained !== "string") {
@@ -127,6 +133,20 @@ const mergeUser = async (uidToBeRetained, uidToBeRemoved) => {
   }
   await message.updateMany({ user: uidToBeRemoved }, { $set: { user: uidToBeRetained } });
 };
+const changeUsername = async (uid, username) => {
+  username = toValidUsername(username);
+  const isExistUser = await userCollection.findOne({ username }, { uid: 1 });
+  if ((isExistUser == null ? void 0 : isExistUser.uid) === uid) {
+    return { username };
+  }
+  if (Boolean(isExistUser)) {
+    throw "This username is already in use.";
+  }
+  await userCollection.updateOne({ uid }, {
+    $set: { username }
+  });
+  return { username };
+};
 const auth = {
   createEmailVerification,
   verifyEmail,
@@ -135,7 +155,8 @@ const auth = {
   resetPassword,
   getUid,
   getUser,
-  mergeUser
+  mergeUser,
+  changeUsername
 };
 const auth$1 = auth;
 

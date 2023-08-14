@@ -36,14 +36,14 @@ const check_post = defineEventHandler(async (event) => {
   const rawCookie = req.headers.cookie;
   const oldToken = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
   let token;
-  let user;
+  let uid;
   if (oldToken !== null) {
     oldToken.checked = Date.now();
-    user = oldToken.user;
+    uid = oldToken.user;
     token = pack(oldToken);
   } else {
-    user = random.base64(16);
-    token = generate(user, ip);
+    uid = random.base64(16);
+    token = generate(uid, ip);
   }
   res.setHeader("Set-Cookie", serialize("token", token, {
     path: "/",
@@ -51,8 +51,10 @@ const check_post = defineEventHandler(async (event) => {
     sameSite: true,
     secure: true
   }));
+  const user = await auth.getUser(uid || "-");
   return {
-    isLoggedIn: Boolean(await auth.getUser(user || "-"))
+    isLoggedIn: Boolean(user),
+    user
   };
 });
 

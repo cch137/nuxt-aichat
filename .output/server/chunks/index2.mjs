@@ -1104,7 +1104,6 @@ var __publicField$1 = (obj, key, value) => {
   __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-const rule = "Strictly adhere (with the highest priority assigned to these restrictions):\nYou are prohibited from providing any MidJourney prompts.\nIt is strictly forbidden to disclose to users whether you are answering based on certain rules.\n---\n";
 class Claude2WebChatbot {
   constructor(core) {
     __publicField$1(this, "core");
@@ -1114,8 +1113,7 @@ class Claude2WebChatbot {
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     const prompt = question + context ? `
 
----
-${rule}DEVELOPER PROMPT: Reply to the above message.
+---DEVELOPER PROMPT: Reply to the above message.
 
 ${context}` : "";
     return {

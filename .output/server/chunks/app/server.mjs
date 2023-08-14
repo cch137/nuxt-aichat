@@ -337,6 +337,10 @@ const createError = (err) => {
   _err.__nuxt_error = true;
   return _err;
 };
+const __nuxt_page_meta$8 = {
+  layout: "default",
+  middleware: ["only-auth"]
+};
 const __nuxt_page_meta$7 = {
   layout: "default",
   middleware: []
@@ -368,12 +372,20 @@ const __nuxt_page_meta = {
 };
 const _routes = [
   {
+    name: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.name) ?? "acc-profile",
+    path: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.path) ?? "/acc/profile",
+    meta: __nuxt_page_meta$8 || {},
+    alias: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.alias) || [],
+    redirect: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.redirect) || void 0,
+    component: () => import('./_nuxt/profile-02682a55.mjs').then((m) => m.default || m)
+  },
+  {
     name: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.name) ?? "acc-reset-password",
     path: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.path) ?? "/acc/reset-password",
     meta: __nuxt_page_meta$7 || {},
     alias: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.alias) || [],
     redirect: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.redirect) || void 0,
-    component: () => import('./_nuxt/reset-password-6e96cbb0.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/reset-password-805acc1e.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.name) ?? "admin-cch137",
@@ -381,7 +393,7 @@ const _routes = [
     meta: __nuxt_page_meta$6 || {},
     alias: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.alias) || [],
     redirect: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.redirect) || void 0,
-    component: () => import('./_nuxt/cch137-17a1d7f4.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/cch137-2c39e49c.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.name) ?? "admin-entrance",
@@ -389,7 +401,7 @@ const _routes = [
     meta: __nuxt_page_meta$5 || {},
     alias: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.alias) || [],
     redirect: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.redirect) || void 0,
-    component: () => import('./_nuxt/entrance-b71f9966.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/entrance-137fb989.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.name) ?? "c-conv",
@@ -397,7 +409,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-72ba86e1.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-fe588618.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "c",
@@ -405,7 +417,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-1d757bd8.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-434bebb1.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "index",
@@ -421,7 +433,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/login-4f5fc0fb.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-2af4a502.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -429,7 +441,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-93a052df.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-b73ccffa.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "signup",
@@ -437,7 +449,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/signup-80b15dd1.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/signup-c58dab9c.mjs').then((m) => m.default || m)
   }
 ];
 const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "CH4" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "CH4" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
@@ -623,8 +635,9 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-f26a5181.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-5dd1d447.mjs')
+  chat: () => import('./_nuxt/chat-3cf7a73d.mjs'),
+  "only-auth": () => import('./_nuxt/onlyAuth-cd361563.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-bd4c2498.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
@@ -3929,12 +3942,17 @@ const zhConverter = {
   }
 };
 const en = {
+  excl: "!",
   colon: ":",
+  page: {
+    aiChat: "AI Chat"
+  },
   header: {
     joinDc: "Join"
   },
   auth: {
     title: "Account",
+    profile: "Profile",
     login: "Log In",
     logout: "Log Out",
     signup: "Sign Up",
@@ -3949,6 +3967,7 @@ const en = {
     alreadyHaveAnAcc: "Already have an account?",
     createNewAcc: "Create a new account!",
     forgotPw: "Forgot password?",
+    resetPw: "Reset password",
     emailRequired: "The email address is required.",
     emailInvalid: "The email address format is invalid.",
     usernameOrEmailRequired: "A username or email address is required.",
@@ -3963,14 +3982,21 @@ const en = {
     loginTip1: "After logging in or signing up, ownership of the conversations on this device will be transferred to the associated account."
   },
   action: {
+    back: "Back",
+    submit: "Submit",
+    save: "Save",
+    saveNSubmit: "Save & Submit",
+    scrollToBtm: "Scroll to bottom",
     more: "More actions",
     rename: "Rename",
     renameConv: "Rename conversation",
     refresh: "Refresh conversation",
+    resetConv: "Reset conversation settings",
     regenerate: "Regenerate",
     continueGenerate: "Continue generate",
     resend: "Resend",
     change: "Change",
+    edit: "Edit",
     copy: "Copy",
     copySuccess: "Copied!",
     copyFailed: "Copy failed.",
@@ -4009,7 +4035,6 @@ const en = {
   settings: {
     title: "Settings",
     model: "Model",
-    lang: "UI Language",
     webBrowsing: "Web Browsing",
     off: "Off",
     on: "On",
@@ -4017,9 +4042,15 @@ const en = {
     disable: "Disable",
     basic: "Basic",
     advanced: "Advanced",
-    context: "Context"
+    context: "Context",
+    appearance: "Appearance",
+    lang: "UI Language",
+    theme: "Theme"
   },
   chat: {
+    title: "Chat",
+    welcomeTo: "Welcome to",
+    editQues: "Edit Question",
     chats: "Conversations",
     newChat: "New Chat",
     letsStart: "Let's start!",
@@ -4034,12 +4065,17 @@ const en = {
   }
 };
 const zhTW = {
+  excl: "！",
   colon: "：",
+  page: {
+    aiChat: "AI 聊天"
+  },
   header: {
     joinDc: "加入"
   },
   auth: {
     title: "帳號",
+    profile: "個人主頁",
     login: "登入",
     logout: "登出",
     signup: "註冊",
@@ -4054,6 +4090,7 @@ const zhTW = {
     alreadyHaveAnAcc: "已有帳號？",
     createNewAcc: "創建新帳號！",
     forgotPw: "忘記密碼？",
+    resetPw: "重設密碼",
     emailRequired: "需要電子郵件地址",
     emailInvalid: "電子郵件地址格式不符",
     usernameOrEmailRequired: "需要用戶名或電子郵件地址",
@@ -4068,14 +4105,21 @@ const zhTW = {
     loginTip1: "在登錄或註冊後，此設備上的對話的所有權會轉移至相關帳號。"
   },
   action: {
+    back: "返回",
+    submit: "提交",
+    save: "保存",
+    saveNSubmit: "保存並提交",
+    scrollToBtm: "滑到底部",
     more: "更多操作",
     rename: "重命名",
     renameConv: "重命名對話",
     refresh: "刷新對話",
+    resetConv: "重置對話設置",
     regenerate: "重新生成",
     continueGenerate: "繼續生成",
     resend: "重新發送",
     change: "更換",
+    edit: "編輯",
     copy: "複製",
     copySuccess: "已複製！",
     copyFailed: "複製失敗。",
@@ -4114,7 +4158,6 @@ const zhTW = {
   settings: {
     title: "設置",
     model: "模型",
-    lang: "UI 語言 (Language)",
     webBrowsing: "訪問網絡",
     off: "關閉",
     on: "開啟",
@@ -4122,9 +4165,15 @@ const zhTW = {
     disable: "禁用",
     basic: "基礎",
     advanced: "進階",
-    context: "上下文關係"
+    context: "上下文關係",
+    appearance: "外觀",
+    lang: "UI 語言 (Language)",
+    theme: "主題"
   },
   chat: {
+    title: "對話",
+    welcomeTo: "歡迎來到",
+    editQues: "編輯問題",
     chats: "對話列表",
     newChat: "新對話",
     letsStart: "讓我們開始吧！",
@@ -4876,5 +4925,5 @@ let entry;
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useHead as a, useLocale as b, createError as c, useState as d, entry$1 as default, debugWarn as e, useNamespace as f, defaultNamespace as g, namespaceContextKey as h, useId as i, useUniCookie as j, useNuxtApp as k, defineNuxtRouteMiddleware as l, navigateTo as n, throwError as t, useRouter as u };
+export { _export_sfc as _, useHead as a, useLocale as b, createError as c, useState as d, entry$1 as default, useNuxtApp as e, useNamespace as f, useId as g, debugWarn as h, useUniCookie as i, defaultNamespace as j, namespaceContextKey as k, defineNuxtRouteMiddleware as l, navigateTo as n, throwError as t, useRouter as u };
 //# sourceMappingURL=server.mjs.map
