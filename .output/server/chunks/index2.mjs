@@ -1191,19 +1191,24 @@ function chooseEngine(model) {
 const getRandomToken = (() => {
   const tokens = (() => {
     const accounts = [
-      {
-        type: "MindsDB",
-        email: "gammacheechorngherng@gmail.com",
-        password: "Curva&&cch137"
-      },
-      {
-        type: "MindsDB",
-        email: "deltacheechorngherng@gmail.com",
-        password: "Curva&&cch137"
-      },
+      // {
+      //   type: 'MindsDB',
+      //   email: 'gammacheechorngherng@gmail.com',
+      //   password: 'Curva&&cch137',
+      // },
+      // {
+      //   type: 'MindsDB',
+      //   email: 'deltacheechorngherng@gmail.com',
+      //   password: 'Curva&&cch137',
+      // },
       {
         type: "MindsDB",
         email: "chengyuxuee@gmail.com",
+        password: "88888888Ss"
+      },
+      {
+        type: "MindsDB",
+        email: "chengyuxueee@gmail.com",
         password: "88888888Ss"
       }
       // {
