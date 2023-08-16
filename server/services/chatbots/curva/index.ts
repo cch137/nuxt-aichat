@@ -37,6 +37,11 @@ const getRandomToken = (() => {
         email: 'deltacheechorngherng@gmail.com',
         password: 'Curva&&cch137',
       },
+      {
+        type: 'MindsDB',
+        email: 'chengyuxuee@gmail.com',
+        password: '88888888Ss',
+      },
       // {
       //   type: 'MindsDB',
       //   email: 'chorngherngchee@gmail.com',

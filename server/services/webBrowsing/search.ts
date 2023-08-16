@@ -1,9 +1,25 @@
 import googlethis from 'googlethis'
+import axios from 'axios'
 
 interface SearcherResultItem {
   title?: string;
   description: string;
   url: string;
+}
+
+const ddgSearch = async (...queries: string[]) => {
+  return (await Promise.all(queries.map(async (query) => {
+    try {
+      const searching = (await axios.get(`https://ddg-api.herokuapp.com/search?query=${query}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50'
+        }
+      })).data as { title: string, link: string, snippet: string }[]
+      return searching.map((p) => ({ title: p.title || '', url: p.link || '', description: p.snippet || '' })) as SearcherResultItem[]
+    } catch {
+      return []
+    }
+  }))).flat()
 }
 
 const googleSearch = async (...queries: string[]) => {
@@ -34,8 +50,18 @@ class WebSearcherResult {
 }
 
 async function search (...queries: string[]) {
-  return new WebSearcherResult(await googleSearch(...queries))
+  switch (search.engine) {
+    case 'all': // 小心有可能會超出 tokens
+      return new WebSearcherResult([...await googleSearch(...queries), ...await ddgSearch(...queries)])
+    case 'duckduckgo':
+      return new WebSearcherResult(await ddgSearch(...queries))
+    case 'google':
+    default:
+      return new WebSearcherResult(await googleSearch(...queries))
+  }
 }
+
+search.engine = 'google' as 'all' | 'google' | 'duckduckgo'
 
 export default search
 export type { WebSearcherResult }
