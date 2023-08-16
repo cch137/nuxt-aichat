@@ -741,6 +741,20 @@ var __publicField$4 = (obj, key, value) => {
   __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
+const ddgSearch = async (...queries) => {
+  return (await Promise.all(queries.map(async (query) => {
+    try {
+      const searching = (await axios.get(`https://ddg-api.herokuapp.com/search?query=${query}`, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50"
+        }
+      })).data;
+      return searching.map((p) => ({ title: p.title || "", url: p.link || "", description: p.snippet || "" }));
+    } catch {
+      return [];
+    }
+  }))).flat();
+};
 const googleSearch = async (...queries) => {
   return (await Promise.all(queries.map(async (query) => {
     try {
@@ -767,8 +781,17 @@ ${r.description}`))
   }
 }
 async function search(...queries) {
-  return new WebSearcherResult(await googleSearch(...queries));
+  switch (search.engine) {
+    case "all":
+      return new WebSearcherResult([...await googleSearch(...queries), ...await ddgSearch(...queries)]);
+    case "duckduckgo":
+      return new WebSearcherResult(await ddgSearch(...queries));
+    case "google":
+    default:
+      return new WebSearcherResult(await googleSearch(...queries));
+  }
 }
+search.engine = "google";
 
 const ytLinkRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S+&)?v=|embed\/|v\/)|youtu\.be\/)([\w-]+)/g;
 function extractYouTubeLinks(text) {
@@ -1177,6 +1200,11 @@ const getRandomToken = (() => {
         type: "MindsDB",
         email: "deltacheechorngherng@gmail.com",
         password: "Curva&&cch137"
+      },
+      {
+        type: "MindsDB",
+        email: "chengyuxuee@gmail.com",
+        password: "88888888Ss"
       }
       // {
       //   type: 'MindsDB',
