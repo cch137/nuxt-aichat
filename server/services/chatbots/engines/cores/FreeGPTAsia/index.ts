@@ -8,7 +8,7 @@ import { questionContextToMessages } from '../../utils/openAiMessagesConverter'
 // const defaultApiHost = 'https://apx.spaxe.top'
 // const defaultApiKey = 'sk-nWpqLgtXfIJRPav42146Bf4374A64c359aB77e810847CcBa'
 const defaultApiHost = 'https://api.freegpt.asia'
-const defaultApiKey = 'sk-QcG4uyr8zgufaZb30067Dc6eCf3e489f9f34185aC7D63538'
+const defaultApiKey = 'sk-va0ydNzw6Mc5iJ5uB6EdBd3cA14849198f74C9F086EdA4B6'
 
 class Client {
   host: string
