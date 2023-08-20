@@ -131,6 +131,7 @@ const curva = {
       const dt = Date.now() - t0
       if (result.answer) {
         const conversation = new Conversation(user, conv)
+        conversation.updateMtime()
         _id = await conversation.saveMessage(
           result.isContinueGenerate ? '' : result.question,
           result.answer,
@@ -139,7 +140,6 @@ const curva = {
           dt,
           _id
         )
-        conversation.updateMtime()
       }
       curva.record.add({ ip, user, conv, model, error: result?.error || '', t: Date.now() })
       return {

@@ -35,7 +35,7 @@ async function getYouTubeCaptions (html: string, lang?: string, options = { igno
     throw new Error('Caption Tracks Not Found')
   }
   const captionTracks = JSON.parse(`${match1}}`).captionTracks as ({ baseUrl: string, name: { simpleText: string }, vssId: string, languageCode: string, isTranslatable: boolean })[]
-  const { baseUrl } = captionTracks.filter((c) => c.languageCode === lang)[0] || captionTracks.filter((c) => c.isTranslatable)[0] || {}
+  const { baseUrl } = captionTracks.find((c) => c.languageCode === lang) || captionTracks.find((c) => c.isTranslatable) || {}
   if (!baseUrl) {
     throw new Error('Language Not Supported')
   }

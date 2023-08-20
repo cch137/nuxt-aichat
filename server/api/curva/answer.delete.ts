@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   }
   try {
     const _id = new ObjectId(baseConverter.convert(id, '64', 16))
-    await messagesCollection.findOneAndUpdate({ _id, conv, user }, { $set: { user: `~${user}` } })
+    await messagesCollection.updateOne({ _id, conv, user }, { $set: { user: `~${user}` } })
     return {}
   } catch (err) {
     return { error: 4 }

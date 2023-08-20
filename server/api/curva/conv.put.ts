@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   if (!isExistConv) {
     return {}
   }
-  await conversation.findOneAndUpdate(
+  await conversation.updateOne(
     { id: conv, user },
     { $set: { id: conv, user, ...data } },
     { upsert: true }

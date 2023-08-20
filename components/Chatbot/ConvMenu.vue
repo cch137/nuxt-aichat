@@ -4,8 +4,8 @@
       <div class="flex justify-stretch">
         <h4 class="flex-1 mt-0">{{ $t('settings.title') }}</h4>
         <div class="px-1">
-          <el-text type="info" size="small" v-if="!versionPending">
-            v{{ versionData?.version }}
+          <el-text type="info" size="small" v-if="version">
+            v{{ version }}
           </el-text>
         </div>
       </div>
@@ -41,7 +41,7 @@
             </ClientOnly>
           </el-text>
           <div class="flex-1" style="width: calc(50% - 0.25rem)">
-            <TemperatureSelect class="w-full" />
+            <ChatbotTemperatureSelect class="w-full" />
           </div>
         </div>
         <div v-if="getCurrentConvId()" class="flex gap-1">
@@ -56,7 +56,7 @@
     </el-form>
     <h4 class="mt-4 mb-0">{{ $t('chat.chats') }}</h4>
     <div class="mt-1 border rounded overflow-hidden" style="height: 45vh; border-color: var(--el-border-color);">
-      <div class="border-b" style="border-color: var(--el-border-color);">
+      <div class="border-b createNewChat-bg" style="border-color: var(--el-border-color);">
         <NuxtLink id="createNewChat" to="/c/" @click="focusInput">
           <el-button
             :icon="Plus"
@@ -154,14 +154,13 @@ import baseConverter from '~/utils/baseConverter'
 const version = useState('version', () => '')
 const { conversations, model, getCurrentConvId, focusInput, renameConversation, deleteConversation } = useChat()
 
-const {
-  data: versionData,
-  pending: versionPending
-} = useLazyFetch('/api/version', { method: 'POST' })
-
-watch(versionData, (newValue) => {
-  version.value = newValue.version
-})
+if (process.client && version.value === '') {
+  $fetch('/api/version', { method: 'POST' })
+    .then((res) => {
+      version.value = res.version
+    })
+    .catch(() => {})
+}
 
 const openAboutMe = () => {
   ElMessageBox({
@@ -208,34 +207,12 @@ const openFeedback = () => {
 </script>
 
 <style scoped>
-/* 暫時採用 #COM0809 */
 .ConversationList::-webkit-scrollbar {
   height: 10px;
   width: 10px;
 }
-.ConversationList::-webkit-scrollbar-corner {
-  background: #4448;
-}
-.ConversationList::-webkit-scrollbar-track {
-  background: #4448;
-}
-.ConversationList::-webkit-scrollbar-thumb {
-  background: #8888;
-  border-radius: 10px;
-}
-.ConversationList::-webkit-scrollbar-thumb:hover {
-  background: #8888;
-}
-/* 暫時採用 --結束處-- */
-.ConversationList::-webkit-scrollbar {
-  /* 暫時不採用 #COM0809 */
-  /* height: 7px;
-  width: 7px; */
-}
-.ConversationList, #createNewChat {
-  background: var(--el-bg-color);
-  /* 暫時不採用 #COM0809 */
-  /* background: var(--el-bg-color-page); */
+.ConversationList, .createNewChat-bg, #createNewChat {
+  background: var(--el-bg-color-page);
 }
 .ConversationLink {
   justify-content: start !important;

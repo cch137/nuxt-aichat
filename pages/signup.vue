@@ -89,12 +89,6 @@
       </div>
       <div class="p-8" />
     </el-form>
-    <div class="absolute w-screen flex-center gap-2 p-3" style="bottom: 0;">
-      <el-text type="info" class="opacity-75">More languages:</el-text>
-      <span style="width: 120px;">
-        <ChatbotLanguageSelect size="small" />
-      </span>
-    </div>
   </ClientOnly>
 </template>
 
@@ -204,7 +198,7 @@ const signUp = async (formEl: FormInstance) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       const loading = ElLoading.service({
-        text: _t('auth.sendingVeriCode')
+        text: _t('action.submitting') + '...'
       })
       $fetch('/api/auth/signup', {
         method: 'POST',
@@ -215,14 +209,14 @@ const signUp = async (formEl: FormInstance) => {
           code: ruleForm.veriCode
         }
       })
-        .then((_res) => {
+        .then(async (_res) => {
           const res = _res as any
           if (res?.error) {
             ElMessage.error(res?.error)
           } else {
+            await auth.checkIsLoggedIn(true)
             ElMessage.success('Sign up successful.')
             navigateTo('/c/')
-            auth.setIsLoggedIn(true)
           }
         })
         .catch(() => {

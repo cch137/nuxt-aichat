@@ -8,54 +8,44 @@ import { OpenAIMessage } from '../engines/cores/types'
 
 class Conversation {
   conv: string
-  user: string
+  uid: string
 
-  constructor (user: string, conv: string) {
-    this.user = user
+  constructor (uid: string, conv: string) {
+    this.uid = uid
     this.conv = conv
   }
 
   async updateMtime () {
-    const { user, conv } = this
-    if (!(user && conv)) {
+    const { uid, conv } = this
+    if (!(uid && conv)) {
       return
     }
-    return (await conversationCollection.updateOne({
-      user,
-      id: conv
-    }, {
-      $set: {
-        mtime: Date.now()
-      }
-    }, {
-      projection: { _id: 0 }
-    }).exec())
+    await conversationCollection.updateOne(
+      { user: uid, id: conv },
+      { $set: { mtime: Date.now() } },
+      { upsert: true, projection: { _id: 0 } }
+    )
   }
 
   async delete () {
-    const { user, conv } = this
-    if (!(user && conv)) {
+    const { uid, conv } = this
+    if (!(uid && conv)) {
       return []
     }
-    return (await messageCollection.updateMany({
-      user,
-      conv
-    }, {
-      $set: {
-        user: `~${user}`
-      }
-    }, {
-      projection: { _id: 0 }
-    }).exec())
+    return await messageCollection.updateMany(
+      { user: uid, conv },
+      { $set: { user: `~${uid}` } },
+      { projection: { _id: 0 }
+    })
   }
 
   async getHistory () {
-    const { user, conv } = this
-    if (!(user && conv)) {
+    const { uid, conv } = this
+    if (!(uid && conv)) {
       return []
     }
     const history = (await messageCollection.find({
-      user,
+      user: uid,
       conv
     }, {
       _id: 1,
@@ -77,8 +67,8 @@ class Conversation {
   }
 
   async getContext () {
-    const { user, conv } = this
-    if (!(user && conv)) {
+    const { uid, conv } = this
+    if (!(uid && conv)) {
       return []
     }
     const processMessage = (message: { Q?: string, A?: string }): OpenAIMessage[] => {
@@ -94,7 +84,7 @@ class Conversation {
       return []
     }
     const messages = (await messageCollection.find({
-      user,
+      user: uid,
       conv
     }, {
       _id: 1,
@@ -112,8 +102,8 @@ class Conversation {
   }
 
   async saveMessage (Q: string, A: string, queries: string[] = [], urls: string[] = [], dt?: number, regenerateId?: string) {
-    const { user, conv } = this
-    const record = { user, conv, Q, A } as { Q: string, A: string, queries?: string[], urls?: string[], dt?: number }
+    const { uid, conv } = this
+    const record = { user: uid, conv, Q, A } as { Q: string, A: string, queries?: string[], urls?: string[], dt?: number }
     if (queries.length > 0) {
       record.queries = queries
     }
@@ -126,7 +116,7 @@ class Conversation {
     if (regenerateId) {
       await messageCollection.updateOne({
         _id: new ObjectId(regenerateId),
-        user,
+        user: uid,
         conv
       }, {
         $set: record

@@ -37,5 +37,5 @@ export default defineEventHandler(async function (event): Promise<{ error?: stri
     sameSite: true,
     secure: true
   }))
-  return { isLoggedIn: true, user: await auth.getUser(uid) }
+  return { isLoggedIn: true }
 })

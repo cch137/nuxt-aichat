@@ -93,7 +93,7 @@ async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, 
   const summary = (await Promise.all(chunks.map(async (chunk) => {
   const prompt = `
 Summarizes information relevant to the question from the following content.
-Ensure overall coherence and consistency of the responses, and provide clear conclusions.
+Organize your responses appropriately into an article or notes.
 Content is sourced from webpages, completely ignore content not related to the question.
 Summarization in a language other than the web page is prohibited.
 User curent time: ${time}
@@ -170,7 +170,7 @@ class GptWebChatbot {
       summary = await summaryArticle(this.core, question, summary)
     }
     const prompt = `Use references where possible and answer in detail.
-Ensure the overall coherence and consistency of the responses.
+Organize your responses appropriately into an article or notes.
 Ensure that the release time of news is relevant to the responses, avoiding outdated information.
 User current time: ${options.time}
 Question: ${question}

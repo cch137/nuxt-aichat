@@ -4,7 +4,7 @@
     <el-dropdown v-model="isLoggedIn" trigger="click">
       <el-button class="AuthDropdownMenuBtn">
         <el-icon v-if="isLoggedIn" class="AuthDropdownUserFilledIcon"><UserFilled /></el-icon>
-        <span class="AuthDropdownUsername">{{ isLoggedIn ? username : $t('auth.login') }}</span>
+        <span class="AuthDropdownUsername flex-center">{{ isLoggedIn ? username : $t('auth.login') }}</span>
         <el-icon class="el-icon--right"><ArrowDown /></el-icon>
       </el-button>
       <template #dropdown>
@@ -47,6 +47,7 @@ const currentRoute = useNuxtApp().$router.currentRoute
   text-align: start;
   overflow: hidden;
   text-overflow: ellipsis;
+  height: 28px;
 }
 .AuthDropdownUserFilledIcon {
   transform: scale(1.25) translateX(-2px);

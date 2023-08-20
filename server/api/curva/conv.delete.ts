@@ -11,5 +11,6 @@ export default defineEventHandler(async (event) => {
   if (!user || !conv) {
     return { error: 1 }
   }
-  return await new Conversation(user, conv).delete()
+  await new Conversation(user, conv).delete()
+  return {}
 })

@@ -8,7 +8,7 @@ import {
 import random from '~/utils/random'
 import { message, conversation } from '~/server/services/mongoose/index'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<{ id: string, name: string, config: string, mtime: number}[]> => {
   const { req, res } = event.node
   const ip = getIp(req)
   const rawCookie = req.headers.cookie
@@ -30,32 +30,24 @@ export default defineEventHandler(async (event) => {
     secure: true
   }))
   try {
-    const conversations = (await message.aggregate([
+    const conversations = ((await message.aggregate([
       { $match: { user } },
       { $group: { _id: '$user', conv: { $addToSet: '$conv' } } },
       { $project: { _id: 0, conv: 1 } }
-    ]).exec())[0]?.conv as string[]
+    ]).exec())[0]?.conv as string[])
+      .filter((c) => !c.startsWith('~'))
     if (Array.isArray(conversations)) {
-      const saved: Record<string, { name: string, config: string, mtime: number }>  = {}
-      const items = await conversation.find(
+      const savedConverations = await conversation.find(
         { $or: conversations.map((id) => ({ user, id })) },
         { _id: 0, id: 1, name: 1, config: 1, mtime: 1 }
       )
-      for (const item of items) {
-        if (typeof item.name === 'string') {
-          saved[item.id] = { name: item.name, config: item.config || '', mtime: item.mtime || 0 }
-        }
-      }
-      return {
-        list: conversations.filter((c) => !c.startsWith('~')),
-        saved
-      }
+      return conversations.map((convId) => {
+        const { id = convId, name = '', config = '', mtime = 0 } = savedConverations.find((conv) => conv.id === convId) || {}
+        return { id, name, config, mtime }
+      }).sort((a, b) => b.mtime - a.mtime)
     }
   } catch (err) {
     console.error(err)
   }
-  return {
-    list: [] as string[],
-    saved: {} as Record<string, { name: string, config: string, mtime: number }>
-  }
+  return []
 })

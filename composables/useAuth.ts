@@ -26,10 +26,10 @@ const logout = async () => {
 }
 
 let lastChecked = 0
-const checkIsLoggedIn = async () => {
+const checkIsLoggedIn = async (force = false) => {
   const now = Date.now()
   // 一分鐘內檢查過的話，就不再檢查
-  if (now - lastChecked < 60000) {
+  if (!force && now - lastChecked < 60000) {
     return isLoggedIn.value
   }
   authIsLoading.value = true
@@ -60,16 +60,14 @@ const checkIsLoggedIn = async () => {
 
 const changeUsername = async (newUsername: string) => {
   try {
-    const { error, username: _username } = (await $fetch('/api/auth/username', {
+    const { error } = (await $fetch('/api/auth/username', {
       method: 'PUT',
       body: { username: newUsername }
     }))
     if (error) {
       throw error
     }
-    if (_username) {
-      username.value = _username
-    }
+    await checkIsLoggedIn(true)
     ElMessage.success('The username has been changed.')
     return true
   } catch (err) {
@@ -90,15 +88,13 @@ export default function () {
         method: 'POST',
         body: { usernameOrEmail, password }
       })
-      const { error, isLoggedIn: _isLoggedIn = false, user } = res
+      const { error } = res
       if (error) {
         throw error
       }
-      ElMessage.success('Logged in.')
       navigateTo('/c/')
-      username.value = user?.username || ''
-      // isLoggedIn 一定要最後才賦值，為了避免 user 讀取不了
-      setTimeout(() => setIsLoggedIn(_isLoggedIn), 0)
+      await checkIsLoggedIn(true)
+      ElMessage.success('Logged in.')
     } catch (err) {
       ElMessage.error(typeof err === 'string' ? err : 'Oops! Something went wrong.')
     } finally {

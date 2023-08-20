@@ -3,7 +3,7 @@
     <div class="flex w-full">
       <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
       <div style="position: fixed; bottom: 110px; right: 20px;" class="z-50" v-show="showScrollToBottomButton">
-        <el-button class="ChatScrollToBottom drop-shadow-2xl" :icon="Bottom" circle @click="scrollToBottomOnclick()"/>
+        <el-button class="ChatScrollToBottom drop-shadow-2xl" :icon="Bottom" circle @click="() => (scrollToBottomOnclick(), focusInput())"/>
       </div>
       <div class="flex-1 flex-center" :style="`max-width: ${openSidebar ? 'calc(100% - 280px)' : '100%'}; transition: .1s;`">
         <div class="w-full mx-auto">
@@ -31,7 +31,7 @@
                   <div v-if="message.done" class="flex mt-1 gap-2 -mb-2">
                     <div class="flex-1 flex gap-2">
                       <el-text type="info" size="small">
-                        <span class="flex gap-2">
+                        <span class="flex flex-wrap gap-2">
                           <span>
                             {{ formatDate(new Date(message.t.getTime() - (message.dt || 0)), 'yyyy/MM/dd HH:mm') }}
                           </span>
@@ -119,7 +119,7 @@
                     <div v-if="message.done" class="flex mt-1 gap-2 -mb-2">
                       <div class="flex-1 flex gap-2">
                         <el-text type="info" size="small">
-                          <span class="flex gap-2">
+                          <span class="flex flex-wrap gap-2">
                             <span>
                               {{ message.dt === undefined ? formatDate(message.t, 'yyyy/MM/dd HH:mm') : `Δt: ${Math.round(message.dt / 10) / 100}s` }}
                             </span>
@@ -199,13 +199,13 @@
                       type="info"
                       :href="url.split(' ').pop()"
                       target="_blank"
-                      class="flex justify-start items-center"
+                      class="text-left max-w-full"
                       style="font-size: small;"
                     >
-                      <el-icon size="larger">
-                        <Paperclip />
-                      </el-icon>
-                      <span class="ml-1">{{ url.split(' ').slice(0, url.split(' ').length - 1).join(' ') || url.split(' ')[0] }}</span>
+                      <div class="flex items-center max-w-full">
+                        <el-icon size="larger"><Link /></el-icon>
+                        <div class="flex-1 ml-1 overflow-hidden text-ellipsis whitespace-nowrap" :title="url">{{ url.split(' ').slice(0, url.split(' ').length - 1).join(' ') || url.split(' ')[0] }}</div>
+                      </div>
                     </el-link>
                   </div>
                 </div>
@@ -235,8 +235,7 @@ import { marked } from 'marked'
 import formatDate from '~/utils/formatDate'
 import random from '~/utils/random'
 import { isScrolledToBottom } from '~/utils/client'
-// #com0809 Paperclip 改成 Link
-import { CopyDocument, Refresh, VideoPlay, ChatDotRound, Edit, User, Cpu, Search, Paperclip, Bottom } from '@element-plus/icons-vue'
+import { CopyDocument, Refresh, VideoPlay, ChatDotRound, Edit, User, Cpu, Search, Link, Bottom } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
 
 const showScrollToBottomButton = ref(false)
@@ -267,7 +266,7 @@ const popoverVisibles = {
   }
 }
 
-const { messages, openSidebar, callEditMessageDialog, sendMessage, deleteMessage, regenerateMessage } = useChat()
+const { messages, openSidebar, callEditMessageDialog, sendMessage, deleteMessage, regenerateMessage, focusInput } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -384,6 +383,24 @@ html.light .Message.A {
 .MessageContainer {
   gap: .35rem;
 }
+.Message p {
+  padding-bottom: .5rem;
+}
+.Message p:nth-last-child() {
+  padding-bottom: 0;
+}
+.Message ol, .Message ul {
+  padding-left: 1rem;
+}
+.Message ol {
+  list-style: decimal;
+}
+.Message ul {
+  list-style: disc;
+}
+.Message li {
+  padding-left: .5rem;
+}
 @media screen and (max-width: 600px) {
   .MessageContainer {
     gap: .25rem;
@@ -391,6 +408,8 @@ html.light .Message.A {
 }
 .CodeBlockWrapper {
   margin: .5rem 0;
+  border-radius: .75rem;
+  overflow: hidden;
 }
 .CodeBlockHeader {
   width: 100%;
@@ -403,13 +422,25 @@ html.light .CodeBlockHeader {
   color: var(--el-color-info-light-7);
 }
 .CodeBlockWrapper pre {
-  background: #1e1e1e;
+  /* 預設值：#1e1e1e */
+  /* background: #1e1e1e; */
+  background: #181818;
   color: lightgrey;
   padding: .75rem;
   border-radius: 0 0 .75rem .75rem;
   line-height: 1.25rem;
   white-space: pre-wrap;
   word-break: break-all;
+}
+.CodeBlockWrapper ::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.dark .CodeBlockWrapper pre {
+  --bd: 1px solid #3b3b3b;
+  border-bottom: var(--bd); 
+  border-left: var(--bd);
+  border-right: var(--bd);
 }
 .CodeBlockWrapper pre:focus {
   outline: none;

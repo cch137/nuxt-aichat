@@ -56,12 +56,6 @@
       </div>
       <div class="p-8" />
     </el-form>
-    <div class="absolute w-screen flex-center gap-2 p-3" style="bottom: 0;">
-      <el-text type="info" class="opacity-75">More languages:</el-text>
-      <span style="width: 120px;">
-        <ChatbotLanguageSelect size="small" />
-      </span>
-    </div>
   </ClientOnly>
 </template>
 

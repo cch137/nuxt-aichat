@@ -29,6 +29,9 @@ function questionContextToMessages (question = '', context = '') {
   const dataSlices = context.split('\n\n')
   const messages: OpenAIMessage[] = []
   dataSlices.forEach((data) => {
+    if (data === '') {
+      return
+    }
     const role = data.startsWith('user: ')
       ? 'user'
       : data.startsWith('assistant: ')

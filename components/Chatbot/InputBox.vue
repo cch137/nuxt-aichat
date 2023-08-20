@@ -67,8 +67,7 @@ const clickSendMessage = () => {
 }
 .InputBox {
   background: linear-gradient(180deg, transparent, var(--el-bg-color) 58.85%);
-  /* 暫時不採用 #COM0809 */
-  /* background: linear-gradient(180deg, transparent, var(--el-bg-color-page) 58.85%); */
+  background: linear-gradient(180deg, transparent, var(--el-bg-color-page) 58.85%);
 }
 html.light .InputBox {
   padding-top: 3rem !important;

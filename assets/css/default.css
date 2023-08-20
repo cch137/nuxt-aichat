@@ -24,8 +24,7 @@ html.dark {
   --el-fill-color-lighter: hsl(0, 0%, 11%);
   --el-fill-color-extra-light: hsl(0, 0%, 10%);
   --el-fill-color-blank: var(--el-bg-color) !important; */
-  /* 暫時不採用 #COM0809 */
-  /* --el-bg-color-page: hsl(270, 6%, 4%);
+  --el-bg-color-page: hsl(270, 6%, 4%);
   --el-bg-color: hsl(270, 7%, 7%);
   --el-bg-color-overlay: hsl(270, 15%, 12%);
   --el-fill-color-darker: hsl(270, 10%, 26%);
@@ -33,12 +32,11 @@ html.dark {
   --el-fill-color: hsl(270, 5%, 19%);
   --el-fill-color-light: hsl(270, 10%, 15%);
   --el-fill-color-lighter: hsl(270, 5%, 11%);
-  --el-fill-color-extra-light: hsl(270, 5%, 10%); */
+  --el-fill-color-extra-light: hsl(270, 5%, 10%);
   --el-fill-color-blank: var(--el-bg-color) !important;
 }
 html.dark > body {
-  /* 暫時不採用 #COM0809 */
-  /* background: var(--el-bg-color-page); */
+  background: var(--el-bg-color-page);
 }
 
 * {
@@ -52,23 +50,30 @@ html.dark > body {
 }
 
 /* scrollbar */
-/* 暫時不採用 #COM0809 */
-/* ::-webkit-scrollbar {
-  height: 10px;
-  width: 10px;
+::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
 }
-::-webkit-scrollbar-corner {
-  background: rgba(202, 204, 206, 0.04);
-}
+::-webkit-scrollbar-corner,
 ::-webkit-scrollbar-track {
-  background: rgba(202, 204, 206, 0.04);
+  background: #EDECE9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #474c50;
+  background: #D3D1CB;
 }
 ::-webkit-scrollbar-thumb:hover {
+  background: #AEACA6;
+}
+.dark ::-webkit-scrollbar-corner,
+.dark ::-webkit-scrollbar-track {
+  background: rgba(202, 204, 206, 0.04);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #474c50;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
   background: hsl(207, 6%, 39%);
-} */
+}
 
 ::-moz-selection {
   background: hsla(222, 100%, 78%, 0.35);
@@ -112,4 +117,8 @@ html.dark {
 
 .el-button {
   background-color: var(--el-button-bg-color) !important;
+}
+
+.el-link > .el-link__inner {
+  max-width: 100%;
 }

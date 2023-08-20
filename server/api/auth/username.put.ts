@@ -19,7 +19,8 @@ export default defineEventHandler(async function (event): Promise<{ error?: stri
     return { error: 'Form incomplete' }
   }
   try {
-    return await auth.changeUsername(uid, username)
+    await auth.changeUsername(uid, username)
+    return {}
   } catch (err) {
     return { error: typeof err === 'string' ? err : 'Username change failed.' }
   }

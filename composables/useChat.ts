@@ -1,9 +1,4 @@
 import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
-import {
-  temperatureSuffix as temperatureSuffixCookieName,
-  temperature as temperatureCookieName,
-  webBrowsing as webBrowsingCookieName
-} from '~/config/cookieNames'
 import baseConverter from '~/utils/baseConverter'
 import random from '~/utils/random'
 import troll from '~/utils/troll'
@@ -34,7 +29,7 @@ const model = ref<string>('gpt4')
 const contextMode = ref<boolean>(true)
 const temperature = ref<number>(0.5)
 const messages = ref<DisplayChatMessage[]>([])
-const conversations = ref<Array<{ id: string, name?: string, config?: string }>>([])
+const conversations = ref<Array<{ id: string, name: string, config: string, mtime: number }>>([])
 
 watch(isEditingMessage, (value) => {
   if (!value) {
@@ -57,7 +52,9 @@ function focusEditMessageInput () {
 
 const focusInput = () => {
   try {
-    (document.querySelector('.InputBox textarea') as HTMLElement).focus()
+    const el = document.querySelector('.InputBox textarea') as HTMLElement
+    el.click()
+    el.focus()
   } catch {}
 }
 
@@ -65,13 +62,14 @@ const checkTokenAndGetConversations = () => {
   return new Promise((resolve, reject) => {
     $fetch('/api/curva/check', { method: 'POST' })
       .then((_conversations) => {
-        const { list, saved } = _conversations
-        conversations.value = list.sort().map((id) => ({
-          id,
-          name: saved[id]?.name,
-          config: saved[id]?.config || '',
-          mtime: saved[id]?.mtime || 0,
-        })).sort((a, b) => a.mtime - b.mtime).reverse()
+        conversations.value = _conversations
+        const currentConvId = getCurrentConvId()
+        if (lastModifiedConv != currentConvId) {
+          try {
+            lastModifiedConv = currentConvId;
+            (document.querySelector('.ConversationList') as Element).scrollTop = 0
+          } catch {}
+        }
         resolve(true)
       })
       .catch((err) => {
@@ -158,7 +156,7 @@ const createRequest = (() => {
     let conv = getCurrentConvId()
     if (!conv) {
       conv = random.base64(8)
-      conversations.value.push({ id: conv, name: undefined })
+      conversations.value.unshift({ id: conv, name: '', mtime: Date.now(), config: '' })
       navigateTo(`/c/${conv}?feature=new`)
     }
     return { conv, messages, model, temperature, t, tz, id: regenerateId }
@@ -222,6 +220,7 @@ function clearUrlParamsFeatureNew () {
     if (urlParams.get('feature') === 'new') {
       urlParams.delete('feature')
       urlParams.save()
+      updateConversation()
     }
   }
 }
@@ -236,7 +235,7 @@ const downloadTextFile = (filename: string, content: string) => {
   a.remove()
 }
 
-const getCurrentConvId = () => {
+const getCurrentConvId = (): string => {
   return nuxtApp._route?.params?.conv as string
 }
 
@@ -246,11 +245,16 @@ const getCurrentConvName = () => {
     .filter((conv) => conv.id === currentConvId)[0]?.name || ''
 }
 
-async function updateConversation (id?: string, newname?: string) {
+async function updateConversation (id?: string, newname?: string): Promise<{ cancel?: boolean, error?: string }> {
+  id = id || getCurrentConvId()
+  if (!id) {
+    return { cancel: true }
+  }
+  // @ts-ignore
   return await $fetch('/api/curva/conv', {
     method: 'PUT',
     body: {
-      id: id || getCurrentConvId(),
+      id,
       name: newname || getCurrentConvName(),
       config: stringifyConvConfig({
         model: model.value,
@@ -270,7 +274,7 @@ const loadConvConfig = (convId?: string | null) => {
   if (convId === undefined || convId === null) {
     return
   }
-  const config = parseConvConfig(conversations.value.filter((conv) => conv.id === convId)[0]?.config || '')
+  const config = parseConvConfig(conversations.value.find((conv) => conv.id === convId)?.config || '')
   const keys = Object.keys(config)
   if (keys.length === 0) {
     resetConvConfig()
@@ -307,8 +311,10 @@ setTimeout(() => {
         clearTimeout(timeout)
         timeout = setTimeout(async () => {
           try {
-            await updateConversation()
-            ElMessage.info('Conversation settings have been saved.')
+            const { cancel = false } = await updateConversation()
+            if (!cancel) {
+              ElMessage.info('Conversation settings have been saved.')
+            }
           } catch (err) {
             console.error(err)
             ElMessage.warning('Failed to save conversation settings.')
@@ -365,20 +371,10 @@ const exportAsJson = () => {
 export default function () {
   const appName = useState('appName').value
   const cookie = useUniCookie()
-  const previousTemperature = +(cookie.has(temperatureCookieName) ? cookie.get(temperatureCookieName) as string : 0.5)
-  cookie.delete(webBrowsingCookieName, { path: '/' })
-  cookie.delete(webBrowsingCookieName)
-  cookie.delete(temperatureSuffixCookieName, { path: '/' })
-  cookie.delete(temperatureSuffixCookieName)
-  if (previousTemperature >= 0 && previousTemperature <= 1) {
-    temperature.value = previousTemperature
-  }
-  watch(temperature, (newValue) => {
-    temperature.value = Math.round(newValue * 10) / 10
-    cookie.set(temperatureCookieName, `${newValue}`, {
-      path: '/'
-    })
-  })
+  // 清除舊 cookie -- START --
+  cookie.delete('temperature', { path: '/' })
+  cookie.delete('temperature')
+  // 清除舊 cookie --  END  --
   nuxtApp = useNuxtApp()
   watch(openMenu, (value) => {
     if (useDevice().isMobileScreen) {
@@ -412,7 +408,7 @@ export default function () {
       openMenu.value = false
     }
     messages.value = []
-    const loading = ElLoading.service()
+    const loading = ElLoading.service({ text: _t('chat.ldConv') + '...', lock: true })
     try {
       const archived = await Promise.all([
         (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations(),
@@ -518,13 +514,7 @@ export default function () {
     // 更新對話狀態
     clearUrlParamsFeatureNew()
     if (lastModifiedConv !== convId) {
-      lastModifiedConv = convId
       checkTokenAndGetConversations()
-        .then(() => {
-          try {
-            (document.querySelector('.ConversationList') as Element).scrollTop = 0
-          } catch {}
-        })
     }
 
     // 更新訊息狀態
@@ -583,7 +573,7 @@ export default function () {
           type: 'warning'
         })
           .then(() => {
-            const loading = ElLoading.service()
+            const loading = ElLoading.service({ text: 'Loading...', lock: true })
             location.reload()
             setTimeout(() => loading.close(), 3000)
           })
@@ -607,11 +597,12 @@ export default function () {
     if (messages.value.length === 0) {
       return
     }
-    const { Q, id } = message || messages.value.at(-1) as DisplayChatMessage
+    const { Q, id } = message || messages.value.pop() as DisplayChatMessage
     sendMessage(Q || '', id)
   }
   const refreshConversation = () => {
     loadChat(getCurrentConvId())
+      .finally(() => focusInput())
   }
   const renameConversation = (id?: string, defaultName = '') => {
     if (!id) {
@@ -644,24 +635,26 @@ export default function () {
   }
   const deleteConversation = (targetConvId?: string) => {
     const id = targetConvId ? targetConvId : getCurrentConvId()
-    const _conversations = [...conversations.value]
-    let currentConvIndex = -1
     let nextConvId = 'createNewChat'
-    for (let i = 0; i < _conversations.length; i++) {
-      if (_conversations[i].id === id) {
-        currentConvIndex = i
-        break
-      }
-    }
-    if (currentConvIndex !== -1) {
-      const beforeConv = _conversations[currentConvIndex - 1]?.id
-      const afterConv = _conversations[currentConvIndex + 1]?.id
-      if (beforeConv !== undefined) {
-        nextConvId = beforeConv 
-      } else if (afterConv !== undefined) {
-        nextConvId = afterConv
-      }
-    }
+    // 【原本功能】在刪除對話後，跳轉到該對話的下一個或上一個
+    // 【取消原因】刪除對話後，讓用戶自行選擇需要加載哪一個對話。
+    // const _conversations = [...conversations.value]
+    // let currentConvIndex = -1
+    // for (let i = 0; i < _conversations.length; i++) {
+    //   if (_conversations[i].id === id) {
+    //     currentConvIndex = i
+    //     break
+    //   }
+    // }
+    // if (currentConvIndex !== -1) {
+    //   const beforeConv = _conversations[currentConvIndex - 1]?.id
+    //   const afterConv = _conversations[currentConvIndex + 1]?.id
+    //   if (beforeConv !== undefined) {
+    //     nextConvId = beforeConv 
+    //   } else if (afterConv !== undefined) {
+    //     nextConvId = afterConv
+    //   }
+    // }
     ElMessageBox.confirm(
       _t('message.deleteConvConfirm'),
       _t('message.warning'), {
@@ -670,17 +663,20 @@ export default function () {
         type: 'warning'
       })
       .then(() => {
-        const loading = ElLoading.service()
+        const loading = ElLoading.service({ text: _t('chat.dltConv') + '...', lock: true })
         $fetch('/api/curva/conv', {
           method: 'DELETE',
           body: { id }
         })
           .finally(async () => {
             loading.close()
-            if (targetConvId === getCurrentConvId()) {
+            const currentConvId = getCurrentConvId()
+            if (targetConvId === currentConvId) {
               document.getElementById(nextConvId)?.click()
-            } else {
-              await checkTokenAndGetConversations()
+              const convIndex = conversations.value.findIndex((c) => c.id === currentConvId)
+              if (convIndex != -1) {
+                conversations.value.splice(convIndex, 1)
+              }
             }
           })
       })
