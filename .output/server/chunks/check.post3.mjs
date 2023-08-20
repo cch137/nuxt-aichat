@@ -51,34 +51,25 @@ const check_post = defineEventHandler(async (event) => {
     secure: true
   }));
   try {
-    const conversations = (_a = (await message.aggregate([
+    const conversations = ((_a = (await message.aggregate([
       { $match: { user } },
       { $group: { _id: "$user", conv: { $addToSet: "$conv" } } },
       { $project: { _id: 0, conv: 1 } }
-    ]).exec())[0]) == null ? void 0 : _a.conv;
+    ]).exec())[0]) == null ? void 0 : _a.conv).filter((c) => !c.startsWith("~"));
     if (Array.isArray(conversations)) {
-      const saved = {};
-      const items = await conversation.find(
+      const savedConverations = await conversation.find(
         { $or: conversations.map((id) => ({ user, id })) },
         { _id: 0, id: 1, name: 1, config: 1, mtime: 1 }
       );
-      for (const item of items) {
-        if (typeof item.name === "string") {
-          saved[item.id] = { name: item.name, config: item.config || "", mtime: item.mtime || 0 };
-        }
-      }
-      return {
-        list: conversations.filter((c) => !c.startsWith("~")),
-        saved
-      };
+      return conversations.map((convId) => {
+        const { id = convId, name = "", config = "", mtime = 0 } = savedConverations.find((conv) => conv.id === convId) || {};
+        return { id, name, config, mtime };
+      }).sort((a, b) => b.mtime - a.mtime);
     }
   } catch (err) {
     console.error(err);
   }
-  return {
-    list: [],
-    saved: {}
-  };
+  return [];
 });
 
 export { check_post as default };

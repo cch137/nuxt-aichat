@@ -62,7 +62,7 @@ const login_post = defineEventHandler(async function(event) {
     sameSite: true,
     secure: true
   }));
-  return { isLoggedIn: true, user: await auth.getUser(uid) };
+  return { isLoggedIn: true };
 });
 
 export { login_post as default };

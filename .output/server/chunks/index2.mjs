@@ -19,51 +19,43 @@ var __publicField$a = (obj, key, value) => {
   return value;
 };
 class Conversation {
-  constructor(user, conv) {
+  constructor(uid, conv) {
     __publicField$a(this, "conv");
-    __publicField$a(this, "user");
-    this.user = user;
+    __publicField$a(this, "uid");
+    this.uid = uid;
     this.conv = conv;
   }
   async updateMtime() {
-    const { user, conv } = this;
-    if (!(user && conv)) {
+    const { uid, conv } = this;
+    if (!(uid && conv)) {
       return;
     }
-    return await conversation.updateOne({
-      user,
-      id: conv
-    }, {
-      $set: {
-        mtime: Date.now()
-      }
-    }, {
-      projection: { _id: 0 }
-    }).exec();
+    await conversation.updateOne(
+      { user: uid, id: conv },
+      { $set: { mtime: Date.now() } },
+      { upsert: true, projection: { _id: 0 } }
+    );
   }
   async delete() {
-    const { user, conv } = this;
-    if (!(user && conv)) {
+    const { uid, conv } = this;
+    if (!(uid && conv)) {
       return [];
     }
-    return await message.updateMany({
-      user,
-      conv
-    }, {
-      $set: {
-        user: `~${user}`
+    return await message.updateMany(
+      { user: uid, conv },
+      { $set: { user: `~${uid}` } },
+      {
+        projection: { _id: 0 }
       }
-    }, {
-      projection: { _id: 0 }
-    }).exec();
+    );
   }
   async getHistory() {
-    const { user, conv } = this;
-    if (!(user && conv)) {
+    const { uid, conv } = this;
+    if (!(uid && conv)) {
       return [];
     }
     const history = (await message.find({
-      user,
+      user: uid,
       conv
     }, {
       _id: 1,
@@ -84,8 +76,8 @@ class Conversation {
     return history;
   }
   async getContext() {
-    const { user, conv } = this;
-    if (!(user && conv)) {
+    const { uid, conv } = this;
+    if (!(uid && conv)) {
       return [];
     }
     const processMessage = (message) => {
@@ -101,7 +93,7 @@ class Conversation {
       return [];
     };
     const messages = (await message.find({
-      user,
+      user: uid,
       conv
     }, {
       _id: 1,
@@ -118,8 +110,8 @@ class Conversation {
     return messages.map(processMessage).flat();
   }
   async saveMessage(Q, A, queries = [], urls = [], dt, regenerateId) {
-    const { user, conv } = this;
-    const record = { user, conv, Q, A };
+    const { uid, conv } = this;
+    const record = { user: uid, conv, Q, A };
     if (queries.length > 0) {
       record.queries = queries;
     }
@@ -132,7 +124,7 @@ class Conversation {
     if (regenerateId) {
       await message.updateOne({
         _id: new libExports.ObjectId(regenerateId),
-        user,
+        user: uid,
         conv
       }, {
         $set: record
@@ -421,6 +413,9 @@ function questionContextToMessages(question = "", context = "") {
   const dataSlices = context.split("\n\n");
   const messages = [];
   dataSlices.forEach((data) => {
+    if (data === "") {
+      return;
+    }
     const role = data.startsWith("user: ") ? "user" : data.startsWith("assistant: ") ? "assistant" : void 0;
     if (role === void 0) {
       const len = messages.length;
@@ -1026,7 +1021,7 @@ async function summaryArticle(engine, question, article, options = {}) {
   const summary = (await Promise.all(chunks.map(async (chunk) => {
     const prompt = `
 Summarizes information relevant to the question from the following content.
-Ensure overall coherence and consistency of the responses, and provide clear conclusions.
+Organize your responses appropriately into an article or notes.
 Content is sourced from webpages, completely ignore content not related to the question.
 Summarization in a language other than the web page is prohibited.
 User curent time: ${time}
@@ -1101,7 +1096,7 @@ class GptWebChatbot {
       summary = await summaryArticle(this.core, question, summary);
     }
     const prompt = `Use references where possible and answer in detail.
-Ensure the overall coherence and consistency of the responses.
+Organize your responses appropriately into an article or notes.
 Ensure that the release time of news is relevant to the responses, avoiding outdated information.
 User current time: ${options.time}
 Question: ${question}
@@ -1134,11 +1129,11 @@ class Claude2WebChatbot {
   }
   async ask(messages, options = {}) {
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    const prompt = question + context ? `
+    const prompt = context ? `${question}
 
 ---DEVELOPER PROMPT: Reply to the above message.
 
-${context}` : "";
+${context}` : question;
     return {
       ...await this.core.ask(prompt, { model: "claude-2-web" }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
@@ -1281,6 +1276,7 @@ const curva = {
       const dt = Date.now() - t0;
       if (result.answer) {
         const conversation = new Conversation$1(user, conv);
+        conversation.updateMtime();
         _id = await conversation.saveMessage(
           result.isContinueGenerate ? "" : result.question,
           result.answer,
@@ -1289,7 +1285,6 @@ const curva = {
           dt,
           _id
         );
-        conversation.updateMtime();
       }
       curva.record.add({ ip, user, conv, model, error: (result == null ? void 0 : result.error) || "", t: Date.now() });
       return {

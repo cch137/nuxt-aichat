@@ -44,7 +44,7 @@ const answer_delete = defineEventHandler(async (event) => {
   }
   try {
     const _id = new libExports.ObjectId(baseConverter.convert(id, "64", 16));
-    await message.findOneAndUpdate({ _id, conv, user }, { $set: { user: `~${user}` } });
+    await message.updateOne({ _id, conv, user }, { $set: { user: `~${user}` } });
     return {};
   } catch (err) {
     return { error: 4 };

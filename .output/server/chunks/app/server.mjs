@@ -377,7 +377,7 @@ const _routes = [
     meta: __nuxt_page_meta$8 || {},
     alias: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.alias) || [],
     redirect: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.redirect) || void 0,
-    component: () => import('./_nuxt/profile-02682a55.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/profile-1b059121.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.name) ?? "acc-reset-password",
@@ -409,7 +409,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-fe588618.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-c5677603.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "c",
@@ -417,7 +417,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-434bebb1.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-27b03b2d.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "index",
@@ -433,7 +433,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/login-2af4a502.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-b4096295.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -449,7 +449,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/signup-c58dab9c.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/signup-1bf5a197.mjs').then((m) => m.default || m)
   }
 ];
 const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "CH4" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "CH4" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
@@ -635,9 +635,9 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-3cf7a73d.mjs'),
-  "only-auth": () => import('./_nuxt/onlyAuth-cd361563.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-bd4c2498.mjs')
+  chat: () => import('./_nuxt/chat-928a8448.mjs'),
+  "only-auth": () => import('./_nuxt/onlyAuth-8f916089.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-f2574835.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
@@ -4005,7 +4005,8 @@ const en = {
     exportAs: "Export as",
     newVersion: "A new version has been released! Do you want to reload the page?",
     opCanceled: "The operation has been canceled.",
-    opExecuted: "The operation has been executed."
+    opExecuted: "The operation has been executed.",
+    submitting: "Submitting"
   },
   message: {
     renameConvHint: "Please enter a conversation title: ",
@@ -4024,10 +4025,6 @@ const en = {
     title: "Menu",
     about: "About",
     joinDcMessage: "Join our Discord server to keep up with the latest news!",
-    webInfo1: "Basic: ",
-    webInfo2: "Allow extracting URLs from the question or directly use a search engine to query the question. ",
-    webInfo3: "Advanced: ",
-    webInfo4: "Allow extracting URLs from the question, letting AI determine the data to be searched, and provide a conclusion after summarizing multiple web pages. ",
     expFeat1: "This takes a little while.",
     expFeat2: "This will take longer.",
     tempInfo: "With higher values increase randomness and diversity, while lower values decrease randomness and make the output more predictable."
@@ -4054,7 +4051,9 @@ const en = {
     chats: "Conversations",
     newChat: "New Chat",
     letsStart: "Let's start!",
-    send: "Send"
+    send: "Send",
+    ldConv: "Loading conversation",
+    dltConv: "Deleting conversation"
   },
   error: {
     qTooLong: "Question too long.",
@@ -4128,7 +4127,8 @@ const zhTW = {
     exportAs: "導出為",
     newVersion: "新版本已經發布！請問你是否要刷新頁面？",
     opCanceled: "操作已取消。",
-    opExecuted: "操作已執行。"
+    opExecuted: "操作已執行。",
+    submitting: "正在提交"
   },
   message: {
     renameConvHint: "請輸入對話標題：",
@@ -4147,10 +4147,6 @@ const zhTW = {
     title: "菜單",
     about: "關於",
     joinDcMessage: "加入我們的 Discord 服務器以跟進最新消息！",
-    webInfo1: "基礎：",
-    webInfo2: "允許提取提問中的 URL 或直接使用搜索引擎查詢提問。",
-    webInfo3: "進階：",
-    webInfo4: "允許提取提問中的 URL，由 AI 決定需要查詢的資料，在總結數個網頁後給出結論。",
     expFeat1: "這需要一點時間。",
     expFeat2: "這需要更久。",
     tempInfo: "較高的值會增加隨機性和多樣性，而較低的值會降低隨機性並使輸出更具可預測性。"
@@ -4177,7 +4173,9 @@ const zhTW = {
     chats: "對話列表",
     newChat: "新對話",
     letsStart: "讓我們開始吧！",
-    send: "發送"
+    send: "發送",
+    ldConv: "加載對話中",
+    dltConv: "刪除對話中"
   },
   error: {
     qTooLong: "問題過長。",
@@ -4257,10 +4255,6 @@ const ru = {
     title: "Меню",
     about: "О программе",
     joinDcMessage: "Присоединяйтесь к нашему серверу Discord, чтобы быть в курсе последних новостей от CH4!",
-    webInfo1: "Базовый: ",
-    webInfo2: "Разрешить извлечение URL-адресов из вопроса или использовать поисковую систему для поиска информации по вопросу. ",
-    webInfo3: "Расширенный: ",
-    webInfo4: "Разрешить извлечение URL-адресов из вопроса, позволить ИИ определить данные для поиска и предоставить вывод после суммирования нескольких веб-страниц. ",
     expFeat1: "Это занимает некоторое время.",
     expFeat2: "Это займет больше времени.",
     tempInfo: "При более высоких значениях увеличивается случайность и разнообразие, а при более низких значениях случайность уменьшается и вывод становится более предсказуемым."
@@ -4362,10 +4356,6 @@ const es = {
     title: "Menú",
     about: "Acerca de",
     joinDcMessage: "¡Únete a nuestro servidor de Discord para estar al día con las últimas noticias de CH4!",
-    webInfo1: "Básico: ",
-    webInfo2: "Permite extraer URL de la pregunta o utilizar un motor de búsqueda para realizar la consulta. ",
-    webInfo3: "Avanzado: ",
-    webInfo4: "Permite extraer URL de la pregunta, permitiendo que la IA determine los datos a buscar y proporcione una conclusión después de resumir varias páginas web. ",
     expFeat1: "Esto lleva un poco de tiempo.",
     expFeat2: "Esto llevará más tiempo.",
     tempInfo: "Con valores más altos aumenta la aleatoriedad y diversidad, mientras que con valores más bajos disminuye la aleatoriedad y hace que la salida sea más predecible."

@@ -45,7 +45,8 @@ const username_put = defineEventHandler(async function(event) {
     return { error: "Form incomplete" };
   }
   try {
-    return await auth.changeUsername(uid, username);
+    await auth.changeUsername(uid, username);
+    return {};
   } catch (err) {
     return { error: typeof err === "string" ? err : "Username change failed." };
   }
