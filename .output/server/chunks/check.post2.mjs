@@ -40,7 +40,7 @@ const check_post = defineEventHandler(async (event) => {
   let uid;
   if (oldToken !== null) {
     oldToken.checked = Date.now();
-    uid = oldToken.user;
+    uid = oldToken.uid;
     token = pack(oldToken);
   } else {
     uid = random.base64(16);

@@ -39,13 +39,13 @@ const answer_delete = defineEventHandler(async (event) => {
   }
   const rawCookie = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const user = token == null ? void 0 : token.user;
-  if (token === null || typeof user !== "string") {
+  const uid = token == null ? void 0 : token.uid;
+  if (token === null || typeof uid !== "string") {
     return { error: 3 };
   }
   try {
     const _id = new libExports.ObjectId(baseConverter.convert(id, "64", 16));
-    await message.updateOne({ _id, conv, user }, { $set: { user: `~${user}` } });
+    await message.updateOne({ _id, conv, uid }, { $set: { uid: `~${uid}` } });
     return {};
   } catch (err) {
     return { error: 4 };

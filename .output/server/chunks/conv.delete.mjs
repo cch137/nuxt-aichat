@@ -45,7 +45,7 @@ const conv_delete = defineEventHandler(async (event) => {
   const conv = (_a = await readBody(event)) == null ? void 0 : _a.id;
   const rawCookie = (_d = (_c = (_b = event == null ? void 0 : event.node) == null ? void 0 : _b.req) == null ? void 0 : _c.headers) == null ? void 0 : _d.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const user = token == null ? void 0 : token.user;
+  const user = token == null ? void 0 : token.uid;
   if (!user || !conv) {
     return { error: 1 };
   }

@@ -1,9 +1,9 @@
 import { t as troll } from './troll.mjs';
 
 const seed = 168813145203e3;
-function generate(user, ip) {
+function generate(uid, ip) {
   return pack({
-    user,
+    uid,
     ip,
     checked: Date.now()
   });
@@ -15,6 +15,10 @@ function read(token) {
   try {
     const encrypted = troll.d(token, 1, seed);
     if (typeof encrypted === "object" && encrypted !== null) {
+      if ("user" in encrypted) {
+        encrypted.uid = encrypted.user;
+        delete encrypted["user"];
+      }
       return encrypted;
     }
   } catch {

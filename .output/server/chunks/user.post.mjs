@@ -10,7 +10,7 @@ const user_post = defineEventHandler(async (event) => {
   var _a, _b, _c;
   const rawCookie = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  return mask((token == null ? void 0 : token.user) || "", "64w", 1, 4896).substring(1);
+  return mask((token == null ? void 0 : token.uid) || "", "64w", 1, 4896).substring(1);
 });
 
 export { user_post as default };

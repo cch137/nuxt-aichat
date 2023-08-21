@@ -22,7 +22,7 @@ const replaceUser_post = defineEventHandler(async function(event) {
   }
   const rawCookie = (_a = req == null ? void 0 : req.headers) == null ? void 0 : _a.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token) || {};
-  token.user = id;
+  token.uid = id;
   res.setHeader("Set-Cookie", serialize("token", pack(token), {
     path: "/",
     httpOnly: true,

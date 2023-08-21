@@ -123,7 +123,7 @@ const getUid = async (usernameOrEmail, password) => {
   return (user == null ? void 0 : user.uid) || false;
 };
 const getUser = async (uid) => {
-  return await userCollection.findOne({ uid }, { _id: 0, username: 1 });
+  return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1 });
 };
 const mergeUser = async (uidToBeRetained, uidToBeRemoved) => {
   if (typeof uidToBeRetained !== "string") {
@@ -132,7 +132,7 @@ const mergeUser = async (uidToBeRetained, uidToBeRemoved) => {
   if (typeof uidToBeRemoved !== "string") {
     throw "uidToBeRemoved is not a string";
   }
-  await message.updateMany({ user: uidToBeRemoved }, { $set: { user: uidToBeRetained } });
+  await message.updateMany({ uid: uidToBeRemoved }, { $set: { uid: uidToBeRetained } });
 };
 const changeUsername = async (uid, username) => {
   username = toValidUsername(username);

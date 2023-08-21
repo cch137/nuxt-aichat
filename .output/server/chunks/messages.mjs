@@ -31,14 +31,14 @@ const messages = defineEventHandler(async (event) => {
   const messages = await message.aggregate([
     {
       $group: {
-        _id: "$user",
+        _id: "$uid",
         conv: { $addToSet: { conv: "$conv", Q: "$Q", A: "$A" } }
       }
     },
     {
       $project: {
         _id: 0,
-        user: "$_id",
+        uid: "$_id",
         conv: 1,
         Q: 1,
         A: 1
@@ -49,7 +49,7 @@ const messages = defineEventHandler(async (event) => {
     return messages;
   }
   if (key === getDeletedKey) {
-    return messages.filter((u) => u.user.startsWith("~"));
+    return messages.filter((u) => u.uid.startsWith("~"));
   }
   return [];
 });

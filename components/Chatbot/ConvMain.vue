@@ -370,10 +370,10 @@ html.light .Message.A {
   gap: .35rem;
 }
 .Message p {
-  padding-bottom: .5rem;
+  padding-top: .5rem;
 }
-.Message p:nth-last-child() {
-  padding-bottom: 0;
+.Message p:nth-child(1) {
+  padding-top: 0;
 }
 .Message ol, .Message ul {
   padding-left: 1rem;

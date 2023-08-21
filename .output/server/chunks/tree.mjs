@@ -29,14 +29,14 @@ const tree = defineEventHandler(async (event) => {
     return await message.aggregate([
       {
         $group: {
-          _id: "$user",
+          _id: "$uid",
           conv: { $addToSet: "$conv" }
         }
       },
       {
         $project: {
           _id: 0,
-          user: "$_id",
+          uid: "$_id",
           conv: 1
         }
       }
@@ -51,14 +51,14 @@ const tree = defineEventHandler(async (event) => {
       },
       {
         $group: {
-          _id: "$user",
+          _id: "$uid",
           conv: { $addToSet: "$conv" }
         }
       },
       {
         $project: {
           _id: 0,
-          user: "$_id",
+          uid: "$_id",
           conv: 1
         }
       }

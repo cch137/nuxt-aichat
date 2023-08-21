@@ -89,8 +89,8 @@ const answer_post = defineEventHandler(async (event) => {
   }
   const rawCookie = (_i = (_h = (_g = event == null ? void 0 : event.node) == null ? void 0 : _g.req) == null ? void 0 : _h.headers) == null ? void 0 : _i.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const user = token == null ? void 0 : token.user;
-  if (token === null || typeof user !== "string") {
+  const uid = token == null ? void 0 : token.uid;
+  if (token === null || typeof uid !== "string") {
     return { error: "CH4 API ERROR 31", id };
   }
   const ip = getIp(event.node.req);
@@ -110,7 +110,7 @@ const answer_post = defineEventHandler(async (event) => {
       }
       return _messages;
     })();
-    const response = await curva.ask(ip, user, conv, model, temperature, croppedMessages, tz, _id);
+    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id);
     response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64w") : id;
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);

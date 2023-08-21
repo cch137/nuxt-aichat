@@ -49,11 +49,11 @@ const login_post = defineEventHandler(async function(event) {
   }
   const rawCookie = (_a = req == null ? void 0 : req.headers) == null ? void 0 : _a.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token) || {};
-  const oldUid = token.user;
+  const oldUid = token.uid;
   const oldUidIsExists = oldUid ? auth.getUser(oldUid) : null;
   const uid = await auth.getUid(usernameOrEmail, password);
   if (uid) {
-    token.user = uid;
+    token.uid = uid;
     if (!await oldUidIsExists) {
       try {
         await auth.mergeUser(uid, oldUid);

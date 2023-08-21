@@ -98,8 +98,8 @@ const conv_put = defineEventHandler(async (event) => {
   const config = toStdConvConfigString((body == null ? void 0 : body.config) || "");
   const rawCookie = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const user = token == null ? void 0 : token.user;
-  if (!user) {
+  const uid = token == null ? void 0 : token.uid;
+  if (!uid) {
     return { error: "No permission" };
   }
   const data = {};
@@ -110,13 +110,13 @@ const conv_put = defineEventHandler(async (event) => {
   if (config) {
     data.config = config;
   }
-  const isExistConv = Boolean(await message.findOne({ user, conv }));
+  const isExistConv = Boolean(await message.findOne({ uid, conv }));
   if (!isExistConv) {
     return {};
   }
   await conversation.updateOne(
-    { id: conv, user },
-    { $set: { id: conv, user, ...data } },
+    { id: conv, uid },
+    { $set: { id: conv, uid, ...data } },
     { upsert: true }
   );
   return {};

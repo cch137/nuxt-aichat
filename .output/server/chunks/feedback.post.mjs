@@ -15,7 +15,7 @@ const feedback_post = defineEventHandler(async function(event) {
   var _a, _b, _c;
   const rawCookie = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const user = token == null ? void 0 : token.user;
+  const user = token == null ? void 0 : token.uid;
   if (token === null || typeof user !== "string") {
     return { error: 0 };
   }

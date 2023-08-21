@@ -39,7 +39,7 @@ const username_put = defineEventHandler(async function(event) {
   }
   const rawCookie = event.node.req.headers.cookie;
   const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const uid = token == null ? void 0 : token.user;
+  const uid = token == null ? void 0 : token.uid;
   if (!uid) {
     return { error: "No authentication" };
   }

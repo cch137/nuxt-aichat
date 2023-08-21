@@ -1179,8 +1179,8 @@ const freeGptAsiaToken = troll.e({
 }, 1, 8038918216105477);
 const curva = {
   name: "Curva",
-  async ask(ip, user, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id) {
-    if (processingConversation.has(user)) {
+  async ask(ip, uid, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id) {
+    if (processingConversation.has(uid)) {
       return {
         answer: "",
         error: "THINKING",
@@ -1188,9 +1188,9 @@ const curva = {
       };
     }
     let debugTimeout = void 0;
-    if (!unlimitedUserList.has(user)) {
-      processingConversation.set(user, conv);
-      debugTimeout = setTimeout(() => processingConversation.delete(user), 5 * 60 * 1e3);
+    if (!unlimitedUserList.has(uid)) {
+      processingConversation.set(uid, conv);
+      debugTimeout = setTimeout(() => processingConversation.delete(uid), 5 * 60 * 1e3);
     }
     try {
       const engine = await (async () => {
@@ -1201,7 +1201,7 @@ const curva = {
       const result = await engine.ask(messages, { timezone: tz, temperature });
       const dt = Date.now() - t0;
       if (result.answer) {
-        const conversation = new Conversation$1(user, conv);
+        const conversation = new Conversation$1(uid, conv);
         conversation.updateMtime();
         _id = await conversation.saveMessage(
           result.isContinueGenerate ? "" : result.question,
@@ -1225,7 +1225,7 @@ const curva = {
         dt: 0
       };
     } finally {
-      processingConversation.delete(user);
+      processingConversation.delete(uid);
       clearTimeout(debugTimeout);
     }
   }

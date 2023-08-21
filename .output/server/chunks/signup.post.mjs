@@ -48,7 +48,7 @@ const signup_post = defineEventHandler(async function(event) {
   const { req } = event.node;
   const rawCookie = req.headers.cookie;
   const tokenObj = read(parse(typeof rawCookie === "string" ? rawCookie : "").token) || {};
-  const uid = tokenObj == null ? void 0 : tokenObj.user;
+  const uid = tokenObj == null ? void 0 : tokenObj.uid;
   if (!uid) {
     return { error: "Please reload the page." };
   }
