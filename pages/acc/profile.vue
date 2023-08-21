@@ -1,26 +1,24 @@
 <template>
-  <ClientOnly>
-    <div class="flex-col w-full max-w-prose p-4 m-auto" style="height: calc(100vh - 56px);">
-      <h1>{{ $t('auth.title') }}</h1>
-      <h3>{{ $t('auth.username') }}</h3>
-      <div class="flex gap-2">
-        <el-input v-model="newUsername"
-          type="text"
-          :formatter="//@ts-ignore
-            (v) => v.replace(/[^\w]+/g, '')"
-          :parser="(v) => v.replace(/[^\w]+/g, '')" />
-        <el-button :type="usernameIsNotSaved ? 'primary' : ''"
-          :disabled="!usernameIsNotSaved"
-          :loading="usernameIsSaving" @click="saveUsername()">{{ $t('action.save') }}</el-button>
-      </div>
-      <h3>{{ $t('auth.passwd') }}</h3>
-      <NuxtLink href="/acc/reset-password">
-        <el-button>{{ $t('auth.resetPw') }}</el-button>
-      </NuxtLink>
-      <h1>{{ $t('settings.appearance') }}</h1>
-      <CommonSettings />
+  <div class="flex-col w-full max-w-prose p-4 m-auto" style="height: calc(100vh - 56px);">
+    <h1>{{ $t('auth.title') }}</h1>
+    <h3>{{ $t('auth.username') }}</h3>
+    <div class="flex gap-2">
+      <el-input v-model="newUsername"
+        type="text"
+        :formatter="//@ts-ignore
+          (v) => v.replace(/[^\w]+/g, '')"
+        :parser="(v) => v.replace(/[^\w]+/g, '')" />
+      <el-button :type="usernameIsNotSaved ? 'primary' : ''"
+        :disabled="!usernameIsNotSaved"
+        :loading="usernameIsSaving" @click="saveUsername()">{{ $t('action.save') }}</el-button>
     </div>
-  </ClientOnly>
+    <h3>{{ $t('auth.passwd') }}</h3>
+    <NuxtLink href="/acc/reset-password">
+      <el-button>{{ $t('auth.resetPw') }}</el-button>
+    </NuxtLink>
+    <h1>{{ $t('settings.appearance') }}</h1>
+    <CommonSettings />
+  </div>
 </template>
 
 <script setup lang="ts">

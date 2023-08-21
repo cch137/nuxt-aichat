@@ -1,9 +1,11 @@
 <template>
-  <AdminHeader />
-  <div class="px-4 py-8">
-    <ClientOnly>
-      <el-tree :data="tree" :props="defaultProps" @node-click="handleNodeClick" />
-    </ClientOnly>
+  <div>
+    <AdminHeader />
+    <div class="px-4 py-8">
+      <ClientOnly>
+        <el-tree :data="tree" :props="defaultProps" @node-click="handleNodeClick" />
+      </ClientOnly>
+    </div>
   </div>
 </template>
 

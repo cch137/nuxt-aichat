@@ -61,7 +61,9 @@ async function search (...queries: string[]) {
   }
 }
 
-search.engine = 'google' as 'all' | 'google' | 'duckduckgo'
+type AvailableSearchEngine = 'all' | 'google' | 'duckduckgo'
+
+search.engine = 'google' as AvailableSearchEngine
 
 export default search
-export type { WebSearcherResult }
+export type { WebSearcherResult, AvailableSearchEngine }

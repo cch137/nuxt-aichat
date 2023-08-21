@@ -44,7 +44,7 @@
             <ChatbotTemperatureSelect class="w-full" />
           </div>
         </div>
-        <div v-if="getCurrentConvId()" class="flex gap-1">
+        <div v-if="currentConvIdComputed" class="flex gap-1">
           <div class="flex flex-1">
             <div class="flex-1 text-right pr-2">
               <el-text size="small" type="info">{{ $t('action.more') }}</el-text>
@@ -72,13 +72,13 @@
           v-for="conv in conversations"
           class="ConversationLink flex items-center"
           :class="conv.moreActionsExpanded ? 'MoreOptionsExpended' : ''"
-          :active="conv.id === getCurrentConvId()"
+          :active="conv.id === currentConvIdComputed"
         >
           <NuxtLink
             :id="conv.id"
             :to="`/c/${conv.id}`"
             class="justify-start items-center flex gap-1 py-1 px-4 w-full"
-            :class="conv.id === getCurrentConvId() ? 'pointer-events-none' : ''"
+            :class="conv.id === currentConvIdComputed ? 'pointer-events-none' : ''"
           >
             <el-icon>
               <ChatSquare />
@@ -152,7 +152,7 @@ import { InfoFilled, Plus, ChatSquare, More, EditPen, Delete,
 import baseConverter from '~/utils/baseConverter'
 
 const version = useState('version', () => '')
-const { conversations, model, getCurrentConvId, focusInput, renameConversation, deleteConversation } = useChat()
+const { conversations, model, currentConvIdComputed, focusInput, renameConversation, deleteConversation } = useChat()
 
 if (process.client && version.value === '') {
   $fetch('/api/version', { method: 'POST' })

@@ -13,11 +13,26 @@ import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTok
 import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/types'
 import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 import { messagesToQuestionContext } from '~/server/services/chatbots/engines/utils/openAiMessagesConverter'
+import RateLimiter from '~/server/services/rate-limiter'
+
+const rateLimiterBundler = RateLimiter.bundle([
+  // Every 1 minutes 10 times
+  new RateLimiter(10, 1 * 60 * 1000),
+  // Every 60 minutes 100 times
+  new RateLimiter(100, 60 * 60 * 1000),
+  // Every 4*60 minutes 200 times
+  new RateLimiter(200, 60 * 60 * 1000),
+  // Every 24*60 minutes 500 times
+  new RateLimiter(500, 24 * 60 * 60 * 1000),
+])
 
 const bannedPrompt = /提示词生成/;
 const bannedIpSet = new Set<string>(['106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253']);
 
 export default defineEventHandler(async (event) => {
+  if (!rateLimiterBundler.check(getIp(event.node.req))) {
+    return { error: rateLimiterBundler.getHint(getIp(event.node.req)) }
+  }
   const now = Date.now()
   const body = await readBody(event)
   if (!body) {
@@ -47,12 +62,12 @@ export default defineEventHandler(async (event) => {
     return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
-  if ([...bannedIpSet].filter((_ip) => ip.includes(_ip)).length) {
-    return { error: '来自维尼中共国的朋友，请停止你的恶心行为，别给中国人丢脸', id }
+  if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
+    return { error: 'Your actions are considered to be abusive.', id }
   }
   if (bannedPrompt.test(messagesToQuestionContext(messages).question)) {
     bannedIpSet.add(ip)
-    return { error: '来自维尼中共国的朋友，请停止你的恶心行为，别给中国人丢脸', id }
+    return { error: 'Your actions are considered to be abusive.', id }
   }
   try {
     const croppedMessages = (() => {

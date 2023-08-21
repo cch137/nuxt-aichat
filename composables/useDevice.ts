@@ -1,14 +1,13 @@
 const device = {
   get isMobileScreen () {
-    return window.innerWidth < 600
+    return process.client
+      ? window.innerWidth < 600
+      : false
   },
   get isTouchScreen () {
-    if (process.client) {
-      if ('ontouchstart' in document || navigator.maxTouchPoints > 0) {
-        return true
-      }
-    }
-    return false
+    return process.client
+      ? ('ontouchstart' in document || navigator.maxTouchPoints > 0)
+      : false
   }
 }
 

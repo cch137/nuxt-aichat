@@ -3,9 +3,17 @@ import { readBody } from 'h3'
 import { parse as parseCookie, serialize as serializeCookie } from 'cookie'
 import { read as tokenReader, pack as tokenPacker } from '~/server/services/token'
 import type { TokenObject } from '~/server/services/token'
+import RateLimiter from '~/server/services/rate-limiter'
+import getIp from '~/server/services/getIp'
+
+// Every 5 minutes 5 times
+const rateLimiter = new RateLimiter(5, 5 * 60 * 1000)
 
 export default defineEventHandler(async function (event): Promise<{ error?: string, isLoggedIn?: boolean, user?: { username: string } }> {
   const { req, res } = event.node
+  if (!rateLimiter.check(getIp(req))) {
+    return { error: rateLimiter.hint, isLoggedIn: false }
+  }
   const body = await readBody(event)
   // @ts-ignore
   if (!body) {

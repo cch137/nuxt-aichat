@@ -1,6 +1,6 @@
 <template>
   <div class="InputBoxOuter flex fixed w-full z-40">
-    <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
+    <div :style="`min-width: ${openSidebarController ? '280px' : '0px'}; width: ${openSidebarController ? '25%' : '0px'}; transition: .1s;`"></div>
     <div class="InputBox pt-20 pb-1 px-2 flex-1">
       <el-form ref="inputForm" class="mx-auto max-w-full" @submit.prevent>
         <el-form-item style="margin: 0;">
@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { Position } from '@element-plus/icons-vue'
-const { sendMessage, openSidebar, inputMaxLength, inputValue } = useChat()
+const { sendMessage, openSidebarController, inputMaxLength, inputValue } = useChat()
 
 const keyboardSendMessage = (evt: KeyboardEvent) => {
   if (evt.key === 'Enter' && !evt.shiftKey) {

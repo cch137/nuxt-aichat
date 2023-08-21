@@ -52,9 +52,26 @@ function focusEditMessageInput () {
 
 const focusInput = () => {
   try {
-    const el = document.querySelector('.InputBox textarea') as HTMLElement
-    el.click()
-    el.focus()
+    if (process.client) {
+      const el = document.querySelector('.InputBox textarea') as HTMLElement
+      el.click()
+      el.focus()
+    }
+  } catch {}
+}
+
+const adjustConvesationListScroll = () => {
+  try {
+    const convParentEl = (document.getElementById(getCurrentConvId()) as HTMLElement).parentElement as HTMLElement
+    const convListEl = document.querySelector('.ConversationList') as HTMLElement
+    const maxScrollTop = convParentEl.offsetTop - convListEl.offsetTop - convParentEl.clientHeight / 2
+    const minScrollTop = maxScrollTop - convListEl.clientHeight + convParentEl.clientHeight * 2
+    if (convListEl.scrollTop > maxScrollTop) {
+      convListEl.scrollTo({ left: 0, top: maxScrollTop, behavior: 'smooth' })
+    }
+    if (convListEl.scrollTop < minScrollTop) {
+      convListEl.scrollTo({ left: 0, top: minScrollTop, behavior: 'smooth' })
+    }
   } catch {}
 }
 
@@ -63,13 +80,11 @@ const checkTokenAndGetConversations = () => {
     $fetch('/api/curva/check', { method: 'POST' })
       .then((_conversations) => {
         conversations.value = _conversations
-        const currentConvId = getCurrentConvId()
-        if (lastModifiedConv != currentConvId) {
-          try {
-            lastModifiedConv = currentConvId;
-            (document.querySelector('.ConversationList') as Element).scrollTop = 0
-          } catch {}
+        const currentConvIdComputed = getCurrentConvId()
+        if (lastModifiedConv != currentConvIdComputed) {
+          lastModifiedConv = currentConvIdComputed
         }
+        adjustConvesationListScroll()
         resolve(true)
       })
       .catch((err) => {
@@ -137,8 +152,31 @@ const resetConvConfig = (showElMessage = false) => {
 resetConvConfig()
 
 const openMenu = ref(false)
-const openSidebar = ref(openMenu.value)
-const openDrawer = ref(openMenu.value)
+const openSidebarController = ref(openMenu.value)
+const openDrawerController = ref(openMenu.value)
+watch(openSidebarController, (value) => { openMenu.value = value })
+watch(openDrawerController, (value) => { openMenu.value = value })
+watch(openMenu, (value) => {
+  const { isMobileScreen } = useDevice()
+  openSidebarController.value = isMobileScreen ? false : value
+  openDrawerController.value = isMobileScreen ? value : false
+  setTimeout(() => focusInput(), 0)
+})
+if (process.client) {
+  let reopenMenuTimeout: NodeJS.Timeout
+  let menuType: 'drawer' | 'sidebar' = useDevice().isMobileScreen ? 'drawer' : 'sidebar'
+  window.addEventListener('resize', () => {
+    clearTimeout(reopenMenuTimeout)
+    reopenMenuTimeout = setTimeout(() => {
+      const currMenyType = useDevice().isMobileScreen ? 'drawer' : 'sidebar'
+      if (openMenu.value && currMenyType != menuType) {
+        openMenu.value = false
+        setTimeout(() => { openMenu.value = true }, 0)
+        menuType = currMenyType
+      }
+    }, 100)
+  })
+}
 
 const inputValue = ref('')
 const inputMaxLength = computed(() => model.value.startsWith('gpt3') ? 16000 : 32000)
@@ -158,6 +196,7 @@ const createRequest = (() => {
       conv = random.base64(8)
       conversations.value.unshift({ id: conv, name: '', mtime: Date.now(), config: '' })
       navigateTo(`/c/${conv}?feature=new`)
+      setCurrentConvId(conv)
     }
     return { conv, messages, model, temperature, t, tz, id: regenerateId }
   }
@@ -235,14 +274,19 @@ const downloadTextFile = (filename: string, content: string) => {
   a.remove()
 }
 
-const getCurrentConvId = (): string => {
-  return nuxtApp._route?.params?.conv as string
-}
+const [currentConvIdComputed, getCurrentConvId, setCurrentConvId] = (() => {
+  const currentConvIdComputed = ref('')
+  return [
+    computed(() => currentConvIdComputed.value),
+    () => currentConvIdComputed.value,
+    (value?: string) => currentConvIdComputed.value = value === undefined ? nuxtApp._route?.params?.conv as string : value,
+  ]
+})()
 
 const getCurrentConvName = () => {
-  const currentConvId = getCurrentConvId()
+  const currConvId = getCurrentConvId()
   return conversations.value
-    .filter((conv) => conv.id === currentConvId)[0]?.name || ''
+    .filter((conv) => conv.id === currConvId)[0]?.name || ''
 }
 
 async function updateConversation (id?: string, newname?: string): Promise<{ cancel?: boolean, error?: string }> {
@@ -368,6 +412,28 @@ const exportAsJson = () => {
   })), null, 4))
 }
 
+if (process.client) {
+  document.addEventListener('keyup', (e) => {
+    switch (e.key) {
+      case '/':
+      case 'Enter':
+        focusInput()
+        break
+      case 'Escape':
+        console.log('ESC')
+        break
+    }
+  })
+}
+
+const showScrollToBottomButton = ref(false)
+
+if (process.client) {
+  document.addEventListener('scroll', () => {
+    showScrollToBottomButton.value = !isScrolledToBottom()
+  })
+}
+
 export default function () {
   const appName = useState('appName').value
   const cookie = useUniCookie()
@@ -376,26 +442,6 @@ export default function () {
   cookie.delete('temperature')
   // 清除舊 cookie --  END  --
   nuxtApp = useNuxtApp()
-  watch(openMenu, (value) => {
-    if (useDevice().isMobileScreen) {
-      openSidebar.value = false
-      if (openDrawer.value !== value) {
-        openDrawer.value = value
-      }
-    } else {
-      openDrawer.value = false
-      if (openSidebar.value !== value) {
-        openSidebar.value = value
-      }
-    }
-    setTimeout(() => {
-      try {
-        focusInput()
-      } catch {}
-    }, 0)
-  })
-  watch(openDrawer, (value) => {openMenu.value = value})
-  watch(openSidebar, (value) => {openMenu.value = value})
   const refreshPageTitle = () => {
     try {
       useTitle(`${getCurrentConvName() || _t('chat.title')} - ${appName}`)
@@ -404,38 +450,30 @@ export default function () {
     }
   }
   const _loadChat = async (conv: string | null) => {
-    if (useDevice().isMobileScreen) {
-      openMenu.value = false
-    }
+    setTimeout(() => { if (useDevice().isMobileScreen) openMenu.value = false }, 0)
     messages.value = []
     const loading = ElLoading.service({ text: _t('chat.ldConv') + '...', lock: true })
     try {
-      const archived = await Promise.all([
-        (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations(),
-        (conv === null) ? null : _fetchHistory(conv)
+      const [displayChatMessages] = await Promise.all([
+        (conv === null) ? null : _fetchHistory(conv),
+        (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations()
       ])
       loadConvConfig(conv)
-      const displayChatMessages = archived[1]
       if (displayChatMessages !== null && getCurrentConvId() === conv) {
         messages.value = displayChatMessages
         _loadSuggestions()
       }
     } finally {
-      useScrollToBottom()
-      if (loading !== null) {
-        try {
-          await useScrollToBottom(500)
-        } finally {
-          loading.close()
-          try {
-            await useScrollToBottom(500)
-          } finally {}
-        }
-      }
+      await useScrollToBottom(1000)
+      loading.close()
+      await useScrollToBottom(500)
+      focusInput()
+      adjustConvesationListScroll()
+      await useScrollToBottom(500)
     }
-    setTimeout(() => focusInput(), 500)
   }
   const loadChat = async (conv: string | null, isNew = false) => {
+    setCurrentConvId(conv || '')
     const promise = Promise.all([...chatLoadings])
     const chat = first && isNew
       ? new Promise(async (resolve) => {
@@ -542,12 +580,19 @@ export default function () {
     })((() => {
       if (answer === '') {
         if (error) {
-          const msgIndex = messages.value.indexOf(message)
+          const restoreInput = () => {
+            const msgIndex = messages.value.indexOf(message)
+            messages.value.splice(msgIndex, 1)
+            inputValue.value = messageText
+          }
+          if (typeof error === 'string' && error.startsWith('You have tried too many times.')) { 
+            restoreInput()
+            return { type: 'warning', content: error }
+          }
           switch (error) {
             case 'THINKING':
               // 正在回答其它問題
-              messages.value.splice(msgIndex, 1)
-              inputValue.value = messageText
+              restoreInput()
               return { type: 'warning', content: customErrorCodes.get(error) }
             default:
               // 其他錯誤
@@ -662,26 +707,25 @@ export default function () {
         cancelButtonText: _t('message.cancel'),
         type: 'warning'
       })
-      .then(() => {
+      .then(async () => {
         const loading = ElLoading.service({ text: _t('chat.dltConv') + '...', lock: true })
-        $fetch('/api/curva/conv', {
-          method: 'DELETE',
-          body: { id }
-        })
-          .finally(async () => {
-            loading.close()
-            const currentConvId = getCurrentConvId()
-            if (targetConvId === currentConvId) {
-              document.getElementById(nextConvId)?.click()
-              const convIndex = conversations.value.findIndex((c) => c.id === currentConvId)
-              if (convIndex != -1) {
-                conversations.value.splice(convIndex, 1)
-              }
-            }
-          })
+        try {
+          await $fetch('/api/curva/conv', { method: 'DELETE', body: { id } })
+        } catch {}
+        loading.close()
+        const currConvId = getCurrentConvId()
+        if (targetConvId === currConvId) {
+          document.getElementById(nextConvId)?.click()
+          const convIndex = conversations.value.findIndex((c) => c.id === currConvId)
+          if (convIndex != -1) {
+            conversations.value.splice(convIndex, 1)
+          }
+        }
+        // checkTokenAndGetConversations()
       })
   }
   return {
+    showScrollToBottomButton,
     isEditingMessage,
     editingMessage,
     callEditMessageDialog,
@@ -693,10 +737,11 @@ export default function () {
     temperature,
     contextMode,
     openMenu,
-    openSidebar,
-    openDrawer,
+    openSidebarController,
+    openDrawerController,
     inputValue,
     inputMaxLength,
+    currentConvIdComputed,
     getCurrentConvId,
     getCurrentConvName,
     checkTokenAndGetConversations,

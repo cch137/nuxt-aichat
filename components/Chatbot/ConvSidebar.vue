@@ -1,13 +1,13 @@
 <template>
   <div
     class="ChatbotConvSidebar flex flex-col z-50"
-    :style="`transform: translateX(${openSidebar ? '0' : '-100%'});`"
+    :style="`transform: translateX(${openSidebarController ? '0' : '-100%'});`"
   >
     <div class="flex">
       <div class="flex flex-1">
         <HomeLink />
       </div>
-      <el-button class="ChatbotConvHeaderMenuButton" :icon="DArrowLeft" style="padding: 8px;" @click="openSidebar = false">
+      <el-button class="ChatbotConvHeaderMenuButton" :icon="DArrowLeft" style="padding: 8px;" @click="openMenu = false">
       </el-button>
     </div>
     <ChatbotConvMenu class="flex-1 mt-4" />
@@ -16,7 +16,7 @@
 
 <script setup>
 import { DArrowLeft } from '@element-plus/icons-vue'
-const { openSidebar } = useChat()
+const { openMenu, openSidebarController } = useChat()
 </script>
 
 <style scoped>

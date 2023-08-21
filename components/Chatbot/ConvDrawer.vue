@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <el-drawer
-      v-model="openDrawer"
+      v-model="openDrawerController"
       :title="$t('menu.title')"
       direction="ltr"
       style="min-width: 320px; max-width: 100vw;"
@@ -14,21 +14,5 @@
 </template>
 
 <script setup>
-const { openMenu, openDrawer } = useChat()
-if (process.client) {
-  let winWidth = window.innerWidth
-  window.onresize = () => {
-    const currWinWidth = window.innerWidth
-    if (currWinWidth === winWidth) {
-      return
-    }
-    winWidth = currWinWidth
-    openMenu.value = false
-    if (!useDevice().isTouchScreen) {
-      setTimeout(() => {
-        openMenu.value = true
-      }, 0)
-    }
-  }
-}
+const { openDrawerController } = useChat()
 </script>

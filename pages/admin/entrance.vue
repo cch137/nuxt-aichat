@@ -1,13 +1,11 @@
 <template>
-  <ClientOnly>
-    <div class="flex-col flex-center gap-2">
-      <div class="flex gap-2 my-8">
-        <el-input type="text" placeholder="id" v-model="id"></el-input>
-        <el-input type="password" placeholder="password" v-model="adminPassword"></el-input>
-        <el-button type="primary" @click="entrance" :loading="goIsLoading">GO</el-button>
-      </div>
+  <div class="flex-col flex-center gap-2">
+    <div class="flex gap-2 my-8">
+      <el-input type="text" placeholder="id" v-model="id"></el-input>
+      <el-input type="password" placeholder="password" v-model="adminPassword"></el-input>
+      <el-button type="primary" @click="entrance" :loading="goIsLoading">GO</el-button>
     </div>
-  </ClientOnly>
+  </div>
 </template>
 
 <script setup>
@@ -37,6 +35,7 @@ const entrance = () => {
 
 useTitle(`Entrance - ${appName}`)
 definePageMeta({
-  layout: 'default'
+  layout: 'default',
+  middleware: ['only-admin-auth']
 })
 </script>

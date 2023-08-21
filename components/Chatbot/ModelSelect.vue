@@ -19,7 +19,7 @@
 const { model } = useChat()
 const options = [
   {
-    label: 'GPT-3.5',
+    label: 'GPT-3.5-Turbo',
     value: 'gpt3'
   },
   {

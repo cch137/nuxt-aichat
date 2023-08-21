@@ -3,6 +3,7 @@ import type { ChatbotEngine, OpenAIMessage } from '../types'
 import { getAllCreateCommand, getAllDropCommand } from './utils'
 import sleep from '~/utils/sleep'
 import { messagesToQuestionContext } from '../../utils/openAiMessagesConverter'
+import MindsDB from 'mindsdb-js-sdk'
 
 class MindsDbGPTChatbotCore implements ChatbotEngine {
   client: MindsDBClient
@@ -48,10 +49,36 @@ class MindsDbGPTChatbotCore implements ChatbotEngine {
   }
 }
 
-// (async () => {
+(async () => {
+  // try {
+  //   await MindsDB.default.connect({
+  //     user: 'chengyuxueee@gmail.com',
+  //     password: '88888888Ss',
+  //   })
+  //   const model = await MindsDB.default.Models.getModel('gpt4_t05_4k', 'mindsdb')
+  //   if (model === undefined) return;
+  //   const t0 = Date.now()
+  //   console.log((await model.query({
+  //     where: [`question = '--\n-- \n-- Hi\n--Hi\na'`, `context = ''`]
+  //   })).data.question)
+  //   console.log(Date.now() - t0)
+  // } catch(error) {
+  //   console.log('MDB connect error:', error)
+  // }
+  // const bot = new MindsDbGPTChatbotCore({
+  //   email: 'chengyuxueee@gmail.com',
+  //   password: '88888888Ss',
+  // })
+  // await bot.init()
+  // const t0 = Date.now()
+  // console.log(await bot.ask('Hi', { modelName: 'gpt4_t05_4k' }))
+  // console.log(Date.now() - t0)
+})()
+
+// ;(async () => {
 //   const bot1 = new MindsDbGPTChatbotCore({
-//     email: 'chengyuxueee@gmail.com',
-//     password: '88888888Ss'
+//     email: 'xuechengyuuuu@gmail.com',
+//     password: '12345678Ss'
 //   })
 //   await sleep(3000)
 //   console.log('OK')
@@ -60,7 +87,7 @@ class MindsDbGPTChatbotCore implements ChatbotEngine {
 //   await bot1.setup()
 //   bot1.kill()
 //   console.log('killed')
-// })()
+// })();
 
 export default MindsDbGPTChatbotCore
 export type { MindsDbGPTChatbotCore }

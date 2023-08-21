@@ -1,11 +1,11 @@
 <template>
   <ClientOnly>
     <div class="flex w-full">
-      <div :style="`min-width: ${openSidebar ? '280px' : '0px'}; width: ${openSidebar ? '25%' : '0px'}; transition: .1s;`"></div>
+      <div :style="`min-width: ${openSidebarController ? '280px' : '0px'}; width: ${openSidebarController ? '25%' : '0px'}; transition: .1s;`"></div>
       <div style="position: fixed; bottom: 110px; right: 20px;" class="z-50" v-show="showScrollToBottomButton">
         <el-button class="ChatScrollToBottom drop-shadow-2xl" :icon="Bottom" circle @click="() => (scrollToBottomOnclick(), focusInput())"/>
       </div>
-      <div class="flex-1 flex-center" :style="`max-width: ${openSidebar ? 'calc(100% - 280px)' : '100%'}; transition: .1s;`">
+      <div class="flex-1 flex-center" :style="`max-width: ${openSidebarController ? 'calc(100% - 280px)' : '100%'}; transition: .1s;`">
         <div class="w-full mx-auto">
           <div class="Messages flex flex-col gap-2 pt-4 px-2 pb-10 mb-40 mx-auto">
             <div class="text-center my-4">
@@ -13,7 +13,7 @@
             </div>
             <div
               v-for="message in messages"
-              :key="message.A"
+              :key="message.id || random.base64(16)"
               class="px-1 flex flex-col gap-2"
             >
               <div v-if="message.Q" class="flex MessageContainer pt-2">
@@ -40,7 +40,6 @@
                     </div>
                     <div class="flex gap-3">
                       <el-tooltip
-                        :key="messages"
                         :content="$t('action.edit')"
                         placement="bottom"
                       >
@@ -129,7 +128,6 @@
                       <div class="flex gap-3">
                         <el-tooltip
                           v-if="!message.Q"
-                          :key="messages"
                           :content="$t('action.edit')"
                           placement="bottom"
                         >
@@ -145,7 +143,6 @@
                         </el-tooltip>
                         <el-tooltip
                           v-if="message === messages.at(-1)"
-                          :key="messages"
                           :content="$t('action.continueGenerate')"
                           placement="bottom"
                         >
@@ -160,7 +157,6 @@
                           </el-text>
                         </el-tooltip>
                         <el-tooltip
-                          :key="messages"
                           :content="$t('action.regenerate')"
                           placement="bottom"
                         >
@@ -195,7 +191,6 @@
                   <div v-if="message.urls && message.urls.length > 0" class="flex flex-col items-start pt-1 pl-2 w-full">
                     <el-link
                       v-for="url in message.urls"
-                      :key="url"
                       type="info"
                       :href="url.split(' ').pop()"
                       target="_blank"
@@ -212,7 +207,6 @@
               </div>
               <div
                 v-if="message === messages.at(-1) && message.more && message.more.length > 0"
-                :key="message.more"
                 class="flex flex-wrap items-center gap-2 pt-8"
               >
                 <el-button size="x-large" class="MoreQuestionsButton shadow cursor-pointer" @click="(more.end >= message.more.length ? (more.reset(), message.more = random.shuffle(message.more)) : more.run(message.more.length))" :icon="ChatDotRound" style="padding: 0">
@@ -238,8 +232,6 @@ import { isScrolledToBottom } from '~/utils/client'
 import { CopyDocument, Refresh, VideoPlay, ChatDotRound, Edit, User, Cpu, Search, Link, Bottom } from '@element-plus/icons-vue'
 import '~/assets/css/vsc-dark-plus.css'
 
-const showScrollToBottomButton = ref(false)
-
 function scrollToBottomOnclick () {
   useScrollToBottom()
     .then(() => {
@@ -247,12 +239,6 @@ function scrollToBottomOnclick () {
         showScrollToBottomButton.value = false
       }
     })
-}
-
-if (process.client) {
-  document.addEventListener('scroll', () => {
-    showScrollToBottomButton.value = !isScrolledToBottom()
-  })
 }
 
 const popoverVisibles = {
@@ -266,7 +252,7 @@ const popoverVisibles = {
   }
 }
 
-const { messages, openSidebar, callEditMessageDialog, sendMessage, deleteMessage, regenerateMessage, focusInput } = useChat()
+const { showScrollToBottomButton, messages, openSidebarController, callEditMessageDialog, sendMessage, deleteMessage, regenerateMessage, focusInput } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 

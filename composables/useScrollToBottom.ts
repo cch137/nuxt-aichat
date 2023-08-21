@@ -3,7 +3,11 @@ export default async function (delayMs = 0) {
     if (process.client) {
       setTimeout(() => {
         try {
-          window.scrollTo(0, document.body.scrollHeight)
+          window.scrollTo({
+            behavior: 'smooth',
+            left: 0,
+            top: document.body.scrollHeight
+          })
           resolve(null)
         } catch (err) {
           reject(err)

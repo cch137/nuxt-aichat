@@ -1,5 +1,4 @@
 import Conversation from './conversation'
-import chatbotUsageRecord from './chatbotUsageRecord'
 import { coreCollection, Gpt3Chatbot, Gpt4Chatbot, GptWebChatbot, Claude2WebChatbot, Gpt3FgaChatbot } from '../engines'
 import type { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
 import troll from '~/utils/troll'
@@ -29,6 +28,11 @@ const getRandomToken = (() => {
     const accounts: ({ type: 'MindsDB', email: string, password: string })[] = [
       // {
       //   type: 'MindsDB',
+      //   email: 'chorngherngchee@gmail.com',
+      //   password: 'Curva&&cch137',
+      // },
+      // {
+      //   type: 'MindsDB',
       //   email: 'gammacheechorngherng@gmail.com',
       //   password: 'Curva&&cch137',
       // },
@@ -47,11 +51,16 @@ const getRandomToken = (() => {
         email: 'chengyuxueee@gmail.com',
         password: '88888888Ss',
       },
-      // {
-      //   type: 'MindsDB',
-      //   email: 'chorngherngchee@gmail.com',
-      //   password: 'Curva&&cch137',
-      // },
+      {
+        type: 'MindsDB',
+        email: 'xuechengyuuu@gmail.com',
+        password: '12345678Ss',
+      },
+      {
+        type: 'MindsDB',
+        email: 'xuechengyuuuu@gmail.com',
+        password: '12345678Ss',
+      },
       // {
       //   type: 'MindsDB',
       //   email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
@@ -95,7 +104,6 @@ const freeGptAsiaToken = troll.e({
 
 const curva = {
   name: 'Curva',
-  record: chatbotUsageRecord,
   async ask (ip: string, user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string): Promise<CurvaStandardResponse> {
     if (processingConversation.has(user)) {
       return {
@@ -141,7 +149,6 @@ const curva = {
           _id
         )
       }
-      curva.record.add({ ip, user, conv, model, error: result?.error || '', t: Date.now() })
       return {
         ...result,
         dt,
@@ -149,7 +156,6 @@ const curva = {
       }
     } catch (err) {
       const error = str(err)
-      curva.record.add({ ip, user, conv, model, error, t: Date.now() })
       return {
         answer: '',
         error,

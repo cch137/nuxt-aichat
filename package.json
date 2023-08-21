@@ -37,6 +37,7 @@
     "googlethis": "^1.7.1",
     "gpt-3-encoder": "^1.1.4",
     "marked": "^6.0.0",
+    "mindsdb-js-sdk": "^2.2.2",
     "mongoose": "^7.4.1",
     "mysql2": "^3.5.2",
     "nodemailer": "^6.9.4",
