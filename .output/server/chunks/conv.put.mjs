@@ -1,14 +1,14 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
-import { m as message } from './index3.mjs';
+import './index2.mjs';
 import qs from 'qs';
+import { m as message } from './message.mjs';
 import { c as conversation } from './conversation.mjs';
 import './troll.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './random.mjs';
-import 'mongoose';
 import 'dotenv';
 import 'crypto';
 import 'http';
@@ -27,6 +27,7 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
+import 'mongoose';
 
 function validKeyValuePair(key, value) {
   switch (key) {

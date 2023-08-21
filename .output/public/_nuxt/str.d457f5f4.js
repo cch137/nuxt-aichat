@@ -1,1 +1,0 @@
-const s=t=>{try{if((t==null?void 0:t.toString)===void 0)return`${t}`;{const r=t.toString();return r.startsWith("[object ")&&r.endsWith("]")?JSON.stringify(t):r}}catch{return""}},e=t=>s(t).toLowerCase();export{e as l,s};

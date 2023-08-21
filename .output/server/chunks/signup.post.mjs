@@ -2,6 +2,8 @@ import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
 import { a as auth } from './auth.mjs';
+import { R as RateLimiter } from './rate-limiter.mjs';
+import { g as getIp } from './getIp.mjs';
 import './troll.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
@@ -9,8 +11,7 @@ import './random.mjs';
 import './mailer.mjs';
 import 'nodemailer';
 import 'dotenv';
-import './index3.mjs';
-import 'mongoose';
+import './index2.mjs';
 import 'crypto';
 import 'http';
 import 'url';
@@ -28,8 +29,14 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
+import 'mongoose';
+import './message.mjs';
 
+const rateLimiter = new RateLimiter(5, 5 * 60 * 1e3);
 const signup_post = defineEventHandler(async function(event) {
+  if (!rateLimiter.check(getIp(event.node.req))) {
+    return { error: rateLimiter.hint, isLoggedIn: false };
+  }
   const body = await readBody(event);
   if (!body) {
     return { error: "No form" };

@@ -1,12 +1,13 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { v as version } from './server.mjs';
-import './index3.mjs';
+import './index2.mjs';
 import { r as read } from './token.mjs';
-import { m as messagesToQuestionContext, e as estimateTokens, c as curva } from './index2.mjs';
+import { m as messagesToQuestionContext, e as estimateTokens, c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
 import { b as baseConverter, s as str } from './random.mjs';
 import { t as troll } from './troll.mjs';
+import { R as RateLimiter } from './rate-limiter.mjs';
 import { model, Schema } from 'mongoose';
 import 'dotenv';
 import 'crypto';
@@ -27,10 +28,12 @@ import 'net';
 import 'socks';
 import 'tls';
 import './conversation.mjs';
+import './message.mjs';
 import 'sequelize';
 import './createAxiosSession.mjs';
 import 'axios';
 import 'gpt-3-encoder';
+import './search.mjs';
 import 'googlethis';
 import 'turndown';
 import '@joplin/turndown-plugin-gfm';
@@ -48,10 +51,23 @@ const logger = model("Log", new Schema({
   versionKey: false
 }), "logs");
 
+const rateLimiterBundler = RateLimiter.bundle([
+  // Every 1 minutes 10 times
+  new RateLimiter(10, 1 * 60 * 1e3),
+  // Every 60 minutes 100 times
+  new RateLimiter(100, 60 * 60 * 1e3),
+  // Every 4*60 minutes 200 times
+  new RateLimiter(200, 60 * 60 * 1e3),
+  // Every 24*60 minutes 500 times
+  new RateLimiter(500, 24 * 60 * 60 * 1e3)
+]);
 const bannedPrompt = /提示词生成/;
 const bannedIpSet = /* @__PURE__ */ new Set(["106.40.15.110", "36.102.154.131", "123.178.34.190", "123.178.40.253"]);
 const answer_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+  if (!rateLimiterBundler.check(getIp(event.node.req))) {
+    return { error: rateLimiterBundler.getHint(getIp(event.node.req)) };
+  }
   const now = Date.now();
   const body = await readBody(event);
   if (!body) {
@@ -78,12 +94,12 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: "CH4 API ERROR 31", id };
   }
   const ip = getIp(event.node.req);
-  if ([...bannedIpSet].filter((_ip) => ip.includes(_ip)).length) {
-    return { error: "\u6765\u81EA\u7EF4\u5C3C\u4E2D\u5171\u56FD\u7684\u670B\u53CB\uFF0C\u8BF7\u505C\u6B62\u4F60\u7684\u6076\u5FC3\u884C\u4E3A\uFF0C\u522B\u7ED9\u4E2D\u56FD\u4EBA\u4E22\u8138", id };
+  if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
+    return { error: "Your actions are considered to be abusive.", id };
   }
   if (bannedPrompt.test(messagesToQuestionContext(messages).question)) {
     bannedIpSet.add(ip);
-    return { error: "\u6765\u81EA\u7EF4\u5C3C\u4E2D\u5171\u56FD\u7684\u670B\u53CB\uFF0C\u8BF7\u505C\u6B62\u4F60\u7684\u6076\u5FC3\u884C\u4E3A\uFF0C\u522B\u7ED9\u4E2D\u56FD\u4EBA\u4E22\u8138", id };
+    return { error: "Your actions are considered to be abusive.", id };
   }
   try {
     const croppedMessages = (() => {

@@ -16,6 +16,7 @@
     "@intlify/message-compiler": "9.2.2",
     "@intlify/shared": "9.2.2",
     "@joplin/turndown-plugin-gfm": "1.0.49",
+    "@popperjs/core": "2.11.7",
     "@sapphire/async-queue": "1.5.0",
     "@sapphire/shapeshift": "3.9.2",
     "@sapphire/snowflake": "3.5.1",

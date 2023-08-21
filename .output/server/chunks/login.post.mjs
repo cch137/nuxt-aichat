@@ -2,12 +2,13 @@ import { defineEventHandler, readBody } from 'h3';
 import { a as auth } from './auth.mjs';
 import { parse, serialize } from 'cookie';
 import { r as read, p as pack } from './token.mjs';
+import { R as RateLimiter } from './rate-limiter.mjs';
+import { g as getIp } from './getIp.mjs';
 import 'crypto-js/sha3.js';
 import './mailer.mjs';
 import 'nodemailer';
 import 'dotenv';
-import './index3.mjs';
-import 'mongoose';
+import './index2.mjs';
 import 'crypto';
 import 'http';
 import 'url';
@@ -25,13 +26,19 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
+import 'mongoose';
 import './random.mjs';
+import './message.mjs';
 import './troll.mjs';
 import 'crypto-js/md5.js';
 
+const rateLimiter = new RateLimiter(5, 5 * 60 * 1e3);
 const login_post = defineEventHandler(async function(event) {
   var _a;
   const { req, res } = event.node;
+  if (!rateLimiter.check(getIp(req))) {
+    return { error: rateLimiter.hint, isLoggedIn: false };
+  }
   const body = await readBody(event);
   if (!body) {
     return { error: "No form" };

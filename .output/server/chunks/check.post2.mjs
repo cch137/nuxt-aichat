@@ -10,8 +10,7 @@ import 'crypto-js/md5.js';
 import './mailer.mjs';
 import 'nodemailer';
 import 'dotenv';
-import './index3.mjs';
-import 'mongoose';
+import './index2.mjs';
 import 'crypto';
 import 'http';
 import 'url';
@@ -29,6 +28,8 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
+import 'mongoose';
+import './message.mjs';
 
 const check_post = defineEventHandler(async (event) => {
   const { req, res } = event.node;

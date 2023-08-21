@@ -1,49 +1,30 @@
-import { defineEventHandler } from 'h3';
+import { defineEventHandler, readBody } from 'h3';
 import { c as checkPassword } from './checkPassword.mjs';
-import { d as discordBot } from './index.mjs';
-import 'discord.js';
-import './random.mjs';
-import 'crypto-js/sha3.js';
-import './index2.mjs';
-import './index3.mjs';
-import 'mongoose';
-import 'dotenv';
-import 'crypto';
-import 'http';
-import 'url';
-import 'bson';
-import 'timers';
-import 'util';
-import 'stream';
-import 'events';
-import 'dns';
-import 'fs';
-import 'mongodb-connection-string-url';
-import 'os';
-import 'process';
-import 'zlib';
-import 'net';
-import 'socks';
-import 'tls';
-import './conversation.mjs';
-import './troll.mjs';
-import 'crypto-js/md5.js';
-import 'sequelize';
-import './createAxiosSession.mjs';
-import 'axios';
-import 'cookie';
-import 'gpt-3-encoder';
-import 'googlethis';
-import 'turndown';
-import '@joplin/turndown-plugin-gfm';
-import 'cheerio';
-import './ytCrawler.mjs';
-import 'qs';
+import { serialize } from 'cookie';
+import { R as RateLimiter } from './rate-limiter.mjs';
+import { g as getIp } from './getIp.mjs';
 
+const rateLimiter = new RateLimiter(5, 15 * 60 * 1e3);
 const check_post = defineEventHandler(async function(event) {
-  return await checkPassword(event) ? {
-    dcBotConnected: discordBot.connected
-  } : null;
+  var _a;
+  if (!rateLimiter.check(getIp(event.node.req))) {
+    return { error: rateLimiter.hint, isLoggedIn: false };
+  }
+  let isLoggedIn = await checkPassword(event);
+  if (isLoggedIn) {
+    return { isLoggedIn };
+  }
+  const passwd = (_a = await readBody(event)) == null ? void 0 : _a.passwd;
+  if (!passwd) {
+    return { isLoggedIn: false };
+  }
+  event.node.res.setHeader("Set-Cookie", serialize("admin", passwd, {
+    path: "/",
+    httpOnly: true,
+    sameSite: true,
+    secure: true
+  }));
+  return { isLoggedIn: process.env.ADMIN_PASSWORD && passwd === process.env.ADMIN_PASSWORD };
 });
 
 export { check_post as default };
