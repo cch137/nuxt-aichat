@@ -26,6 +26,8 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'mongoose';
+import './conversation.mjs';
+import './message.mjs';
 import 'sequelize';
 import './createAxiosSession.mjs';
 import 'axios';

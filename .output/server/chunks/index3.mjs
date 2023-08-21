@@ -45,7 +45,7 @@ const askCurva = async (user, conv, model, messageContent, temperature = 0.5) =>
   }
 };
 const handleInteractionForCurvaAsk = async (interaction, model) => {
-  var _a, _b, _c, _d;
+  var _a, _b, _c;
   const message = ((_a = interaction.options.get("message")) == null ? void 0 : _a.value) || "";
   const temperature = (_b = interaction.options.get("temperature")) == null ? void 0 : _b.value;
   const dcUid = ((_c = interaction.member) == null ? void 0 : _c.user.id) || "";
@@ -70,7 +70,7 @@ const handleInteractionForCurvaAsk = async (interaction, model) => {
   });
   const { content, embeds = [], files = [] } = await askCurva(user, conv, model, message, temperature === void 0 ? 0.5 : temperature);
   clearInterval(interval);
-  const answered = await ((_d = interaction.channel) == null ? void 0 : _d.send({ content: `<@${dcUid}> ${content}`, embeds, files }));
+  const answered = await interaction.channel.send({ content: `<@${dcUid}> ${content}`, embeds, files });
   (await replied).edit({ content: answered == null ? void 0 : answered.url });
 };
 const handleInteractionForCurvaClearHistory = async (interaction) => {
@@ -78,7 +78,7 @@ const handleInteractionForCurvaClearHistory = async (interaction) => {
   const user = `dc@${(_a = interaction.member) == null ? void 0 : _a.user.id}`;
   const conv = interaction.channelId;
   await new Conversation(user, conv).delete();
-  interaction.reply({ embeds: [new EmbedBuilder().setDescription("The conversation history between you and the AI chatbot in this channel has been cleared.").setColor("Green")] });
+  interaction.reply({ embeds: [new EmbedBuilder().setDescription("Your conversation with the chatbot in this channel has been cleared.").setColor("Green")] });
 };
 
 async function handleInteractionForYTCaptions(interaction) {

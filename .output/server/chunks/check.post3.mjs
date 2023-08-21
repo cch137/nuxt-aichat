@@ -3,7 +3,9 @@ import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
 import { r as read, p as pack, g as generate } from './token.mjs';
 import { r as random } from './random.mjs';
-import { m as message, c as conversation } from './index2.mjs';
+import './index2.mjs';
+import { m as message } from './message.mjs';
+import { c as conversation } from './conversation.mjs';
 import './troll.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
@@ -50,11 +52,11 @@ const check_post = defineEventHandler(async (event) => {
     secure: true
   }));
   try {
-    const conversations = ((_a = (await message.aggregate([
+    const conversations = (((_a = (await message.aggregate([
       { $match: { uid } },
       { $group: { _id: "$uid", conv: { $addToSet: "$conv" } } },
       { $project: { _id: 0, conv: 1 } }
-    ]).exec())[0]) == null ? void 0 : _a.conv).filter((c) => !c.startsWith("~"));
+    ]))[0]) == null ? void 0 : _a.conv) || []).filter((c) => !c.startsWith("~"));
     if (Array.isArray(conversations)) {
       const savedConverations = await conversation.find(
         { $or: conversations.map((id) => ({ uid, id })) },

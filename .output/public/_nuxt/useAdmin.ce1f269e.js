@@ -1,1 +1,0 @@
-import{A as e}from"./entry.abaa7c65.js";function o(){async function n(t=""){return(await $fetch("/api/admin/check",{method:"POST",body:{passwd:t}})).isLoggedIn}async function a(){await $fetch("/api/admin/check",{method:"DELETE"}),e("/")}return{checkIsLoggedIn:n,adminLogout:a}}export{o as u};

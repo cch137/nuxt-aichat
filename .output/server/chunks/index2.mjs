@@ -16,7 +16,7 @@ import * as zlib from 'zlib';
 import * as net from 'net';
 import * as socks from 'socks';
 import * as tls from 'tls';
-import mongoose, { model, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
 function getDefaultExportFromNamespaceIfNotNamed (n) {
 	return n && Object.prototype.hasOwnProperty.call(n, 'default') && Object.keys(n).length === 1 ? n['default'] : n;
@@ -20846,64 +20846,10 @@ function requireLib () {
 
 var libExports = requireLib();
 
-const message = model("Message", new Schema({
-  user: { type: String },
-  uid: { type: String, required: true },
-  conv: { type: String, required: true },
-  Q: { type: String, default: "" },
-  A: { type: String, required: true },
-  queries: { type: [String], default: void 0 },
-  urls: { type: [String], default: void 0 },
-  more: { type: [String], default: void 0 },
-  dt: { type: Number, default: void 0 }
-}, {
-  versionKey: false,
-  strict: "throw"
-}), "messages");
-
-const conversation = model("Conversation", new Schema({
-  user: { type: String },
-  id: { type: String, required: true },
-  uid: { type: String, required: true },
-  name: { type: String },
-  config: { type: String },
-  mtime: { type: Number }
-}, {
-  versionKey: false
-}), "conversations");
-
 var _a;
 config();
 console.log("MONGO:", (_a = process.env.MONGODB_KEY) == null ? void 0 : _a.slice(0, 11));
 void mongoose.connect(process.env.MONGODB_KEY);
-(async () => {
-  const allMessages = await message.find({}, { _id: 1, user: 1 });
-  console.log("Total messages:", allMessages.length);
-  allMessages.forEach(async (m) => {
-    if (!m.user) {
-      return;
-    }
-    await message.updateOne({ _id: new libExports.ObjectId(m._id) }, {
-      $set: { uid: m.user },
-      $unset: { user: "" }
-    });
-    console.log("update message:", m._id.toString());
-  });
-})();
-(async () => {
-  const allConversations = await conversation.find({}, { _id: 1, user: 1 });
-  console.log("Total convesations:", allConversations.length);
-  allConversations.forEach(async (c) => {
-    if (!c.user) {
-      return;
-    }
-    await conversation.updateOne({ _id: new libExports.ObjectId(c._id) }, {
-      $set: { uid: c.user },
-      $unset: { user: "" }
-    });
-    console.log("update conv:", c._id.toString());
-  });
-})();
 
-export { conversation as c, libExports as l, message as m };
+export { libExports as l };
 //# sourceMappingURL=index2.mjs.map

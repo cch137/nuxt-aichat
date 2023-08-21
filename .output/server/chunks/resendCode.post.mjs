@@ -26,6 +26,7 @@ import 'socks';
 import 'tls';
 import 'mongoose';
 import './random.mjs';
+import './message.mjs';
 
 const rateLimiter = new RateLimiter(5, 15 * 60 * 1e3);
 const resendCode_post = defineEventHandler(async function(event) {

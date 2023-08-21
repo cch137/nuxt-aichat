@@ -1,6 +1,7 @@
 import { defineEventHandler, readBody } from 'h3';
-import { m as message } from './index2.mjs';
+import './index2.mjs';
 import { getAllKey, getDeletedKey } from './keys.mjs';
+import { m as message } from './message.mjs';
 import 'dotenv';
 import 'crypto';
 import 'http';
