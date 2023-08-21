@@ -34,7 +34,7 @@ export default defineEventHandler(async (event): Promise<{ id: string, name: str
       { $match: { uid } },
       { $group: { _id: '$uid', conv: { $addToSet: '$conv' } } },
       { $project: { _id: 0, conv: 1 } }
-    ]).exec())[0]?.conv as string[])
+    ]))[0]?.conv as string[] || [])
       .filter((c) => !c.startsWith('~'))
     if (Array.isArray(conversations)) {
       const savedConverations = await conversation.find(

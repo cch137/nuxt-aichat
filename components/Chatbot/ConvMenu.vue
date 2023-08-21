@@ -55,7 +55,7 @@
       </div>
     </el-form>
     <h4 class="mt-4 mb-0">{{ $t('chat.chats') }}</h4>
-    <div class="mt-1 border rounded overflow-hidden" style="height: 45vh; border-color: var(--el-border-color);">
+    <div class="ConversationListContainer mt-1 border rounded overflow-hidden" style="height: 45vh; border-color: var(--el-border-color);">
       <div class="border-b createNewChat-bg" style="border-color: var(--el-border-color);">
         <NuxtLink id="createNewChat" to="/c/" @click="focusInput">
           <el-button
@@ -211,7 +211,7 @@ const openFeedback = () => {
   height: 10px;
   width: 10px;
 }
-.ConversationList, .createNewChat-bg, #createNewChat {
+.ConversationListContainer {
   background: var(--el-bg-color-page);
 }
 .ConversationLink {

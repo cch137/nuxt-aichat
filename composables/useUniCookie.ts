@@ -37,6 +37,7 @@ function builder (
       if (!('path' in options)) {
         options.path = '/'
       }
+      options.expires = new Date()
       const serializedCookie = serializeCookie(name, '', options)
       return setter(serializedCookie)
     },

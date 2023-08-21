@@ -420,7 +420,7 @@ if (process.client) {
         focusInput()
         break
       case 'Escape':
-        console.log('ESC')
+        openMenu.value = !openMenu.value
         break
     }
   })
@@ -438,8 +438,11 @@ export default function () {
   const appName = useState('appName').value
   const cookie = useUniCookie()
   // 清除舊 cookie -- START --
-  cookie.delete('temperature', { path: '/' })
-  cookie.delete('temperature')
+  ;['temperature-suffix', 'web-browsing', 'temperature']
+    .forEach((oldCookieName) => {
+      cookie.delete(oldCookieName, { path: '/' })
+      cookie.delete(oldCookieName)
+    });
   // 清除舊 cookie --  END  --
   nuxtApp = useNuxtApp()
   const refreshPageTitle = () => {
@@ -454,17 +457,15 @@ export default function () {
     messages.value = []
     const loading = ElLoading.service({ text: _t('chat.ldConv') + '...', lock: true })
     try {
-      const [displayChatMessages] = await Promise.all([
-        (conv === null) ? null : _fetchHistory(conv),
-        (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations()
-      ])
+      const fetchingConvList = (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations()
+      const displayChatMessages = conv === null ? null : await _fetchHistory(conv)
       loadConvConfig(conv)
       if (displayChatMessages !== null && getCurrentConvId() === conv) {
         messages.value = displayChatMessages
         _loadSuggestions()
       }
+      await Promise.all([fetchingConvList, useScrollToBottom(1000)])
     } finally {
-      await useScrollToBottom(1000)
       loading.close()
       await useScrollToBottom(500)
       focusInput()

@@ -381,6 +381,9 @@ html.light .Message.A {
 .Message ol {
   list-style: decimal;
 }
+.Message ol ol {
+  list-style: lower-roman;
+}
 .Message ul {
   list-style: disc;
 }

@@ -58,19 +58,17 @@ const handleInteractionForCurvaAsk = async (interaction: ChatInputCommandInterac
   const replied = interaction.reply('Thinking...')
   const interval = setInterval(() => {
     try{
-      // @ts-ignore
-      interaction.channel.sendTyping()
+      interaction.channel!.sendTyping()
     } catch {}
   }, 3000)
   replied.then(() => {
     try{
-      // @ts-ignore
-      interaction.channel.sendTyping()
+      interaction.channel!.sendTyping()
     } catch {}
   })
   const { content, embeds = [], files = [] } = await askCurva(user, conv, model, message, temperature === undefined ? 0.5 : temperature)
   clearInterval(interval)
-  const answered = await interaction.channel?.send({ content: `<@${dcUid}> ${content}`, embeds, files });
+  const answered = await interaction.channel!.send({ content: `<@${dcUid}> ${content}`, embeds, files });
   (await replied).edit({ content: answered?.url })
 }
 
@@ -78,7 +76,7 @@ const handleInteractionForCurvaClearHistory = async (interaction: ChatInputComma
   const user = `dc@${interaction.member?.user.id}`
   const conv = interaction.channelId
   await new Conversation(user, conv).delete()
-  interaction.reply({embeds: [new EmbedBuilder().setDescription('The conversation history between you and the AI chatbot in this channel has been cleared.').setColor('Green')]})
+  interaction.reply({embeds: [new EmbedBuilder().setDescription('Your conversation with the chatbot in this channel has been cleared.').setColor('Green')]})
 }
 
 export {
