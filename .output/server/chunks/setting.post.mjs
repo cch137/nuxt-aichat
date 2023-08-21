@@ -25,8 +25,6 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'mongoose';
-import './conversation.mjs';
-import './message.mjs';
 import './troll.mjs';
 import 'crypto-js/md5.js';
 import 'sequelize';

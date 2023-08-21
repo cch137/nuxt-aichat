@@ -1,6 +1,4 @@
-import { l as libExports } from './index2.mjs';
-import { c as conversation } from './conversation.mjs';
-import { m as message } from './message.mjs';
+import { c as conversation, m as message, l as libExports } from './index2.mjs';
 import { t as troll } from './troll.mjs';
 import { Sequelize, QueryTypes } from 'sequelize';
 import { c as createAxiosSession } from './createAxiosSession.mjs';
@@ -32,7 +30,7 @@ class Conversation {
       return;
     }
     await conversation.updateOne(
-      { user: uid, id: conv },
+      { uid, id: conv },
       { $set: { mtime: Date.now() } },
       { upsert: true, projection: { _id: 0 } }
     );
@@ -43,8 +41,8 @@ class Conversation {
       return [];
     }
     return await message.updateMany(
-      { user: uid, conv },
-      { $set: { user: `~${uid}` } },
+      { uid, conv },
+      { $set: { uid: `~${uid}` } },
       {
         projection: { _id: 0 }
       }
@@ -56,7 +54,7 @@ class Conversation {
       return [];
     }
     const history = (await message.find({
-      user: uid,
+      uid,
       conv
     }, {
       _id: 1,
@@ -94,7 +92,7 @@ class Conversation {
       return [];
     };
     const messages = (await message.find({
-      user: uid,
+      uid,
       conv
     }, {
       _id: 1,
@@ -112,7 +110,7 @@ class Conversation {
   }
   async saveMessage(Q, A, queries = [], urls = [], dt, regenerateId) {
     const { uid, conv } = this;
-    const record = { user: uid, conv, Q, A };
+    const record = { uid, conv, Q, A };
     if (queries.length > 0) {
       record.queries = queries;
     }
@@ -125,7 +123,7 @@ class Conversation {
     if (regenerateId) {
       await message.updateOne({
         _id: new libExports.ObjectId(regenerateId),
-        user: uid,
+        uid,
         conv
       }, {
         $set: record

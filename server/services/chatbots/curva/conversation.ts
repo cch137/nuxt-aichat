@@ -21,7 +21,7 @@ class Conversation {
       return
     }
     await conversationCollection.updateOne(
-      { user: uid, id: conv },
+      { uid, id: conv },
       { $set: { mtime: Date.now() } },
       { upsert: true, projection: { _id: 0 } }
     )
@@ -33,8 +33,8 @@ class Conversation {
       return []
     }
     return await messageCollection.updateMany(
-      { user: uid, conv },
-      { $set: { user: `~${uid}` } },
+      { uid, conv },
+      { $set: { uid: `~${uid}` } },
       { projection: { _id: 0 }
     })
   }
@@ -45,7 +45,7 @@ class Conversation {
       return []
     }
     const history = (await messageCollection.find({
-      user: uid,
+      uid,
       conv
     }, {
       _id: 1,
@@ -84,7 +84,7 @@ class Conversation {
       return []
     }
     const messages = (await messageCollection.find({
-      user: uid,
+      uid,
       conv
     }, {
       _id: 1,
@@ -103,7 +103,7 @@ class Conversation {
 
   async saveMessage (Q: string, A: string, queries: string[] = [], urls: string[] = [], dt?: number, regenerateId?: string) {
     const { uid, conv } = this
-    const record = { user: uid, conv, Q, A } as { Q: string, A: string, queries?: string[], urls?: string[], dt?: number }
+    const record = { uid, conv, Q, A } as { Q: string, A: string, queries?: string[], urls?: string[], dt?: number }
     if (queries.length > 0) {
       record.queries = queries
     }
@@ -116,7 +116,7 @@ class Conversation {
     if (regenerateId) {
       await messageCollection.updateOne({
         _id: new ObjectId(regenerateId),
-        user: uid,
+        uid,
         conv
       }, {
         $set: record

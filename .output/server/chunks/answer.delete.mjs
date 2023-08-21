@@ -1,9 +1,8 @@
 import { defineEventHandler, readBody } from 'h3';
-import { l as libExports } from './index2.mjs';
+import { l as libExports, m as message } from './index2.mjs';
 import { parse } from 'cookie';
 import { r as read } from './token.mjs';
 import { b as baseConverter } from './random.mjs';
-import { m as message } from './message.mjs';
 import 'dotenv';
 import 'crypto';
 import 'http';

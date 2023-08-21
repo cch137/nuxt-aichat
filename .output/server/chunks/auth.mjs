@@ -1,9 +1,8 @@
 import sha3 from 'crypto-js/sha3.js';
 import { m as mailer } from './mailer.mjs';
-import './index2.mjs';
+import { m as message } from './index2.mjs';
 import { r as random } from './random.mjs';
 import { model, Schema } from 'mongoose';
-import { m as message } from './message.mjs';
 
 const userCollection = model("User", new Schema({
   uid: { type: String, required: true },

@@ -30,7 +30,6 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'mongoose';
-import './message.mjs';
 
 const rateLimiter = new RateLimiter(5, 5 * 60 * 1e3);
 const username_put = defineEventHandler(async function(event) {
