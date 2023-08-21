@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose'
 
 export default model('Message', new Schema({
-  user: { type: String, required: true },
+  uid: { type: String, required: true },
   conv: { type: String, required: true },
   Q: { type: String, default: '' },
   A: { type: String, required: true },

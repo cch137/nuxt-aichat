@@ -27,7 +27,7 @@ export default defineEventHandler(async function (event) {
   const { req } = event.node
   const rawCookie = req.headers.cookie
   const tokenObj = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token) || {} as TokenObject
-  const uid = tokenObj?.user
+  const uid = tokenObj?.uid
   if (!uid) {
     return { error: 'Please reload the page.' }
   }

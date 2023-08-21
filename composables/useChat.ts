@@ -716,10 +716,10 @@ export default function () {
         const currConvId = getCurrentConvId()
         if (targetConvId === currConvId) {
           document.getElementById(nextConvId)?.click()
-          const convIndex = conversations.value.findIndex((c) => c.id === currConvId)
-          if (convIndex != -1) {
-            conversations.value.splice(convIndex, 1)
-          }
+        }
+        const convIndex = conversations.value.findIndex((c) => c.id === currConvId)
+        if (convIndex != -1) {
+          conversations.value.splice(convIndex, 1)
         }
         // checkTokenAndGetConversations()
       })

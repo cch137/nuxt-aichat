@@ -20,7 +20,7 @@ export default defineEventHandler(async function (event) {
   }
   const rawCookie = req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token) || {} as TokenObject
-  token.user = id
+  token.uid = id
   res.setHeader('Set-Cookie', serializeCookie('token', tokenPacker(token), {
     path: '/',
     httpOnly: true,

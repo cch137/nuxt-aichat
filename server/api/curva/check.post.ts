@@ -14,14 +14,14 @@ export default defineEventHandler(async (event): Promise<{ id: string, name: str
   const rawCookie = req.headers.cookie
   const oldToken = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   let token: string
-  let user: string
+  let uid: string
   if (oldToken !== null) {
     oldToken.checked = Date.now()
-    user = oldToken.user
+    uid = oldToken.uid
     token = tokenPacker(oldToken)
   } else {
-    user = random.base64(16)
-    token = tokenGenerator(user, ip)
+    uid = random.base64(16)
+    token = tokenGenerator(uid, ip)
   }
   res.setHeader('Set-Cookie', serializeCookie('token', token, {
     path: '/',
@@ -31,14 +31,14 @@ export default defineEventHandler(async (event): Promise<{ id: string, name: str
   }))
   try {
     const conversations = ((await message.aggregate([
-      { $match: { user } },
-      { $group: { _id: '$user', conv: { $addToSet: '$conv' } } },
+      { $match: { uid } },
+      { $group: { _id: '$uid', conv: { $addToSet: '$conv' } } },
       { $project: { _id: 0, conv: 1 } }
     ]).exec())[0]?.conv as string[])
       .filter((c) => !c.startsWith('~'))
     if (Array.isArray(conversations)) {
       const savedConverations = await conversation.find(
-        { $or: conversations.map((id) => ({ user, id })) },
+        { $or: conversations.map((id) => ({ uid, id })) },
         { _id: 0, id: 1, name: 1, config: 1, mtime: 1 }
       )
       return conversations.map((convId) => {

@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   let uid: string
   if (oldToken !== null) {
     oldToken.checked = Date.now()
-    uid = oldToken.user
+    uid = oldToken.uid
     token = tokenPacker(oldToken)
   } else {
     uid = random.base64(16)

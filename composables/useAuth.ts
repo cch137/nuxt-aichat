@@ -1,5 +1,6 @@
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
 
+const email = ref<string>('')
 const username = ref<string>('')
 const authIsLoading = ref(false)
 const isLoggedIn = ref(false)
@@ -14,6 +15,7 @@ const logout = async () => {
     await $fetch('/api/auth/logout', {
       method: 'POST'
     })
+    email.value = ''
     username.value = ''
     setIsLoggedIn(false)
     ElMessage.success('Logged out.')
@@ -38,6 +40,7 @@ const checkIsLoggedIn = async (force = false) => {
       method: 'POST'
     }))
     lastChecked = now
+    email.value = user?.email || ''
     username.value = user?.username || ''
     authIsLoading.value = false
     // isLoggedIn 一定要最後才賦值，為了避免 user 讀取不了
@@ -106,6 +109,7 @@ export default function () {
   return {
     authIsLoading,
     isLoggedIn,
+    email,
     username,
     login,
     logout,

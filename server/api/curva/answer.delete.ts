@@ -18,14 +18,14 @@ export default defineEventHandler(async (event) => {
   }
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const user = token?.user
+  const uid = token?.uid
   // Validate token
-  if (token === null || typeof user !== 'string') {
+  if (token === null || typeof uid !== 'string') {
     return { error: 3 }
   }
   try {
     const _id = new ObjectId(baseConverter.convert(id, '64', 16))
-    await messagesCollection.updateOne({ _id, conv, user }, { $set: { user: `~${user}` } })
+    await messagesCollection.updateOne({ _id, conv, uid }, { $set: { uid: `~${uid}` } })
     return {}
   } catch (err) {
     return { error: 4 }

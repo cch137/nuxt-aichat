@@ -14,7 +14,7 @@ export default defineEventHandler(async function (event): Promise<{ error?: stri
   }
   const rawCookie = event.node.req.headers.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const uid = token?.user
+  const uid = token?.uid
   if (!uid) {
     return { error: 'No authentication' }
   }

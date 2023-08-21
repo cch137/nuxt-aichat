@@ -104,8 +104,8 @@ const freeGptAsiaToken = troll.e({
 
 const curva = {
   name: 'Curva',
-  async ask (ip: string, user: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string): Promise<CurvaStandardResponse> {
-    if (processingConversation.has(user)) {
+  async ask (ip: string, uid: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string): Promise<CurvaStandardResponse> {
+    if (processingConversation.has(uid)) {
       return {
         answer: '',
         error: 'THINKING',
@@ -113,9 +113,9 @@ const curva = {
       }
     }
     let debugTimeout: NodeJS.Timeout | undefined = undefined
-    if (!unlimitedUserList.has(user)) {
-      processingConversation.set(user, conv)
-      debugTimeout = setTimeout(() => processingConversation.delete(user), 5 * 60 * 1000)
+    if (!unlimitedUserList.has(uid)) {
+      processingConversation.set(uid, conv)
+      debugTimeout = setTimeout(() => processingConversation.delete(uid), 5 * 60 * 1000)
     }
     try {
       // @ts-ignore
@@ -138,7 +138,7 @@ const curva = {
       }
       const dt = Date.now() - t0
       if (result.answer) {
-        const conversation = new Conversation(user, conv)
+        const conversation = new Conversation(uid, conv)
         conversation.updateMtime()
         _id = await conversation.saveMessage(
           result.isContinueGenerate ? '' : result.question,
@@ -162,7 +162,7 @@ const curva = {
         dt: 0
       }
     } finally {
-      processingConversation.delete(user)
+      processingConversation.delete(uid)
       clearTimeout(debugTimeout)
     }
   }

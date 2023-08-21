@@ -2,9 +2,9 @@ import troll from "~/utils/troll"
 
 const seed = 168813145203000
 
-function generate (user: string, ip: string) {
+function generate (uid: string, ip: string) {
   return pack({
-    user,
+    uid,
     ip,
     checked: Date.now()
   })
@@ -15,7 +15,7 @@ function pack (tokenObj: any) {
 }
 
 interface TokenObject {
-  user: string;
+  uid: string;
   ip: string;
   checked: number;
 }
@@ -24,6 +24,10 @@ function read (token: string) {
   try {
     const encrypted = troll.d(token, 1, seed)
     if (typeof encrypted === 'object' && encrypted !== null) {
+      if ('user' in encrypted) {
+        encrypted.uid = encrypted.user
+        delete encrypted['user']
+      }
       return encrypted as TokenObject
     }
   } catch {}

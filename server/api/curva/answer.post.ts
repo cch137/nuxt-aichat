@@ -56,9 +56,9 @@ export default defineEventHandler(async (event) => {
   }
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const user = token?.user
+  const uid = token?.uid
   // Validate token
-  if (token === null || typeof user !== 'string') {
+  if (token === null || typeof uid !== 'string') {
     return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
@@ -86,7 +86,7 @@ export default defineEventHandler(async (event) => {
       }
       return _messages
     })()
-    const response = await curva.ask(ip, user, conv, model, temperature, croppedMessages, tz, _id)
+    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id)
     //@ts-ignore
     response.id = typeof response.id === 'string'
     //@ts-ignore

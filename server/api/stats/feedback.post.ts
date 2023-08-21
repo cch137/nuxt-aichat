@@ -8,7 +8,7 @@ export default defineEventHandler(async function (event) {
   // Validate token
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const user = token?.user
+  const user = token?.uid
   if (token === null || typeof user !== 'string') {
     return { error: 0 }
   }
@@ -23,7 +23,7 @@ export default defineEventHandler(async function (event) {
     return { error: 2 }
   }
   mailer.sendText(
-    process.env.NODEMAILER_EMAIL,
+    process.env.NODEMAILER_EMAIL as string,
     `Feedback from ${appName}`,
     `Name: ${name}\n\nFeedback:\n${feedback}`
   )

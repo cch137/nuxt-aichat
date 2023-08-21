@@ -11,8 +11,8 @@ export default defineEventHandler(async (event) => {
   const config = toStdConvConfigString(body?.config as string || '')
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const user = token?.user
-  if (!user) {
+  const uid = token?.uid
+  if (!uid) {
     return { error: 'No permission' }
   }
   const data: { name?: string, config?: string } = {}
@@ -23,13 +23,13 @@ export default defineEventHandler(async (event) => {
   if (config) {
     data.config = config
   }
-  const isExistConv = Boolean(await message.findOne({ user, conv }))
+  const isExistConv = Boolean(await message.findOne({ uid, conv }))
   if (!isExistConv) {
     return {}
   }
   await conversation.updateOne(
-    { id: conv, user },
-    { $set: { id: conv, user, ...data } },
+    { id: conv, uid },
+    { $set: { id: conv, uid, ...data } },
     { upsert: true }
   )
   return {}

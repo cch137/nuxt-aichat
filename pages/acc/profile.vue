@@ -16,17 +16,23 @@
     <NuxtLink href="/acc/reset-password">
       <el-button>{{ $t('auth.resetPw') }}</el-button>
     </NuxtLink>
+    <h3>{{ $t('auth.email') }}</h3>
+    <div class="opacity-60" @click="() => ElMessage.info('Email address cannot be changed.')">
+      <el-input v-model="email" type="email" disabled class="pointer-events-none" />
+    </div>
     <h1>{{ $t('settings.appearance') }}</h1>
     <CommonSettings />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
+
 const i18n = useLocale()
 // @ts-ignore
 const _t = i18n.t
 
-const { username, changeUsername } = useAuth()
+const { email, username, changeUsername } = useAuth()
 
 const usernameIsNotSaved = ref(false)
 const usernameIsSaving = ref(false)

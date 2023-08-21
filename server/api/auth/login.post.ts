@@ -26,11 +26,11 @@ export default defineEventHandler(async function (event): Promise<{ error?: stri
   }
   const rawCookie = req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token) || {} as TokenObject
-  const oldUid = token.user
+  const oldUid = token.uid
   const oldUidIsExists = oldUid ? auth.getUser(oldUid) : null
   const uid = await auth.getUid(usernameOrEmail, password)
   if (uid) {
-    token.user = uid
+    token.uid = uid
     if (!(await oldUidIsExists)) {
       try {
         await auth.mergeUser(uid, oldUid)

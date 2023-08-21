@@ -123,9 +123,9 @@ const getUid = async (usernameOrEmail: string, password: string) => {
   return user?.uid || false
 }
 
-const getUser = async (uid: string): Promise<{ username: string }> => {
+const getUser = async (uid: string): Promise<{ username: string, email: string }> => {
   // @ts-ignore
-  return await userCollection.findOne({ uid }, { _id: 0, username: 1 })
+  return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1 })
 }
 
 const mergeUser = async (uidToBeRetained: string, uidToBeRemoved: string) => {
@@ -135,7 +135,7 @@ const mergeUser = async (uidToBeRetained: string, uidToBeRemoved: string) => {
   if (typeof uidToBeRemoved !== 'string') {
     throw 'uidToBeRemoved is not a string'
   }
-  await messageCollection.updateMany({ user: uidToBeRemoved }, { $set: { user: uidToBeRetained } })
+  await messageCollection.updateMany({ uid: uidToBeRemoved }, { $set: { uid: uidToBeRetained } })
 }
 
 const changeUsername = async (uid: string, username: string) => {

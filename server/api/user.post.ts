@@ -5,5 +5,5 @@ import { mask } from '~/utils/masker'
 export default defineEventHandler(async (event) => {
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  return mask(token?.user || '', '64w', 1, 4896).substring(1)
+  return mask(token?.uid || '', '64w', 1, 4896).substring(1)
 })
