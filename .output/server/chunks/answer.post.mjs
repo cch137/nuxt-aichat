@@ -54,13 +54,18 @@ const logger = model("Log", new Schema({
 const rateLimiterBundler = RateLimiter.bundle([
   // Every 1 minutes 10 times
   new RateLimiter(10, 1 * 60 * 1e3),
-  // Every 60 minutes 100 times
-  new RateLimiter(100, 60 * 60 * 1e3),
+  // Every 1*60 minutes 100 times
+  new RateLimiter(100, 1 * 3600 * 1e3),
   // Every 4*60 minutes 200 times
-  new RateLimiter(200, 60 * 60 * 1e3),
+  new RateLimiter(200, 4 * 3600 * 1e3),
   // Every 24*60 minutes 500 times
-  new RateLimiter(500, 24 * 60 * 60 * 1e3)
+  new RateLimiter(500, 24 * 3600 * 1e3)
 ]);
+function consoleLogRate() {
+  console.log([...rateLimiterBundler].map((r) => {
+    return `${r.total} in ${r.frequencyMin} min`;
+  }).join(", "));
+}
 const bannedPrompt = /提示词生成/;
 const bannedIpSet = /* @__PURE__ */ new Set(["106.40.15.110", "36.102.154.131", "123.178.34.190", "123.178.40.253"]);
 const answer_post = defineEventHandler(async (event) => {
@@ -115,6 +120,7 @@ const answer_post = defineEventHandler(async (event) => {
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);
     }
+    consoleLogRate();
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });

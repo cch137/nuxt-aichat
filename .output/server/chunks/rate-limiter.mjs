@@ -86,6 +86,14 @@ class RateLimiter extends Map {
   get frequencyMs() {
     return __privateGet(this, _frequencyMs);
   }
+  /** Readonly */
+  get frequencySec() {
+    return Math.round(__privateGet(this, _frequencyMs) / 1e3);
+  }
+  /** Readonly */
+  get frequencyMin() {
+    return Math.round(__privateGet(this, _frequencyMs) / 1e3 / 60);
+  }
   get nextUpdateAt() {
     return __privateGet(this, _nextUpdateAt);
   }
@@ -94,6 +102,9 @@ class RateLimiter extends Map {
   }
   get hint() {
     return `You have tried too many times. Please try again after ${_formatTime(this.updateCountdown)}.`;
+  }
+  get total() {
+    return [...this.values()].reduce((sum, num) => sum + num, 0);
   }
   check(ip) {
     const times = this.get(ip) || 0;

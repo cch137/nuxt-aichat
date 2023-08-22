@@ -9,36 +9,36 @@ const client_manifest = {
     "file": "DefaultHeaderButtons.90a88d8a.css",
     "src": "DefaultHeaderButtons.css"
   },
-  "_CommonSettings.359b0b5c.js": {
+  "_CommonSettings.e591f9df.js": {
     "resourceType": "script",
     "module": true,
-    "file": "CommonSettings.359b0b5c.js",
+    "file": "CommonSettings.e591f9df.js",
     "imports": [
-      "_el-text.cb9ff5d6.js",
-      "_el-switch.14120001.js",
-      "_client-only.e6cafccb.js",
+      "_el-text.58d682a2.js",
+      "_el-switch.88179efe.js",
+      "_client-only.30c7e4a5.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-input.19fe8f68.js",
-      "_el-popper.05d2c9d8.js"
+      "_el-input.2d8c7522.js",
+      "_el-popper.7a69bf5f.js"
     ]
   },
-  "_ConvMain.ff27111c.js": {
+  "_ConvMain.45e7c591.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "ConvMain.ad146678.css",
       "el-icon.12f2798b.css"
     ],
-    "file": "ConvMain.ff27111c.js",
+    "file": "ConvMain.45e7c591.js",
     "imports": [
-      "_el-button.293e6b8b.js",
-      "_el-text.cb9ff5d6.js",
+      "_el-button.b3bf9df3.js",
+      "_el-text.58d682a2.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-popper.05d2c9d8.js",
-      "_el-popover.cf1de61d.js",
-      "_client-only.e6cafccb.js",
-      "_el-link.1bb407cc.js",
-      "_useChat.9efd0fbe.js"
+      "_el-popper.7a69bf5f.js",
+      "_el-popover.1b6bdf2f.js",
+      "_client-only.30c7e4a5.js",
+      "_el-link.e9d1037b.js",
+      "_useChat.603b42aa.js"
     ]
   },
   "ConvMain.ad146678.css": {
@@ -49,116 +49,116 @@ const client_manifest = {
     "file": "el-icon.12f2798b.css",
     "resourceType": "style"
   },
-  "_DefaultHeaderButtons.86b88830.js": {
+  "_DefaultHeaderButtons.2bced6aa.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "DefaultHeaderButtons.90a88d8a.css",
       "el-icon.12f2798b.css"
     ],
-    "file": "DefaultHeaderButtons.86b88830.js",
+    "file": "DefaultHeaderButtons.2bced6aa.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_nuxt-link.b61695df.js",
-      "_el-button.293e6b8b.js",
-      "_CommonSettings.359b0b5c.js",
-      "_el-overlay.d2bf51ef.js",
-      "_focus-trap.4d157976.js",
-      "_el-input.19fe8f68.js",
-      "_use-form-item.0eb42268.js",
-      "_el-popper.05d2c9d8.js",
-      "_el-switch.14120001.js",
-      "_dropdown.3ba28d0a.js",
-      "_client-only.e6cafccb.js",
-      "_useAuth.e33013ef.js"
+      "_nuxt-link.0af3c2d0.js",
+      "_el-button.b3bf9df3.js",
+      "_CommonSettings.e591f9df.js",
+      "_el-overlay.2d4854bd.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_el-input.2d8c7522.js",
+      "_use-form-item.1c343e03.js",
+      "_el-popper.7a69bf5f.js",
+      "_el-switch.88179efe.js",
+      "_dropdown.28c3cb57.js",
+      "_client-only.30c7e4a5.js",
+      "_useAuth.f9855cd8.js"
     ]
   },
   "DefaultHeaderButtons.90a88d8a.css": {
     "file": "DefaultHeaderButtons.90a88d8a.css",
     "resourceType": "style"
   },
-  "__Uint8Array.39fdeb97.js": {
+  "__Uint8Array.8bcc06e1.js": {
     "resourceType": "script",
     "module": true,
-    "file": "_Uint8Array.39fdeb97.js",
+    "file": "_Uint8Array.8bcc06e1.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
   },
-  "_client-only.e6cafccb.js": {
+  "_client-only.30c7e4a5.js": {
     "resourceType": "script",
     "module": true,
-    "file": "client-only.e6cafccb.js",
+    "file": "client-only.30c7e4a5.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
   },
-  "_dropdown.3ba28d0a.js": {
+  "_dropdown.28c3cb57.js": {
     "resourceType": "script",
     "module": true,
-    "file": "dropdown.3ba28d0a.js",
+    "file": "dropdown.28c3cb57.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-popper.05d2c9d8.js"
+      "_el-popper.7a69bf5f.js"
     ]
   },
-  "_el-button.293e6b8b.js": {
+  "_el-button.b3bf9df3.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-button.2689f638.css"
     ],
-    "file": "el-button.293e6b8b.js",
+    "file": "el-button.b3bf9df3.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_use-form-item.0eb42268.js"
+      "_use-form-item.1c343e03.js"
     ]
   },
   "el-button.2689f638.css": {
     "file": "el-button.2689f638.css",
     "resourceType": "style"
   },
-  "_el-form.a22e95e2.js": {
+  "_el-form.a9bad67c.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-form.7235a9a0.css"
     ],
-    "file": "el-form.a22e95e2.js",
+    "file": "el-form.a9bad67c.js",
     "imports": [
-      "_use-form-item.0eb42268.js",
+      "_use-form-item.1c343e03.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-input.19fe8f68.js",
-      "__Uint8Array.39fdeb97.js"
+      "_el-input.2d8c7522.js",
+      "__Uint8Array.8bcc06e1.js"
     ]
   },
   "el-form.7235a9a0.css": {
     "file": "el-form.7235a9a0.css",
     "resourceType": "style"
   },
-  "_el-input.19fe8f68.js": {
+  "_el-input.2d8c7522.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-input.ba3ea184.css"
     ],
-    "file": "el-input.19fe8f68.js",
+    "file": "el-input.2d8c7522.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_use-form-item.0eb42268.js"
+      "_use-form-item.1c343e03.js"
     ]
   },
   "el-input.ba3ea184.css": {
     "file": "el-input.ba3ea184.css",
     "resourceType": "style"
   },
-  "_el-link.1bb407cc.js": {
+  "_el-link.e9d1037b.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-link.d9789c6b.css"
     ],
-    "file": "el-link.1bb407cc.js",
+    "file": "el-link.e9d1037b.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
@@ -167,172 +167,172 @@ const client_manifest = {
     "file": "el-link.d9789c6b.css",
     "resourceType": "style"
   },
-  "_el-overlay.d2bf51ef.js": {
+  "_el-overlay.2d4854bd.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-overlay.adec720f.css"
     ],
-    "file": "el-overlay.d2bf51ef.js",
+    "file": "el-overlay.2d4854bd.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-button.293e6b8b.js",
-      "_el-input.19fe8f68.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js"
+      "_el-button.b3bf9df3.js",
+      "_el-input.2d8c7522.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js"
     ]
   },
   "el-overlay.adec720f.css": {
     "file": "el-overlay.adec720f.css",
     "resourceType": "style"
   },
-  "_el-popover.cf1de61d.js": {
+  "_el-popover.1b6bdf2f.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-popover.42c2bc56.css"
     ],
-    "file": "el-popover.cf1de61d.js",
+    "file": "el-popover.1b6bdf2f.js",
     "imports": [
-      "_el-popper.05d2c9d8.js",
+      "_el-popper.7a69bf5f.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_dropdown.3ba28d0a.js"
+      "_dropdown.28c3cb57.js"
     ]
   },
   "el-popover.42c2bc56.css": {
     "file": "el-popover.42c2bc56.css",
     "resourceType": "style"
   },
-  "_el-popper.05d2c9d8.js": {
+  "_el-popper.7a69bf5f.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-popper.854ddd02.css"
     ],
-    "file": "el-popper.05d2c9d8.js",
+    "file": "el-popper.7a69bf5f.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-input.19fe8f68.js",
-      "_use-form-item.0eb42268.js",
-      "_focus-trap.4d157976.js"
+      "_el-input.2d8c7522.js",
+      "_use-form-item.1c343e03.js",
+      "_focus-trap.f5a7ea5c.js"
     ]
   },
   "el-popper.854ddd02.css": {
     "file": "el-popper.854ddd02.css",
     "resourceType": "style"
   },
-  "_el-switch.14120001.js": {
+  "_el-switch.88179efe.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-switch.f8353e0a.css"
     ],
-    "file": "el-switch.14120001.js",
+    "file": "el-switch.88179efe.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-popper.05d2c9d8.js",
-      "_el-input.19fe8f68.js",
-      "_use-form-item.0eb42268.js",
-      "_scroll.29ad57a0.js",
-      "_isEqual.5651abaf.js",
-      "_focus-trap.4d157976.js"
+      "_el-popper.7a69bf5f.js",
+      "_el-input.2d8c7522.js",
+      "_use-form-item.1c343e03.js",
+      "_scroll.70459c69.js",
+      "_isEqual.77ee6115.js",
+      "_focus-trap.f5a7ea5c.js"
     ]
   },
   "el-switch.f8353e0a.css": {
     "file": "el-switch.f8353e0a.css",
     "resourceType": "style"
   },
-  "_el-text.cb9ff5d6.js": {
+  "_el-text.58d682a2.js": {
     "resourceType": "script",
     "module": true,
     "css": [
       "el-text.7dc6a0f8.css"
     ],
-    "file": "el-text.cb9ff5d6.js",
+    "file": "el-text.58d682a2.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_use-form-item.0eb42268.js"
+      "_use-form-item.1c343e03.js"
     ]
   },
   "el-text.7dc6a0f8.css": {
     "file": "el-text.7dc6a0f8.css",
     "resourceType": "style"
   },
-  "_focus-trap.4d157976.js": {
+  "_focus-trap.f5a7ea5c.js": {
     "resourceType": "script",
     "module": true,
-    "file": "focus-trap.4d157976.js",
+    "file": "focus-trap.f5a7ea5c.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-input.19fe8f68.js"
+      "_el-input.2d8c7522.js"
     ]
   },
-  "_isEqual.5651abaf.js": {
+  "_isEqual.77ee6115.js": {
     "resourceType": "script",
     "module": true,
-    "file": "isEqual.5651abaf.js",
+    "file": "isEqual.77ee6115.js",
     "imports": [
-      "__Uint8Array.39fdeb97.js",
+      "__Uint8Array.8bcc06e1.js",
       "node_modules/nuxt/dist/app/entry.js"
     ]
   },
-  "_nuxt-link.b61695df.js": {
+  "_nuxt-link.0af3c2d0.js": {
     "resourceType": "script",
     "module": true,
-    "file": "nuxt-link.b61695df.js",
-    "imports": [
-      "node_modules/nuxt/dist/app/entry.js"
-    ]
-  },
-  "_scroll.29ad57a0.js": {
-    "resourceType": "script",
-    "module": true,
-    "file": "scroll.29ad57a0.js",
+    "file": "nuxt-link.0af3c2d0.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
   },
-  "_use-form-item.0eb42268.js": {
+  "_scroll.70459c69.js": {
     "resourceType": "script",
     "module": true,
-    "file": "use-form-item.0eb42268.js",
+    "file": "scroll.70459c69.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
   },
-  "_useAdmin.8e7e41a2.js": {
+  "_use-form-item.1c343e03.js": {
     "resourceType": "script",
     "module": true,
-    "file": "useAdmin.8e7e41a2.js",
+    "file": "use-form-item.1c343e03.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
   },
-  "_useAuth.e33013ef.js": {
+  "_useAdmin.738ae91d.js": {
     "resourceType": "script",
     "module": true,
-    "file": "useAuth.e33013ef.js",
+    "file": "useAdmin.738ae91d.js",
+    "imports": [
+      "node_modules/nuxt/dist/app/entry.js"
+    ]
+  },
+  "_useAuth.f9855cd8.js": {
+    "resourceType": "script",
+    "module": true,
+    "file": "useAuth.f9855cd8.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_useChat.9efd0fbe.js"
+      "_useChat.603b42aa.js"
     ]
   },
-  "_useChat.9efd0fbe.js": {
+  "_useChat.603b42aa.js": {
     "resourceType": "script",
     "module": true,
-    "file": "useChat.9efd0fbe.js",
+    "file": "useChat.603b42aa.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-overlay.d2bf51ef.js",
-      "_el-button.293e6b8b.js",
-      "_el-input.19fe8f68.js",
-      "_useTitle.c2c62a17.js"
+      "_el-overlay.2d4854bd.js",
+      "_el-button.b3bf9df3.js",
+      "_el-input.2d8c7522.js",
+      "_useTitle.420424d7.js"
     ]
   },
-  "_useTitle.c2c62a17.js": {
+  "_useTitle.420424d7.js": {
     "resourceType": "script",
     "module": true,
-    "file": "useTitle.c2c62a17.js",
+    "file": "useTitle.420424d7.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
@@ -396,31 +396,31 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "chat.8a1159b5.js",
+    "file": "chat.1cdf7f78.js",
     "imports": [
-      "_DefaultHeaderButtons.86b88830.js",
-      "_el-button.293e6b8b.js",
-      "_el-text.cb9ff5d6.js",
-      "_el-switch.14120001.js",
+      "_DefaultHeaderButtons.2bced6aa.js",
+      "_el-button.b3bf9df3.js",
+      "_el-text.58d682a2.js",
+      "_el-switch.88179efe.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-input.19fe8f68.js",
-      "_el-popper.05d2c9d8.js",
-      "_useChat.9efd0fbe.js",
-      "_el-popover.cf1de61d.js",
-      "_client-only.e6cafccb.js",
-      "_use-form-item.0eb42268.js",
-      "_el-form.a22e95e2.js",
-      "_nuxt-link.b61695df.js",
-      "_el-link.1bb407cc.js",
-      "_el-overlay.d2bf51ef.js",
-      "_focus-trap.4d157976.js",
-      "_CommonSettings.359b0b5c.js",
-      "_dropdown.3ba28d0a.js",
-      "_useAuth.e33013ef.js",
-      "_scroll.29ad57a0.js",
-      "_isEqual.5651abaf.js",
-      "__Uint8Array.39fdeb97.js",
-      "_useTitle.c2c62a17.js"
+      "_el-input.2d8c7522.js",
+      "_el-popper.7a69bf5f.js",
+      "_useChat.603b42aa.js",
+      "_el-popover.1b6bdf2f.js",
+      "_client-only.30c7e4a5.js",
+      "_use-form-item.1c343e03.js",
+      "_el-form.a9bad67c.js",
+      "_nuxt-link.0af3c2d0.js",
+      "_el-link.e9d1037b.js",
+      "_el-overlay.2d4854bd.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_CommonSettings.e591f9df.js",
+      "_dropdown.28c3cb57.js",
+      "_useAuth.f9855cd8.js",
+      "_scroll.70459c69.js",
+      "_isEqual.77ee6115.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_useTitle.420424d7.js"
     ],
     "isDynamicEntry": true,
     "src": "layouts/chat.vue"
@@ -438,28 +438,28 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "default.1618e9e6.js",
+    "file": "default.9f53d0ec.js",
     "imports": [
-      "_DefaultHeaderButtons.86b88830.js",
-      "_useChat.9efd0fbe.js",
+      "_DefaultHeaderButtons.2bced6aa.js",
+      "_useChat.603b42aa.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_client-only.e6cafccb.js",
-      "_nuxt-link.b61695df.js",
-      "_el-button.293e6b8b.js",
-      "_use-form-item.0eb42268.js",
-      "_CommonSettings.359b0b5c.js",
-      "_el-text.cb9ff5d6.js",
-      "_el-switch.14120001.js",
-      "_el-popper.05d2c9d8.js",
-      "_el-input.19fe8f68.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js",
-      "_isEqual.5651abaf.js",
-      "__Uint8Array.39fdeb97.js",
-      "_el-overlay.d2bf51ef.js",
-      "_dropdown.3ba28d0a.js",
-      "_useAuth.e33013ef.js",
-      "_useTitle.c2c62a17.js"
+      "_client-only.30c7e4a5.js",
+      "_nuxt-link.0af3c2d0.js",
+      "_el-button.b3bf9df3.js",
+      "_use-form-item.1c343e03.js",
+      "_CommonSettings.e591f9df.js",
+      "_el-text.58d682a2.js",
+      "_el-switch.88179efe.js",
+      "_el-popper.7a69bf5f.js",
+      "_el-input.2d8c7522.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js",
+      "_isEqual.77ee6115.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_el-overlay.2d4854bd.js",
+      "_dropdown.28c3cb57.js",
+      "_useAuth.f9855cd8.js",
+      "_useTitle.420424d7.js"
     ],
     "isDynamicEntry": true,
     "src": "layouts/default.vue"
@@ -471,17 +471,17 @@ const client_manifest = {
   "middleware/chat.ts": {
     "resourceType": "script",
     "module": true,
-    "file": "chat.2c552665.js",
+    "file": "chat.c299c6b6.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_useChat.9efd0fbe.js",
-      "_el-overlay.d2bf51ef.js",
-      "_el-button.293e6b8b.js",
-      "_use-form-item.0eb42268.js",
-      "_el-input.19fe8f68.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js",
-      "_useTitle.c2c62a17.js"
+      "_useChat.603b42aa.js",
+      "_el-overlay.2d4854bd.js",
+      "_el-button.b3bf9df3.js",
+      "_use-form-item.1c343e03.js",
+      "_el-input.2d8c7522.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js",
+      "_useTitle.420424d7.js"
     ],
     "isDynamicEntry": true,
     "src": "middleware/chat.ts"
@@ -489,10 +489,10 @@ const client_manifest = {
   "middleware/onlyAdminAuth.ts": {
     "resourceType": "script",
     "module": true,
-    "file": "onlyAdminAuth.2e471b15.js",
+    "file": "onlyAdminAuth.8987e84b.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_useAdmin.8e7e41a2.js"
+      "_useAdmin.738ae91d.js"
     ],
     "isDynamicEntry": true,
     "src": "middleware/onlyAdminAuth.ts"
@@ -500,18 +500,18 @@ const client_manifest = {
   "middleware/onlyAuth.ts": {
     "resourceType": "script",
     "module": true,
-    "file": "onlyAuth.30b70d20.js",
+    "file": "onlyAuth.008b7c58.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_useAuth.e33013ef.js",
-      "_useChat.9efd0fbe.js",
-      "_el-overlay.d2bf51ef.js",
-      "_el-button.293e6b8b.js",
-      "_use-form-item.0eb42268.js",
-      "_el-input.19fe8f68.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js",
-      "_useTitle.c2c62a17.js"
+      "_useAuth.f9855cd8.js",
+      "_useChat.603b42aa.js",
+      "_el-overlay.2d4854bd.js",
+      "_el-button.b3bf9df3.js",
+      "_use-form-item.1c343e03.js",
+      "_el-input.2d8c7522.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js",
+      "_useTitle.420424d7.js"
     ],
     "isDynamicEntry": true,
     "src": "middleware/onlyAuth.ts"
@@ -519,18 +519,18 @@ const client_manifest = {
   "middleware/onlyNoAuth.ts": {
     "resourceType": "script",
     "module": true,
-    "file": "onlyNoAuth.de3904c2.js",
+    "file": "onlyNoAuth.08223600.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_useAuth.e33013ef.js",
-      "_useChat.9efd0fbe.js",
-      "_el-overlay.d2bf51ef.js",
-      "_el-button.293e6b8b.js",
-      "_use-form-item.0eb42268.js",
-      "_el-input.19fe8f68.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js",
-      "_useTitle.c2c62a17.js"
+      "_useAuth.f9855cd8.js",
+      "_useChat.603b42aa.js",
+      "_el-overlay.2d4854bd.js",
+      "_el-button.b3bf9df3.js",
+      "_use-form-item.1c343e03.js",
+      "_el-input.2d8c7522.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js",
+      "_useTitle.420424d7.js"
     ],
     "isDynamicEntry": true,
     "src": "middleware/onlyNoAuth.ts"
@@ -544,9 +544,9 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "error-404.55344162.js",
+    "file": "error-404.268a9202.js",
     "imports": [
-      "_nuxt-link.b61695df.js",
+      "_nuxt-link.0af3c2d0.js",
       "node_modules/nuxt/dist/app/entry.js"
     ],
     "isDynamicEntry": true,
@@ -565,7 +565,7 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "error-500.8e3c7f9d.js",
+    "file": "error-500.1aa7f4e3.js",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ],
@@ -597,7 +597,7 @@ const client_manifest = {
       "node_modules/@nuxt/ui-templates/dist/templates/error-404.vue",
       "node_modules/@nuxt/ui-templates/dist/templates/error-500.vue"
     ],
-    "file": "entry.1358a60f.js",
+    "file": "entry.a069275b.js",
     "isEntry": true,
     "src": "node_modules/nuxt/dist/app/entry.js",
     "_globalCSS": true
@@ -609,26 +609,26 @@ const client_manifest = {
   "pages/acc/profile.vue": {
     "resourceType": "script",
     "module": true,
-    "file": "profile.c794785f.js",
+    "file": "profile.4fe8d7d3.js",
     "imports": [
-      "_el-input.19fe8f68.js",
-      "_el-button.293e6b8b.js",
-      "_nuxt-link.b61695df.js",
-      "_CommonSettings.359b0b5c.js",
+      "_el-input.2d8c7522.js",
+      "_el-button.b3bf9df3.js",
+      "_nuxt-link.0af3c2d0.js",
+      "_CommonSettings.e591f9df.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_useAuth.e33013ef.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js",
-      "_el-text.cb9ff5d6.js",
-      "_el-switch.14120001.js",
-      "_el-popper.05d2c9d8.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js",
-      "_isEqual.5651abaf.js",
-      "__Uint8Array.39fdeb97.js",
-      "_client-only.e6cafccb.js",
-      "_useChat.9efd0fbe.js",
-      "_el-overlay.d2bf51ef.js"
+      "_useAuth.f9855cd8.js",
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js",
+      "_el-text.58d682a2.js",
+      "_el-switch.88179efe.js",
+      "_el-popper.7a69bf5f.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js",
+      "_isEqual.77ee6115.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_client-only.30c7e4a5.js",
+      "_useChat.603b42aa.js",
+      "_el-overlay.2d4854bd.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/acc/profile.vue"
@@ -642,21 +642,21 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "reset-password.83bd74d2.js",
+    "file": "reset-password.79b3f2bf.js",
     "imports": [
-      "_el-input.19fe8f68.js",
-      "_el-form.a22e95e2.js",
+      "_el-input.2d8c7522.js",
+      "_el-form.a9bad67c.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-link.1bb407cc.js",
-      "_el-text.cb9ff5d6.js",
-      "_el-button.293e6b8b.js",
-      "_client-only.e6cafccb.js",
-      "_el-overlay.d2bf51ef.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js",
-      "__Uint8Array.39fdeb97.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js"
+      "_el-link.e9d1037b.js",
+      "_el-text.58d682a2.js",
+      "_el-button.b3bf9df3.js",
+      "_client-only.30c7e4a5.js",
+      "_el-overlay.2d4854bd.js",
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/acc/reset-password.vue"
@@ -668,18 +668,18 @@ const client_manifest = {
   "pages/admin/dashboard.vue": {
     "resourceType": "script",
     "module": true,
-    "file": "dashboard.e209ae4c.js",
+    "file": "dashboard.38448517.js",
     "imports": [
-      "_el-switch.14120001.js",
+      "_el-switch.88179efe.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-input.19fe8f68.js",
-      "_el-popper.05d2c9d8.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js",
-      "_scroll.29ad57a0.js",
-      "_isEqual.5651abaf.js",
-      "__Uint8Array.39fdeb97.js",
-      "_focus-trap.4d157976.js"
+      "_el-input.2d8c7522.js",
+      "_el-popper.7a69bf5f.js",
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js",
+      "_scroll.70459c69.js",
+      "_isEqual.77ee6115.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_focus-trap.f5a7ea5c.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/admin/dashboard.vue"
@@ -687,14 +687,14 @@ const client_manifest = {
   "pages/admin/entrance.vue": {
     "resourceType": "script",
     "module": true,
-    "file": "entrance.8a242e27.js",
+    "file": "entrance.b1820dd2.js",
     "imports": [
-      "_el-input.19fe8f68.js",
-      "_el-button.293e6b8b.js",
+      "_el-input.2d8c7522.js",
+      "_el-button.b3bf9df3.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_useAdmin.8e7e41a2.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js"
+      "_useAdmin.738ae91d.js",
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/admin/entrance.vue"
@@ -702,15 +702,15 @@ const client_manifest = {
   "pages/admin/login.vue": {
     "resourceType": "script",
     "module": true,
-    "file": "login.1c186ccc.js",
+    "file": "login.33782cc3.js",
     "imports": [
-      "_el-input.19fe8f68.js",
-      "_el-button.293e6b8b.js",
-      "_client-only.e6cafccb.js",
+      "_el-input.2d8c7522.js",
+      "_el-button.b3bf9df3.js",
+      "_client-only.30c7e4a5.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_useAdmin.8e7e41a2.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js"
+      "_useAdmin.738ae91d.js",
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/admin/login.vue"
@@ -721,24 +721,24 @@ const client_manifest = {
     "css": [
       "el-icon.12f2798b.css"
     ],
-    "file": "_conv_.2cc2a358.js",
+    "file": "_conv_.171d7949.js",
     "imports": [
-      "_ConvMain.ff27111c.js",
+      "_ConvMain.45e7c591.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_useTitle.c2c62a17.js",
-      "_el-button.293e6b8b.js",
-      "_use-form-item.0eb42268.js",
-      "_el-text.cb9ff5d6.js",
-      "_el-popper.05d2c9d8.js",
-      "_el-input.19fe8f68.js",
-      "_focus-trap.4d157976.js",
-      "_el-popover.cf1de61d.js",
-      "_dropdown.3ba28d0a.js",
-      "_client-only.e6cafccb.js",
-      "_el-link.1bb407cc.js",
-      "_useChat.9efd0fbe.js",
-      "_el-overlay.d2bf51ef.js",
-      "_scroll.29ad57a0.js"
+      "_useTitle.420424d7.js",
+      "_el-button.b3bf9df3.js",
+      "_use-form-item.1c343e03.js",
+      "_el-text.58d682a2.js",
+      "_el-popper.7a69bf5f.js",
+      "_el-input.2d8c7522.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_el-popover.1b6bdf2f.js",
+      "_dropdown.28c3cb57.js",
+      "_client-only.30c7e4a5.js",
+      "_el-link.e9d1037b.js",
+      "_useChat.603b42aa.js",
+      "_el-overlay.2d4854bd.js",
+      "_scroll.70459c69.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/c/[conv].vue"
@@ -749,24 +749,24 @@ const client_manifest = {
     "css": [
       "el-icon.12f2798b.css"
     ],
-    "file": "index.ce303738.js",
+    "file": "index.99960ef4.js",
     "imports": [
-      "_ConvMain.ff27111c.js",
+      "_ConvMain.45e7c591.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_useTitle.c2c62a17.js",
-      "_el-button.293e6b8b.js",
-      "_use-form-item.0eb42268.js",
-      "_el-text.cb9ff5d6.js",
-      "_el-popper.05d2c9d8.js",
-      "_el-input.19fe8f68.js",
-      "_focus-trap.4d157976.js",
-      "_el-popover.cf1de61d.js",
-      "_dropdown.3ba28d0a.js",
-      "_client-only.e6cafccb.js",
-      "_el-link.1bb407cc.js",
-      "_useChat.9efd0fbe.js",
-      "_el-overlay.d2bf51ef.js",
-      "_scroll.29ad57a0.js"
+      "_useTitle.420424d7.js",
+      "_el-button.b3bf9df3.js",
+      "_use-form-item.1c343e03.js",
+      "_el-text.58d682a2.js",
+      "_el-popper.7a69bf5f.js",
+      "_el-input.2d8c7522.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_el-popover.1b6bdf2f.js",
+      "_dropdown.28c3cb57.js",
+      "_client-only.30c7e4a5.js",
+      "_el-link.e9d1037b.js",
+      "_useChat.603b42aa.js",
+      "_el-overlay.2d4854bd.js",
+      "_scroll.70459c69.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/c/index.vue"
@@ -774,13 +774,13 @@ const client_manifest = {
   "pages/index.vue": {
     "resourceType": "script",
     "module": true,
-    "file": "index.27c55f14.js",
+    "file": "index.c8d375cc.js",
     "imports": [
-      "_el-button.293e6b8b.js",
-      "_nuxt-link.b61695df.js",
+      "_el-button.b3bf9df3.js",
+      "_nuxt-link.0af3c2d0.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js"
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/index.vue"
@@ -794,24 +794,24 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "login.7b4d1564.js",
+    "file": "login.77c3ed71.js",
     "imports": [
-      "_el-input.19fe8f68.js",
-      "_el-form.a22e95e2.js",
-      "_el-button.293e6b8b.js",
-      "_el-text.cb9ff5d6.js",
-      "_nuxt-link.b61695df.js",
-      "_el-link.1bb407cc.js",
-      "_client-only.e6cafccb.js",
+      "_el-input.2d8c7522.js",
+      "_el-form.a9bad67c.js",
+      "_el-button.b3bf9df3.js",
+      "_el-text.58d682a2.js",
+      "_nuxt-link.0af3c2d0.js",
+      "_el-link.e9d1037b.js",
+      "_client-only.30c7e4a5.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_useAuth.e33013ef.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js",
-      "__Uint8Array.39fdeb97.js",
-      "_useChat.9efd0fbe.js",
-      "_el-overlay.d2bf51ef.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js"
+      "_useAuth.f9855cd8.js",
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_useChat.603b42aa.js",
+      "_el-overlay.2d4854bd.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/login.vue"
@@ -829,16 +829,16 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "perspective.381146b7.js",
+    "file": "perspective.9e3e25cb.js",
     "imports": [
-      "_el-input.19fe8f68.js",
-      "_el-button.293e6b8b.js",
+      "_el-input.2d8c7522.js",
+      "_el-button.b3bf9df3.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_scroll.29ad57a0.js",
-      "_use-form-item.0eb42268.js",
-      "_isEqual.5651abaf.js",
-      "__Uint8Array.39fdeb97.js",
-      "_client-only.e6cafccb.js"
+      "_scroll.70459c69.js",
+      "_use-form-item.1c343e03.js",
+      "_isEqual.77ee6115.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_client-only.30c7e4a5.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/perspective.vue"
@@ -856,24 +856,24 @@ const client_manifest = {
     "resourceType": "script",
     "module": true,
     "css": [],
-    "file": "signup.20dc00f0.js",
+    "file": "signup.98f982a5.js",
     "imports": [
-      "_el-input.19fe8f68.js",
-      "_el-form.a22e95e2.js",
+      "_el-input.2d8c7522.js",
+      "_el-form.a9bad67c.js",
       "node_modules/nuxt/dist/app/entry.js",
-      "_el-link.1bb407cc.js",
-      "_el-text.cb9ff5d6.js",
-      "_el-button.293e6b8b.js",
-      "_nuxt-link.b61695df.js",
-      "_client-only.e6cafccb.js",
-      "_el-overlay.d2bf51ef.js",
-      "_useAuth.e33013ef.js",
-      "_useTitle.c2c62a17.js",
-      "_use-form-item.0eb42268.js",
-      "__Uint8Array.39fdeb97.js",
-      "_focus-trap.4d157976.js",
-      "_scroll.29ad57a0.js",
-      "_useChat.9efd0fbe.js"
+      "_el-link.e9d1037b.js",
+      "_el-text.58d682a2.js",
+      "_el-button.b3bf9df3.js",
+      "_nuxt-link.0af3c2d0.js",
+      "_client-only.30c7e4a5.js",
+      "_el-overlay.2d4854bd.js",
+      "_useAuth.f9855cd8.js",
+      "_useTitle.420424d7.js",
+      "_use-form-item.1c343e03.js",
+      "__Uint8Array.8bcc06e1.js",
+      "_focus-trap.f5a7ea5c.js",
+      "_scroll.70459c69.js",
+      "_useChat.603b42aa.js"
     ],
     "isDynamicEntry": true,
     "src": "pages/signup.vue"
