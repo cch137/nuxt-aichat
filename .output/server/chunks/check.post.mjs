@@ -4,7 +4,7 @@ import { serialize } from 'cookie';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { g as getIp } from './getIp.mjs';
 
-const rateLimiter = new RateLimiter(5, 15 * 60 * 1e3);
+const rateLimiter = new RateLimiter(10, 1 * 60 * 1e3);
 const check_post = defineEventHandler(async function(event) {
   var _a;
   if (!rateLimiter.check(getIp(event.node.req))) {
