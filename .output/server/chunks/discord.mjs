@@ -1,8 +1,7 @@
 import { defineEventHandler } from 'h3';
 import { d as discordBot } from './index3.mjs';
 import 'discord.js';
-import './random.mjs';
-import 'crypto-js/sha3.js';
+import './str.mjs';
 import './index4.mjs';
 import './index2.mjs';
 import 'dotenv';
@@ -26,8 +25,6 @@ import 'tls';
 import 'mongoose';
 import './conversation.mjs';
 import './message.mjs';
-import './troll.mjs';
-import 'crypto-js/md5.js';
 import 'sequelize';
 import './createAxiosSession.mjs';
 import 'axios';

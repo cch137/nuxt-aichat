@@ -28,8 +28,8 @@ import 'socks';
 import 'tls';
 import 'mongoose';
 import './random.mjs';
+import './str.mjs';
 import './message.mjs';
-import './troll.mjs';
 import 'crypto-js/md5.js';
 
 const rateLimiter = new RateLimiter(5, 5 * 60 * 1e3);

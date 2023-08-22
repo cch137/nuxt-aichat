@@ -1,7 +1,6 @@
 import Conversation from './conversation'
-import { coreCollection, Gpt3Chatbot, Gpt4Chatbot, GptWebChatbot, Claude2WebChatbot, Gpt3FgaChatbot } from '../engines'
-import type { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
-import troll from '~/utils/troll'
+import { Gpt3Chatbot, Gpt4Chatbot, GptWebChatbot, Claude2WebChatbot, Gpt3FgaChatbot } from '../engines'
+import { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
 import str from '~/utils/str'
 import type { OpenAIMessage } from '../engines/cores/types'
 import type { CurvaStandardResponse } from './types'
@@ -23,87 +22,39 @@ function chooseEngine (model: string) {
   }
 }
 
-const getRandomToken = (() => {
-  const tokens: string[] = (() => {
-    const accounts: ({ type: 'MindsDB', email: string, password: string })[] = [
-      // {
-      //   type: 'MindsDB',
-      //   email: 'chorngherngchee@gmail.com',
-      //   password: 'Curva&&cch137',
-      // },
-      // {
-      //   type: 'MindsDB',
-      //   email: 'gammacheechorngherng@gmail.com',
-      //   password: 'Curva&&cch137',
-      // },
-      // {
-      //   type: 'MindsDB',
-      //   email: 'deltacheechorngherng@gmail.com',
-      //   password: 'Curva&&cch137',
-      // },
-      {
-        type: 'MindsDB',
-        email: 'chengyuxuee@gmail.com',
-        password: '88888888Ss',
-      },
-      {
-        type: 'MindsDB',
-        email: 'chengyuxueee@gmail.com',
-        password: '88888888Ss',
-      },
-      {
-        type: 'MindsDB',
-        email: 'xuechengyuuu@gmail.com',
-        password: '12345678Ss',
-      },
-      {
-        type: 'MindsDB',
-        email: 'xuechengyuuuu@gmail.com',
-        password: '12345678Ss',
-      },
-      // {
-      //   type: 'MindsDB',
-      //   email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com',
-      //   password: 'M5Ij992bVsPWdZajh7fZqw',
-      // },
-      // {
-      //   type: 'MindsDB',
-      //   email: 'O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com',
-      //   password: 'O1qNDwsOGUcQ1V5nfQmyMg',
-      // },
-      // {
-      //   type: 'MindsDB',
-      //   email: 'TCBLoYSrSv8BGCSOKqbWUw@hotmail.com',
-      //   password: 'TCBLoYSrSv8BGCSOKqbWUw',
-      // },
-      // {
-      //   type: 'MindsDB',
-      //   email: 'HqhF714XxlOT_hlCQ0nCDA@hotmail.com',
-      //   password: 'HqhF714XxlOT_hlCQ0nCDA',
-      // },
-    ]
-    return accounts.map((acc) => troll.e(acc, 1, 8038918216105477))
-  })()
-  tokens.forEach((token) => coreCollection.get(token))
+const getRandomMindsDBCore = (() => {
+  const cores = ([
+    // { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
+    // { email: 'gammacheechorngherng@gmail.com', password: 'Curva&&cch137' },
+    // { email: 'deltacheechorngherng@gmail.com', password: 'Curva&&cch137' },
+    { email: 'chengyuxuee@gmail.com', password: '88888888Ss' },
+    { email: 'chengyuxueee@gmail.com', password: '88888888Ss' },
+    { email: 'xuechengyuuu@gmail.com', password: '12345678Ss' },
+    { email: 'xuechengyuuuu@gmail.com', password: '12345678Ss' },
+    // { email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com', password: 'M5Ij992bVsPWdZajh7fZqw' },
+    // { email: 'O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com', password: 'O1qNDwsOGUcQ1V5nfQmyMg' },
+    // { email: 'TCBLoYSrSv8BGCSOKqbWUw@hotmail.com', password: 'TCBLoYSrSv8BGCSOKqbWUw' },
+    // { email: 'HqhF714XxlOT_hlCQ0nCDA@hotmail.com', password: 'HqhF714XxlOT_hlCQ0nCDA' },
+  ]).map((acc) => {
+    const { email, password } = acc
+    return new MindsDbGPTChatbotCore({ email, password })
+  })
   let lastIndex = 0
   return function () {
-    if (lastIndex >= tokens.length - 1) {
-      lastIndex = 0
-    } else {
-      lastIndex++
-    }
-    return tokens[lastIndex]
+    if (lastIndex >= cores.length - 1) lastIndex = 0;
+    else lastIndex++;
+    return cores[lastIndex]
   }
 })()
+const freeGptAsiaCore = new FreeGPTAsiaChatbotCore()
 
-const unlimitedUserList = new Set<string>(['Sy2RIxoAA0zpSO8r'])
 const processingConversation = new Map<string, string>()
-const freeGptAsiaToken = troll.e({
-  type: 'FreeGPTAsia'
-}, 1, 8038918216105477)
 
 const curva = {
   name: 'Curva',
+  async coreAsk (modelName: string, question: string, context = '') {
+    return await getRandomMindsDBCore().ask(question, { modelName, context })
+  },
   async ask (ip: string, uid: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string): Promise<CurvaStandardResponse> {
     if (processingConversation.has(uid)) {
       return {
@@ -113,19 +64,17 @@ const curva = {
       }
     }
     let debugTimeout: NodeJS.Timeout | undefined = undefined
-    if (!unlimitedUserList.has(uid)) {
-      processingConversation.set(uid, conv)
-      debugTimeout = setTimeout(() => processingConversation.delete(uid), 5 * 60 * 1000)
-    }
+    processingConversation.set(uid, conv)
+    debugTimeout = setTimeout(() => processingConversation.delete(uid), 5 * 60 * 1000)
     try {
       // @ts-ignore
       const engine = await (async () => {
         const Engine = chooseEngine(model)
         return ['gpt3', 'gpt4', 'gpt-web'].includes(model)
           // @ts-ignore
-          ? new Engine(await coreCollection.get(getRandomToken()) as MindsDbGPTChatbotCore)
+          ? new Engine(getRandomMindsDBCore())
           // @ts-ignore
-          : new Engine(await coreCollection.get(freeGptAsiaToken) as FreeGPTAsiaChatbotCore)
+          : new Engine(freeGptAsiaCore)
       })()
       const t0 = Date.now()
       const result = await engine.ask(messages, { timezone: tz, temperature }) as {

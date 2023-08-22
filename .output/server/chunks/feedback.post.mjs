@@ -4,9 +4,9 @@ import { r as read } from './token.mjs';
 import { parse } from 'cookie';
 import 'nodemailer';
 import 'dotenv';
-import './troll.mjs';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
+import './str.mjs';
 import './random.mjs';
 
 const appName = "CH4";

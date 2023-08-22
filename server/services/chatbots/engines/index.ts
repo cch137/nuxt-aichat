@@ -1,4 +1,3 @@
-import coreCollection from './cores/coreCollection'
 import MindsDbGPTChatbotCore from './cores/MindsdbGPT'
 import FreeGPTAsiaChatbotCore from './cores/FreeGPTAsia'
 import Gpt3Chatbot from './gpt3-5'
@@ -8,7 +7,6 @@ import Claude2WebChatbot from './claude-2-web'
 import Gpt3FgaChatbot from './gpt3-fga'
 
 export {
-  coreCollection,
   MindsDbGPTChatbotCore,
   FreeGPTAsiaChatbotCore,
   Gpt3Chatbot,

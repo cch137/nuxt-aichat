@@ -2,11 +2,11 @@ import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index2.mjs';
-import { r as read } from './token.mjs';
+import { t as troll, r as read } from './token.mjs';
 import { m as messagesToQuestionContext, e as estimateTokens, c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
-import { b as baseConverter, s as str } from './random.mjs';
-import { t as troll } from './troll.mjs';
+import { s as str } from './str.mjs';
+import { b as baseConverter } from './random.mjs';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { model, Schema } from 'mongoose';
 import 'dotenv';
@@ -27,6 +27,8 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
+import 'crypto-js/sha3.js';
+import 'crypto-js/md5.js';
 import './conversation.mjs';
 import './message.mjs';
 import 'sequelize';
@@ -40,8 +42,6 @@ import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
 import './ytCrawler.mjs';
 import 'qs';
-import 'crypto-js/sha3.js';
-import 'crypto-js/md5.js';
 
 const logger = model("Log", new Schema({
   type: { type: String, required: true },

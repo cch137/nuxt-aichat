@@ -1,21 +1,5 @@
 import sha3 from 'crypto-js/sha3.js';
-
-const str = (obj) => {
-  try {
-    if ((obj == null ? void 0 : obj.toString) === void 0) {
-      return `${obj}`;
-    } else {
-      const _str = obj.toString();
-      return _str.startsWith("[object ") && _str.endsWith("]") ? JSON.stringify(obj) : _str;
-    }
-  } catch {
-    return "";
-  }
-};
-const lower = (o) => {
-  return str(o).toLowerCase();
-};
-const str$1 = str;
+import { l as lower, s as str } from './str.mjs';
 
 function isIterable(obj) {
   try {
@@ -75,7 +59,7 @@ const getCharset = (radix) => {
 };
 const convert = (value, fromCharset, toCharset, minLen = 0) => {
   if (typeof value !== "string") {
-    value = str$1(value);
+    value = str(value);
   }
   let decimalValue = BigInt(0);
   fromCharset = getCharset(fromCharset);
@@ -348,5 +332,5 @@ const random = {
 };
 const random$1 = random;
 
-export { safeStringify as a, baseConverter$1 as b, random$1 as r, str$1 as s, toSeed as t };
+export { baseConverter$1 as b, random$1 as r, safeStringify as s, toSeed as t };
 //# sourceMappingURL=random.mjs.map
