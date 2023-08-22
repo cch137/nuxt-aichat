@@ -14,7 +14,7 @@ function messagesToQuestionContext (messages: OpenAIMessage[]) {
       messages.splice(indexOfMsgObj, 1)
     }
   }
-  const context: string = `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join('\n\n')}`
+  const context: string = messages.length === 0 ? '' : `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join('\n\n')}`
   return {
     isContinueGenerate,
     question: questionMessageObj.content,

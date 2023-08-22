@@ -146,21 +146,18 @@ var __publicField$8 = (obj, key, value) => {
 function wrapPromptTextParam(text) {
   const hasSingleQuotes = text.includes("'");
   const hasDoubleQuotes = text.includes('"');
-  if (hasSingleQuotes) {
-    if (hasDoubleQuotes) {
-      return `'${text.replaceAll("'", "`")}'`;
-    } else {
-      return `"${text}"`;
-    }
-  } else {
-    return `'${text}'`;
+  if (hasSingleQuotes && hasDoubleQuotes) {
+    return `"${text.replace(new RegExp('"', "g"), "'")}"`;
   }
+  if (hasSingleQuotes) {
+    return `"${text}"`;
+  }
+  return `'${text}'`;
 }
 function getSelectSql(modelName, question, context = "") {
   question = question.replaceAll("'", "`");
   context = (context || "").replaceAll("'", "`");
-  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)}\r
-AND context = ${wrapPromptTextParam(context)}`;
+  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`;
 }
 function containsDoubleDash(str) {
   const regex = /\-\-(?!\n)/;
@@ -239,6 +236,9 @@ class MindsDBSqlClient extends _Client {
         pool: { min: 8, max: 512 }
       }
     );
+    (async () => {
+      await sequelize.query("SELECT * FROM mindsdb.models");
+    })();
     if (this.sequelize) {
       this.sequelize.close();
     }
@@ -373,7 +373,7 @@ function messagesToQuestionContext(messages) {
       messages.splice(indexOfMsgObj, 1);
     }
   }
-  const context = `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join("\n\n")}`;
+  const context = messages.length === 0 ? "" : `${contextHead}${messages.map((message) => `${message.role}: ${message.content}`).join("\n\n")}`;
   return {
     isContinueGenerate,
     question: questionMessageObj.content,

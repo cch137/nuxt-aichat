@@ -44,7 +44,7 @@ const express_post = defineEventHandler(async (event) => {
   const modelName = (body == null ? void 0 : body.modelName) || "gpt4_t05_6k";
   const key = body == null ? void 0 : body.key;
   if (key !== trueKey) {
-    return { answer: '', error: 'API KEY ERROR' };
+    return { answer: "", error: "API KEY ERROR" };
   }
   console.log("curva express", Date.now());
   const { answer, error = "" } = await curva.coreAsk(modelName, question, context);

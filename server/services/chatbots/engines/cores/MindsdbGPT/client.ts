@@ -5,21 +5,19 @@ import createAxiosSession from '~/utils/createAxiosSession'
 function wrapPromptTextParam (text: string) {
   const hasSingleQuotes = text.includes("'")
   const hasDoubleQuotes = text.includes('"')
-  if (hasSingleQuotes) {
-    if (hasDoubleQuotes) {
-      return `'${text.replaceAll('\'', '`')}'`
-    } else {
-      return `"${text}"`
-    }
-  } else {
-    return `'${text}'`
+  if (hasSingleQuotes && hasDoubleQuotes) {
+    return `"${text.replace(new RegExp('"', 'g'), '\'')}"`
   }
+  if (hasSingleQuotes) {
+    return `"${text}"`
+  }
+  return `'${text}'`
 }
 
 function getSelectSql (modelName: string, question: string, context = '') {
   question = question.replaceAll('\'', '`')
   context = (context || '').replaceAll('\'', '`')
-  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)}\r\nAND context = ${wrapPromptTextParam(context)}`
+  return `SELECT answer FROM mindsdb.${modelName} WHERE question = ${wrapPromptTextParam(question)} AND context = ${wrapPromptTextParam(context)}`
 }
 
 function containsDoubleDash(str: string) {
@@ -112,6 +110,10 @@ class MindsDBSqlClient extends _Client {
         pool: { min: 8, max: 512 }
       }
     )
+    ;(async () => {
+      // 預熱 SQL 連接
+      await sequelize.query('SELECT * FROM mindsdb.models')
+    })();
     if (this.sequelize) {
       this.sequelize.close()
     }

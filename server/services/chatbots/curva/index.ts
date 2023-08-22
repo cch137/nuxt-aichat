@@ -40,10 +40,10 @@ const getRandomMindsDBCore = (() => {
     return new MindsDbGPTChatbotCore({ email, password })
   })
   let lastIndex = 0
-  return function () {
+  return async function () {
     if (lastIndex >= cores.length - 1) lastIndex = 0;
     else lastIndex++;
-    return cores[lastIndex]
+    return await (async () => cores[lastIndex])()
   }
 })()
 const freeGptAsiaCore = new FreeGPTAsiaChatbotCore()
@@ -53,7 +53,7 @@ const processingConversation = new Map<string, string>()
 const curva = {
   name: 'Curva',
   async coreAsk (modelName: string, question: string, context = '') {
-    return await getRandomMindsDBCore().ask(question, { modelName, context })
+    return await (await getRandomMindsDBCore()).ask(question, { modelName, context })
   },
   async ask (ip: string, uid: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string): Promise<CurvaStandardResponse> {
     if (processingConversation.has(uid)) {
@@ -72,7 +72,7 @@ const curva = {
         const Engine = chooseEngine(model)
         return ['gpt3', 'gpt4', 'gpt-web'].includes(model)
           // @ts-ignore
-          ? new Engine(getRandomMindsDBCore())
+          ? new Engine(await getRandomMindsDBCore())
           // @ts-ignore
           : new Engine(freeGptAsiaCore)
       })()
