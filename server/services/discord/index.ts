@@ -1,9 +1,8 @@
 import type { TextBasedChannel } from 'discord.js'
 import { Client, IntentsBitField } from 'discord.js'
-import { askCurva, handleInteractionForCurvaAsk, handleInteractionForCurvaClearHistory } from './curva'
+import { handleInteractionForCurvaAsk, handleInteractionForCurvaClearHistory } from './curva'
 import { handleInteractionForYTCaptions } from './yt'
-import CH4GuildCache from './CH4GuildCache'
-import CLIENT_ID from './CLIENT_ID'
+import { setClientId } from './clientId'
 
 let client: Client<boolean> | null = null
 
@@ -32,28 +31,12 @@ async function connect () {
   client = new Client({
     intents: [
       IntentsBitField.Flags.Guilds,
-      IntentsBitField.Flags.GuildMembers,
-      IntentsBitField.Flags.GuildMessages,
-      IntentsBitField.Flags.MessageContent,
-      IntentsBitField.Flags.GuildMessageReactions,
     ]
   })
 
+  setClientId(client.user?.id || '')
+
   await client.login(process.env.DC_BOT_TOKEN)
-
-  const ch4Guild = new CH4GuildCache(client, '730345526360539197', {
-    botLogger: { id: '1113752420623851602' },
-    totalMembers: { id: '1113758792430145547' }
-  }, {
-    verified: { id: '1106198793935917106' },
-    ch4: { id: '1056465043279052833' },
-    explorer: { id: '1133371837179506738' }
-  })
-
-  async function ch4UpdateMemberCount () {
-    return await ch4Guild.updateMemberCount(ch4Guild.channels.totalMembers.id)
-  }
-  await ch4UpdateMemberCount()
 
   try {
     client.user?.setActivity({
@@ -64,88 +47,6 @@ async function connect () {
   } catch (err) {
     console.log('DCBOT setActivity Failed:', err)
   }
-
-  (async () => {
-    const reactionEmoji = '✨'
-    const getRoleChannelId = '1138887783927263283'
-    const getRoleMessageId = '1138889775487668224'
-    const guild = await ch4Guild.getGuild()
-    const getRoleMessage = await (await guild.channels.fetch(getRoleChannelId) as TextBasedChannel)
-      .messages.fetch(getRoleMessageId)
-    guild.channels.cache.clear()
-    getRoleMessage.react(reactionEmoji)
-    client.on('messageReactionAdd', async (reaction, user) => {
-      if (client === null
-        || reaction.message.id !== getRoleMessageId
-        || reaction.message.channelId !== getRoleChannelId
-        || reaction.emoji.name !== reactionEmoji
-        || reaction.emoji.id !== null
-        || user.bot
-        || !ch4Guild.isOwnMessage(reaction.message)) {
-        return
-      }
-      ch4Guild.addRoleToUser(user, ch4Guild.roles.explorer.id)
-      return
-    })
-    client.on('messageReactionRemove', async (reaction, user) => {
-      if (client === null
-        || reaction.message.id !== getRoleMessageId
-        || reaction.message.channelId !== getRoleChannelId
-        || reaction.emoji.name !== reactionEmoji
-        || reaction.emoji.id !== null
-        || user.bot
-        || !ch4Guild.isOwnMessage(reaction.message)) {
-        return
-      }
-      ch4Guild.removeUserRole(user, ch4Guild.roles.explorer.id)
-    })
-    // 创建一个反应收集器
-    const collector = getRoleMessage.createReactionCollector({
-      filter: (reaction, user) => reaction.emoji.name === reactionEmoji,
-    });
-    // 监听 'collect' 事件
-    collector.on('collect', (reaction, user) => {
-      console.log(`${user.tag} 添加了反应 ${reaction.emoji.name}`);
-    });
-    // 监听 'end' 事件
-    collector.on('end', collected => {
-      console.log(`添加反应 ${reactionEmoji} 的总人数：${collected.size}`);
-    });
-  })()
-
-  client.on('messageCreate', async (message) => {
-    if (message.author.bot) {
-      return
-    }
-    if (!ch4Guild.isOwnMessage(message)) {
-      return
-    }
-    const { content = '' } = message
-    const user = message.member?.user
-    if (!user) {
-      // NOT A USER
-      return
-    }
-    // VERIFY USER
-    if (content.trim()) {
-      ch4Guild.addRoleToUser(user, ch4Guild.roles.verified.id)
-    }
-    // HANDLE PING MESSAGE
-    if (content.includes(`<@${CLIENT_ID}>`)) {
-      const userId = `dc@${user.id}`
-      const conv = message.channelId
-      const replied = message.reply('Thinking...')
-      const interval = setInterval(() => message.channel.sendTyping(), 3000)
-      replied.then(() => message.channel.sendTyping())
-      message.reply(await askCurva(userId, conv, 'gpt-web', message.content, 0));
-      (await replied).delete()
-      clearInterval(interval)
-    }
-  })
-
-  // TOTAL MEMBER
-  client.on('guildMemberAdd', () => ch4UpdateMemberCount())
-  client.on('guildMemberRemove', () => ch4UpdateMemberCount())
 
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand()) return

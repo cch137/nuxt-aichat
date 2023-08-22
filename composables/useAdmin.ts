@@ -2,6 +2,9 @@ import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
 
 export default function () {
   async function checkIsLoggedIn (passwd = '') {
+    if (!passwd) {
+      return false
+    }
     return (await $fetch('/api/admin/check', {
       method: 'POST',
       body: { passwd }

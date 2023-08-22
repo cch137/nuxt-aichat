@@ -1,27 +1,29 @@
 <template>
   <div class="flex-col flex-center gap-2">
-    <h1>Admin Dashboard | {{appName}}</h1>
-    <h2>Discord Bot</h2>
-    <el-switch
-      v-model="dcBotConnected"
-      @change="updateDcBotConnected()"
-      :loading="dcBotConnectedIsLoading"
-      size="large"
-    >
-    </el-switch>
-    <h2>Search Engine</h2>
-    <el-select
-      v-model="searchEngine"
-      placeholder="Select"
-      @change="(value) => searchEngineOnchange(value)"
-    >
-      <el-option
-        v-for="item in searchEngineOptions"
-        :key="item"
-        :label="item"
-        :value="item"
-      />
-    </el-select>
+    <ClientOnly>
+      <h1>Admin Dashboard | {{appName}}</h1>
+      <h2>Discord Bot</h2>
+      <el-switch
+        v-model="dcBotConnected"
+        @change="updateDcBotConnected()"
+        :loading="dcBotConnectedIsLoading"
+        size="large"
+      >
+      </el-switch>
+      <h2>Search Engine</h2>
+      <el-select
+        v-model="searchEngine"
+        placeholder="Select"
+        @change="(value) => searchEngineOnchange(value)"
+      >
+        <el-option
+          v-for="item in searchEngineOptions"
+          :key="item"
+          :label="item"
+          :value="item"
+        />
+      </el-select>
+    </ClientOnly>
   </div>
 </template>
 

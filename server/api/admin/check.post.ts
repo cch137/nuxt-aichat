@@ -4,8 +4,8 @@ import { serialize } from 'cookie'
 import RateLimiter from '~/server/services/rate-limiter'
 import getIp from '~/server/services/getIp'
 
-// Every 15 minutes 5 times
-const rateLimiter = new RateLimiter(5, 15 * 60 * 1000)
+// Every 1 minutes 10 times
+const rateLimiter = new RateLimiter(10, 1 * 60 * 1000)
 
 export default defineEventHandler(async function (event) {
   if (!rateLimiter.check(getIp(event.node.req))) {

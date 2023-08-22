@@ -4,10 +4,10 @@ import { EmbedBuilder } from 'discord.js'
 import str from '~/utils/str'
 import curva, { Conversation } from '../chatbots/curva'
 import { createTextFile } from './utils'
-import CLIENT_ID from './CLIENT_ID'
+import { getClientId } from './clientId'
 
 const askCurva = async (user: string, conv: string, model: string, messageContent: string, temperature = 0.5) => {
-  const question = messageContent.replaceAll(`<@${CLIENT_ID}>`, '').trim() || 'Hi'
+  const question = messageContent.replaceAll(`<@${getClientId()}>`, '').trim() || 'Hi'
   const messages = [...await new Conversation(user, conv).getContext(), { role: 'user', content: question }] as OpenAIMessage[]
   try {
     const response = await curva.ask('discord', user, conv, model, temperature, messages, 0)
@@ -48,7 +48,7 @@ const askCurva = async (user: string, conv: string, model: string, messageConten
 const handleInteractionForCurvaAsk = async (interaction: ChatInputCommandInteraction<CacheType>, model: string) => {
   const message = (interaction.options.get('message')?.value || '') as string
   const temperature = (interaction.options.get('temperature')?.value) as number
-  const dcUid = interaction.member?.user.id || ''
+  const dcUid = interaction.member?.user?.id || ''
   if (dcUid === '') {
     interaction.reply({embeds: [new EmbedBuilder().setDescription('Direct messaging with the bot is currently not supported.').setColor('Yellow')]})
     return
