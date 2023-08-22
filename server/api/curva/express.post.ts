@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const modelName = body?.modelName as string || 'gpt4_t05_6k'
   const key = body?.key as string | undefined
   if (key !== trueKey) {
-    return ''
+    return { answer: '', error: 'API KEY ERROR' }
   }
   console.log('curva express', Date.now())
   const { answer, error = '' } = await curva.coreAsk(modelName, question, context)
