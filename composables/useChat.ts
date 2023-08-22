@@ -80,10 +80,6 @@ const checkTokenAndGetConversations = () => {
     $fetch('/api/curva/check', { method: 'POST' })
       .then((_conversations) => {
         conversations.value = _conversations
-        const currentConvIdComputed = getCurrentConvId()
-        if (lastModifiedConv != currentConvIdComputed) {
-          lastModifiedConv = currentConvIdComputed
-        }
         adjustConvesationListScroll()
         resolve(true)
       })
@@ -554,6 +550,7 @@ export default function () {
     clearUrlParamsFeatureNew()
     if (lastModifiedConv !== convId) {
       checkTokenAndGetConversations()
+        .finally(() => { lastModifiedConv = getCurrentConvId() })
     }
 
     // 更新訊息狀態
