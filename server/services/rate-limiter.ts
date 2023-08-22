@@ -58,6 +58,16 @@ class RateLimiter extends Map<string, number> {
     return this.#frequencyMs
   }
 
+  /** Readonly */
+  get frequencySec () {
+    return Math.round(this.#frequencyMs / 1000)
+  }
+
+  /** Readonly */
+  get frequencyMin () {
+    return Math.round(this.#frequencyMs / 1000 / 60)
+  }
+
   get nextUpdateAt (): number {
     return this.#nextUpdateAt
   }
@@ -68,6 +78,10 @@ class RateLimiter extends Map<string, number> {
 
   get hint (): string {
     return `You have tried too many times. Please try again after ${_formatTime(this.updateCountdown)}.`
+  }
+
+  get total () {
+    return [...this.values()].reduce((sum, num) => sum + num, 0)
   }
 
   constructor (limit = defaultLimit, frequencyMs = defaultFrequencyMs) {

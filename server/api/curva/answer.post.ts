@@ -18,13 +18,19 @@ import RateLimiter from '~/server/services/rate-limiter'
 const rateLimiterBundler = RateLimiter.bundle([
   // Every 1 minutes 10 times
   new RateLimiter(10, 1 * 60 * 1000),
-  // Every 60 minutes 100 times
-  new RateLimiter(100, 60 * 60 * 1000),
+  // Every 1*60 minutes 100 times
+  new RateLimiter(100, 1 * 3600 * 1000),
   // Every 4*60 minutes 200 times
-  new RateLimiter(200, 60 * 60 * 1000),
+  new RateLimiter(200, 4 * 3600 * 1000),
   // Every 24*60 minutes 500 times
-  new RateLimiter(500, 24 * 60 * 60 * 1000),
+  new RateLimiter(500, 24 * 3600 * 1000),
 ])
+
+function consoleLogRate () {
+  console.log([...rateLimiterBundler].map((r) => {
+    return `${r.total} in ${r.frequencyMin} min`
+  }).join(', '))
+}
 
 const bannedPrompt = /提示词生成/;
 const bannedIpSet = new Set<string>(['106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253']);
@@ -95,6 +101,7 @@ export default defineEventHandler(async (event) => {
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }
+    consoleLogRate()
     return { version, ...response } as CurvaStandardResponse
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })
