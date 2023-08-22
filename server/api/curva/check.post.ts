@@ -37,6 +37,9 @@ export default defineEventHandler(async (event): Promise<{ id: string, name: str
     ]))[0]?.conv as string[] || [])
       .filter((c) => !c.startsWith('~'))
     if (Array.isArray(conversations)) {
+      if (conversations.length === 0) {
+        return []
+      }
       const savedConverations = await conversation.find(
         { $or: conversations.map((id) => ({ uid, id })) },
         { _id: 0, id: 1, name: 1, config: 1, mtime: 1 }

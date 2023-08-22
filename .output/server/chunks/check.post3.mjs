@@ -58,6 +58,9 @@ const check_post = defineEventHandler(async (event) => {
       { $project: { _id: 0, conv: 1 } }
     ]))[0]) == null ? void 0 : _a.conv) || []).filter((c) => !c.startsWith("~"));
     if (Array.isArray(conversations)) {
+      if (conversations.length === 0) {
+        return [];
+      }
       const savedConverations = await conversation.find(
         { $or: conversations.map((id) => ({ uid, id })) },
         { _id: 0, id: 1, name: 1, config: 1, mtime: 1 }
