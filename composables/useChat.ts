@@ -524,6 +524,7 @@ export default function () {
     if (!messages.value.includes(message)){
       messages.value.push(message)
     }
+    const previousAnswer = message.A || ''
     message.done = false
     message.Q = messageText
     message.A = ''
@@ -579,9 +580,12 @@ export default function () {
       if (answer === '') {
         if (error) {
           const restoreInput = () => {
-            const msgIndex = messages.value.indexOf(message)
-            messages.value.splice(msgIndex, 1)
-            inputValue.value = messageText
+            if (regenerateId) {
+              message.A = previousAnswer
+            } else {
+              messages.value.pop()
+              inputValue.value = messageText
+            }
           }
           if (typeof error === 'string' && error.startsWith('You have tried too many times.')) { 
             restoreInput()
