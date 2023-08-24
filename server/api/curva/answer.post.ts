@@ -7,7 +7,7 @@ import { read as tokenReader } from '~/server/services/token'
 import curva from '~/server/services/chatbots/curva'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
-import troll from '~/utils/troll'
+import { hx as createHash } from '~/utils/troll'
 import baseConverter from '~/utils/baseConverter'
 import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/types'
@@ -26,16 +26,10 @@ const rateLimiterBundler = RateLimiter.bundle([
   new RateLimiter(500, 24 * 3600 * 1000),
 ])
 
-function consoleLogRate () {
-  console.log([...rateLimiterBundler].map((r) => {
-    return `${r.total} in ${r.frequencyMin} min`
-  }).join(', '))
-}
-
 const bannedPrompt = /提示词生成/;
 const bannedIpSet = new Set<string>([
   '81.169.221.94', '212.53.217.119', '95.180.183.152', '209.79.65.132', '144.49.99.214',
-  '190.110.35.227', '147.124.215.199', '144.49.99.170', '35.234.54.49',
+  '190.110.35.227', '147.124.215.199', '144.49.99.170',
   '106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253'
 ]);
 const isZuki = (prompt: string) => {
@@ -60,7 +54,7 @@ export default defineEventHandler(async (event) => {
   if (!conv || messages?.length < 1 || !model || !t) {
     return { error: 'CH4 API ERROR 11', id }
   }
-  const stdHash = troll.h(messages, 'MD5', t)
+  const stdHash = createHash(messages, 'MD5', t)
   const hashFromClient = event?.node?.req?.headers?.hash
   const timestamp = Number(event?.node?.req?.headers?.timestamp)
   // Validate hash and timestamp
@@ -116,12 +110,7 @@ export default defineEventHandler(async (event) => {
     if ((response as any)?.error) {
       console.error((response as any)?.error)
     }
-    consoleLogRate()
-    if ((response?.answer || '').startsWith('Hello')) {
-      console.log('Hello.', ip, event.node.req.headers)
-      bannedIpSet.add(ip)
-      console.log([...bannedIpSet])
-    }
+    console.log(ip, uid, conv, '|', [...rateLimiterBundler].map((r) => `(${r.total}/${r.frequencyMin})`).join(' '))
     return { version, ...response } as CurvaStandardResponse
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })

@@ -2,7 +2,7 @@ import { defineEventHandler, readBody } from 'h3';
 import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index2.mjs';
-import { t as troll, r as read } from './token.mjs';
+import { h as hx, r as read } from './token.mjs';
 import { m as messagesToQuestionContext, e as estimateTokens, c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
 import { s as str } from './str.mjs';
@@ -61,11 +61,6 @@ const rateLimiterBundler = RateLimiter.bundle([
   // Every 24*60 minutes 500 times
   new RateLimiter(500, 24 * 3600 * 1e3)
 ]);
-function consoleLogRate() {
-  console.log([...rateLimiterBundler].map((r) => {
-    return `${r.total} in ${r.frequencyMin} min`;
-  }).join(", "));
-}
 const bannedPrompt = /提示词生成/;
 const bannedIpSet = /* @__PURE__ */ new Set([
   "81.169.221.94",
@@ -76,7 +71,6 @@ const bannedIpSet = /* @__PURE__ */ new Set([
   "190.110.35.227",
   "147.124.215.199",
   "144.49.99.170",
-  "35.234.54.49",
   "106.40.15.110",
   "36.102.154.131",
   "123.178.34.190",
@@ -103,7 +97,7 @@ const answer_post = defineEventHandler(async (event) => {
   if (!conv || (messages == null ? void 0 : messages.length) < 1 || !model || !t) {
     return { error: "CH4 API ERROR 11", id };
   }
-  const stdHash = troll.h(messages, "MD5", t);
+  const stdHash = hx(messages, "MD5", t);
   const hashFromClient = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.hash;
   const timestamp = Number((_f = (_e = (_d = event == null ? void 0 : event.node) == null ? void 0 : _d.req) == null ? void 0 : _e.headers) == null ? void 0 : _f.timestamp);
   if (stdHash !== hashFromClient || timestamp !== t) {
@@ -143,12 +137,7 @@ const answer_post = defineEventHandler(async (event) => {
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);
     }
-    consoleLogRate();
-    if (((response == null ? void 0 : response.answer) || "").startsWith("Hello")) {
-      console.log("Hello.", ip, event.node.req.headers);
-      bannedIpSet.add(ip);
-      console.log([...bannedIpSet]);
-    }
+    console.log(ip, uid, conv, "|", [...rateLimiterBundler].map((r) => `(${r.total}/${r.frequencyMin})`).join(" "));
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });

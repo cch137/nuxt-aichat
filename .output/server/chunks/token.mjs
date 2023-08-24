@@ -61,14 +61,13 @@ function d(input, maskLevel = 1, seed, tryParseJSON = true) {
     return input;
   }
 }
-function h(input, algorithm = 512, seed) {
+function hx(input, algorithm = 512, seed) {
   const encrypted = e(input, 1, seed).substring(1);
   if (algorithm === "MD5") {
     return md5(encrypted).toString();
   }
   return sha3(encrypted, { outputLength: algorithm }).toString();
 }
-const troll = { e, d, h };
 
 const seed = 168813145203e3;
 function generate(uid, ip) {
@@ -79,11 +78,11 @@ function generate(uid, ip) {
   });
 }
 function pack(tokenObj) {
-  return troll.e(tokenObj, 1, seed);
+  return e(tokenObj, 1, seed);
 }
 function read(token) {
   try {
-    const encrypted = troll.d(token, 1, seed);
+    const encrypted = d(token, 1, seed);
     if (typeof encrypted === "object" && encrypted !== null) {
       if ("user" in encrypted) {
         encrypted.uid = encrypted.user;
@@ -96,5 +95,5 @@ function read(token) {
   return null;
 }
 
-export { generate as g, mask as m, pack as p, read as r, troll as t };
+export { generate as g, hx as h, mask as m, pack as p, read as r };
 //# sourceMappingURL=token.mjs.map

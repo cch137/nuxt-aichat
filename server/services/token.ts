@@ -1,4 +1,4 @@
-import troll from "~/utils/troll"
+import { d as trollDecrypt, e as trollEncrypt } from "~/utils/troll"
 
 const seed = 168813145203000
 
@@ -11,7 +11,7 @@ function generate (uid: string, ip: string) {
 }
 
 function pack (tokenObj: any) {
-  return troll.e(tokenObj, 1, seed)
+  return trollEncrypt(tokenObj, 1, seed)
 }
 
 interface TokenObject {
@@ -22,7 +22,7 @@ interface TokenObject {
 
 function read (token: string) {
   try {
-    const encrypted = troll.d(token, 1, seed)
+    const encrypted = trollDecrypt(token, 1, seed)
     if (typeof encrypted === 'object' && encrypted !== null) {
       if ('user' in encrypted) {
         encrypted.uid = encrypted.user

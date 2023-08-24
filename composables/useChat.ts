@@ -1,7 +1,7 @@
 import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
 import baseConverter from '~/utils/baseConverter'
 import random from '~/utils/random'
-import troll from '~/utils/troll'
+import { hx as createHash } from '~/utils/troll'
 import str from '~/utils/str'
 import { getScrollTop } from '~/utils/client'
 import type { ArchivedChatMessage, CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
@@ -178,7 +178,6 @@ const inputValue = ref('')
 const inputMaxLength = computed(() => model.value.startsWith('gpt3') ? 16000 : 32000)
 
 const createRequest = (() => {
-  const { h: createHash } = troll
   const getHashType = () => [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
 
   const createHeaders = (messages: OpenAIMessage[], t: number) => ({

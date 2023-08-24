@@ -31,7 +31,7 @@ function d (input: string, maskLevel = 1, seed?: any, tryParseJSON = true): any 
 }
 
 /** Hash 散列運算 */
-function h (input: any, algorithm: 'MD5' | 224 | 256 | 384 | 512 = 512, seed?: any) {
+function hx (input: any, algorithm: 'MD5' | 224 | 256 | 384 | 512 = 512, seed?: any) {
   const encrypted = e(input, 1, seed).substring(1)
   if (algorithm === 'MD5') {
     return md5(encrypted).toString()
@@ -39,5 +39,5 @@ function h (input: any, algorithm: 'MD5' | 224 | 256 | 384 | 512 = 512, seed?: a
   return sha3(encrypted, { outputLength: algorithm }).toString()
 }
 
-export { e, d, h }
-export default { e, d, h }
+export { e, d, hx }
+export default { e, d, hx }
