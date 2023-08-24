@@ -33,7 +33,7 @@ function consoleLogRate () {
 }
 
 const bannedPrompt = /提示词生成/;
-const bannedIpSet = new Set<string>(['106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253']);
+const bannedIpSet = new Set<string>(['81.169.221.94', '106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253']);
 
 export default defineEventHandler(async (event) => {
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
@@ -68,6 +68,9 @@ export default defineEventHandler(async (event) => {
     return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
+  if (ip === '81.169.221.94') {
+    return { answer: 'fuck you, son of a bitch, zuki.' }
+  }
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: 'Your actions are considered to be abusive.', id }
   }
