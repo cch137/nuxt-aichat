@@ -33,7 +33,13 @@ function consoleLogRate () {
 }
 
 const bannedPrompt = /提示词生成/;
-const bannedIpSet = new Set<string>(['81.169.221.94', '106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253']);
+const bannedIpSet = new Set<string>([
+  '81.169.221.94', '212.53.217.119', '95.180.183.152', '209.79.65.132',
+  '106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253'
+]);
+const isZuki = (prompt: string) => {
+  return prompt.toUpperCase().includes('ONLY SAY HELLO')
+}
 
 export default defineEventHandler(async (event) => {
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
@@ -68,15 +74,22 @@ export default defineEventHandler(async (event) => {
     return { error: 'CH4 API ERROR 31', id }
   }
   const ip = getIp(event.node.req)
-  if (ip === '81.169.221.94') {
-    return { answer: 'fuck you, son of a bitch, zuki.' }
-  }
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
-    return { error: 'Your actions are considered to be abusive.', id }
+    return { answer: 'Hello.' }
+    // return { error: 'Your actions are considered to be abusive.', id }
   }
-  if (bannedPrompt.test(messagesToQuestionContext(messages).question)) {
+  const qqq = messagesToQuestionContext(messages).question
+  if (isZuki(qqq)) {
     bannedIpSet.add(ip)
-    return { error: 'Your actions are considered to be abusive.', id }
+    console.log([...bannedIpSet])
+    return { answer: 'Hello.' }
+    // return { error: 'Your actions are considered to be abusive.', id }
+  }
+  if (bannedPrompt.test(qqq)) {
+    bannedIpSet.add(ip)
+    console.log([...bannedIpSet])
+    return { answer: 'Hello.' }
+    // return { error: 'Your actions are considered to be abusive.', id }
   }
   try {
     const croppedMessages = (() => {
