@@ -138,8 +138,8 @@ async function connect() {
   await client.login(process.env.DC_BOT_TOKEN);
   try {
     (_b = client.user) == null ? void 0 : _b.setActivity({
-      name: "https://ch4.onrender.com",
-      url: "https://ch4.onrender.com",
+      name: "https://cch137.link",
+      url: "https://cch137.link",
       type: 0
     });
   } catch (err) {
