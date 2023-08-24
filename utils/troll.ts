@@ -39,5 +39,5 @@ function h (input: any, algorithm: 'MD5' | 224 | 256 | 384 | 512 = 512, seed?: a
   return sha3(encrypted, { outputLength: algorithm }).toString()
 }
 
-const troll = { e, d, h }
-export default troll
+export { e, d, h }
+export default { e, d, h }

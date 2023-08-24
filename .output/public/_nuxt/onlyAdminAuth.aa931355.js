@@ -1,0 +1,1 @@
+import{aO as a,aP as s,D as i}from"./entry.c9656bb1.js";import{u as n}from"./useAdmin.36268b4c.js";const c=a(async(r,m)=>{let e,t;{const o=n();[e,t]=s(()=>o.checkIsLoggedIn()),e=await e,t(),!e&&setTimeout(()=>i().$router.replace("/admin/login"),0)}});export{c as default};

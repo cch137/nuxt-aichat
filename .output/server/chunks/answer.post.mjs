@@ -72,6 +72,10 @@ const bannedIpSet = /* @__PURE__ */ new Set([
   "212.53.217.119",
   "95.180.183.152",
   "209.79.65.132",
+  "144.49.99.214",
+  "190.110.35.227",
+  "147.124.215.199",
+  "144.49.99.170",
   "106.40.15.110",
   "36.102.154.131",
   "123.178.34.190",
@@ -116,14 +120,13 @@ const answer_post = defineEventHandler(async (event) => {
   }
   const qqq = messagesToQuestionContext(messages).question;
   if (isZuki(qqq)) {
+    console.log("Hello.", ip, event.node.req.headers);
     bannedIpSet.add(ip);
     console.log([...bannedIpSet]);
     return { answer: "Hello." };
   }
   if (bannedPrompt.test(qqq)) {
-    bannedIpSet.add(ip);
-    console.log([...bannedIpSet]);
-    return { answer: "Hello." };
+    return { error: "Your actions are considered to be abusive.", id };
   }
   try {
     const croppedMessages = (() => {
@@ -142,6 +145,8 @@ const answer_post = defineEventHandler(async (event) => {
     consoleLogRate();
     if (((response == null ? void 0 : response.answer) || "").startsWith("Hello")) {
       console.log("Hello.", ip, event.node.req.headers);
+      bannedIpSet.add(ip);
+      console.log([...bannedIpSet]);
     }
     return { version, ...response };
   } catch (err) {
