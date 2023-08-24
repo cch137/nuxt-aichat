@@ -102,6 +102,9 @@ export default defineEventHandler(async (event) => {
       console.error((response as any)?.error)
     }
     consoleLogRate()
+    if ((response?.answer || '').startsWith('Hello')) {
+      console.log('Hello.', ip, event.node.req.headers)
+    }
     return { version, ...response } as CurvaStandardResponse
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })

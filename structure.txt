@@ -1,24 +1,28 @@
 ├── assets
 │   └── css
 ├── components
+│   └── Chatbot
 ├── composables
 ├── config
 ├── layouts
 ├── locales
 ├── middleware
 ├── pages
+│   ├── acc
 │   ├── admin
 │   └── c
 ├── plugins
 ├── public
 ├── server
 │   ├── api
+│   │   ├── admin
 │   │   ├── auth
 │   │   ├── curva
 │   │   ├── perspective
 │   │   ├── services
-│   │   └── token
+│   │   └── stats
 │   └── services
+│       ├── admin
 │       ├── chatbots
 │       │   ├── curva
 │       │   └── engines
@@ -32,5 +36,6 @@
 │       ├── utils
 │       └── webBrowsing
 └── utils
+    ├── google-translate
     └── zhConverter
         └── data

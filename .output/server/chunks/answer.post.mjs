@@ -121,6 +121,9 @@ const answer_post = defineEventHandler(async (event) => {
       console.error(response == null ? void 0 : response.error);
     }
     consoleLogRate();
+    if ((response?.answer || '').startsWith('Hello')) {
+      console.log('Hello.', ip, event.node.req.headers)
+    }
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });
