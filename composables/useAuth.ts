@@ -1,5 +1,7 @@
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
-import { e } from '~/utils/troll'
+import CustomEventTarget from '~/utils/CustomEventTarget'
+
+const authEventTarget = new CustomEventTarget<'login'|'logout'>()
 
 const email = ref<string>('')
 const username = ref<string>('')
@@ -11,18 +13,18 @@ interface MouseTrapResponse {
   pg: boolean;
   lg: boolean;
   pf: boolean;
-  ch: boolean;
+  cr: boolean;
 }
 
 const mousetrap = (() => {
   const _simplePlatform = (platform = '') => {
     return platform.startsWith('Win')
-    ? 'Win'
-    : platform.startsWith('Linux')
-      ? 'Linux'
-      : platform.startsWith('Mac')
-        ? 'Mac'
-        : platform
+      ? 'Win'
+      : platform.startsWith('Linux')
+        ? 'Linux'
+        : platform.startsWith('Mac')
+          ? 'Mac'
+          : platform
   }
   const isWebdriver = (webdriver: boolean | undefined) => {
     webdriver = Boolean(webdriver)
@@ -69,7 +71,7 @@ const mousetrap = (() => {
   return (): MouseTrapResponse => {
     if (process.server) {
       return {
-        wd: false, pg: false, lg: false, pf: false, ch: false,
+        wd: false, pg: false, lg: false, pf: false, cr: false,
       }
     }
     const {
@@ -91,8 +93,8 @@ const mousetrap = (() => {
     /** navigator.platform 和 userAgent 中的 platform 不符合 */
     const pf = isPlatformNotSame(userAgent, platform)
     /** Chromium 瀏覽器的沒有 window.chrome 屬性 */ // @ts-ignore
-    const ch = isChromeErr(userAgent, window?.chrome)
-    return { wd, pg, lg, pf, ch }
+    const cr = isChromeErr(userAgent, window?.chrome)
+    return { wd, pg, lg, pf, cr }
   }
 })()
 
@@ -109,6 +111,7 @@ const logout = async () => {
     email.value = ''
     username.value = ''
     setIsLoggedIn(false)
+    authEventTarget.dispatchEvent('logout')
     ElMessage.success('Logged out.')
     useChat().clear()
   } catch {
@@ -192,6 +195,7 @@ export default function () {
       }
       navigateTo('/c/')
       await checkIsLoggedIn(true)
+      authEventTarget.dispatchEvent('login')
       ElMessage.success('Logged in.')
     } catch (err) {
       ElMessage.error(typeof err === 'string' ? err : 'Oops! Something went wrong.')
@@ -202,6 +206,7 @@ export default function () {
   }
 
   return {
+    authEventTarget,
     authIsLoading,
     isLoggedIn,
     email,

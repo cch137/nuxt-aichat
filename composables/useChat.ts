@@ -430,6 +430,7 @@ if (process.client) {
 }
 
 export default function () {
+  const { authEventTarget } = useAuth()
   const appName = useState('appName').value
   const cookie = useUniCookie()
   // 清除舊 cookie -- START --
@@ -447,6 +448,8 @@ export default function () {
       useTitle(`${_t('chat.title')} - ${appName}`)
     }
   }
+  authEventTarget.addListener('login', clear)
+  authEventTarget.addListener('logout', clear)
   const _loadChat = async (conv: string | null) => {
     setTimeout(() => { if (useDevice().isMobileScreen) openMenu.value = false }, 0)
     messages.value = []

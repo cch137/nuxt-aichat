@@ -11,7 +11,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     if (mtRes === undefined) {
       mtRes = mousetrap()
     }
-    if (mtRes.ch || mtRes.lg || mtRes.pf || mtRes.pg || mtRes.wd) {
+    if (mtRes.cr || mtRes.lg || mtRes.pf || mtRes.pg || mtRes.wd) {
       ElMessageBox.alert('Your browser does not support this page. Please use another browser.')
       return navigateTo('/')
     }
