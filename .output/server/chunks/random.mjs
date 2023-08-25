@@ -1,5 +1,25 @@
 import sha3 from 'crypto-js/sha3.js';
-import { l as lower, s as str } from './str.mjs';
+
+const str = (obj) => {
+  try {
+    if ((obj == null ? void 0 : obj.toString) === void 0) {
+      return `${obj}`;
+    } else {
+      const _str = obj.toString();
+      return _str.startsWith("[object ") && _str.endsWith("]") ? JSON.stringify(obj) : _str;
+    }
+  } catch {
+    return "";
+  }
+};
+const lower = (o) => {
+  return str(o).toLowerCase();
+};
+const str$1 = str;
+
+function sum(...args) {
+  return args.reduce((a, b) => a + b, 0);
+}
 
 function isIterable(obj) {
   try {
@@ -24,113 +44,6 @@ function safeStringify(obj) {
     return value;
   };
   return JSON.stringify(obj, reviver);
-}
-
-const BASE2_CHARSET = "01";
-const BASE10_CHARSET$1 = "0123456789";
-const BASE16_CHARSET$1 = "0123456789abcdef";
-const BASE36_CHARSET = "0123456789abcdefghijklmnopqrstuvwxyz";
-const BASE62_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const BASE64_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-const BASE64WEB_CHARSET$1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-const getCharset = (radix) => {
-  if (typeof radix !== "string") {
-    radix = lower(radix);
-  }
-  switch (radix) {
-    case "2":
-      return BASE2_CHARSET;
-    case "10":
-      return BASE10_CHARSET$1;
-    case "16":
-      return BASE16_CHARSET$1;
-    case "36":
-      return BASE36_CHARSET;
-    case "62":
-      return BASE62_CHARSET;
-    case "64":
-      return BASE64_CHARSET;
-    case "64w":
-    case "64+":
-      return BASE64WEB_CHARSET$1;
-    default:
-      return radix;
-  }
-};
-const convert = (value, fromCharset, toCharset, minLen = 0) => {
-  if (typeof value !== "string") {
-    value = str(value);
-  }
-  let decimalValue = BigInt(0);
-  fromCharset = getCharset(fromCharset);
-  const baseFrom = fromCharset.length;
-  for (let i = 0; i < value.length; i++) {
-    decimalValue += BigInt(fromCharset.indexOf(value[i]) * Math.pow(baseFrom, value.length - 1 - i));
-  }
-  let result = "";
-  toCharset = getCharset(toCharset);
-  if (result === "") {
-    const baseTo = BigInt(toCharset.length);
-    while (decimalValue > 0) {
-      result = toCharset.charAt(+BigInt(decimalValue % baseTo).toString()) + result;
-      decimalValue = BigInt(decimalValue / baseTo);
-    }
-  }
-  return (result === "" ? toCharset.charAt(0) : result).padStart(minLen, toCharset[0]);
-};
-const textToBase64 = (text) => {
-  const input = text.split("").map((c) => c.charCodeAt(0));
-  const output = [];
-  let i = 0;
-  while (i < input.length) {
-    const [char1, char2 = 0, char3 = 0] = input.slice(i, i += 3);
-    const triplet = (char1 << 16) + (char2 << 8) + char3;
-    const char4 = triplet >> 18;
-    const char5 = triplet >> 12 & 63;
-    const char6 = triplet >> 6 & 63;
-    const char7 = triplet & 63;
-    output.push(BASE64_CHARSET[char4], BASE64_CHARSET[char5], BASE64_CHARSET[char6], BASE64_CHARSET[char7]);
-  }
-  const paddingLength = input.length % 3;
-  return output.join("").slice(0, 1 + output.length - paddingLength) + (paddingLength === 2 ? "==" : paddingLength === 1 ? "=" : "");
-};
-const secureBase64RegEx = /[^A-Za-z0-9+/]/g;
-const secureBase64 = (str2) => str2.replace(secureBase64RegEx, "");
-const fromCharCode = (str2) => String.fromCharCode(+str2);
-const base64ToText = (str2) => {
-  const input = secureBase64(str2).split("");
-  const output = [];
-  let i = 0;
-  while (i < input.length) {
-    const [char1, char2, char3, char4] = input.slice(i, i += 4).map((l) => BASE64_CHARSET.indexOf(l));
-    output.push(fromCharCode(char1 << 2 | char2 >> 4));
-    if (char3 !== 64) {
-      output.push(fromCharCode((char2 & 15) << 4 | char3 >> 2));
-    }
-    if (char4 !== 64) {
-      output.push(fromCharCode((char3 & 3) << 6 | char4));
-    }
-  }
-  return output.join("").replaceAll("\0", "");
-};
-const baseConverter = {
-  BASE2_CHARSET,
-  BASE10_CHARSET: BASE10_CHARSET$1,
-  BASE16_CHARSET: BASE16_CHARSET$1,
-  BASE36_CHARSET,
-  BASE62_CHARSET,
-  BASE64_CHARSET,
-  BASE64WEB_CHARSET: BASE64WEB_CHARSET$1,
-  convert,
-  getCharset,
-  secureBase64,
-  textToBase64,
-  base64ToText
-};
-const baseConverter$1 = baseConverter;
-
-function sum(...args) {
-  return args.reduce((a, b) => a + b, 0);
 }
 
 const sha256 = (message) => {
@@ -270,6 +183,109 @@ function MT(seed) {
   return new MersenneTwister(seed);
 }
 
+const BASE2_CHARSET = "01";
+const BASE10_CHARSET$1 = "0123456789";
+const BASE16_CHARSET$1 = "0123456789abcdef";
+const BASE36_CHARSET = "0123456789abcdefghijklmnopqrstuvwxyz";
+const BASE62_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const BASE64_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const BASE64WEB_CHARSET$1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+const getCharset = (radix) => {
+  if (typeof radix !== "string") {
+    radix = lower(radix);
+  }
+  switch (radix) {
+    case "2":
+      return BASE2_CHARSET;
+    case "10":
+      return BASE10_CHARSET$1;
+    case "16":
+      return BASE16_CHARSET$1;
+    case "36":
+      return BASE36_CHARSET;
+    case "62":
+      return BASE62_CHARSET;
+    case "64":
+      return BASE64_CHARSET;
+    case "64w":
+    case "64+":
+      return BASE64WEB_CHARSET$1;
+    default:
+      return radix;
+  }
+};
+const convert = (value, fromCharset, toCharset, minLen = 0) => {
+  if (typeof value !== "string") {
+    value = str$1(value);
+  }
+  let decimalValue = BigInt(0);
+  fromCharset = getCharset(fromCharset);
+  const baseFrom = fromCharset.length;
+  for (let i = 0; i < value.length; i++) {
+    decimalValue += BigInt(fromCharset.indexOf(value[i]) * Math.pow(baseFrom, value.length - 1 - i));
+  }
+  let result = "";
+  toCharset = getCharset(toCharset);
+  if (result === "") {
+    const baseTo = BigInt(toCharset.length);
+    while (decimalValue > 0) {
+      result = toCharset.charAt(+BigInt(decimalValue % baseTo).toString()) + result;
+      decimalValue = BigInt(decimalValue / baseTo);
+    }
+  }
+  return (result === "" ? toCharset.charAt(0) : result).padStart(minLen, toCharset[0]);
+};
+const textToBase64 = (text) => {
+  const input = text.split("").map((c) => c.charCodeAt(0));
+  const output = [];
+  let i = 0;
+  while (i < input.length) {
+    const [char1, char2 = 0, char3 = 0] = input.slice(i, i += 3);
+    const triplet = (char1 << 16) + (char2 << 8) + char3;
+    const char4 = triplet >> 18;
+    const char5 = triplet >> 12 & 63;
+    const char6 = triplet >> 6 & 63;
+    const char7 = triplet & 63;
+    output.push(BASE64_CHARSET[char4], BASE64_CHARSET[char5], BASE64_CHARSET[char6], BASE64_CHARSET[char7]);
+  }
+  const paddingLength = input.length % 3;
+  return output.join("").slice(0, 1 + output.length - paddingLength) + (paddingLength === 2 ? "==" : paddingLength === 1 ? "=" : "");
+};
+const secureBase64RegEx = /[^A-Za-z0-9+/]/g;
+const secureBase64 = (str2) => str2.replace(secureBase64RegEx, "");
+const fromCharCode = (str2) => String.fromCharCode(+str2);
+const base64ToText = (str2) => {
+  const input = secureBase64(str2).split("");
+  const output = [];
+  let i = 0;
+  while (i < input.length) {
+    const [char1, char2, char3, char4] = input.slice(i, i += 4).map((l) => BASE64_CHARSET.indexOf(l));
+    output.push(fromCharCode(char1 << 2 | char2 >> 4));
+    if (char3 !== 64) {
+      output.push(fromCharCode((char2 & 15) << 4 | char3 >> 2));
+    }
+    if (char4 !== 64) {
+      output.push(fromCharCode((char3 & 3) << 6 | char4));
+    }
+  }
+  return output.join("").replaceAll("\0", "");
+};
+const baseConverter = {
+  BASE2_CHARSET,
+  BASE10_CHARSET: BASE10_CHARSET$1,
+  BASE16_CHARSET: BASE16_CHARSET$1,
+  BASE36_CHARSET,
+  BASE62_CHARSET,
+  BASE64_CHARSET,
+  BASE64WEB_CHARSET: BASE64WEB_CHARSET$1,
+  convert,
+  getCharset,
+  secureBase64,
+  textToBase64,
+  base64ToText
+};
+const baseConverter$1 = baseConverter;
+
 const {
   BASE10_CHARSET,
   BASE16_CHARSET,
@@ -332,5 +348,5 @@ const random = {
 };
 const random$1 = random;
 
-export { baseConverter$1 as b, random$1 as r, safeStringify as s, toSeed as t };
+export { safeStringify as a, baseConverter$1 as b, random$1 as r, str$1 as s, toSeed as t };
 //# sourceMappingURL=random.mjs.map

@@ -4,8 +4,9 @@ import { m as message } from './message.mjs';
 import { Sequelize, QueryTypes } from 'sequelize';
 import { c as createAxiosSession } from './createAxiosSession.mjs';
 import axios from 'axios';
-import { s as str } from './str.mjs';
-import { encode } from 'gpt-3-encoder';
+import { s as str } from './random.mjs';
+import { s as streamManager } from './streamManager.mjs';
+import { encoding_for_model } from '@dqbd/tiktoken';
 import { s as search } from './search.mjs';
 import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
@@ -468,19 +469,57 @@ class Client {
     this.apiKey = apiKey || defaultApiKey;
   }
   async askGPT(messages, options = {}) {
-    const { model = "gpt-3.5-turbo", temperature = 0.3, top_p = 0.7, stream = false } = options;
+    const { model = "", temperature = 0.3, top_p = 0.7, stream = true, streamId } = options;
     const url = `${this.host}/v1/chat/completions`;
-    const headers = { "Content-Type": "application/json" };
-    headers["Authorization"] = `Bearer ${this.apiKey}`;
-    const data = {
+    const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${this.apiKey}` };
+    const _data = {
       messages,
       model,
       temperature,
       top_p,
       stream
     };
-    const req = await axios.post(url, data, { headers, validateStatus: (_) => true });
-    return req.data;
+    if (!stream) {
+      const data = (await axios.post(url, _data, { headers, validateStatus: (_) => true })).data;
+      const answer = data.choices[0].message.content;
+      return { answer };
+    }
+    return await new Promise(async (resolve, reject) => {
+      try {
+        const res = await axios.post(url, _data, {
+          headers,
+          validateStatus: (_) => true,
+          responseType: "stream"
+        });
+        const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
+        res.data.on("data", (buf) => {
+          var _a, _b;
+          const chunksString = buf.toString("utf8").split("data:").map((c) => c.trim()).filter((c) => c);
+          for (const chunkString of chunksString) {
+            try {
+              const chunk = JSON.parse(chunkString);
+              const content = (_b = (_a = chunk.choices[0]) == null ? void 0 : _a.delta) == null ? void 0 : _b.content;
+              if (content === void 0)
+                continue;
+              streaming.write(content);
+            } catch {
+            }
+          }
+        });
+        res.data.on("error", (e) => streaming.error(e));
+        res.data.on("end", () => {
+          streaming.end();
+          const answer = streaming.read();
+          if (answer) {
+            resolve({ answer });
+          } else {
+            reject(`Oops! Something went wrong.`);
+          }
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 }
 class FreeGptAsiaChatbotCore {
@@ -497,8 +536,7 @@ class FreeGptAsiaChatbotCore {
       const messages = typeof questionOrMessages === "string" ? questionContextToMessages(questionOrMessages, (options == null ? void 0 : options.context) || "") : questionOrMessages;
       const res = await this.client.askGPT(messages, options);
       try {
-        const answer = res.choices[0].message.content;
-        return { answer };
+        return res;
       } catch {
         throw str(res);
       }
@@ -584,8 +622,14 @@ function formatUserCurrentTime(userTimeZone = 0) {
   ), "yyyy-MM-dd ddd HH:mm:ss");
 }
 
-function estimateTokens(...texts) {
-  return encode(texts.join("\n")).length;
+const tiktokens = /* @__PURE__ */ new Map([
+  ["gpt-4", encoding_for_model("gpt-4")],
+  ["gpt-3.5-turbo", encoding_for_model("gpt-3.5-turbo")]
+]);
+function estimateTokens(_model = "gpt-4", ...texts) {
+  _model = (_model || "").toLowerCase() || "gpt-4";
+  const model = _model.includes("gpt3") || _model.includes("gpt-3") ? "gpt-3.5-turbo" : "gpt-4";
+  return (tiktokens.get(model) || tiktokens.get("gpt-4")).encode(texts.join("\n")).length;
 }
 
 var __defProp$5 = Object.defineProperty;
@@ -605,7 +649,7 @@ class Gpt3Chatbot {
     const prompt = isContinueGenerate ? `${question}` : `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens(question, context) + 500;
+    const quetionTokens = estimateTokens("gpt-3.5-turbo", question, context) + 500;
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1024)) {
         case 1:
@@ -646,7 +690,7 @@ class Gpt4Chatbot {
     const prompt = isContinueGenerate ? `${question}` : `User current time: ${formatUserCurrentTime(timezone)}
 Question: ${question}`;
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens(question, context) + 500;
+    const quetionTokens = estimateTokens("gpt-4", question, context) + 500;
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1024)) {
         case 1:
@@ -872,12 +916,12 @@ question: ${question}
     return { queries: [], urls: [], answer: "" };
   }
 }
-function chunkParagraphs(article, chunkMaxTokens = 2e3) {
+function chunkParagraphs(article, modelName = "", chunkMaxTokens = 2e3) {
   const lines = article.split("\n");
   let cursorChunkLength = 0, cursorIndex = 0;
   const chunks = [];
   lines.forEach((line, index, array) => {
-    const lineTokens = estimateTokens(line);
+    const lineTokens = estimateTokens(modelName, line);
     cursorChunkLength += lineTokens;
     if (cursorChunkLength > chunkMaxTokens) {
       chunks.push(array.slice(cursorIndex, cursorIndex = index).join("\n"));
@@ -907,7 +951,7 @@ async function summaryArticle(engine, question, article, options = {}) {
   }
   lastSummaryArticle = now;
   const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5e3, summaryMaxTokens = 5e3, modelName = "gpt4_t00_6k" } = options;
-  const chunks = chunkParagraphs(article, chunkMaxTokens);
+  const chunks = chunkParagraphs(article, options.modelName, chunkMaxTokens);
   const summary = (await Promise.all(chunks.map(async (chunk) => {
     const prompt = `
 Summarizes information relevant to the question from the following content.
@@ -920,7 +964,7 @@ Webpage:
 ${chunk}`;
     return (await engine.ask(prompt, { modelName })).answer;
   }))).join("\n");
-  if (estimateTokens(summary) > summaryMaxTokens && maxTries > 1) {
+  if (estimateTokens(modelName, summary) > summaryMaxTokens && maxTries > 1) {
     return await summaryArticle(engine, question, summary, { ...options, maxTries: maxTries - 1 });
   }
   return summary;
@@ -982,7 +1026,7 @@ class GptWebChatbot {
       ...await crawledPages2
     ])).join("\n---\n");
     let tries = 2;
-    while (estimateTokens(summary) > 5e3 && tries-- > 0) {
+    while (estimateTokens("gpt-4", summary) > 5e3 && tries-- > 0) {
       summary = await summaryArticle(this.core, question, summary);
     }
     const prompt = `Use references where possible and answer in detail.
@@ -1018,6 +1062,7 @@ class Claude2WebChatbot {
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
+    const { timezone = 0, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     const prompt = context ? `${question}
 
@@ -1025,7 +1070,7 @@ class Claude2WebChatbot {
 
 ${context}` : question;
     return {
-      ...await this.core.ask(prompt, { model: "claude-2-web" }),
+      ...await this.core.ask(prompt, { model: "claude-2-web", streamId }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
       question,
       isContinueGenerate
@@ -1046,10 +1091,11 @@ class Gpt3FgaChatbot {
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
+    const { timezone = 0, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     return {
       // ...await this.core.ask(messages, { model: 'gpt-4' }),
-      ...await this.core.ask(messages, { model: "gpt-3.5-turbo" }),
+      ...await this.core.ask(messages, { model: "gpt-3.5-turbo", streamId }),
       question,
       isContinueGenerate
     };
@@ -1106,7 +1152,7 @@ const curva = {
   async coreAsk(modelName, question, context = "") {
     return await (await getRandomMindsDBCore()).ask(question, { modelName, context });
   },
-  async ask(ip, uid, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id) {
+  async ask(ip, uid, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id, streamId) {
     if (processingConversation.has(uid)) {
       return {
         answer: "",
@@ -1123,7 +1169,7 @@ const curva = {
         return ["gpt3", "gpt4", "gpt-web"].includes(model) ? new Engine(await getRandomMindsDBCore()) : new Engine(freeGptAsiaCore);
       })();
       const t0 = Date.now();
-      const result = await engine.ask(messages, { timezone: tz, temperature });
+      const result = await engine.ask(messages, { timezone: tz, temperature, streamId });
       const dt = Date.now() - t0;
       if (result.answer) {
         const conversation = new Conversation$1(uid, conv);

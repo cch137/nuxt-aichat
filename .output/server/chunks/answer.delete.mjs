@@ -25,7 +25,6 @@ import 'tls';
 import 'mongoose';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
-import './str.mjs';
 
 const answer_delete = defineEventHandler(async (event) => {
   var _a, _b, _c;

@@ -1,5 +1,5 @@
 import { AttachmentBuilder, EmbedBuilder, Client, IntentsBitField } from 'discord.js';
-import { s as str } from './str.mjs';
+import { s as str } from './random.mjs';
 import { C as Conversation, c as curva, i as isYouTubeLink, g as getYouTubeVideoId } from './index4.mjs';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
 

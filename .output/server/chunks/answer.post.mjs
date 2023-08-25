@@ -5,8 +5,7 @@ import './index2.mjs';
 import { h as hx, r as read } from './token.mjs';
 import { e as estimateTokens, c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
-import { s as str } from './str.mjs';
-import { b as baseConverter } from './random.mjs';
+import { b as baseConverter, s as str } from './random.mjs';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { model, Schema } from 'mongoose';
 import 'dotenv';
@@ -34,7 +33,8 @@ import './message.mjs';
 import 'sequelize';
 import './createAxiosSession.mjs';
 import 'axios';
-import 'gpt-3-encoder';
+import './streamManager.mjs';
+import '@dqbd/tiktoken';
 import './search.mjs';
 import 'googlethis';
 import 'turndown';
@@ -80,7 +80,7 @@ const answer_post = defineEventHandler(async (event) => {
   if (isHeadlessUserAgent(userAgent)) {
     return { error: "DEVELOPER MODE" };
   }
-  const { conv, messages = [], model, temperature, t, tz = 0, id } = body;
+  const { conv, messages = [], model, temperature, t, tz = 0, id, streamId } = body;
   if (t > now + 3e5 || t < now - 3e5) {
     return { error: "OUTDATED REQUEST", id };
   }
@@ -114,12 +114,12 @@ const answer_post = defineEventHandler(async (event) => {
     const croppedMessages = (() => {
       let _messages = messages;
       const maxTokens = model === "gpt4" ? 6e3 : model.startsWith("gpt3") ? 3e3 : model === "gpt-web" ? 4e3 : model === "claude-2-web" ? 8e4 : 4e3;
-      while (estimateTokens(JSON.stringify(_messages)) > maxTokens && _messages.length > 1) {
+      while (estimateTokens(model, JSON.stringify(_messages)) > maxTokens && _messages.length > 1) {
         _messages.shift();
       }
       return _messages;
     })();
-    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id);
+    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id, streamId);
     response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64w") : id;
     if (response == null ? void 0 : response.error) {
       console.error(response == null ? void 0 : response.error);

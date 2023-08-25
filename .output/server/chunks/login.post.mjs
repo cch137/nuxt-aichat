@@ -28,7 +28,6 @@ import 'socks';
 import 'tls';
 import 'mongoose';
 import './random.mjs';
-import './str.mjs';
 import './message.mjs';
 import 'crypto-js/md5.js';
 
