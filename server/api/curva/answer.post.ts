@@ -15,6 +15,15 @@ import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/typ
 import { messagesToQuestionContext } from '~/server/services/chatbots/engines/utils/openAiMessagesConverter'
 import RateLimiter from '~/server/services/rate-limiter'
 
+function isHeadlessUserAgent(userAgent = '') {
+  const pattern = /headless/i
+  return pattern.test(userAgent)
+}
+
+const isZuki = (prompt: string) => {
+  return prompt.toUpperCase().includes('ONLY SAY HELLO')
+}
+
 const rateLimiterBundler = RateLimiter.bundle([
   // Every 1 minutes 10 times
   new RateLimiter(10, 1 * 60 * 1000),
@@ -26,16 +35,7 @@ const rateLimiterBundler = RateLimiter.bundle([
   new RateLimiter(500, 24 * 3600 * 1000),
 ])
 
-const bannedPrompt = /提示词生成/;
-const bannedIpSet = new Set<string>([
-  '81.169.221.94', '212.53.217.119', '95.180.183.152', '209.79.65.132', '144.49.99.214',
-  '198.199.70.20', '95.216.119.151', '23.94.41.236', '95.164.244.241', '95.164.244.241', '185.21.128.6',
-  '190.110.35.226', '190.110.35.227', '147.124.215.199', '144.49.99.170', '147.28.145.212',
-  '106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253'
-]);
-const isZuki = (prompt: string) => {
-  return prompt.toUpperCase().includes('ONLY SAY HELLO')
-}
+const bannedIpSet = new Set<string>([]);
 
 export default defineEventHandler(async (event) => {
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
@@ -44,45 +44,45 @@ export default defineEventHandler(async (event) => {
   const now = Date.now()
   const body = await readBody(event)
   if (!body) {
-    return { error: 'CH4 API ERROR 01' }
+    return { error: 'INVALID BODY' }
+  }
+  const userAgent = event.node.req.headers['user-agent']
+  if (isHeadlessUserAgent(userAgent)) {
+    return { error: 'DEVELOPER MODE' }
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id } = body
   if (t > now + 300000 || t < now - 300000) {
     // 拒絕請求：時差大於 5 分鐘
-    return { error: 'CH4 API ERROR 12', id }
+    return { error: 'OUTDATED REQUEST', id }
   }
   const _id = id ? baseConverter.convert(id, '64', 16) : id
   if (!conv || messages?.length < 1 || !model || !t) {
-    return { error: 'CH4 API ERROR 11', id }
+    return { error: 'BODY INCOMPLETE', id }
   }
   const stdHash = createHash(messages, 'MD5', t)
   const hashFromClient = event?.node?.req?.headers?.hash
   const timestamp = Number(event?.node?.req?.headers?.timestamp)
   // Validate hash and timestamp
   if (stdHash !== hashFromClient || timestamp !== t) {
-    return { error: 'CH4 API ERROR 32', id }
+    return { error: 'VERIFICATION FAILED', id }
   }
   const rawCookie = event?.node?.req?.headers?.cookie
   const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
   const uid = token?.uid
   // Validate token
   if (token === null || typeof uid !== 'string') {
-    return { error: 'CH4 API ERROR 31', id }
+    return { error: 'UNAUTHENTICATED', id }
   }
   const ip = getIp(event.node.req)
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
-    return { answer: 'Hello!!' }
-    // return { error: 'Your actions are considered to be abusive.', id }
+    return { error: 'Your actions are considered to be abusive.', id }
   }
   const qqq = messagesToQuestionContext(messages).question
   if (isZuki(qqq)) {
-    console.log('Hello!!', ip, event.node.req.headers)
-    bannedIpSet.add(ip)
+    console.log('ONLY SAY HELLO', ip, event.node.req.headers)
     console.log([...bannedIpSet])
-    return { answer: 'Hello!!' }
-    // return { error: 'Your actions are considered to be abusive.', id }
-  }
-  if (bannedPrompt.test(qqq)) {
+    rateLimiterBundler.check(ip, 1000)
+    return { answer: 'Hello.' }
     return { error: 'Your actions are considered to be abusive.', id }
   }
   try {

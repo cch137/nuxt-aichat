@@ -29,8 +29,8 @@ class RateLimiterBundler extends Set<RateLimiter> {
     return this.#getLimiterFailedAt(ip)?.hint || ''
   }
 
-  check (ip: string) {
-    return [...this].map((limiter) => limiter.check(ip))
+  check (ip: string, weight = 1) {
+    return [...this].map((limiter) => limiter.check(ip, weight))
       .filter(i => !i).length === 0
   }
 }
@@ -98,9 +98,9 @@ class RateLimiter extends Map<string, number> {
     this.#nextUpdateAt = Date.now() + this.#frequencyMs
   }
 
-  check (ip: string) {
+  check (ip: string, weight = 1) {
     const times = this.get(ip) || 0
-    this.set(ip, times + 1)
+    this.set(ip, times + weight)
     return times < this.limit
   }
 

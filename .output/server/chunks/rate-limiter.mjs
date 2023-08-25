@@ -52,8 +52,8 @@ class RateLimiterBundler extends Set {
     var _a;
     return ((_a = __privateMethod(this, _getLimiterFailedAt, getLimiterFailedAt_fn).call(this, ip)) == null ? void 0 : _a.hint) || "";
   }
-  check(ip) {
-    return [...this].map((limiter) => limiter.check(ip)).filter((i) => !i).length === 0;
+  check(ip, weight = 1) {
+    return [...this].map((limiter) => limiter.check(ip, weight)).filter((i) => !i).length === 0;
   }
 }
 _getLimiterFailedAt = new WeakSet();
@@ -106,9 +106,9 @@ class RateLimiter extends Map {
   get total() {
     return [...this.values()].reduce((sum, num) => sum + num, 0);
   }
-  check(ip) {
+  check(ip, weight = 1) {
     const times = this.get(ip) || 0;
-    this.set(ip, times + 1);
+    this.set(ip, times + weight);
     return times < this.limit;
   }
   _noRecordCheck(ip) {
