@@ -29,7 +29,8 @@ const rateLimiterBundler = RateLimiter.bundle([
 const bannedPrompt = /提示词生成/;
 const bannedIpSet = new Set<string>([
   '81.169.221.94', '212.53.217.119', '95.180.183.152', '209.79.65.132', '144.49.99.214',
-  '190.110.35.227', '147.124.215.199', '144.49.99.170',
+  '198.199.70.20', '95.216.119.151', '23.94.41.236', '95.164.244.241', '95.164.244.241', '185.21.128.6',
+  '190.110.35.226', '190.110.35.227', '147.124.215.199', '144.49.99.170', '147.28.145.212',
   '106.40.15.110', '36.102.154.131', '123.178.34.190', '123.178.40.253'
 ]);
 const isZuki = (prompt: string) => {
@@ -70,15 +71,15 @@ export default defineEventHandler(async (event) => {
   }
   const ip = getIp(event.node.req)
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
-    return { answer: 'Hello.' }
+    return { answer: 'Hello!!' }
     // return { error: 'Your actions are considered to be abusive.', id }
   }
   const qqq = messagesToQuestionContext(messages).question
   if (isZuki(qqq)) {
-    console.log('Hello.', ip, event.node.req.headers)
+    console.log('Hello!!', ip, event.node.req.headers)
     bannedIpSet.add(ip)
     console.log([...bannedIpSet])
-    return { answer: 'Hello.' }
+    return { answer: 'Hello!!' }
     // return { error: 'Your actions are considered to be abusive.', id }
   }
   if (bannedPrompt.test(qqq)) {

@@ -4565,7 +4565,7 @@ const _wrapIf = (component, props, slots) => {
 };
 const layouts = {
   chat: () => import('./_nuxt/chat-6a51efb2.mjs').then((m) => m.default || m),
-  default: () => import('./_nuxt/default-ce5ab887.mjs').then((m) => m.default || m)
+  default: () => import('./_nuxt/default-b38c945a.mjs').then((m) => m.default || m)
 };
 const LayoutLoader = /* @__PURE__ */ defineComponent({
   name: "LayoutLoader",
