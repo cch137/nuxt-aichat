@@ -24,7 +24,17 @@ const mousetrap = (() => {
         ? 'Mac'
         : platform
   }
-  const isWebdriver = (webdriver: any) => Boolean(webdriver)
+  const isWebdriver = (webdriver: boolean | undefined) => {
+    webdriver = Boolean(webdriver)
+    if (webdriver) {
+      return true
+    }
+    // 偵測 webdriver 是否有被重新定義，當被重新定義時是不正常請求
+    const isRedefinedWebdriver = Object.keys(
+      Object.getOwnPropertyDescriptors(navigator)
+    ).includes('webdriver')
+    return isRedefinedWebdriver
+  }
   const isPlatformNotSame = (userAgent = '', platform = '') => {
     return !userAgent.includes(_simplePlatform(platform))
   }

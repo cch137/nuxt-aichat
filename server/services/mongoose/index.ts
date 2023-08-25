@@ -5,7 +5,7 @@ import log from './models/log'
 import message from './models/message'
 import conversation from './models/conversation'
 import user from './models/user'
-// import { writeFileSync } from 'fs'
+import { writeFileSync } from 'fs'
 
 config()
 
