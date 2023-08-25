@@ -2,6 +2,36 @@ import axios from 'axios'
 import type { ChatbotEngine, OpenAIMessage } from '../types'
 import str from '~/utils/str'
 import { questionContextToMessages } from '../../utils/openAiMessagesConverter'
+import streamManager from '~/utils/streamManager'
+
+interface ChatResponseChoice {
+  index: number,
+  message: { role: "user" | "assistant", content: string },
+  finish_reason: string | "stop"
+}
+
+interface ChatResponseChoiceDelta {
+  index: number,
+  delta: { role?: "user" | "assistant", content?: string },
+  finish_reason: string | "stop"
+}
+
+interface ChatResponse {
+  id: string,
+  object: string,
+  created: number, // unit: seconds
+  model: string,
+  choices: ChatResponseChoice[],
+  usage: { prompt_tokens: number, completion_tokens: number, total_tokens: number}
+}
+
+interface ChatResponseChunk {
+  id: string,
+  object: string,
+  created: number,
+  model: string,
+  choices: ChatResponseChoiceDelta[]
+}
 
 // const defaultApiHost = 'https://api.spaxe.top'
 // const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
@@ -19,28 +49,54 @@ class Client {
     this.apiKey = apiKey || defaultApiKey
   }
 
-  async askGPT (messages: OpenAIMessage[], options: { model?: string, temperature?: number, top_p?: number, stream?: boolean } = {}) {
-    const { model = 'gpt-3.5-turbo', temperature = 0.3, top_p = 0.7, stream = false} = options
+  async askGPT (messages: OpenAIMessage[], options: { model?: string, temperature?: number, top_p?: number, stream?: boolean, streamId?: string  } = {}) {
+    const { model = '', temperature = 0.3, top_p = 0.7, stream = true, streamId } = options
     const url = `${this.host}/v1/chat/completions`
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-    headers['Authorization'] = `Bearer ${this.apiKey}`
-    const data = {
+    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` }
+    const _data = {
       messages,
       model,
       temperature,
       top_p,
       stream
     }
-    // created unit: seconds
-    const req = (await axios.post(url, data, { headers, validateStatus: (_) => true }))
-    return req.data as {
-      id: string,
-      object: string,
-      created: number,
-      model: string,
-      choices:[{ index: number, message: { role: "user" | "assistant", content: string }, finish_reason: string | "stop"}],
-      usage: { prompt_tokens: number, completion_tokens: number, total_tokens: number}
+    if (!stream) {
+      const data = (await axios.post(url, _data, { headers, validateStatus: (_) => true })).data as ChatResponse
+      const answer = data.choices[0].message.content
+      return { answer }
     }
+    return await new Promise<{ answer: string, error?: string }>(async (resolve, reject) => {
+      try {
+        const res = await axios.post(url, _data, {
+          headers, validateStatus: (_) => true,
+          responseType: 'stream'
+        })
+        const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
+        res.data.on('data', (buf: Buffer) => {
+          const chunksString = buf.toString('utf8').split('data:').map(c => c.trim()).filter(c => c)
+          for (const chunkString of chunksString) {
+            try {
+              const chunk = JSON.parse(chunkString) as ChatResponseChunk
+              const content = chunk.choices[0]?.delta?.content
+              if (content === undefined) continue
+              streaming.write(content)
+            } catch {}
+          }
+        })
+        res.data.on('error', (e: any) => streaming.error(e))
+        res.data.on('end', () => {
+          streaming.end()
+          const answer = streaming.read()
+          if (answer) {
+            resolve({ answer })
+          } else {
+            reject(`Oops! Something went wrong.`)
+          }
+        })
+      } catch (err) {
+        reject(err)
+      }
+    })
   }
 }
 
@@ -53,15 +109,14 @@ class FreeGptAsiaChatbotCore implements ChatbotEngine {
   init() {
     return new Promise<true>((r) =>r(true))
   }
-  async ask (questionOrMessages: string | OpenAIMessage[], options: { context?: string, model?: string, temperature?: number, top_p?: number, stream?: boolean } = {}) {
+  async ask (questionOrMessages: string | OpenAIMessage[], options: { context?: string, model?: string, temperature?: number, top_p?: number, stream?: boolean, streamId?: string } = {}) {
     try {
       const messages = typeof questionOrMessages === 'string'
         ? questionContextToMessages(questionOrMessages, options?.context || '')
         : questionOrMessages
-      const res = (await this.client.askGPT(messages, options))
+      const res = await this.client.askGPT(messages, options)
       try {
-        const answer = res.choices[0].message.content
-        return { answer }
+        return res
       } catch {
         throw str(res)
       }

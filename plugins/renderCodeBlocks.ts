@@ -1,4 +1,5 @@
 import Prism from 'prismjs'
+import { getScrollTop } from '~/utils/client'
 
 Prism.manual = false
 
@@ -6,7 +7,7 @@ const CODE_PROCESSED_CLASS = 'CodeBlockAddedCopyButton'
 const LINK_PROCESSED_CLASS = '_BlankLink'
 
 const getAllPreBlocks = () => {
-  return [...document.querySelectorAll('.Message pre')] as HTMLPreElement[]
+  return [...document.querySelectorAll('.Message.Done pre')] as HTMLPreElement[]
 }
 
 const getAllLinks = () => {
@@ -78,7 +79,12 @@ const renderCodeBlock = async (preElement: HTMLPreElement) => {
 }
 
 const renderCodeBlocks = async (preElements: HTMLPreElement[]) => {
-  return await Promise.all(preElements.map((preElement) => renderCodeBlock(preElement)))
+  const isAtBottom = getScrollTop() >= document.body.clientHeight
+  await Promise.all(preElements.map((preElement) => renderCodeBlock(preElement)))
+  if (isAtBottom) {
+    useScrollToBottom()
+  }
+  return
 }
 
 const renderLinks = async (aElements: HTMLLinkElement[]) => {

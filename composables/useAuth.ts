@@ -113,7 +113,6 @@ const logout = async () => {
     setIsLoggedIn(false)
     authEventTarget.dispatchEvent('logout')
     ElMessage.success('Logged out.')
-    useChat().clear()
   } catch {
     ElMessage.error('Log out failed.')
   } finally {
@@ -193,9 +192,9 @@ export default function () {
       if (error) {
         throw error
       }
-      navigateTo('/c/')
-      await checkIsLoggedIn(true)
       authEventTarget.dispatchEvent('login')
+      await navigateTo('/c/')
+      await checkIsLoggedIn(true)
       ElMessage.success('Logged in.')
     } catch (err) {
       ElMessage.error(typeof err === 'string' ? err : 'Oops! Something went wrong.')

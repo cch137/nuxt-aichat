@@ -52,12 +52,12 @@ question: ${question}
   }
 }
 
-function chunkParagraphs (article: string, chunkMaxTokens = 2000) {
+function chunkParagraphs (article: string, modelName = '', chunkMaxTokens = 2000) {
   const lines = article.split('\n')
   let cursorChunkLength = 0, cursorIndex = 0
   const chunks: string [] = []
   lines.forEach((line, index, array) => {
-    const lineTokens = estimateTokens(line)
+    const lineTokens = estimateTokens(modelName, line)
     cursorChunkLength += lineTokens
     if (cursorChunkLength > chunkMaxTokens) {
       chunks.push(array.slice(cursorIndex, cursorIndex = index).join('\n'))
@@ -89,7 +89,7 @@ async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, 
   }
   lastSummaryArticle = now
   const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5000, summaryMaxTokens = 5000, modelName = 'gpt4_t00_6k' } = options
-  const chunks = chunkParagraphs(article, chunkMaxTokens)
+  const chunks = chunkParagraphs(article, options.modelName, chunkMaxTokens)
   const summary = (await Promise.all(chunks.map(async (chunk) => {
   const prompt = `
 Summarizes information relevant to the question from the following content.
@@ -102,7 +102,7 @@ Webpage:
 ${chunk}`
     return (await engine.ask(prompt, { modelName })).answer
   }))).join('\n')
-  if (estimateTokens(summary) > summaryMaxTokens && maxTries > 1) {
+  if (estimateTokens(modelName, summary) > summaryMaxTokens && maxTries > 1) {
     return await summaryArticle(engine, question, summary, { ...options, maxTries: maxTries - 1 })
   }
   return summary
@@ -166,7 +166,7 @@ class GptWebChatbot {
       ...await crawledPages2
     ])).join('\n---\n')
     let tries = 2
-    while (estimateTokens(summary) > 5000 && tries-- > 0) {
+    while (estimateTokens('gpt-4', summary) > 5000 && tries-- > 0) {
       summary = await summaryArticle(this.core, question, summary)
     }
     const prompt = `Use references where possible and answer in detail.

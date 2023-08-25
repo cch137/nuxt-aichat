@@ -103,10 +103,10 @@
                   </div>
                 </div>
                 <div class="flex-1" style="width: calc(100% - 32px - 4.5rem)">
-                  <div class="Message A p-4 shadow rounded-lg" :class="message.done ? '' : 'T'">
+                  <div class="Message A p-4 shadow rounded-lg" :class="message.done ? 'Done' : 'T'">
                     <div>
                       <el-text
-                        v-if="message.done"
+                        v-if="message.done || message.A !== ''"
                         v-html="marked.parse(message.A)"
                         size="large"
                       />

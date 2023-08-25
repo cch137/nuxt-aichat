@@ -1,6 +1,5 @@
 import { readBody } from 'h3'
 import { parse as parseCookie } from 'cookie'
-import iplocation from 'iplocation'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
 import { read as tokenReader } from '~/server/services/token'
@@ -46,7 +45,7 @@ export default defineEventHandler(async (event) => {
   if (isHeadlessUserAgent(userAgent)) {
     return { error: 'DEVELOPER MODE' }
   }
-  const { conv, messages = [], model, temperature, t, tz = 0, id } = body
+  const { conv, messages = [], model, temperature, t, tz = 0, id, streamId } = body
   if (t > now + 300000 || t < now - 300000) {
     // 拒絕請求：時差大於 5 分鐘
     return { error: 'OUTDATED REQUEST', id }
@@ -92,12 +91,12 @@ export default defineEventHandler(async (event) => {
             : model === 'claude-2-web'
               ? 80000
               : 4000
-      while (estimateTokens(JSON.stringify(_messages)) > maxTokens && _messages.length > 1) {
+      while (estimateTokens(model, JSON.stringify(_messages)) > maxTokens && _messages.length > 1) {
         _messages.shift()
       }
       return _messages
     })()
-    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id)
+    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id, streamId)
     //@ts-ignore
     response.id = typeof response.id === 'string'
     //@ts-ignore

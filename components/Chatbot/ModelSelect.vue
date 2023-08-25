@@ -6,37 +6,15 @@
       class="ChatbotModelSelect"
     >
       <el-option
-        v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
+        v-for="model in models"
+        :key="model.name"
+        :label="model.name"
+        :value="model.value"
       />
     </el-select>
   </div>
 </template>
 
 <script setup lang="ts">
-const { model } = useChat()
-const options = [
-  {
-    label: 'GPT-3.5-Turbo',
-    value: 'gpt3'
-  },
-  {
-    label: 'GPT-4',
-    value: 'gpt4'
-  },
-  {
-    label: 'GPT-Web',
-    value: 'gpt-web'
-  },
-  {
-    label: 'Claude-2-Web',
-    value: 'claude-2-web'
-  },
-  {
-    label: 'GPT3.5-FGA',
-    value: 'gpt3-fga'
-  },
-]
+const { model, models } = useChat()
 </script>

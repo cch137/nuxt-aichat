@@ -11,6 +11,7 @@ import { stringifyConvConfig } from '~/server/services/chatbots/curva/convConfig
 import { parseConvConfig } from '~/server/services/chatbots/curva/convConfig'
 import type { NuxtApp } from 'nuxt/app'
 import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/types'
+import models from '~/config/models'
 
 // @ts-ignore
 interface DisplayChatMessage extends ArchivedChatMessage {
@@ -185,7 +186,7 @@ const createRequest = (() => {
     timestamp: str(t)
   })
 
-  const createBody = (messages: OpenAIMessage[], model: string, temperature: number, t: number, tz: number, regenerateId?: string) => {
+  const createBody = (messages: OpenAIMessage[], model: string, temperature: number, t: number, tz: number, regenerateId?: string, streamId?: string) => {
     let conv = getCurrentConvId()
     if (!conv) {
       conv = random.base64(8)
@@ -193,10 +194,10 @@ const createRequest = (() => {
       navigateTo(`/c/${conv}?feature=new`)
       setCurrentConvId(conv)
     }
-    return { conv, messages, model, temperature, t, tz, id: regenerateId }
+    return { conv, messages, model, temperature, t, tz, id: regenerateId, streamId }
   }
 
-  return async (message: DisplayChatMessage): Promise<CurvaStandardResponse> => {
+  return async (message: DisplayChatMessage, streamId?: string): Promise<CurvaStandardResponse> => {
     const date = new Date()
     const t = date.getTime()
     const tz = (date.getTimezoneOffset() / 60) * -1
@@ -215,7 +216,7 @@ const createRequest = (() => {
         }).flat()
     })()
     try {
-      const body = createBody(formattedMessages, model.value, temperature.value, t, tz, message?.id)
+      const body = createBody(formattedMessages, model.value, temperature.value, t, tz, message?.id, streamId)
       const headers = createHeaders(formattedMessages, t)
       // @ts-ignore
       return await $fetch('/api/curva/answer', { method: 'POST', headers, body })
@@ -546,8 +547,46 @@ export default function () {
         .finally(() => focusInput())
     }
 
+    // 建立 stream 通道
+    const streamId = await new Promise<string|undefined>(async (resolve) => {
+      if (!(models.find(m => m.value === model.value)?.isStreamAvailable)) {
+        return resolve(undefined)
+      }
+      const controller = new AbortController()
+      const streamRes = await fetch('/api/curva/stream', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+        signal: controller.signal
+      })
+      const decoder = new TextDecoder()
+      // @ts-ignore
+      const reader = streamRes.body.getReader()
+      let idIsResolved = false
+      const readChunks = async () => {
+        await reader.read().then(async ({ value, done }) => {
+          if (done) {
+            message.done = true
+            return
+          }
+          const decodedValue = decoder.decode(value)
+          if (idIsResolved) {
+            message.A += decodedValue
+            if (isAtBottom) {
+              useScrollToBottom(0, 'instant')
+            }
+          } else {
+            resolve(decodedValue)
+            idIsResolved = true
+          }
+          readChunks()
+        })
+      }
+      readChunks()
+    })
+
     // 發送請求
-    const response = await createRequest(message)
+    const response = await createRequest(message, streamId)
 
     // 更新對話狀態
     clearUrlParamsFeatureNew()
@@ -562,7 +601,7 @@ export default function () {
     message.t = new Date()
     message.dt = dt || undefined
     message.id = id || undefined
-    message.A = answer || ''
+    if (message.A !== answer) message.A = answer || ''
     message.urls = urls || []
     message.queries = queries || [];
 
@@ -732,6 +771,7 @@ export default function () {
       })
   }
   return {
+    models,
     showScrollToBottomButton,
     isEditingMessage,
     editingMessage,

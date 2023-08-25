@@ -55,7 +55,7 @@ const curva = {
   async coreAsk (modelName: string, question: string, context = '') {
     return await (await getRandomMindsDBCore()).ask(question, { modelName, context })
   },
-  async ask (ip: string, uid: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string): Promise<CurvaStandardResponse> {
+  async ask (ip: string, uid: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string, streamId?: string): Promise<CurvaStandardResponse> {
     if (processingConversation.has(uid)) {
       return {
         answer: '',
@@ -77,7 +77,7 @@ const curva = {
           : new Engine(freeGptAsiaCore)
       })()
       const t0 = Date.now()
-      const result = await engine.ask(messages, { timezone: tz, temperature }) as {
+      const result = await engine.ask(messages, { timezone: tz, temperature, streamId }) as {
         question: string,
         answer: string,
         isContinueGenerate: boolean,

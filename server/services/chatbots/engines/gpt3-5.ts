@@ -16,7 +16,7 @@ class Gpt3Chatbot {
       ? `${question}`
       : `User current time: ${formatUserCurrentTime(timezone)}\nQuestion: ${question}`
     const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, '0')}`
-    const quetionTokens = estimateTokens(question, context) + 500
+    const quetionTokens = estimateTokens('gpt-3.5-turbo', question, context) + 500
     const tokensSuffix = (() => {
       switch (Math.ceil(quetionTokens / 1024)) {
         case 1:
