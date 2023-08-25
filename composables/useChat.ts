@@ -613,6 +613,7 @@ export default function () {
 
       // 檢查版本更新
       if (_version && _version !== version.value) {
+        const reloadTimeout = setTimeout(() => location.reload(), 3000)
         ElMessageBox.confirm(_t('action.newVersion'), _t('message.notice'), {
           confirmButtonText: _t('message.ok'),
           cancelButtonText: _t('message.cancel'),
@@ -621,6 +622,7 @@ export default function () {
           .then(() => focusInput())
           .catch(() => focusInput())
           .finally(() => {
+            clearTimeout(reloadTimeout)
             const loading = ElLoading.service({ text: 'Loading...', lock: true })
             location.reload()
             // setTimeout(() => loading.close(), 10000)

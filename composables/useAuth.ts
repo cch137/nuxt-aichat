@@ -6,6 +6,14 @@ const username = ref<string>('')
 const authIsLoading = ref(false)
 const isLoggedIn = ref(false)
 
+interface MouseTrapResponse {
+  wd: boolean;
+  pg: boolean;
+  lg: boolean;
+  pf: boolean;
+  ch: boolean;
+}
+
 const mousetrap = (() => {
   const _simplePlatform = (platform = '') => {
     return platform.startsWith('Win')
@@ -48,13 +56,6 @@ const mousetrap = (() => {
     return userAgent.includes('Chrome') ? !chrome : false
   }
   const isTouchScreen = () => ('ontouchstart' in document || navigator.maxTouchPoints > 0);
-  interface MouseTrapResponse {
-    wd: boolean;
-    pg: boolean;
-    lg: boolean;
-    pf: boolean;
-    ch: boolean;
-  }
   return (): MouseTrapResponse => {
     if (process.server) {
       return {
@@ -159,11 +160,15 @@ const changeUsername = async (newUsername: string) => {
   }
 }
 
+export type {
+  MouseTrapResponse
+}
+
 export default function () {
   // @ts-ignore
   const _t = useLocale().t
 
-  const login = async (usernameOrEmail: string, password: string) => {
+  async function login (usernameOrEmail: string, password: string) {
     const loading = ElLoading.service({ text: _t('auth.loggingIn') })
     authIsLoading.value = true
     try {
