@@ -6,7 +6,7 @@ const username = ref<string>('')
 const authIsLoading = ref(false)
 const isLoggedIn = ref(false)
 
-function mousetrap () {
+const mousetrap = (() => {
   const _simplePlatform = (platform = '') => {
     return platform.startsWith('Win')
     ? 'Win'
@@ -49,8 +49,6 @@ function mousetrap () {
   }
   const isTouchScreen = () => ('ontouchstart' in document || navigator.maxTouchPoints > 0);
   interface MouseTrapResponse {
-    ic: boolean;
-    it: boolean;
     wd: boolean;
     pg: boolean;
     lg: boolean;
@@ -60,10 +58,9 @@ function mousetrap () {
   return (): MouseTrapResponse => {
     if (process.server) {
       return {
-        ic: false, it: false, wd: false, pg: false, lg: false, pf: false, ch: false,
+        wd: false, pg: false, lg: false, pf: false, ch: false,
       }
     }
-    const ic = true
     const {
       userAgent = '',
       platform = '',
@@ -77,16 +74,16 @@ function mousetrap () {
     /** webdriver 存在（通常無頭瀏覽器 webdriver 都是 true） */
     const wd = isWebdriver(webdriver)
     /** Plugins 異常（無頭瀏覽器沒有 Plugins，例如一些瀏覽器的插件，包括 PDF 查看器） */
-    const pg = isPluginsErr(plugins)
+    const pg = isPluginsErr(plugins, it)
     /** language(s) 不存在（只有較舊的無頭請求才被抓到） */
     const lg = isLanguageErr(language, languages as string[])
     /** navigator.platform 和 userAgent 中的 platform 不符合 */
     const pf = isPlatformNotSame(userAgent, platform)
     /** Chromium 瀏覽器的沒有 window.chrome 屬性 */ // @ts-ignore
     const ch = isChromeErr(userAgent, window?.chrome)
-    return { ic, it, wd, pg, lg, pf, ch }
+    return { wd, pg, lg, pf, ch }
   }
-}
+})()
 
 function setIsLoggedIn (value: boolean) {
   isLoggedIn.value = value
@@ -199,6 +196,7 @@ export default function () {
     checkIsLoggedIn,
     setIsLoggedIn,
     changeUsername,
+    mousetrap,
     goToHome () {
       useNuxtApp().$router.replace('/')
     },

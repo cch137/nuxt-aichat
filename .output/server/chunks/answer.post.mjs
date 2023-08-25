@@ -3,7 +3,7 @@ import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index2.mjs';
 import { h as hx, r as read } from './token.mjs';
-import { m as messagesToQuestionContext, e as estimateTokens, c as curva } from './index4.mjs';
+import { e as estimateTokens, c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
 import { s as str } from './str.mjs';
 import { b as baseConverter } from './random.mjs';
@@ -55,9 +55,6 @@ function isHeadlessUserAgent(userAgent = "") {
   const pattern = /headless/i;
   return pattern.test(userAgent);
 }
-const isZuki = (prompt) => {
-  return prompt.toUpperCase().includes("ONLY SAY HELLO");
-};
 const rateLimiterBundler = RateLimiter.bundle([
   // Every 1 minutes 10 times
   new RateLimiter(10, 1 * 60 * 1e3),
@@ -70,9 +67,9 @@ const rateLimiterBundler = RateLimiter.bundle([
 ]);
 const bannedIpSet = /* @__PURE__ */ new Set([]);
 const answer_post = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
-    return { error: rateLimiterBundler.getHint(getIp(event.node.req)) };
+    return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 1e4));
   }
   const now = Date.now();
   const body = await readBody(event);
@@ -107,14 +104,13 @@ const answer_post = defineEventHandler(async (event) => {
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: "Your actions are considered to be abusive.", id };
   }
-  const qqq = messagesToQuestionContext(messages).question;
-  if (isZuki(qqq)) {
-    console.log("ONLY SAY HELLO", ip, event.node.req.headers);
-    console.log([...bannedIpSet]);
-    rateLimiterBundler.check(ip, 1e3);
-    return { answer: "Hello." };
-  }
   try {
+    const lastQuestion = ((_j = messages.findLast((i) => i.role === "user")) == null ? void 0 : _j.content) || "";
+    if (lastQuestion.toUpperCase().includes("ONLY SAY HELLO")) {
+      console.log("ONLY SAY HELLO", ip, event.node.req.headers);
+      rateLimiterBundler.check(ip, 1e3);
+      return { answer: "Hello." };
+    }
     const croppedMessages = (() => {
       let _messages = messages;
       const maxTokens = model === "gpt4" ? 6e3 : model.startsWith("gpt3") ? 3e3 : model === "gpt-web" ? 4e3 : model === "claude-2-web" ? 8e4 : 4e3;

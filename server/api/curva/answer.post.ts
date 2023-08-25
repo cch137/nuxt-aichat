@@ -20,10 +20,6 @@ function isHeadlessUserAgent(userAgent = '') {
   return pattern.test(userAgent)
 }
 
-const isZuki = (prompt: string) => {
-  return prompt.toUpperCase().includes('ONLY SAY HELLO')
-}
-
 const rateLimiterBundler = RateLimiter.bundle([
   // Every 1 minutes 10 times
   new RateLimiter(10, 1 * 60 * 1000),
@@ -39,7 +35,7 @@ const bannedIpSet = new Set<string>([]);
 
 export default defineEventHandler(async (event) => {
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
-    return { error: rateLimiterBundler.getHint(getIp(event.node.req)) }
+    return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 10000))
   }
   const now = Date.now()
   const body = await readBody(event)
@@ -77,15 +73,14 @@ export default defineEventHandler(async (event) => {
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: 'Your actions are considered to be abusive.', id }
   }
-  const qqq = messagesToQuestionContext(messages).question
-  if (isZuki(qqq)) {
-    console.log('ONLY SAY HELLO', ip, event.node.req.headers)
-    console.log([...bannedIpSet])
-    rateLimiterBundler.check(ip, 1000)
-    return { answer: 'Hello.' }
-    return { error: 'Your actions are considered to be abusive.', id }
-  }
   try {
+    const lastQuestion = (messages as OpenAIMessage[]).findLast(i => i.role === 'user')?.content || ''
+    if (lastQuestion.toUpperCase().includes('ONLY SAY HELLO')) {
+      console.log('ONLY SAY HELLO', ip, event.node.req.headers)
+      rateLimiterBundler.check(ip, 1000)
+      return { answer: 'Hello.' }
+      // return { error: 'Your actions are considered to be abusive.', id }
+    }
     const croppedMessages = (() => {
       let _messages = messages as OpenAIMessage[]
       const maxTokens = model === 'gpt4'

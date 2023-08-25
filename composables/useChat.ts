@@ -618,12 +618,13 @@ export default function () {
           cancelButtonText: _t('message.cancel'),
           type: 'warning'
         })
-          .then(() => {
+          .then(() => focusInput())
+          .catch(() => focusInput())
+          .finally(() => {
             const loading = ElLoading.service({ text: 'Loading...', lock: true })
             location.reload()
-            setTimeout(() => loading.close(), 3000)
+            // setTimeout(() => loading.close(), 10000)
           })
-          .catch(() => focusInput())
       }
     }, 0);
 
