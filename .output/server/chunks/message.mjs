@@ -1,7 +1,6 @@
 import { model, Schema } from 'mongoose';
 
 const message = model("Message", new Schema({
-  user: { type: String },
   uid: { type: String, required: true },
   conv: { type: String, required: true },
   Q: { type: String, default: "" },

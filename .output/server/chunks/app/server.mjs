@@ -339,11 +339,11 @@ const createError = (err) => {
 };
 const __nuxt_page_meta$9 = {
   layout: "default",
-  middleware: ["only-auth"]
+  middleware: ["no-headless", "only-auth"]
 };
 const __nuxt_page_meta$8 = {
   layout: "default",
-  middleware: []
+  middleware: ["no-headless"]
 };
 const __nuxt_page_meta$7 = {
   layout: "default",
@@ -358,22 +358,22 @@ const __nuxt_page_meta$5 = {
 };
 const __nuxt_page_meta$4 = {
   layout: "chat",
-  middleware: ["chat"]
+  middleware: ["no-headless", "chat"]
 };
 const __nuxt_page_meta$3 = {
   layout: "chat",
-  middleware: ["chat"]
+  middleware: ["no-headless", "chat"]
 };
 const __nuxt_page_meta$2 = {
   layout: "default"
 };
 const __nuxt_page_meta$1 = {
   layout: "default",
-  middleware: ["only-no-auth"]
+  middleware: ["no-headless", "only-no-auth"]
 };
 const __nuxt_page_meta = {
   layout: "default",
-  middleware: ["only-no-auth"]
+  middleware: ["no-headless", "only-no-auth"]
 };
 const _routes = [
   {
@@ -382,7 +382,7 @@ const _routes = [
     meta: __nuxt_page_meta$9 || {},
     alias: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.alias) || [],
     redirect: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.redirect) || void 0,
-    component: () => import('./_nuxt/profile-be6e671f.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/profile-94533a61.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.name) ?? "acc-reset-password",
@@ -390,7 +390,7 @@ const _routes = [
     meta: __nuxt_page_meta$8 || {},
     alias: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.alias) || [],
     redirect: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.redirect) || void 0,
-    component: () => import('./_nuxt/reset-password-ea5b26b0.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/reset-password-eafa8617.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.name) ?? "admin-dashboard",
@@ -398,7 +398,7 @@ const _routes = [
     meta: __nuxt_page_meta$7 || {},
     alias: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.alias) || [],
     redirect: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.redirect) || void 0,
-    component: () => import('./_nuxt/dashboard-731bec94.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/dashboard-bc8232cd.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.name) ?? "admin-entrance",
@@ -406,7 +406,7 @@ const _routes = [
     meta: __nuxt_page_meta$6 || {},
     alias: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.alias) || [],
     redirect: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.redirect) || void 0,
-    component: () => import('./_nuxt/entrance-5c2f246b.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/entrance-93414cee.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.name) ?? "admin-login",
@@ -414,7 +414,7 @@ const _routes = [
     meta: __nuxt_page_meta$5 || {},
     alias: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.alias) || [],
     redirect: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.redirect) || void 0,
-    component: () => import('./_nuxt/login-05a7a28f.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-91c704a8.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.name) ?? "c-conv",
@@ -422,7 +422,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-dda94921.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-0019f462.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "c",
@@ -430,7 +430,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-356645dc.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-d25fc784.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "index",
@@ -438,7 +438,7 @@ const _routes = [
     meta: __nuxt_page_meta$2 || {},
     alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
     redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/index-0be009d9.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-6924016e.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "login",
@@ -446,7 +446,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/login-4862ca4a.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-32924ee2.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -454,7 +454,7 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-674647f2.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-661d246c.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "signup",
@@ -462,7 +462,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/signup-a2b9b29b.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/signup-df15c708.mjs').then((m) => m.default || m)
   }
 ];
 const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "CH4" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "CH4" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
@@ -648,10 +648,11 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-3d3bec07.mjs'),
-  "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-7bb3dbda.mjs'),
-  "only-auth": () => import('./_nuxt/onlyAuth-00ac9e6b.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-b8bffb2e.mjs')
+  chat: () => import('./_nuxt/chat-9c92074a.mjs'),
+  "no-headless": () => import('./_nuxt/noHeadless-48a0e36f.mjs'),
+  "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-cc3eb8ba.mjs'),
+  "only-auth": () => import('./_nuxt/onlyAuth-6fabd1e1.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-31cae1b3.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
@@ -4027,7 +4028,7 @@ const en = {
     renameConvHint: "Please enter a conversation title: ",
     renameSuccess: "Conversation has been renamed.",
     deleteConvConfirm: "Are you sure you want to delete this conversation? This action cannot be undone!",
-    deleteMsgConfirm: "Delete this question and its answers?",
+    deleteMsgConfirm: "Delete this message?",
     notice: "Notice",
     warning: "Warning",
     setting: "Setting",
@@ -4063,6 +4064,7 @@ const en = {
     title: "Chat",
     welcomeTo: "Welcome to",
     editQues: "Edit Question",
+    editAns: "Edit Answer",
     chats: "Conversations",
     newChat: "New Chat",
     letsStart: "Let's start!",
@@ -4149,7 +4151,7 @@ const zhTW = {
     renameConvHint: "請輸入對話標題：",
     renameSuccess: "對話已重命名。",
     deleteConvConfirm: "你確定要刪除此對話嗎？此操作將無法撤消！",
-    deleteMsgConfirm: "是否刪除此問答？",
+    deleteMsgConfirm: "是否刪除此訊息？",
     notice: "通告",
     warning: "警告",
     setting: "設置",
@@ -4185,6 +4187,7 @@ const zhTW = {
     title: "對話",
     welcomeTo: "歡迎來到",
     editQues: "編輯問題",
+    editAns: "編輯回答",
     chats: "對話列表",
     newChat: "新對話",
     letsStart: "讓我們開始吧！",
@@ -4201,12 +4204,17 @@ const zhTW = {
   }
 };
 const ru = {
+  excl: "!",
   colon: ":",
+  page: {
+    aiChat: "AI Чат"
+  },
   header: {
     joinDc: "Присоединиться"
   },
   auth: {
     title: "Аккаунт",
+    profile: "Профиль",
     login: "Войти",
     logout: "Выйти",
     signup: "Зарегистрироваться",
@@ -4221,13 +4229,14 @@ const ru = {
     alreadyHaveAnAcc: "Уже есть аккаунт?",
     createNewAcc: "Создать новый аккаунт!",
     forgotPw: "Забыли пароль?",
+    resetPw: "Сбросить пароль",
     emailRequired: "Требуется адрес электронной почты.",
     emailInvalid: "Недопустимый формат адреса электронной почты.",
     usernameOrEmailRequired: "Требуется имя пользователя или адрес электронной почты.",
     usernameRequired: "Требуется имя пользователя.",
-    usernameLength: "Длина имени пользователя: от 5 до 32 символов",
+    usernameLength: "Длина имени пользователя: 5-32 символа",
     passwdRequired: "Требуется пароль.",
-    passwdLength: "Длина пароля: от 8 до 64 символов",
+    passwdLength: "Длина пароля: 8-64 символа",
     veriCodeRequired: "Требуется код подтверждения.",
     confirmChangeEmail: "Вы уверены, что хотите изменить адрес электронной почты?",
     notReceiveVeriCode: "Не получили код подтверждения?",
@@ -4235,32 +4244,40 @@ const ru = {
     loginTip1: "После входа в систему или регистрации, владение беседами на этом устройстве будет передано на связанный аккаунт."
   },
   action: {
+    back: "Назад",
+    submit: "Подтвердить",
+    save: "Сохранить",
+    saveNSubmit: "Сохранить и подтвердить",
+    scrollToBtm: "Прокрутить вниз",
     more: "Дополнительные действия",
     rename: "Переименовать",
     renameConv: "Переименовать диалог",
     refresh: "Обновить диалог",
+    resetConv: "Сбросить настройки диалога",
     regenerate: "Сгенерировать заново",
     continueGenerate: "Продолжить генерацию",
     resend: "Повторно отправить",
     change: "Изменить",
+    edit: "Редактировать",
     copy: "Копировать",
     copySuccess: "Скопировано!",
     copyFailed: "Не удалось скопировать.",
     delete: "Удалить",
     deleteConv: "Удалить диалог",
     exportAs: "Экспортировать как",
-    newVersion: "Вышла новая версия! Хотите перезагрузить страницу?",
+    newVersion: "Вышла новая версия! Необходимо обновление страницы.",
     opCanceled: "Операция отменена.",
-    opExecuted: "Операция выполнена."
+    opExecuted: "Операция выполнена.",
+    submitting: "Выполняется отправка..."
   },
   message: {
     renameConvHint: "Пожалуйста, введите новое название диалога:",
     renameSuccess: "Диалог был переименован.",
     deleteConvConfirm: "Вы уверены, что хотите удалить этот диалог? Это действие нельзя отменить!",
-    deleteMsgConfirm: "Удалить этот вопрос и его ответы?",
+    deleteMsgConfirm: "Удалить это сообщение?",
     notice: "Уведомление",
     warning: "Предупреждение",
-    setting: "Настройки",
+    setting: "Настройка",
     ok: "OK",
     cancel: "Отмена",
     yes: "Да",
@@ -4270,21 +4287,21 @@ const ru = {
     title: "Меню",
     about: "О программе",
     joinDcMessage: "Присоединяйтесь к нашему серверу Discord, чтобы быть в курсе последних новостей от CH4!",
-    expFeat1: "Это занимает некоторое время.",
+    expFeat1: "Это займет некоторое время.",
     expFeat2: "Это займет больше времени.",
-    tempInfo: "При более высоких значениях увеличивается случайность и разнообразие, а при более низких значениях случайность уменьшается и вывод становится более предсказуемым."
+    tempInfo: "Более высокие значения увеличивают случайность и разнообразие, а более низкие значения уменьшают случайность и делают вывод более предсказуемым."
   },
   settings: {
     title: "Настройки",
     model: "Модель",
     lang: "Язык интерфейса",
-    webBrowsing: "Веб-поиск",
+    webBrowsing: "Поиск по вебу",
     off: "Выкл.",
     on: "Вкл.",
     enable: "Включить",
     disable: "Отключить",
-    basic: "Базовый",
-    advanced: "Расширенный",
+    basic: "Базовые",
+    advanced: "Расширенные",
     context: "Контекст"
   },
   chat: {
@@ -4301,13 +4318,141 @@ const ru = {
     patient: "Пожалуйста, будьте терпеливы, это может занять несколько минут."
   }
 };
+const ja = {
+  excl: "！",
+  colon: "：",
+  page: {
+    aiChat: "AI チャット"
+  },
+  header: {
+    joinDc: "参加"
+  },
+  auth: {
+    title: "アカウント",
+    profile: "プロフィール",
+    login: "ログイン",
+    logout: "ログアウト",
+    signup: "サインアップ",
+    email: "メールアドレス",
+    username: "ユーザー名",
+    usernameOrEmail: "ユーザー名 / メールアドレス",
+    passwd: "パスワード",
+    veriCode: "認証コード",
+    getVeriCode: "認証コードを取得",
+    sendingVeriCode: "認証コードを送信中...",
+    loggingIn: "ログイン中...",
+    alreadyHaveAnAcc: "既にアカウントをお持ちですか？",
+    createNewAcc: "新しいアカウントを作成！",
+    forgotPw: "パスワードを忘れましたか？",
+    resetPw: "パスワードをリセット",
+    emailRequired: "メールアドレスが必要です",
+    emailInvalid: "メールアドレスの形式が無効です",
+    usernameOrEmailRequired: "ユーザー名またはメールアドレスが必要です",
+    usernameRequired: "ユーザー名が必要です",
+    usernameLength: "ユーザー名の長さ：5～32文字",
+    passwdRequired: "パスワードが必要です",
+    passwdLength: "パスワードの長さ：8～64文字",
+    veriCodeRequired: "認証コードが必要です",
+    confirmChangeEmail: "メールアドレスを変更しますか？",
+    notReceiveVeriCode: "認証コードが届かない場合",
+    formIncomplete: "フォームが不完全です",
+    loginTip1: "ログインまたはサインアップ後、このデバイス上の対話の所有権が関連するアカウントに移動します"
+  },
+  action: {
+    back: "戻る",
+    submit: "送信",
+    save: "保存",
+    saveNSubmit: "保存して送信",
+    scrollToBtm: "一番下までスクロール",
+    more: "詳細な操作",
+    rename: "名前変更",
+    renameConv: "対話の名前変更",
+    refresh: "対話の更新",
+    resetConv: "対話の設定リセット",
+    regenerate: "再生成",
+    continueGenerate: "生成を続ける",
+    resend: "再送信",
+    change: "変更",
+    edit: "編集",
+    copy: "コピー",
+    copySuccess: "コピーしました！",
+    copyFailed: "コピーに失敗しました。",
+    delete: "削除",
+    deleteConv: "対話の削除",
+    exportAs: "エクスポート",
+    newVersion: "新しいバージョンがリリースされました！ページをリフレッシュしてください。",
+    opCanceled: "操作がキャンセルされました。",
+    opExecuted: "操作が実行されました。",
+    submitting: "送信中..."
+  },
+  message: {
+    renameConvHint: "対話のタイトルを入力してください：",
+    renameSuccess: "対話が名前変更されました。",
+    deleteConvConfirm: "この対話を削除してもよろしいですか？この操作は元に戻すことはできません！",
+    deleteMsgConfirm: "このメッセージを削除しますか？",
+    notice: "お知らせ",
+    warning: "警告",
+    setting: "設定",
+    ok: "OK",
+    cancel: "キャンセル",
+    yes: "はい",
+    no: "いいえ"
+  },
+  menu: {
+    title: "メニュー",
+    about: "詳細情報",
+    joinDcMessage: "最新情報を得るために、Discord サーバーに参加してください！",
+    expFeat1: "これには少し時間がかかります。",
+    expFeat2: "これにはさらに時間がかかります。",
+    tempInfo: "高い値はランダム性と多様性を増加させ、低い値はランダム性を減少させて出力をより予測可能にします。"
+  },
+  settings: {
+    title: "設定",
+    model: "モデル",
+    webBrowsing: "Web ブラウジング",
+    off: "オフ",
+    on: "オン",
+    enable: "有効",
+    disable: "無効",
+    basic: "基本",
+    advanced: "高度",
+    context: "コンテキスト",
+    appearance: "外観",
+    lang: "UI 言語",
+    theme: "テーマ"
+  },
+  chat: {
+    title: "チャット",
+    welcomeTo: "ようこそ",
+    editQues: "質問を編集",
+    editAns: "回答を編集",
+    chats: "対話一覧",
+    newChat: "新しい対話",
+    letsStart: "始めましょう！",
+    send: "送信",
+    ldConv: "対話を読み込み中",
+    dltConv: "対話を削除中"
+  },
+  error: {
+    qTooLong: "質問が長すぎます。",
+    plzRefresh: "ページをリフレッシュしてください。"
+  },
+  footer: {
+    patient: "少々お待ちください。数分かかる場合があります。"
+  }
+};
 const es = {
+  excl: "!",
   colon: ":",
+  page: {
+    aiChat: "AI Chat"
+  },
   header: {
     joinDc: "Unirse"
   },
   auth: {
     title: "Cuenta",
+    profile: "Página de perfil",
     login: "Iniciar sesión",
     logout: "Cerrar sesión",
     signup: "Registrarse",
@@ -4320,22 +4465,28 @@ const es = {
     sendingVeriCode: "Enviando código de verificación...",
     loggingIn: "Iniciando sesión...",
     alreadyHaveAnAcc: "¿Ya tienes una cuenta?",
-    createNewAcc: "¡Crea una nueva cuenta!",
+    createNewAcc: "¡Crear una nueva cuenta!",
     forgotPw: "¿Olvidaste la contraseña?",
+    resetPw: "Restablecer contraseña",
     emailRequired: "Se requiere la dirección de correo electrónico.",
     emailInvalid: "El formato de la dirección de correo electrónico no es válido.",
     usernameOrEmailRequired: "Se requiere un nombre de usuario o una dirección de correo electrónico.",
     usernameRequired: "Se requiere el nombre de usuario.",
-    usernameLength: "Longitud del nombre de usuario: de 5 a 32 caracteres",
+    usernameLength: "Longitud del nombre de usuario: 5-32 caracteres",
     passwdRequired: "Se requiere la contraseña.",
-    passwdLength: "Longitud de la contraseña: de 8 a 64 caracteres",
+    passwdLength: "Longitud de la contraseña: 8-64 caracteres",
     veriCodeRequired: "Se requiere el código de verificación.",
-    confirmChangeEmail: "¿Estás seguro de que quieres cambiar la dirección de correo electrónico?",
+    confirmChangeEmail: "¿Estás seguro de que deseas cambiar la dirección de correo electrónico?",
     notReceiveVeriCode: "¿No recibiste el código de verificación?",
     formIncomplete: "¡Formulario incompleto!",
     loginTip1: "Después de iniciar sesión o registrarse, la propiedad de las conversaciones en este dispositivo se transferirá a la cuenta asociada."
   },
   action: {
+    back: "Atrás",
+    submit: "Enviar",
+    save: "Guardar",
+    saveNSubmit: "Guardar y enviar",
+    scrollToBtm: "Desplazar hacia abajo",
     more: "Más acciones",
     rename: "Renombrar",
     renameConv: "Renombrar conversación",
@@ -4344,6 +4495,7 @@ const es = {
     continueGenerate: "Continuar generando",
     resend: "Reenviar",
     change: "Cambiar",
+    edit: "Editar",
     copy: "Copiar",
     copySuccess: "¡Copiado!",
     copyFailed: "Error al copiar.",
@@ -4352,13 +4504,14 @@ const es = {
     exportAs: "Exportar como",
     newVersion: "¡Se ha lanzado una nueva versión! ¿Deseas recargar la página?",
     opCanceled: "La operación se ha cancelado.",
-    opExecuted: "La operación se ha ejecutado."
+    opExecuted: "La operación se ha ejecutado.",
+    submitting: "Enviando"
   },
   message: {
     renameConvHint: "Por favor, ingresa un título de conversación:",
     renameSuccess: "La conversación ha sido renombrada.",
     deleteConvConfirm: "¿Estás seguro/a de que deseas eliminar esta conversación? ¡Esta acción no se puede deshacer!",
-    deleteMsgConfirm: "¿Eliminar esta pregunta y sus respuestas?",
+    deleteMsgConfirm: "¿Eliminar este mensaje?",
     notice: "Aviso",
     warning: "Advertencia",
     setting: "Configuración",
@@ -4370,7 +4523,7 @@ const es = {
   menu: {
     title: "Menú",
     about: "Acerca de",
-    joinDcMessage: "¡Únete a nuestro servidor de Discord para estar al día con las últimas noticias de CH4!",
+    joinDcMessage: "¡Únete a nuestro servidor de Discord para estar al día con las últimas noticias!",
     expFeat1: "Esto lleva un poco de tiempo.",
     expFeat2: "Esto llevará más tiempo.",
     tempInfo: "Con valores más altos aumenta la aleatoriedad y diversidad, mientras que con valores más bajos disminuye la aleatoriedad y hace que la salida sea más predecible."
@@ -4378,7 +4531,6 @@ const es = {
   settings: {
     title: "Configuración",
     model: "Modelo",
-    lang: "Idioma de la interfaz de usuario",
     webBrowsing: "Navegación web",
     off: "Desactivado",
     on: "Activado",
@@ -4389,10 +4541,16 @@ const es = {
     context: "Contexto"
   },
   chat: {
+    title: "Chat",
+    welcomeTo: "Bienvenido/a a",
+    editQues: "Editar pregunta",
+    editAns: "Editar respuesta",
     chats: "Conversaciones",
     newChat: "Nueva conversación",
     letsStart: "¡Empecemos!",
-    send: "Enviar"
+    send: "Enviar",
+    ldConv: "Cargando conversación",
+    dltConv: "Eliminando conversación"
   },
   error: {
     qTooLong: "Pregunta demasiado larga.",
@@ -4430,12 +4588,14 @@ const i18n = createI18n({
     "zh-TW": zhTW,
     "zh-CN": zhCN,
     ru,
+    ja,
     es
   },
   fallbackLocale: {
     "zh-TW": ["zh-CN", "en"],
     "zh-CN": ["zh-TW", "en"],
     "ru": ["en"],
+    "ja": ["en"],
     "es": ["en"]
   }
 }).global;
@@ -4493,6 +4653,21 @@ const composables_BevcPrpBa3 = /* @__PURE__ */ defineNuxtPlugin(() => {
     }
   };
 });
+function isAtBottom(tolerance = 160) {
+  return false;
+}
+async function useScrollToBottom(delayMs = 0, behavior = "smooth") {
+  return await new Promise((resolve, reject) => {
+    {
+      resolve(null);
+    }
+  });
+}
+async function keepAtBottom(delayMs = 0, behavior = "instant", tolerance = 80) {
+  return null;
+}
+useScrollToBottom.isAtBottom = isAtBottom;
+useScrollToBottom.keepAtBottom = keepAtBottom;
 Prism.manual = true;
 const renderCodeBlocks_qIyVp6jM6U = /* @__PURE__ */ defineNuxtPlugin(() => {
   return {};
@@ -4844,7 +5019,7 @@ const _sfc_main$1 = {
     const statusMessage = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
     const description = _error.message || _error.toString();
     const stack = void 0;
-    const _Error404 = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-404-3b3d261c.mjs').then((r) => r.default || r));
+    const _Error404 = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-404-cebcefdc.mjs').then((r) => r.default || r));
     const _Error = /* @__PURE__ */ defineAsyncComponent(() => import('./_nuxt/error-500-2858444e.mjs').then((r) => r.default || r));
     const ErrorTemplate = is404 ? _Error404 : _Error;
     return (_ctx, _push, _parent, _attrs) => {
@@ -4930,5 +5105,5 @@ let entry;
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useLocale as a, useState as b, createError as c, useRouter as d, entry$1 as default, debugWarn as e, useNamespace as f, useNuxtApp as g, defaultNamespace as h, namespaceContextKey as i, useId as j, useUniCookie as k, defineNuxtRouteMiddleware as l, navigateTo as n, throwError as t, useHead as u };
+export { _export_sfc as _, useRouter as a, useLocale as b, createError as c, useState as d, entry$1 as default, debugWarn as e, useNamespace as f, useNuxtApp as g, defaultNamespace as h, namespaceContextKey as i, useId as j, useUniCookie as k, useScrollToBottom as l, defineNuxtRouteMiddleware as m, navigateTo as n, throwError as t, useHead as u };
 //# sourceMappingURL=server.mjs.map

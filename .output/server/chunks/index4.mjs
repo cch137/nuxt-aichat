@@ -461,6 +461,7 @@ var __publicField$6 = (obj, key, value) => {
 };
 async function createStreamRequest(streaming, url, data, headers) {
   return await new Promise(async (resolve, reject) => {
+    let error = void 0;
     try {
       const res = await axios.post(url, data, {
         headers,
@@ -481,18 +482,21 @@ async function createStreamRequest(streaming, url, data, headers) {
           }
         }
       });
-      res.data.on("error", (e) => streaming.error(e));
+      res.data.on("error", (e) => {
+        error = e;
+        streaming.error(e);
+      });
       res.data.on("end", () => {
         const answer = streaming.read();
         if (answer) {
           streaming.end();
           resolve({ answer });
         } else {
-          reject(`Oops! Something went wrong.`);
+          reject(`${error || "Oops! Something went wrong."}`);
         }
       });
     } catch (err) {
-      reject(err);
+      reject(`${error || "Oops! Something went wrong."}`);
     }
   });
 }
@@ -870,13 +874,18 @@ async function crawl(url, textOnly = true) {
     "Origin": origin,
     "Accept-Language": "en-US,en;q=0.9"
   };
+  const timeout = 1e4;
+  const cancelToken = axios.CancelToken.source();
+  const cancelTimeout = setTimeout(() => cancelToken.cancel(), timeout);
   try {
     const request = await axios.get(url, {
       headers,
-      timeout: 1e4,
+      timeout,
       validateStatus: (_) => true,
-      responseEncoding: "utf8"
+      responseEncoding: "utf8",
+      cancelToken: cancelToken.token
     });
+    clearTimeout(cancelTimeout);
     return new WebCrawlerResult(request, textOnly);
   } catch {
     return new WebCrawlerResult({}, textOnly);

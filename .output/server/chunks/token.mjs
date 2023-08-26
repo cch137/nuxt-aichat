@@ -1,3 +1,4 @@
+import { parse } from 'cookie';
 import sha3 from 'crypto-js/sha3.js';
 import md5 from 'crypto-js/md5.js';
 import { t as toSeed, r as random, b as baseConverter, a as safeStringify, s as str } from './random.mjs';
@@ -93,6 +94,12 @@ function read(token) {
   }
   return null;
 }
+function getUidByToken(event) {
+  var _a, _b, _c;
+  const cookieString = ((_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie) || "";
+  const token = read(parse(cookieString).token);
+  return token == null ? void 0 : token.uid;
+}
 
-export { generate as g, hx as h, mask as m, pack as p, read as r };
+export { getUidByToken as a, generate as g, hx as h, mask as m, pack as p, read as r };
 //# sourceMappingURL=token.mjs.map

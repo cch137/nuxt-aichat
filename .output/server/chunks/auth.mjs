@@ -9,7 +9,8 @@ const userCollection = model("User", new Schema({
   uid: { type: String, required: true },
   email: { type: String, required: true },
   username: { type: String, required: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  authlvl: { type: Number, required: true }
 }, {
   versionKey: false,
   strict: "throw"
@@ -103,7 +104,8 @@ const createUser = async (uid, email, username, password) => {
     uid,
     email,
     username,
-    password: hashedPassword
+    password: hashedPassword,
+    authlvl: 1
   });
 };
 const resetPassword = async (email, newPassword) => {
@@ -123,7 +125,7 @@ const getUid = async (usernameOrEmail, password) => {
   return (user == null ? void 0 : user.uid) || false;
 };
 const getUser = async (uid) => {
-  return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1 });
+  return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1, authlvl: 1 });
 };
 const mergeUser = async (uidToBeRetained, uidToBeRemoved) => {
   if (typeof uidToBeRetained !== "string") {

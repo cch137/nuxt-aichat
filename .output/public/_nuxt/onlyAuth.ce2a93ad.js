@@ -1,0 +1,1 @@
+import{aN as a,aO as s,D as u}from"./entry.d60a59af.js";import{u as r}from"./useAuth.c5c00c76.js";const p=a(async(c,i)=>{let e,t;{const o=r();[e,t]=s(()=>o.checkIsLoggedIn()),e=await e,t(),!e&&setTimeout(()=>u().$router.replace("/login"),0)}});export{p as default};
