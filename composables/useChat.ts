@@ -820,14 +820,10 @@ export default function () {
           await $fetch('/api/curva/conv', { method: 'DELETE', body: { id } })
         } catch {}
         loading.close()
-        const currConvId = getCurrentConvId()
-        if (targetConvId === currConvId) {
+        if (targetConvId === getCurrentConvId()) {
           document.getElementById(nextConvId)?.click()
         }
-        const convIndex = conversations.value.findIndex((c) => c.id === currConvId)
-        if (convIndex != -1) {
-          conversations.value.splice(convIndex, 1)
-        }
+        conversations.value = conversations.value.filter((c) => c.id !== targetConvId)
         // checkTokenAndGetConversations()
       })
   }
