@@ -35,6 +35,7 @@ interface ChatResponseChunk {
 
 async function createStreamRequest (streaming: Stream, url: string, data: any, headers: Record<string,string>) {
   return await new Promise<{ answer: string, error?: string }>(async (resolve, reject) => {
+    let error: any = undefined
     try {
       const res = await axios.post(url, data, {
         headers, validateStatus: (_) => true,
@@ -51,18 +52,21 @@ async function createStreamRequest (streaming: Stream, url: string, data: any, h
           } catch {}
         }
       })
-      res.data.on('error', (e: any) => streaming.error(e))
+      res.data.on('error', (e: any) => {
+        error = e
+        streaming.error(e)
+      })
       res.data.on('end', () => {
         const answer = streaming.read()
         if (answer) {
           streaming.end()
           resolve({ answer })
         } else {
-          reject(`Oops! Something went wrong.`)
+          reject(`${error || 'Oops! Something went wrong.'}`)
         }
       })
     } catch (err) {
-      reject(err)
+      reject(`${error || 'Oops! Something went wrong.'}`)
     }
   })
 }

@@ -127,13 +127,19 @@ async function crawl (url: string, textOnly = true) {
     'Origin': origin,
     'Accept-Language': 'en-US,en;q=0.9',
   }
+  // 設置 CancelToken，請求超過 10 秒的網站中止請求。
+  const timeout = 10000
+  const cancelToken = axios.CancelToken.source()
+  const cancelTimeout = setTimeout(() => cancelToken.cancel(), timeout)
   try {
     const request = await axios.get(url, {
       headers,
-      timeout: 10000,
+      timeout,
       validateStatus: (_) => true,
-      responseEncoding: 'utf8'
+      responseEncoding: 'utf8',
+      cancelToken: cancelToken.token
     })
+    clearTimeout(cancelTimeout)
     return new WebCrawlerResult(request, textOnly)
   } catch {
     return new WebCrawlerResult({} as AxiosResponse, textOnly)
