@@ -562,8 +562,10 @@ export default function () {
           if (isAtBottom) {
             useScrollToBottom(0, 'instant')
           }
-        } else if (message.done) {
+        }
+        if (message.done) {
           clearInterval(typewriterInterval)
+          controller.abort()
         }
       }, typewriterSpeed)
       const controller = new AbortController()
@@ -627,6 +629,9 @@ export default function () {
           clearInterval(donePending)
         }
       }, typewriterSpeed)
+    } else {
+      message.done = true
+      if (message.A !== answer) message.A = answer || ''
     }
     message.t = new Date()
     message.dt = dt || undefined
