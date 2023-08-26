@@ -292,8 +292,7 @@ const [currentConvIdComputed, getCurrentConvId, setCurrentConvId] = (() => {
 
 const getCurrentConvName = () => {
   const currConvId = getCurrentConvId()
-  return conversations.value
-    .filter((conv) => conv.id === currConvId)[0]?.name || ''
+  return conversations.value.find((conv) => conv.id === currConvId)?.name || ''
 }
 
 async function updateConversation (id?: string, newname?: string): Promise<{ cancel?: boolean, error?: string }> {
@@ -474,11 +473,13 @@ export default function () {
   // 清除舊 cookie --  END  --
   nuxtApp = useNuxtApp()
   const refreshPageTitle = () => {
-    try {
-      useTitle(`${getCurrentConvName() || _t('chat.title')} - ${appName}`)
-    } catch {
-      useTitle(`${_t('chat.title')} - ${appName}`)
-    }
+    setTimeout(() => {
+      try {
+        useTitle(`${getCurrentConvName() || _t('chat.title')} - ${appName}`)
+      } catch (err) {
+        useTitle(`${_t('chat.title')} - ${appName}`)
+      }
+    }, 0)
   }
   authEventTarget.addListener('login', clear)
   authEventTarget.addListener('logout', clear)
@@ -495,6 +496,7 @@ export default function () {
       }
       await Promise.all([fetchingConvList, useScrollToBottom(1000)])
       loadConvConfig(conv) // 加載對話設置必須在 ConvList 取得之後
+      setTimeout(() => refreshPageTitle(), 1000)
     } finally {
       loading.close()
       await useScrollToBottom(500)
