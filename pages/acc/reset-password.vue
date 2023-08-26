@@ -215,7 +215,7 @@ const resetPw = async (formEl: FormInstance) => {
 useTitle(`${_t('auth.resetPw')} - ${useState('appName').value}`)
 definePageMeta({
   layout: 'default',
-  middleware: []
+  middleware: ['no-headless']
 })
 </script>
 

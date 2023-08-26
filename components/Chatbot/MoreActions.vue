@@ -46,6 +46,15 @@
             <div>
               <el-button
                 class="MoreOptionButton"
+                :icon="Download"
+                @click="exportAsJsonDetailed()"
+              >
+                {{ $t('action.exportAs') }} .JSON (detailed)
+              </el-button>
+            </div>
+            <div>
+              <el-button
+                class="MoreOptionButton"
                 :icon="RefreshRight"
                 @click="refreshConversation()"
               >
@@ -72,7 +81,7 @@
 
 <script setup>
 import { More, EditPen, RefreshRight, Download, Delete, ArrowDown } from '@element-plus/icons-vue'
-const { refreshConversation, renameConversation, deleteConversation, resetConvConfig, exportAsMarkdown, exportAsJson } = useChat()
+const { refreshConversation, renameConversation, deleteConversation, resetConvConfig, exportAsMarkdown, exportAsJson, exportAsJsonDetailed } = useChat()
 </script>
 
 <style scoped>

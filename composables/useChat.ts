@@ -3,7 +3,6 @@ import baseConverter from '~/utils/baseConverter'
 import random from '~/utils/random'
 import { hx as createHash } from '~/utils/troll'
 import str from '~/utils/str'
-import { getScrollTop } from '~/utils/client'
 import type { ArchivedChatMessage, CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 import useURLParams from './useURLParams'
 import { customErrorCodes } from '~/config/customErrorCodes'
@@ -23,37 +22,51 @@ interface DisplayChatMessage extends ArchivedChatMessage {
 
 let nuxtApp: NuxtApp
 let lastModifiedConv: string = ''
-const editingMessage = ref<DisplayChatMessage>()
-const isEditingMessage = ref<boolean>(false)
-const editingMessageContent = ref<string>('')
 const model = ref<string>('gpt4')
 const contextMode = ref<boolean>(true)
 const temperature = ref<number>(0.5)
 const messages = ref<DisplayChatMessage[]>([])
 const conversations = ref<Array<{ id: string, name: string, config: string, mtime: number }>>([])
 
-watch(isEditingMessage, (value) => {
-  if (!value) {
-    focusInput()
-  }
-})
-
-const callEditMessageDialog = (message: DisplayChatMessage) => {
-  isEditingMessage.value = true
-  editingMessage.value = message
-  editingMessageContent.value = message.Q
-  setTimeout(() => focusEditMessageInput(), 0)
+const editingQuestion = ref<DisplayChatMessage>()
+const isEditingQuestion = ref<boolean>(false)
+const editingQuestionContent = ref<string>('')
+function callEditQuestionDialog (message: DisplayChatMessage) {
+  isEditingQuestion.value = true
+  editingQuestion.value = message
+  editingQuestionContent.value = message.Q
+  setTimeout(() => _focusEditQuestionInput(), 0)
 }
-
-function focusEditMessageInput () {
+function _focusEditQuestionInput () {
   try {
-    (document.querySelector('.EditMessageInput textarea') as HTMLTextAreaElement).focus()
+    (document.querySelector('.EditQuestionInput textarea') as HTMLTextAreaElement).focus()
   } catch {}
 }
+watch(isEditingQuestion, (value) => !value ? focusInput() : null)
+
+const editingAnswer = ref<DisplayChatMessage>()
+const isEditingAnswer = ref<boolean>(false)
+const editingAnswerContent = ref<string>('')
+function callEditAnswerDialog (message: DisplayChatMessage) {
+  isEditingAnswer.value = true
+  editingAnswer.value = message
+  editingAnswerContent.value = message.A
+  setTimeout(() => _focusEditAnswerInput(), 0)
+}
+function _focusEditAnswerInput () {
+  try {
+    (document.querySelector('.EditAnswerInput textarea') as HTMLTextAreaElement).focus()
+  } catch {}
+}
+watch(isEditingAnswer, (value) => !value ? focusInput() : null)
 
 const focusInput = () => {
   try {
     if (process.client) {
+      // 手機端不進行聚焦，因為觸屏已經很方便了
+      if (useDevice().isMobileScreen) {
+        return
+      }
       const el = document.querySelector('.InputBox textarea') as HTMLElement
       el.click()
       el.focus()
@@ -108,7 +121,7 @@ const _fetchHistory = (conv: string | null) => {
       resolve(archived.map((msg) => reactive({
         ...msg,
         t: new Date(msg.t),
-        done: Boolean(msg.A),
+        done: true,
       })))
     } catch {
       navigateTo('/c/')
@@ -127,11 +140,9 @@ const _loadSuggestions = async () => {
   try {
     const lastMessage = messages.value.at(-1) as DisplayChatMessage
     const suggestions = await _fetchSuggestions(lastMessage.Q)
-    const isAtBottom = getScrollTop() >= document.body.clientHeight
+    const isAtBottom = useScrollToBottom.isAtBottom()
     lastMessage.more = suggestions
-    if (isAtBottom) {
-      useScrollToBottom()
-    }
+    if (isAtBottom) useScrollToBottom();
   } catch (err) {
     console.error(err)
   }
@@ -367,17 +378,22 @@ setTimeout(() => {
   })
 }, 1000)
 
-const deleteMessage = (base64MessageId: string) => {
-  messages.value = messages.value.filter((msg) => msg.id !== base64MessageId)
-  $fetch('/api/curva/answer', {
-    method: 'DELETE',
+const updateMessage = (message: DisplayChatMessage, keyToBeCleared?: 'Q' | 'A') => {
+  if (keyToBeCleared !== undefined) {
+    message[keyToBeCleared] = ''
+  }
+  const { id: base64MessageId, Q, A } = message
+  messages.value = messages.value.filter((msg) => msg.Q || msg.A)
+  $fetch('/api/curva/message', {
+    method: 'PUT',
     body: {
       conv: getCurrentConvId(),
-      id: base64MessageId
+      id: base64MessageId,
+      Q, A,
     }
   })
-    .then(() => ElMessage.info('The message has been deleted.'))
-    .catch(() => ElMessage.error('An error occurred while deleting the message.'))
+    .then(() => ElMessage.info(`The message has been ${keyToBeCleared ? 'deleted' : 'saved'}.`))
+    .catch(() => ElMessage.error(`An error occurred while ${keyToBeCleared ? 'deleting' : 'saving'} the message.`))
 }
 
 const exportAsMarkdown = () => {
@@ -398,14 +414,29 @@ const exportAsMarkdown = () => {
 }
 
 const exportAsJson = () => {
-  downloadTextFile(`${baseConverter.convert(getCurrentConvId(), '64w', 10)}.json`, JSON.stringify(messages.value.map((msg) => ({
-    question: msg.Q,
-    answer: msg.A,
-    created: new Date(msg.t.getTime()).toUTCString(),
-    timeUsed: msg.dt || undefined,
-    queries: msg.queries || undefined,
-    urls: msg.urls || undefined,
-  })), null, 4))
+  const openAiFormatMessages = messages.value.map((msg) => [
+    { role: 'user', content: msg.Q },
+    { role: 'assistant', content: msg.A },
+  ]).flat().filter(m => m.content)
+  downloadTextFile(`${baseConverter.convert(getCurrentConvId(), '64w', 10)}.json`, JSON.stringify(openAiFormatMessages, null, 4))
+}
+
+const exportAsJsonDetailed = () => {
+  const openAiFormatMessages = messages.value.map((msg) => [
+    {
+      role: 'user',
+      content: msg.Q
+    },
+    {
+      role: 'assistant',
+      content: msg.A,
+      queries: msg.queries?.length ? msg.queries : undefined,
+      urls: msg.urls?.length ? msg.urls : undefined,
+      createdAt: new Date(msg.t.getTime()).toUTCString(),
+      timeUsed: msg.dt || undefined,
+    },
+  ]).flat().filter(m => m.content)
+  downloadTextFile(`${baseConverter.convert(getCurrentConvId(), '64w', 10)}.json`, JSON.stringify(openAiFormatMessages, null, 4))
 }
 
 if (process.client) {
@@ -458,12 +489,12 @@ export default function () {
     try {
       const fetchingConvList = (conv === null && conversations.value.length > 0) ? null : checkTokenAndGetConversations()
       const displayChatMessages = conv === null ? null : await _fetchHistory(conv)
-      loadConvConfig(conv)
       if (displayChatMessages !== null && getCurrentConvId() === conv) {
         messages.value = displayChatMessages
         _loadSuggestions()
       }
       await Promise.all([fetchingConvList, useScrollToBottom(1000)])
+      loadConvConfig(conv) // 加載對話設置必須在 ConvList 取得之後
     } finally {
       loading.close()
       await useScrollToBottom(500)
@@ -539,14 +570,12 @@ export default function () {
     const suggestionsResponse = _fetchSuggestions(messageText)
 
     // 記錄一些對話狀態（在完成請求後使用）
-    const isAtBottom = getScrollTop() >= document.body.clientHeight
+    const isAtBottom = useScrollToBottom.isAtBottom()
     const convId = getCurrentConvId()
 
     // 發送請求前：(1) 滑到底部 (2) focus 輸入組件
-    if (isAtBottom) {
-      useScrollToBottom()
-        .finally(() => focusInput())
-    }
+    if (isAtBottom) useScrollToBottom();
+    focusInput()
 
     // 建立 stream 通道
     const typewriterSpeed = 1
@@ -559,9 +588,7 @@ export default function () {
       const typewriterInterval = setInterval(() => {
         if (typewriter.length) {
           message.A += typewriter.shift()
-          if (isAtBottom) {
-            useScrollToBottom(0, 'instant')
-          }
+          useScrollToBottom.keepAtBottom()
         }
         if (message.done) {
           clearInterval(typewriterInterval)
@@ -682,10 +709,10 @@ export default function () {
     })());
 
     setTimeout(async () => {
-      // 回答結束後滑到底部
-      if (!regenerateId && isAtBottom) {
-        await useScrollToBottom()
-      }
+      // // 回答結束後滑到底部
+      // if (!regenerateId && isAtBottom) {
+      //   await useScrollToBottom()
+      // }
 
       // 檢查版本更新
       if (_version && _version !== version.value) {
@@ -709,11 +736,9 @@ export default function () {
     // 之後修復這裡的時候要注意，因為 sendMessage 可能由於修改以前的對話，這樣的情況不需要 suggestions
     suggestionsResponse
       .then((more) => {
-        const isAtBottom = getScrollTop() >= document.body.clientHeight
+        const isAtBottom = useScrollToBottom.isAtBottom()
         message.more = more
-        if (isAtBottom) {
-          useScrollToBottom()
-        }
+        if (isAtBottom) useScrollToBottom();
       })
 
     return isErrorExists
@@ -807,11 +832,17 @@ export default function () {
   return {
     models,
     showScrollToBottomButton,
-    isEditingMessage,
-    editingMessage,
-    callEditMessageDialog,
-    editingMessageContent,
-    focusEditMessageInput,
+    // Edit Question
+    isEditingQuestion,
+    editingQuestion,
+    editingQuestionContent,
+    callEditQuestionDialog,
+    // Edit Answer
+    isEditingAnswer,
+    editingAnswer,
+    editingAnswerContent,
+    callEditAnswerDialog,
+    // ----------------
     model,
     conversations,
     messages,
@@ -828,7 +859,7 @@ export default function () {
     checkTokenAndGetConversations,
     loadChat,
     sendMessage,
-    deleteMessage,
+    updateMessage,
     regenerateMessage,
     focusInput,
     refreshConversation,
@@ -837,6 +868,7 @@ export default function () {
     resetConvConfig,
     exportAsMarkdown,
     exportAsJson,
-    clear
+    exportAsJsonDetailed,
+    clear,
   }
 }

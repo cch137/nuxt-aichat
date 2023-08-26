@@ -4,6 +4,7 @@ import zhConverter from '~/utils/zhConverter'
 import en from '~/locales/en'
 import zhTW from '~/locales/zh-TW'
 import ru from '~/locales/ru'
+import ja from '~/locales/ja'
 import es from '~/locales/es'
 
 const zhCN = JSON.parse(zhConverter.t2s(JSON.stringify(zhTW)))
@@ -72,21 +73,25 @@ const i18n = createI18n({
     'zh-TW': zhTW,
     'zh-CN': zhCN,
     ru,
-    es
+    ja,
+    es,
   },
   fallbackLocale: {
     'zh-TW': ['zh-CN', 'en'],
     'zh-CN': ['zh-TW', 'en'],
     'ru': ['en'],
+    'ja': ['en'],
     'es': ['en'],
   }
 }).global
+
+type SupportedLanguage = 'en' | 'zh-TW' | 'zh-CN' | 'ru' | 'ja' | 'es'
 
 const checkLocale = (code: string | undefined | null) => {
   if (code === null || code === undefined) {
     return DEFAULT_LOCALE
   } else if ((i18n.availableLocales as string[]).includes(code)) {
-    return code as 'en' | 'zh-TW' | 'zh-CN' | 'ru'
+    return code as SupportedLanguage
   } else if (code.startsWith('en-')) {
     return 'en'
   } else if (code === 'zh-Hant' || code === 'zh-hant') {

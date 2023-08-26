@@ -19,7 +19,7 @@
         </div>
       </template>
       <template #default>
-        <div @mouseleave="closePopover" class="p-5 -m-5">
+        <div class="p-5 -m-5">
           <div style="word-break: break-word; text-align: start;">
             {{ $t('message.deleteMsgConfirm') }}
           </div>
@@ -53,7 +53,7 @@ export default {
     },
     openPopover () {
       this.visible = true
-      this.timeout = setTimeout(() => this.closePopover(), 10000)
+      this.timeout = setTimeout(() => this.closePopover(), 5000)
     },
     _cancel () {
       this.closePopover()

@@ -26,7 +26,7 @@ const { openMenu, openSidebarController } = useChat()
   top: 0;
   left: 0;
   width: 25%;
-  min-width: 280px;
+  min-width: 320px;
   height: 100vh;
   max-height: 100vh;
   padding: 1rem;

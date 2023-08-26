@@ -236,7 +236,7 @@ const signUp = async (formEl: FormInstance) => {
 useTitle(`${_t('auth.signup')} - ${useState('appName').value}`)
 definePageMeta({
   layout: 'default',
-  middleware: ['only-no-auth']
+  middleware: ['no-headless', 'only-no-auth']
 })
 </script>
 

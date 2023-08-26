@@ -1,3 +1,5 @@
+import type { H3Event } from 'h3'
+import { parse as parseCookie } from 'cookie'
 import { d as trollDecrypt, e as trollEncrypt } from "~/utils/troll"
 
 const seed = 168813145203000
@@ -34,6 +36,12 @@ function read (token: string) {
   return null
 }
 
+function getUidByToken (event: H3Event) {
+  const cookieString = event?.node?.req?.headers?.cookie || ''
+  const token = read(parseCookie(cookieString).token)
+  return token?.uid
+}
+
 export type {
   TokenObject
 }
@@ -41,5 +49,6 @@ export type {
 export {
   generate,
   pack,
-  read
+  read,
+  getUidByToken,
 }

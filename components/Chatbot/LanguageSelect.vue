@@ -37,6 +37,10 @@ const options = [
     value: 'ru'
   },
   {
+    label: '日本語',
+    value: 'ja'
+  },
+  {
     label: 'Español',
     value: 'es'
   },

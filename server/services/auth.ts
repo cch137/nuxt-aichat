@@ -102,6 +102,7 @@ const createUser = async (uid: string, email: string, username: string, password
     email,
     username,
     password: hashedPassword,
+    authlvl: 1,
   })
 }
 
@@ -125,7 +126,7 @@ const getUid = async (usernameOrEmail: string, password: string) => {
 
 const getUser = async (uid: string): Promise<{ username: string, email: string }> => {
   // @ts-ignore
-  return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1 })
+  return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1, authlvl: 1 })
 }
 
 const mergeUser = async (uidToBeRetained: string, uidToBeRemoved: string) => {

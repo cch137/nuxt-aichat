@@ -1,8 +1,9 @@
 <template>
   <div class="fixed z-50 w-full flex">
-    <div :style="`min-width: ${openSidebarController ? '280px' : '0px'}; width: ${openSidebarController ? '25%' : '0px'}; transition: .1s;`"></div>
+    <div :style="`min-width: ${openSidebarController ? '320px' : '0px'}; width: ${openSidebarController ? '25%' : '0px'}; transition: .1s;`"></div>
     <ChatbotConvSidebar />
-    <ChatbotEditMessageDialog />
+    <ChatbotEditQuestionDialog />
+    <ChatbotEditAnswerDialog />
     <div class="ChatbotConvHeader px-4 gap-4 flex items-stretch flex-1">
       <div :style="openSidebarController ? 'opacity: 0; pointer-events: none; width: 0px;' : ''" style="transition: .1s;">
         <el-button style="padding: 8px;" @click="openMenu = !openMenu">

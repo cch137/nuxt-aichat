@@ -1,11 +1,11 @@
 <template>
   <ClientOnly>
     <div class="flex w-full">
-      <div :style="`min-width: ${openSidebarController ? '280px' : '0px'}; width: ${openSidebarController ? '25%' : '0px'}; transition: .1s;`"></div>
+      <div :style="`min-width: ${openSidebarController ? '320px' : '0px'}; width: ${openSidebarController ? '25%' : '0px'}; transition: .1s;`"></div>
       <div style="position: fixed; bottom: 110px; right: 20px;" class="z-50" v-show="showScrollToBottomButton">
         <el-button class="ChatScrollToBottom drop-shadow-2xl" :icon="Bottom" circle @click="() => (scrollToBottomOnclick(), focusInput())"/>
       </div>
-      <div class="flex-1 flex-center" :style="`max-width: ${openSidebarController ? 'calc(100% - 280px)' : '100%'}; transition: .1s;`">
+      <div class="flex-1 flex-center" :style="`max-width: ${openSidebarController ? 'calc(100% - 320px)' : '100%'}; transition: .1s;`">
         <div class="w-full mx-auto">
           <div class="Messages flex flex-col gap-2 pt-4 px-2 pb-10 mb-40 mx-auto">
             <div class="text-center my-4">
@@ -40,20 +40,35 @@
                     </div>
                     <div class="flex gap-3">
                       <el-tooltip
+                        v-if="!message.A"
+                        :content="$t('action.regenerate')"
+                        placement="bottom"
+                      >
+                        <el-text
+                          type="info"
+                          class="MessageActionButton flex-center"
+                          @click="regenerateMessage(message)"
+                        >
+                          <el-icon size="large">
+                            <Refresh />
+                          </el-icon>
+                        </el-text>
+                      </el-tooltip>
+                      <ChatbotMessageDeleteButton :confirm="() => updateMessage(message, 'Q')" />
+                      <el-tooltip
                         :content="$t('action.edit')"
                         placement="bottom"
                       >
                         <el-text
                           type="info"
                           class="MessageActionButton flex-center"
-                          @click="callEditMessageDialog(message)"
+                          @click="callEditQuestionDialog(message)"
                         >
                           <el-icon size="large">
                             <Edit />
                           </el-icon>
                         </el-text>
                       </el-tooltip>
-                      <ChatbotMessageDeleteButton :confirm="() => deleteMessage(message.id)" />
                       <el-tooltip
                         :content="$t('action.copy')"
                         placement="bottom"
@@ -70,6 +85,38 @@
                       </el-tooltip>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div v-else class="flex MessageContaier pt-2">
+                <div class="flex gap-2 w-full px-4">
+                  <el-text
+                    type="info"
+                    class="flex-center"
+                  >
+                    <el-icon size="large">
+                      <VideoPlay />
+                    </el-icon>
+                  </el-text>
+                  <el-text type="info">
+                    Executed: "{{ $t('action.continueGenerate') }}"
+                  </el-text>
+                  <span class="flex-1" />
+                  <div class="flex gap-3">
+                    <el-tooltip
+                      :content="$t('action.edit')"
+                      placement="bottom"
+                    >
+                      <el-text
+                        type="info"
+                        class="MessageActionButton flex-center"
+                        @click="callEditQuestionDialog(message)"
+                      >
+                        <el-icon size="large">
+                          <Edit />
+                        </el-icon>
+                      </el-text>
+                    </el-tooltip>
+                  </div>                    
                 </div>
               </div>
               <div class="flex MessageContainer">
@@ -94,7 +141,7 @@
                   </div>
                 </div>
               </div>
-              <div class="flex MessageContainer">
+              <div v-if="!message.done || message.A" class="flex MessageContainer">
                 <div class="MessageLeft">
                   <div class="AMessageAvatar flex-center">
                     <el-icon size="larger" class="opacity-75">
@@ -127,21 +174,6 @@
                       </div>
                       <div class="flex gap-3">
                         <el-tooltip
-                          v-if="!message.Q"
-                          :content="$t('action.edit')"
-                          placement="bottom"
-                        >
-                          <el-text
-                            type="info"
-                            class="MessageActionButton flex-center"
-                            @click="callEditMessageDialog(message)"
-                          >
-                            <el-icon size="large">
-                              <Edit />
-                            </el-icon>
-                          </el-text>
-                        </el-tooltip>
-                        <el-tooltip
                           v-if="message === messages.at(-1)"
                           :content="$t('action.continueGenerate')"
                           placement="bottom"
@@ -170,7 +202,21 @@
                             </el-icon>
                           </el-text>
                         </el-tooltip>
-                        <ChatbotMessageDeleteButton v-if="!message.Q" :confirm="() => deleteMessage(message.id)" />
+                        <ChatbotMessageDeleteButton :confirm="() => updateMessage(message, 'A')" />
+                        <el-tooltip
+                          :content="$t('action.edit')"
+                          placement="bottom"
+                        >
+                          <el-text
+                            type="info"
+                            class="MessageActionButton flex-center"
+                            @click="callEditAnswerDialog(message)"
+                          >
+                            <el-icon size="large">
+                              <Edit />
+                            </el-icon>
+                          </el-text>
+                        </el-tooltip>
                         <el-tooltip
                           :content="$t('action.copy')"
                           placement="bottom"
@@ -252,7 +298,7 @@ const popoverVisibles = {
   }
 }
 
-const { showScrollToBottomButton, messages, openSidebarController, callEditMessageDialog, sendMessage, deleteMessage, regenerateMessage, focusInput } = useChat()
+const { showScrollToBottomButton, messages, openSidebarController, callEditQuestionDialog, callEditAnswerDialog, sendMessage, updateMessage, regenerateMessage, focusInput } = useChat()
 
 marked.setOptions({ headerIds: false, mangle: false })
 
@@ -332,18 +378,20 @@ html.light .AMessageAvatar {
   color: #fff;
   background: hsl(150, 30%, 48%);
 }
-.Message {
+/* .Message {
   backdrop-filter: blur(8px);
-}
+} */
 .Message .el-text {
   word-break: break-word;
 }
 .Message.Q {
-  background: #60608240;
   /* white-space: pre-wrap; */
+  /* background: #60608240; */
+  background: #1F212A;
 }
 .Message.A {
-  background: #60606240;
+  /* background: #60606240; */
+  background: #1F2121;
 }
 html.light .Message.Q {
   background: #60608210;

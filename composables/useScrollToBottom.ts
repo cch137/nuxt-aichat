@@ -1,4 +1,15 @@
-export default async function (delayMs = 0, behavior: 'auto' | 'instant' | 'smooth' = 'smooth') {
+import { getScrollTop } from '~/utils/client'
+
+type Behavior = 'auto' | 'instant' | 'smooth'
+
+function isAtBottom(tolerance = 160) {
+  if (process.client) {
+    return getScrollTop() >= document.body.clientHeight - tolerance
+  }
+  return false
+}
+
+async function useScrollToBottom(delayMs = 0, behavior: Behavior = 'smooth') {
   return await new Promise((resolve, reject) => {
     if (process.client) {
       setTimeout(() => {
@@ -18,3 +29,18 @@ export default async function (delayMs = 0, behavior: 'auto' | 'instant' | 'smoo
     }
   })
 }
+
+async function keepAtBottom(delayMs = 0, behavior: Behavior = 'instant', tolerance = 80) {
+  if (process.client) {
+    const isAtBottom = getScrollTop() >= document.body.clientHeight - tolerance
+    if (isAtBottom) {
+      return await useScrollToBottom(delayMs, behavior)
+    }
+  }
+  return null
+}
+
+useScrollToBottom.isAtBottom = isAtBottom
+useScrollToBottom.keepAtBottom = keepAtBottom
+
+export default useScrollToBottom

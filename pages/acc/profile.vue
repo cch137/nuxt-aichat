@@ -56,7 +56,7 @@ watch(newUsername, (value) => {
 useTitle(`${_t('auth.profile')} - ${useState('appName').value}`)
 definePageMeta({
   layout: 'default',
-  middleware: ['only-auth']
+  middleware: ['no-headless', 'only-auth']
 })
 </script>
 
