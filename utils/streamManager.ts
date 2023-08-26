@@ -87,7 +87,7 @@ class Stream extends EventTarget {
         this.error()
         this.end()
       }
-      streamManager.delete(this.id)
+      this.destroy()
     }, this.timeoutMs)
   }
 
@@ -124,5 +124,7 @@ class Stream extends EventTarget {
     this.dispatchEvent(new Event('error'))
   }
 }
+
+export type { StreamManager, Stream, StreamPipe }
 
 export default streamManager

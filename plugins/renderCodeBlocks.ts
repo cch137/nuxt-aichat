@@ -1,7 +1,7 @@
 import Prism from 'prismjs'
 import { getScrollTop } from '~/utils/client'
 
-Prism.manual = false
+Prism.manual = true
 
 const CODE_PROCESSED_CLASS = 'CodeBlockAddedCopyButton'
 const LINK_PROCESSED_CLASS = '_BlankLink'

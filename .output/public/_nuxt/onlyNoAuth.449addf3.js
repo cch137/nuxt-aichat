@@ -1,0 +1,1 @@
+import{aN as a,aO as s}from"./entry.ff63ec3d.js";import{u as r}from"./useAuth.3e981d6c.js";const i=a(async(u,c)=>{let e,t;{const o=r();[e,t]=s(()=>o.checkIsLoggedIn()),e=await e,t(),e&&o.goToNewChat()}});export{i as default};

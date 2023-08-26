@@ -459,6 +459,43 @@ var __publicField$6 = (obj, key, value) => {
   __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
+async function createStreamRequest(streaming, url, data, headers) {
+  return await new Promise(async (resolve, reject) => {
+    try {
+      const res = await axios.post(url, data, {
+        headers,
+        validateStatus: (_) => true,
+        responseType: "stream"
+      });
+      res.data.on("data", (buf) => {
+        var _a, _b;
+        const chunksString = buf.toString("utf8").split("data:").map((c) => c.trim()).filter((c) => c);
+        for (const chunkString of chunksString) {
+          try {
+            const chunk = JSON.parse(chunkString);
+            const content = (_b = (_a = chunk.choices[0]) == null ? void 0 : _a.delta) == null ? void 0 : _b.content;
+            if (content === void 0)
+              continue;
+            streaming.write(content);
+          } catch {
+          }
+        }
+      });
+      res.data.on("error", (e) => streaming.error(e));
+      res.data.on("end", () => {
+        const answer = streaming.read();
+        if (answer) {
+          streaming.end();
+          resolve({ answer });
+        } else {
+          reject(`Oops! Something went wrong.`);
+        }
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
 const defaultApiHost = "https://api.freegpt.asia";
 const defaultApiKey = "sk-va0ydNzw6Mc5iJ5uB6EdBd3cA14849198f74C9F086EdA4B6";
 class Client {
@@ -469,7 +506,7 @@ class Client {
     this.apiKey = apiKey || defaultApiKey;
   }
   async askGPT(messages, options = {}) {
-    const { model = "", temperature = 0.3, top_p = 0.7, stream = true, streamId } = options;
+    const { model = "", temperature = 0.3, top_p = 0.7, stream = true, streamId, maxTries = 5 } = options;
     const url = `${this.host}/v1/chat/completions`;
     const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${this.apiKey}` };
     const _data = {
@@ -484,42 +521,20 @@ class Client {
       const answer = data.choices[0].message.content;
       return { answer };
     }
-    return await new Promise(async (resolve, reject) => {
+    const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
+    let retries = 0;
+    while (true) {
       try {
-        const res = await axios.post(url, _data, {
-          headers,
-          validateStatus: (_) => true,
-          responseType: "stream"
-        });
-        const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
-        res.data.on("data", (buf) => {
-          var _a, _b;
-          const chunksString = buf.toString("utf8").split("data:").map((c) => c.trim()).filter((c) => c);
-          for (const chunkString of chunksString) {
-            try {
-              const chunk = JSON.parse(chunkString);
-              const content = (_b = (_a = chunk.choices[0]) == null ? void 0 : _a.delta) == null ? void 0 : _b.content;
-              if (content === void 0)
-                continue;
-              streaming.write(content);
-            } catch {
-            }
-          }
-        });
-        res.data.on("error", (e) => streaming.error(e));
-        res.data.on("end", () => {
-          streaming.end();
-          const answer = streaming.read();
-          if (answer) {
-            resolve({ answer });
-          } else {
-            reject(`Oops! Something went wrong.`);
-          }
-        });
+        return await createStreamRequest(streaming, url, _data, headers);
       } catch (err) {
-        reject(err);
+        if (retries++ < maxTries) {
+          console.log("FreeGPTAsia stream retry.");
+          continue;
+        } else {
+          return { error: `${err}`, answer: "" };
+        }
       }
-    });
+    }
   }
 }
 class FreeGptAsiaChatbotCore {

@@ -132,7 +132,7 @@ extendTimeout_fn = function() {
       this.error();
       this.end();
     }
-    streamManager.delete(this.id);
+    this.destroy();
   }, this.timeoutMs));
 };
 const streamManager$1 = streamManager;

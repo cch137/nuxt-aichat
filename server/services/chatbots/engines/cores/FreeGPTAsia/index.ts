@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { ChatbotEngine, OpenAIMessage } from '../types'
 import str from '~/utils/str'
 import { questionContextToMessages } from '../../utils/openAiMessagesConverter'
-import streamManager from '~/utils/streamManager'
+import streamManager, { Stream } from '~/utils/streamManager'
 
 interface ChatResponseChoice {
   index: number,
@@ -33,6 +33,40 @@ interface ChatResponseChunk {
   choices: ChatResponseChoiceDelta[]
 }
 
+async function createStreamRequest (streaming: Stream, url: string, data: any, headers: Record<string,string>) {
+  return await new Promise<{ answer: string, error?: string }>(async (resolve, reject) => {
+    try {
+      const res = await axios.post(url, data, {
+        headers, validateStatus: (_) => true,
+        responseType: 'stream'
+      })
+      res.data.on('data', (buf: Buffer) => {
+        const chunksString = buf.toString('utf8').split('data:').map(c => c.trim()).filter(c => c)
+        for (const chunkString of chunksString) {
+          try {
+            const chunk = JSON.parse(chunkString) as ChatResponseChunk
+            const content = chunk.choices[0]?.delta?.content
+            if (content === undefined) continue
+            streaming.write(content)
+          } catch {}
+        }
+      })
+      res.data.on('error', (e: any) => streaming.error(e))
+      res.data.on('end', () => {
+        const answer = streaming.read()
+        if (answer) {
+          streaming.end()
+          resolve({ answer })
+        } else {
+          reject(`Oops! Something went wrong.`)
+        }
+      })
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
 // const defaultApiHost = 'https://api.spaxe.top'
 // const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
 // const defaultApiHost = 'https://apx.spaxe.top'
@@ -49,8 +83,8 @@ class Client {
     this.apiKey = apiKey || defaultApiKey
   }
 
-  async askGPT (messages: OpenAIMessage[], options: { model?: string, temperature?: number, top_p?: number, stream?: boolean, streamId?: string  } = {}) {
-    const { model = '', temperature = 0.3, top_p = 0.7, stream = true, streamId } = options
+  async askGPT (messages: OpenAIMessage[], options: { model?: string, temperature?: number, top_p?: number, stream?: boolean, streamId?: string, maxTries?: number  } = {}) {
+    const { model = '', temperature = 0.3, top_p = 0.7, stream = true, streamId, maxTries = 5 } = options
     const url = `${this.host}/v1/chat/completions`
     const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` }
     const _data = {
@@ -65,38 +99,20 @@ class Client {
       const answer = data.choices[0].message.content
       return { answer }
     }
-    return await new Promise<{ answer: string, error?: string }>(async (resolve, reject) => {
+    const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
+    let retries = 0
+    while (true) {
       try {
-        const res = await axios.post(url, _data, {
-          headers, validateStatus: (_) => true,
-          responseType: 'stream'
-        })
-        const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
-        res.data.on('data', (buf: Buffer) => {
-          const chunksString = buf.toString('utf8').split('data:').map(c => c.trim()).filter(c => c)
-          for (const chunkString of chunksString) {
-            try {
-              const chunk = JSON.parse(chunkString) as ChatResponseChunk
-              const content = chunk.choices[0]?.delta?.content
-              if (content === undefined) continue
-              streaming.write(content)
-            } catch {}
-          }
-        })
-        res.data.on('error', (e: any) => streaming.error(e))
-        res.data.on('end', () => {
-          streaming.end()
-          const answer = streaming.read()
-          if (answer) {
-            resolve({ answer })
-          } else {
-            reject(`Oops! Something went wrong.`)
-          }
-        })
+        return await createStreamRequest(streaming, url, _data, headers)
       } catch (err) {
-        reject(err)
+        if (retries++ < maxTries) {
+          console.log('FreeGPTAsia stream retry.')
+          continue
+        } else {
+          return { error: `${err}`, answer: '' }
+        }
       }
-    })
+    }
   }
 }
 

@@ -533,6 +533,7 @@ export default function () {
     message.A = ''
     message.urls = []
     message.queries = []
+    if (message.dt) message.dt = undefined
 
     // 【已被暫時取消功能】獲取更多問題建議
     const suggestionsResponse = _fetchSuggestions(messageText)
@@ -548,10 +549,23 @@ export default function () {
     }
 
     // 建立 stream 通道
+    const typewriterSpeed = 1
+    let isDonePending = false
     const streamId = await new Promise<string|undefined>(async (resolve) => {
       if (!(models.find(m => m.value === model.value)?.isStreamAvailable)) {
         return resolve(undefined)
       }
+      const typewriter: string[] = []
+      const typewriterInterval = setInterval(() => {
+        if (typewriter.length) {
+          message.A += typewriter.shift()
+          if (isAtBottom) {
+            useScrollToBottom(0, 'instant')
+          }
+        } else if (message.done) {
+          clearInterval(typewriterInterval)
+        }
+      }, typewriterSpeed)
       const controller = new AbortController()
       const streamRes = await fetch('/api/curva/stream', {
         method: "POST",
@@ -566,15 +580,23 @@ export default function () {
       const readChunks = async () => {
         await reader.read().then(async ({ value, done }) => {
           if (done) {
-            message.done = true
+            if (typewriter.length === 0) {
+              message.done = true
+              return
+            }
+            isDonePending = true
+            const donePending = setInterval(() => {
+              if (typewriter.length === 0) {
+                message.done = true
+                isDonePending = false
+                clearInterval(donePending)
+              }
+            }, typewriterSpeed)
             return
           }
           const decodedValue = decoder.decode(value)
           if (idIsResolved) {
-            message.A += decodedValue
-            if (isAtBottom) {
-              useScrollToBottom(0, 'instant')
-            }
+            typewriter.push(decodedValue)
           } else {
             resolve(decodedValue)
             idIsResolved = true
@@ -597,11 +619,18 @@ export default function () {
 
     // 更新訊息狀態
     const { id, answer = '', error, urls = [], queries = [], dt = 0, version: _version } = response
-    message.done = true
+    if (isDonePending) {
+      const donePending = setInterval(() => {
+        if (!isDonePending) {
+          message.done = true
+          if (message.A !== answer) message.A = answer || ''
+          clearInterval(donePending)
+        }
+      }, typewriterSpeed)
+    }
     message.t = new Date()
     message.dt = dt || undefined
     message.id = id || undefined
-    if (message.A !== answer) message.A = answer || ''
     message.urls = urls || []
     message.queries = queries || [];
 

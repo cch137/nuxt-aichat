@@ -410,7 +410,11 @@ html.light .Message.A {
 html.light .CodeBlockHeader {
   color: var(--el-color-info-light-7);
 }
-.CodeBlockWrapper pre {
+.Message.T > div > span > pre > code {
+  font-size: 0.9em;
+}
+.CodeBlockWrapper pre,
+.Message.T > div > span > pre {
   /* 預設值：#1e1e1e */
   /* background: #1e1e1e; */
   background: #181818;
