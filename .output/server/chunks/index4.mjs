@@ -1088,9 +1088,13 @@ let Claude2WebChatbot$2 = class Claude2WebChatbot {
   async ask(messages, options = {}) {
     const { timezone = 0, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    const prompt = context ? `${question}
+    const prompt = context ? `QUESTION: ${question}
 
----DEVELOPER PROMPT: Reply to the above message.
+---
+
+You only need to respond to QUESTION. After that, there is the conversation between you and the user, and no response is needed.
+
+---
 
 ${context}` : question;
     return {
@@ -1117,11 +1121,13 @@ class Claude2WebChatbot {
   async ask(messages, options = {}) {
     const { timezone = 0, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    const prompt = (context ? `${question}
+    const prompt = (context ? `You only need to respond to QUESTION. After that, there is the conversation between you and the user, and no response is needed.
 
 ---
 
-DEVELOPER PROMPT: Reply to the above message.
+QUESTION: ${question}
+
+---
 
 ${context}` : question) + `
 
