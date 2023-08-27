@@ -1,9 +1,9 @@
 import { defineEventHandler, readBody } from 'h3';
-import { parse } from 'cookie';
-import { r as read } from './token.mjs';
+import { a as getUidByToken } from './token.mjs';
 import { a as auth } from './auth.mjs';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { g as getIp } from './getIp.mjs';
+import 'cookie';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './random.mjs';
@@ -36,9 +36,7 @@ const username_put = defineEventHandler(async function(event) {
   if (!rateLimiter.check(getIp(event.node.req))) {
     return { error: rateLimiter.hint };
   }
-  const rawCookie = event.node.req.headers.cookie;
-  const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const uid = token == null ? void 0 : token.uid;
+  const uid = getUidByToken(event);
   if (!uid) {
     return { error: "No authentication" };
   }

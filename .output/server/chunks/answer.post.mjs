@@ -1,8 +1,7 @@
 import { defineEventHandler, readBody } from 'h3';
-import { parse } from 'cookie';
 import { v as version } from './server.mjs';
 import './index2.mjs';
-import { h as hx, r as read } from './token.mjs';
+import { h as hx, a as getUidByToken } from './token.mjs';
 import { e as estimateTokens, c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
 import { b as baseConverter, s as str } from './random.mjs';
@@ -26,6 +25,7 @@ import 'zlib';
 import 'net';
 import 'socks';
 import 'tls';
+import 'cookie';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './conversation.mjs';
@@ -67,7 +67,7 @@ const rateLimiterBundler = RateLimiter.bundle([
 ]);
 const bannedIpSet = /* @__PURE__ */ new Set([]);
 const answer_post = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+  var _a, _b, _c, _d, _e, _f, _g;
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
     return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 1e4));
   }
@@ -94,10 +94,8 @@ const answer_post = defineEventHandler(async (event) => {
   if (stdHash !== hashFromClient || timestamp !== t) {
     return { error: "VERIFICATION FAILED", id };
   }
-  const rawCookie = (_i = (_h = (_g = event == null ? void 0 : event.node) == null ? void 0 : _g.req) == null ? void 0 : _h.headers) == null ? void 0 : _i.cookie;
-  const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const uid = token == null ? void 0 : token.uid;
-  if (token === null || typeof uid !== "string") {
+  const uid = getUidByToken(event);
+  if (typeof uid !== "string") {
     return { error: "UNAUTHENTICATED", id };
   }
   const ip = getIp(event.node.req);
@@ -105,7 +103,7 @@ const answer_post = defineEventHandler(async (event) => {
     return { error: "Your actions are considered to be abusive.", id };
   }
   try {
-    const lastQuestion = ((_j = messages.findLast((i) => i.role === "user")) == null ? void 0 : _j.content) || "";
+    const lastQuestion = ((_g = messages.findLast((i) => i.role === "user")) == null ? void 0 : _g.content) || "";
     if (lastQuestion.toUpperCase().includes("ONLY SAY HELLO")) {
       console.log("ONLY SAY HELLO", ip, event.node.req.headers);
       rateLimiterBundler.check(ip, 1e3);

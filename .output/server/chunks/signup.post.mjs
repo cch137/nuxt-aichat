@@ -1,9 +1,9 @@
 import { defineEventHandler, readBody } from 'h3';
-import { parse } from 'cookie';
-import { r as read } from './token.mjs';
+import { a as getUidByToken } from './token.mjs';
 import { a as auth } from './auth.mjs';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { g as getIp } from './getIp.mjs';
+import 'cookie';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './random.mjs';
@@ -44,10 +44,7 @@ const signup_post = defineEventHandler(async function(event) {
   if (!email || !username || !password || !code) {
     return { error: "Form incomplete." };
   }
-  const { req } = event.node;
-  const rawCookie = req.headers.cookie;
-  const tokenObj = read(parse(typeof rawCookie === "string" ? rawCookie : "").token) || {};
-  const uid = tokenObj == null ? void 0 : tokenObj.uid;
+  const uid = getUidByToken(event);
   if (!uid) {
     return { error: "Please reload the page." };
   }

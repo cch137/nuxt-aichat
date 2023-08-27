@@ -406,7 +406,7 @@ const _routes = [
     meta: __nuxt_page_meta$6 || {},
     alias: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.alias) || [],
     redirect: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.redirect) || void 0,
-    component: () => import('./_nuxt/entrance-93414cee.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/entrance-7f73ea92.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.name) ?? "admin-login",
@@ -422,7 +422,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-a8241395.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-3499ada0.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "c",
@@ -430,7 +430,7 @@ const _routes = [
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-be0ad51a.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-c461a7ff.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "index",
@@ -648,7 +648,7 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-ae4895cf.mjs'),
+  chat: () => import('./_nuxt/chat-a885c2da.mjs'),
   "no-headless": () => import('./_nuxt/noHeadless-48a0e36f.mjs'),
   "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-cc3eb8ba.mjs'),
   "only-auth": () => import('./_nuxt/onlyAuth-6fabd1e1.mjs'),

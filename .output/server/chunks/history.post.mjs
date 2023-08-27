@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from 'h3';
-import { parse } from 'cookie';
-import { r as read } from './token.mjs';
+import { a as getUidByToken } from './token.mjs';
 import { C as Conversation } from './index4.mjs';
+import 'cookie';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './random.mjs';
@@ -41,16 +41,14 @@ import './ytCrawler.mjs';
 import 'qs';
 
 const history_post = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d;
+  var _a;
   const conv = (_a = await readBody(event)) == null ? void 0 : _a.id;
-  const rawCookie = (_d = (_c = (_b = event == null ? void 0 : event.node) == null ? void 0 : _b.req) == null ? void 0 : _c.headers) == null ? void 0 : _d.cookie;
-  const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const user = token == null ? void 0 : token.uid;
-  if (!user) {
+  const uid = getUidByToken(event);
+  if (!uid) {
     return { error: 1 };
   }
   try {
-    return await new Conversation(user, conv).getHistory();
+    return await new Conversation(uid, conv).getHistory();
   } catch {
     return { error: 2 };
   }

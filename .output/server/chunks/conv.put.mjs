@@ -1,10 +1,10 @@
 import { defineEventHandler, readBody } from 'h3';
-import { parse } from 'cookie';
-import { r as read } from './token.mjs';
+import { a as getUidByToken } from './token.mjs';
 import './index2.mjs';
 import qs from 'qs';
 import { m as message } from './message.mjs';
 import { c as conversation } from './conversation.mjs';
+import 'cookie';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './random.mjs';
@@ -90,14 +90,11 @@ function toStdConvConfigString(configString) {
 }
 
 const conv_put = defineEventHandler(async (event) => {
-  var _a, _b, _c;
   const body = await readBody(event);
   const conv = body == null ? void 0 : body.id;
   const name = (body == null ? void 0 : body.name) || "";
   const config = toStdConvConfigString((body == null ? void 0 : body.config) || "");
-  const rawCookie = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie;
-  const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const uid = token == null ? void 0 : token.uid;
+  const uid = getUidByToken(event);
   if (!uid) {
     return { error: "No permission" };
   }

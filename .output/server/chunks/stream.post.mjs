@@ -1,9 +1,15 @@
 import { defineEventHandler } from 'h3';
 import { s as streamManager } from './streamManager.mjs';
+import { a as getUidByToken } from './token.mjs';
 import './random.mjs';
 import 'crypto-js/sha3.js';
+import 'cookie';
+import 'crypto-js/md5.js';
 
 const stream_post = defineEventHandler(async (event) => {
+  if (!getUidByToken(event)) {
+    return { error: 1 };
+  }
   const res = event.node.res;
   const stream = streamManager.create();
   res.writeHead(200, "OK", {

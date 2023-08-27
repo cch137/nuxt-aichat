@@ -1,7 +1,6 @@
 import { defineEventHandler, readBody } from 'h3';
 import { l as libExports } from './index2.mjs';
-import { parse } from 'cookie';
-import { r as read } from './token.mjs';
+import { a as getUidByToken } from './token.mjs';
 import { b as baseConverter } from './random.mjs';
 import { m as message } from './message.mjs';
 import 'dotenv';
@@ -23,11 +22,11 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'mongoose';
+import 'cookie';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 
 const answer_delete = defineEventHandler(async (event) => {
-  var _a, _b, _c;
   const body = await readBody(event);
   if (!body) {
     return { error: 1 };
@@ -36,10 +35,8 @@ const answer_delete = defineEventHandler(async (event) => {
   if (!conv || !id) {
     return { error: 2 };
   }
-  const rawCookie = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie;
-  const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const uid = token == null ? void 0 : token.uid;
-  if (token === null || typeof uid !== "string") {
+  const uid = getUidByToken(event);
+  if (typeof uid !== "string") {
     return { error: 3 };
   }
   try {

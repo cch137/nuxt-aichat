@@ -46,18 +46,26 @@ ${r.description}`))
     ].join("\n\n");
   }
 }
+async function googleSearchResult(...queries) {
+  return new WebSearcherResult(await googleSearch(...queries));
+}
+async function ddgSearchResult(...queries) {
+  return new WebSearcherResult(await ddgSearch(...queries));
+}
 async function search(...queries) {
   switch (search.engine) {
     case "all":
       return new WebSearcherResult([...await googleSearch(...queries), ...await ddgSearch(...queries)]);
     case "duckduckgo":
-      return new WebSearcherResult(await ddgSearch(...queries));
+      return await ddgSearchResult(...queries);
     case "google":
     default:
-      return new WebSearcherResult(await googleSearch(...queries));
+      return await googleSearchResult(...queries);
   }
 }
 search.engine = "google";
+search.googleSearchResult = googleSearchResult;
+search.ddgSearchResult = ddgSearchResult;
 
 export { search as s };
 //# sourceMappingURL=search.mjs.map

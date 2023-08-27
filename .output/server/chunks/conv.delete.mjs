@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from 'h3';
-import { parse } from 'cookie';
-import { r as read } from './token.mjs';
+import { a as getUidByToken } from './token.mjs';
 import { C as Conversation } from './index4.mjs';
+import 'cookie';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './random.mjs';
@@ -41,15 +41,13 @@ import './ytCrawler.mjs';
 import 'qs';
 
 const conv_delete = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d;
+  var _a;
   const conv = (_a = await readBody(event)) == null ? void 0 : _a.id;
-  const rawCookie = (_d = (_c = (_b = event == null ? void 0 : event.node) == null ? void 0 : _b.req) == null ? void 0 : _c.headers) == null ? void 0 : _d.cookie;
-  const token = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
-  const user = token == null ? void 0 : token.uid;
-  if (!user || !conv) {
+  const uid = getUidByToken(event);
+  if (!uid || !conv) {
     return { error: 1 };
   }
-  await new Conversation(user, conv).delete();
+  await new Conversation(uid, conv).delete();
   return {};
 });
 
