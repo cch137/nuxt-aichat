@@ -49,21 +49,31 @@ class WebSearcherResult {
   }
 }
 
+async function googleSearchResult (...queries: string[]) {
+  return new WebSearcherResult(await googleSearch(...queries))
+}
+
+async function ddgSearchResult (...queries: string[]) {
+  return new WebSearcherResult(await ddgSearch(...queries))
+}
+
 async function search (...queries: string[]) {
   switch (search.engine) {
     case 'all': // 小心有可能會超出 tokens
       return new WebSearcherResult([...await googleSearch(...queries), ...await ddgSearch(...queries)])
     case 'duckduckgo':
-      return new WebSearcherResult(await ddgSearch(...queries))
+      return await ddgSearchResult(...queries)
     case 'google':
     default:
-      return new WebSearcherResult(await googleSearch(...queries))
+      return await googleSearchResult(...queries)
   }
 }
 
 type AvailableSearchEngine = 'all' | 'google' | 'duckduckgo'
 
 search.engine = 'google' as AvailableSearchEngine
+search.googleSearchResult = googleSearchResult
+search.ddgSearchResult = ddgSearchResult
 
 export default search
 export type { WebSearcherResult, AvailableSearchEngine }

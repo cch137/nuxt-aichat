@@ -23,8 +23,10 @@ const goCheck = async () => {
   goIsLoading.value = true
   try {
     if (await checkIsLoggedIn(adminPassword.value)) {
-      setTimeout(() => navigateTo('./dashboard'), 0)
+      await useNuxtApp().$router.push('./dashboard')
     }
+  } catch (err) {
+    console.error(err)
   } finally {
     goIsLoading.value = false
   }

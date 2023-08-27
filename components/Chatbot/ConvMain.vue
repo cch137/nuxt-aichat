@@ -25,7 +25,7 @@
                   </div>
                 </div>
                 <div class="Message Q p-4 flex-1 gap-1 shadow rounded-lg" style="width: calc(100% - 32px - 4.5rem)">
-                  <div style="white-space: pre-wrap;">
+                  <div style="white-space: pre-wrap; overflow: auto;">
                     <span>{{ message.Q }}</span>
                   </div>
                   <div v-if="message.done" class="flex mt-1 gap-2 -mb-2">

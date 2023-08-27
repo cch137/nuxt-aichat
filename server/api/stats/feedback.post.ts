@@ -1,15 +1,11 @@
 import { readBody } from 'h3'
 import mailer from '~/server/services/mailer'
-import { read as tokenReader } from '~/server/services/token'
-import { parse as parseCookie } from 'cookie'
+import { getUidByToken } from '~/server/services/token'
 import { appName } from '~/config/app'
 
 export default defineEventHandler(async function (event) {
-  // Validate token
-  const rawCookie = event?.node?.req?.headers?.cookie
-  const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const user = token?.uid
-  if (token === null || typeof user !== 'string') {
+  const uid = getUidByToken(event)
+  if (!uid) {
     return { error: 0 }
   }
   const body = await readBody(event)

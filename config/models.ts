@@ -37,7 +37,16 @@ export default [
     permissionLevel: 1,
   },
   {
-    name: 'Claude-2-Web',
+    name: 'Claude-2',
+    value: 'claude-2',
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: false,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: 1,
+  },
+  {
+    name: 'Claude-2 (Web)',
     value: 'claude-2-web',
     isWebBrowsingOptional: false,
     isTemperatureOptional: false,

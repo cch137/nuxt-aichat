@@ -31,7 +31,7 @@ class MindsDbGPTChatbotCore implements ChatbotEngine {
         await this.client.queryWithWeb(command)
         console.log(`RUNNING COMMAND... (${commands.indexOf(command) + 1}/${commands.length})`)
       } catch (err) {
-        console.log(err, '\n\n')
+        console.error(err, '\n\n')
       }
     }
     return await Promise.all(tasks)

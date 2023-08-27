@@ -1,5 +1,4 @@
-import { parse as parseCookie } from 'cookie'
-import { read as tokenReader } from '~/server/services/token'
+import { getUidByToken } from '~/server/services/token'
 import auth from '~/server/services/auth'
 import { readBody } from 'h3'
 import RateLimiter from '~/server/services/rate-limiter'
@@ -12,9 +11,7 @@ export default defineEventHandler(async function (event): Promise<{ error?: stri
   if (!rateLimiter.check(getIp(event.node.req))) {
     return { error: rateLimiter.hint }
   }
-  const rawCookie = event.node.req.headers.cookie
-  const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const uid = token?.uid
+  const uid = getUidByToken(event)
   if (!uid) {
     return { error: 'No authentication' }
   }

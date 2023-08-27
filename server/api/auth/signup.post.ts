@@ -1,8 +1,4 @@
-import { parse as parseCookie } from 'cookie'
-import type { TokenObject } from '~/server/services/token'
-import {
-  read as tokenReader
-} from '~/server/services/token'
+import { getUidByToken } from '~/server/services/token'
 import auth from '~/server/services/auth'
 import { readBody } from 'h3'
 import RateLimiter from '~/server/services/rate-limiter'
@@ -24,10 +20,7 @@ export default defineEventHandler(async function (event) {
   if (!email || !username || !password || !code) {
     return { error: 'Form incomplete.' }
   }
-  const { req } = event.node
-  const rawCookie = req.headers.cookie
-  const tokenObj = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token) || {} as TokenObject
-  const uid = tokenObj?.uid
+  const uid = getUidByToken(event)
   if (!uid) {
     return { error: 'Please reload the page.' }
   }

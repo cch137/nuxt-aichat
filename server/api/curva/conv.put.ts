@@ -1,6 +1,5 @@
 import { readBody } from 'h3'
-import { parse as parseCookie } from 'cookie'
-import { read as tokenReader } from '~/server/services/token'
+import { getUidByToken } from '~/server/services/token'
 import { message, conversation } from '~/server/services/mongoose/index'
 import { toStdConvConfigString } from '~/server/services/chatbots/curva/convConfig'
 
@@ -9,9 +8,7 @@ export default defineEventHandler(async (event) => {
   const conv = body?.id as string | undefined
   const name = body?.name as string || ''
   const config = toStdConvConfigString(body?.config as string || '')
-  const rawCookie = event?.node?.req?.headers?.cookie
-  const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const uid = token?.uid
+  const uid = getUidByToken(event)
   if (!uid) {
     return { error: 'No permission' }
   }

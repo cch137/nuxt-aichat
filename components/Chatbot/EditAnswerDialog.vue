@@ -38,8 +38,10 @@ function keyboardSendMessage(evt: KeyboardEvent) {
 async function saveAndSubmit () {
   if (editingAnswer.value === undefined) return;
   const inputContent = editingAnswerContent.value.trim()
-  editingAnswer.value.A = inputContent
-  updateMessage(editingAnswer.value)
+  if (editingAnswer.value.A !== inputContent) {
+    editingAnswer.value.A = inputContent
+    updateMessage(editingAnswer.value)
+  }
   setTimeout(() => closeDialog(), 0)
 }
 </script>

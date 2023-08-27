@@ -127,7 +127,7 @@ class MindsDBSqlClient extends _Client {
       const result = (await this.sequelize.query(
         sql,
         {
-          replacements: { question, context },
+          // replacements: { question, context },
           type: QueryTypes.SELECT
         }
       ))[0]
@@ -138,7 +138,7 @@ class MindsDBSqlClient extends _Client {
       }
       return { answer: '', error: 'The source did not return a valid response.' }
     } catch (err) {
-      console.log(err)
+      console.error(`${err}`)
       return { answer: '', error: (err as any)?.original?.sqlMessage as string }
     }
   }
@@ -189,7 +189,7 @@ class MindsDBWebClient extends _Client {
       const answerIndex = data.column_names.indexOf('answer')
       return { answer: data.data[0][answerIndex] }
     } catch (err) {
-      console.log(err)
+      console.error(`${err}`)
       return { answer: '', error: 'The source did not return a valid response.' }
     }
   }

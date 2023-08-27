@@ -1,6 +1,10 @@
 import streamManager from '~/utils/streamManager'
+import { getUidByToken } from '~/server/services/token'
 
 export default defineEventHandler(async (event) => {
+  if (!getUidByToken(event)) {
+    return { error: 1 }
+  }
   const res = event.node.res
   const stream = streamManager.create()
   res.writeHead(200, 'OK', {

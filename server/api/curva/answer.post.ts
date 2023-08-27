@@ -1,8 +1,7 @@
 import { readBody } from 'h3'
-import { parse as parseCookie } from 'cookie'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
-import { read as tokenReader } from '~/server/services/token'
+import { getUidByToken } from '~/server/services/token'
 import curva from '~/server/services/chatbots/curva'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
@@ -61,11 +60,9 @@ export default defineEventHandler(async (event) => {
   if (stdHash !== hashFromClient || timestamp !== t) {
     return { error: 'VERIFICATION FAILED', id }
   }
-  const rawCookie = event?.node?.req?.headers?.cookie
-  const token = tokenReader(parseCookie(typeof rawCookie === 'string' ? rawCookie : '').token)
-  const uid = token?.uid
+  const uid = getUidByToken(event)
   // Validate token
-  if (token === null || typeof uid !== 'string') {
+  if (typeof uid !== 'string') {
     return { error: 'UNAUTHENTICATED', id }
   }
   const ip = getIp(event.node.req)
