@@ -394,10 +394,10 @@ html.light .AMessageAvatar {
   background: #1F2121;
 }
 html.light .Message.Q {
-  background: #60608210;
+  background: #F5F5F7;
 }
 html.light .Message.A {
-  background: #60606210;
+  background: #F5F5F5;
 }
 .MessageActionButton {
   height: 20px;

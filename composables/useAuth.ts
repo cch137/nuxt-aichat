@@ -193,7 +193,7 @@ export default function () {
         throw error
       }
       authEventTarget.dispatchEvent('login')
-      await navigateTo('/c/')
+      await navigateTo('/')
       await checkIsLoggedIn(true)
       ElMessage.success('Logged in.')
     } catch (err) {

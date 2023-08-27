@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@element-plus/nuxt": "^1.0.5",
+    "@guolao/vue-monaco-editor": "^1.1.4",
     "@joplin/turndown-plugin-gfm": "^1.0.50",
     "@nuxtjs/color-mode": "^3.3.0",
     "@nuxtjs/vercel-builder": "^0.24.0",

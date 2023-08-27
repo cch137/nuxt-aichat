@@ -218,7 +218,7 @@ const signUp = async (formEl: FormInstance) => {
           } else {
             await auth.checkIsLoggedIn(true)
             ElMessage.success('Sign up successful.')
-            navigateTo('/c/')
+            navigateTo('/')
           }
         })
         .catch(() => {

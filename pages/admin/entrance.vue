@@ -25,7 +25,7 @@ const entrance = () => {
       if (res?.error) {
         ElMessage.error(res?.error)
       } else {
-        useNuxtApp().$router.push('/c/')
+        useNuxtApp().$router.push('/')
       }
     })
     .catch((err) => {

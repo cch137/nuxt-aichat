@@ -227,21 +227,25 @@ const openFeedback = () => {
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
 }
+html.light .ConversationListContainer {
+  background: #FAFAFC;
+}
 html.light .ConversationLink:hover,
 html.light .ConversationLink[active="true"],
 html.light .ConversationLink.MoreOptionsExpended {
-  color: var(--el-color-primary-dark-2);
-  background: var(--el-color-primary-light-7);
+  color: #2a598a;
+}
+html.light .ConversationLink:hover,
+html.light .ConversationLink.MoreOptionsExpended {
+  background: var(--el-color-primary-light-8);
+}
+html.light .ConversationLink[active="true"] {
+  background: var(--el-color-primary-light-7) !important;
+  filter: brightness(1);
 }
 .ConversationLink[active="true"] {
   font-weight: 500;
-  filter: brightness(1.25);
-}
-html.light .ConversationLink:hover {
-  filter: brightness(1.125);
-}
-html.light .ConversationLink[active="true"] {
-  filter: brightness(1);
+  filter: brightness(1.35);
 }
 .ConversationLink > a {
   max-width: calc(100% - 24px);
