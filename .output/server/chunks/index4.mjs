@@ -1088,17 +1088,8 @@ let Claude2WebChatbot$2 = class Claude2WebChatbot {
   async ask(messages, options = {}) {
     const { timezone = 0, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    const prompt = context ? `QUESTION: ${question}
-
----
-
-You only need to respond to QUESTION. After that, there is the conversation between you and the user, and no response is needed.
-
----
-
-${context}` : question;
     return {
-      ...await this.core.ask(prompt, { model: "claude-2-web", streamId }),
+      ...await this.core.ask(messages, { model: "claude-2-web", streamId }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
       question,
       isContinueGenerate
@@ -1121,15 +1112,7 @@ class Claude2WebChatbot {
   async ask(messages, options = {}) {
     const { timezone = 0, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    const prompt = (context ? `You only need to respond to QUESTION. After that, there is the conversation between you and the user, and no response is needed.
-
----
-
-QUESTION: ${question}
-
----
-
-${context}` : question) + `
+    messages.at(-1).content = `${question}
 
 ---
 
@@ -1137,7 +1120,7 @@ The following is information from the web, please use it only when necessary.
 
 ${(await search(question)).summary(false)}`;
     return {
-      ...await this.core.ask(prompt, { model: "claude-2-web", streamId }),
+      ...await this.core.ask(messages, { model: "claude-2-web", streamId }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
       question,
       isContinueGenerate
