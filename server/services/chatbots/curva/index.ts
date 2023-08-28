@@ -6,6 +6,7 @@ import type { OpenAIMessage } from '../engines/cores/types'
 import type { CurvaStandardResponse } from './types'
 
 function chooseEngine (model: string) {
+  // 記得也要更新 ./convConfig.ts
   switch (model) {
     case 'gpt3':
       return Gpt3Chatbot
