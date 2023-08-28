@@ -340,11 +340,11 @@ const createError = (err) => {
 };
 const __nuxt_page_meta$a = {
   layout: "default",
-  middleware: ["no-headless", "only-auth"]
+  middleware: ["auto-redirector", "only-auth"]
 };
 const __nuxt_page_meta$9 = {
   layout: "default",
-  middleware: ["no-headless"]
+  middleware: ["auto-redirector"]
 };
 const __nuxt_page_meta$8 = {
   layout: "default",
@@ -359,26 +359,26 @@ const __nuxt_page_meta$6 = {
 };
 const __nuxt_page_meta$5 = {
   layout: "chat",
-  middleware: ["no-headless", "chat"]
+  middleware: ["auto-redirector", "chat"]
 };
 const __nuxt_page_meta$4 = {
   layout: "chat",
-  middleware: ["no-headless", "chat"]
+  middleware: ["auto-redirector", "chat"]
 };
 const __nuxt_page_meta$3 = {
   layout: "default",
-  middleware: ["no-headless"]
+  middleware: ["auto-redirector"]
 };
 const __nuxt_page_meta$2 = {
   layout: "default"
 };
 const __nuxt_page_meta$1 = {
   layout: "default",
-  middleware: ["no-headless", "only-no-auth"]
+  middleware: ["auto-redirector", "only-no-auth"]
 };
 const __nuxt_page_meta = {
   layout: "default",
-  middleware: ["no-headless", "only-no-auth"]
+  middleware: ["auto-redirector", "only-no-auth"]
 };
 const _routes = [
   {
@@ -387,7 +387,7 @@ const _routes = [
     meta: __nuxt_page_meta$a || {},
     alias: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.alias) || [],
     redirect: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.redirect) || void 0,
-    component: () => import('./_nuxt/profile-b576ce06.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/profile-374bba6f.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.name) ?? "acc-reset-password",
@@ -427,7 +427,7 @@ const _routes = [
     meta: __nuxt_page_meta$5 || {},
     alias: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.alias) || [],
     redirect: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-86407149.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-01c09d9d.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.name) ?? "c",
@@ -435,7 +435,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/index-7bafb302.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-6b65dc98.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "coder",
@@ -459,7 +459,7 @@ const _routes = [
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/login-7297ba1d.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-3f0c6e31.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -475,7 +475,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/signup-cf2e7012.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/signup-41fc987e.mjs').then((m) => m.default || m)
   }
 ];
 const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "CH4" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "CH4" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
@@ -661,11 +661,11 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-319d223b.mjs'),
-  "no-headless": () => import('./_nuxt/noHeadless-dbd5daad.mjs'),
+  "auto-redirector": () => import('./_nuxt/autoRedirector-669c5eea.mjs'),
+  chat: () => import('./_nuxt/chat-66d520ab.mjs'),
   "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-bd73c2f2.mjs'),
-  "only-auth": () => import('./_nuxt/onlyAuth-6533ce92.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-854d6b99.mjs')
+  "only-auth": () => import('./_nuxt/onlyAuth-0e71ec51.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-888cc897.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",

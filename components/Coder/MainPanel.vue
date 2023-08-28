@@ -1,12 +1,13 @@
 <template>
   <div class="flex w-full h-full">
     <div class="h-full" :style="`width: ${codeEditorWidth}`">
-      <VueMonacoEditor
+      <!-- <VueMonacoEditor
         v-model:value="code"
         :theme="codeEditorTheme"
         language="javascript"
         :options="MONACO_EDITOR_OPTIONS"
-      />
+      /> -->
+      <div id="code-editor" style="height: 100%;" />
     </div>
     <div class="CodeWidthDragger" @drag="(e) => adjustWidth(e)" draggable="true" />
     <div class="flex-1 p-4">
@@ -14,8 +15,8 @@
       <p>This feature is under development. Stay tuned!</p>
       <p>此功能正在開發中。敬請期待！</p>
       <p class="mt-4">
-        <span>Monaco Editor is powered by </span>
-        <el-link href="https://github.com/imguolao/monaco-vue" target="_blank">@imguolao/monaco-vue</el-link>
+        <span>Code editor is powered by </span>
+        <el-link href="https://www.npmjs.com/package/monaco-editor" target="_blank">monaco-editor</el-link>
         <span>.</span>
       </p>
     </div>
@@ -23,14 +24,17 @@
 </template>
 
 <script setup lang="ts">
-import VueMonacoEditor, { loader } from '@guolao/vue-monaco-editor'
+import type { editor as IEditor } from 'monaco-editor'
+// import VueMonacoEditor, { loader, install as VueMonacoEditorPlugins } from '@guolao/vue-monaco-editor'
 import * as monaco from 'monaco-editor'
 
-if (process.client) {
-  loader.config({ monaco })
-}
+// if (process.client) {
+//   loader.config({
+//     monaco
+//   })
+// }
 
-const MONACO_EDITOR_OPTIONS = {
+const MONACO_EDITOR_OPTIONS: IEditor.IStandaloneDiffEditorConstructionOptions = {
   automaticLayout: true, 
   formatOnType: true, 
   formatOnPaste: true,
@@ -254,11 +258,22 @@ const code = ref(`/*
 // @mount="handleMount"
 // const editorRef = shallowRef()
 // const handleMount = editor => (editorRef.value = editor)
-
 // // your action
 // function formatCode() {
 //   editorRef.value?.getAction('editor.action.formatDocument').run()
 // }
+
+if (process.client) {
+  setTimeout(async () => {
+    const el = document.querySelector('#code-editor') as HTMLElement
+    const editor = monaco.editor.create(el, {
+      value: code.value,
+      language: "javascript",
+      automaticLayout: true,
+      theme: 'vs-dark'
+    })
+  }, 0);
+}
 
 const codeEditorWidth = ref('60%')
 function adjustWidth (e: MouseEvent) {

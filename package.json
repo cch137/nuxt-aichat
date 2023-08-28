@@ -1,5 +1,5 @@
 {
-  "version": "0.5.4",
+  "version": "0.5.5",
   "name": "curva",
   "description": "A free GPT-4 AI chatbot that can browse the web. This is for everyone.",
   "private": true,
@@ -14,7 +14,6 @@
   },
   "devDependencies": {
     "@element-plus/nuxt": "^1.0.5",
-    "@guolao/vue-monaco-editor": "^1.1.4",
     "@joplin/turndown-plugin-gfm": "^1.0.50",
     "@nuxtjs/color-mode": "^3.3.0",
     "@nuxtjs/vercel-builder": "^0.24.0",
@@ -38,6 +37,7 @@
     "googlethis": "^1.7.1",
     "marked": "^7.0.4",
     "mindsdb-js-sdk": "^2.2.2",
+    "monaco-editor": "^0.41.0",
     "mongoose": "^7.4.5",
     "mysql2": "^3.6.0",
     "nodemailer": "^6.9.4",

@@ -10,6 +10,6 @@
 useTitle(`Home - ${useState('appName').value}`)
 definePageMeta({
   layout: 'default',
-  middleware: ['no-headless']
+  middleware: ['auto-redirector']
 })
 </script>

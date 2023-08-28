@@ -10,6 +10,6 @@ const _t = i18n.t
 useTitle(`${_t('chat.newChat')} - ${useState('appName').value}`)
 definePageMeta({
   layout: 'chat',
-  middleware: ['no-headless', 'chat']
+  middleware: ['auto-redirector', 'chat']
 })
 </script>
