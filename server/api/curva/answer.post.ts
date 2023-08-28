@@ -48,41 +48,42 @@ export default defineEventHandler(async (event) => {
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id: _id, streamId } = body
   const id = _id ? baseConverter.convert(_id, '64', 16) : _id
+  const tempId = id || random.base16(24)
   if (t > now + 300000 || t < now - 300000) {
     // 拒絕請求：時差大於 5 分鐘
-    return { error: 'OUTDATED REQUEST', id }
+    return { error: 'OUTDATED REQUEST', id: tempId }
   }
   if (!conv || messages?.length < 1 || !model || !t) {
-    return { error: 'BODY INCOMPLETE', id }
+    return { error: 'BODY INCOMPLETE', id: tempId }
   }
   const stdHash = createHash(messages, 'MD5', t)
   const hashFromClient = event?.node?.req?.headers?.hash
   const timestamp = Number(event?.node?.req?.headers?.timestamp)
   // Validate hash and timestamp
   if (stdHash !== hashFromClient || timestamp !== t) {
-    return { error: 'VERIFICATION FAILED', id }
+    return { error: 'VERIFICATION FAILED', id: tempId }
   }
   const uid = getUidByToken(event)
   // Validate token
   if (typeof uid !== 'string') {
-    return { error: 'UNAUTHENTICATED', id }
+    return { error: 'UNAUTHENTICATED', id: tempId }
   }
   const authlvl = getAuthlvlByToken(event)
   const neededAuthlvl = models.find(m => m.value === model)?.permissionLevel || 0
   if (authlvl < neededAuthlvl) {
-    return { error: 'NO PERMISSION', id }
+    return { error: 'NO PERMISSION', id: tempId }
   }
   const ip = getIp(event.node.req)
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
-    return { error: 'Your actions are considered to be abusive.', id }
+    return { error: 'Your actions are considered to be abusive.', id: tempId }
   }
   try {
     const lastQuestion = (messages as OpenAIMessage[]).findLast(i => i.role === 'user')?.content || ''
     if (lastQuestion.toUpperCase().includes('ONLY SAY HELLO')) {
       console.log('ONLY SAY HELLO', ip, event.node.req.headers)
       rateLimiterBundler.check(ip, 1000)
-      return { answer: 'Hello.' }
-      // return { error: 'Your actions are considered to be abusive.', id }
+      return { answer: 'Hello.', id: tempId }
+      // return { error: 'Your actions are considered to be abusive.', id: tempId }
     }
     const croppedMessages = (() => {
       let _messages = messages as OpenAIMessage[]
@@ -105,7 +106,7 @@ export default defineEventHandler(async (event) => {
     response.id = typeof response.id === 'string'
     //@ts-ignore
       ? baseConverter.convert(response.id, 16, '64')
-      : id || random.base16(24)
+      : (id || tempId)
     if (response.error) {
       console.error(typeof response.error === 'string' && response.error.length ? response.error.split('\n')[0] : response.error)
     }
@@ -113,6 +114,6 @@ export default defineEventHandler(async (event) => {
     return { version, ...response } as CurvaStandardResponse
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })
-    return { error: 500, id }
+    return { error: 500, id: tempId }
   }
 })

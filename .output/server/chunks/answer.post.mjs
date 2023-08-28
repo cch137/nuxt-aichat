@@ -148,37 +148,38 @@ const answer_post = defineEventHandler(async (event) => {
   }
   const { conv, messages = [], model, temperature, t, tz = 0, id: _id, streamId } = body;
   const id = _id ? baseConverter.convert(_id, "64", 16) : _id;
+  const tempId = id || random.base16(24);
   if (t > now + 3e5 || t < now - 3e5) {
-    return { error: "OUTDATED REQUEST", id };
+    return { error: "OUTDATED REQUEST", id: tempId };
   }
   if (!conv || (messages == null ? void 0 : messages.length) < 1 || !model || !t) {
-    return { error: "BODY INCOMPLETE", id };
+    return { error: "BODY INCOMPLETE", id: tempId };
   }
   const stdHash = hx(messages, "MD5", t);
   const hashFromClient = (_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.hash;
   const timestamp = Number((_f = (_e = (_d = event == null ? void 0 : event.node) == null ? void 0 : _d.req) == null ? void 0 : _e.headers) == null ? void 0 : _f.timestamp);
   if (stdHash !== hashFromClient || timestamp !== t) {
-    return { error: "VERIFICATION FAILED", id };
+    return { error: "VERIFICATION FAILED", id: tempId };
   }
   const uid = getUidByToken(event);
   if (typeof uid !== "string") {
-    return { error: "UNAUTHENTICATED", id };
+    return { error: "UNAUTHENTICATED", id: tempId };
   }
   const authlvl = getAuthlvlByToken(event);
   const neededAuthlvl = ((_g = models.find((m) => m.value === model)) == null ? void 0 : _g.permissionLevel) || 0;
   if (authlvl < neededAuthlvl) {
-    return { error: "NO PERMISSION", id };
+    return { error: "NO PERMISSION", id: tempId };
   }
   const ip = getIp(event.node.req);
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
-    return { error: "Your actions are considered to be abusive.", id };
+    return { error: "Your actions are considered to be abusive.", id: tempId };
   }
   try {
     const lastQuestion = ((_h = messages.findLast((i) => i.role === "user")) == null ? void 0 : _h.content) || "";
     if (lastQuestion.toUpperCase().includes("ONLY SAY HELLO")) {
       console.log("ONLY SAY HELLO", ip, event.node.req.headers);
       rateLimiterBundler.check(ip, 1e3);
-      return { answer: "Hello." };
+      return { answer: "Hello.", id: tempId };
     }
     const croppedMessages = (() => {
       let _messages = messages;
@@ -189,7 +190,7 @@ const answer_post = defineEventHandler(async (event) => {
       return _messages;
     })();
     const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, id, streamId);
-    response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64") : id || random.base16(24);
+    response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64") : id || tempId;
     if (response.error) {
       console.error(typeof response.error === "string" && response.error.length ? response.error.split("\n")[0] : response.error);
     }
@@ -197,7 +198,7 @@ const answer_post = defineEventHandler(async (event) => {
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });
-    return { error: 500, id };
+    return { error: 500, id: tempId };
   }
 });
 
