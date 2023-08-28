@@ -1,7 +1,7 @@
 import { defineEventHandler } from 'h3';
 import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
-import { r as read, p as pack, g as generate } from './token.mjs';
+import { r as read, p as pack, c as generateString } from './token.mjs';
 import { r as random } from './random.mjs';
 import './index2.mjs';
 import { m as message } from './message.mjs';
@@ -42,7 +42,7 @@ const check_post = defineEventHandler(async (event) => {
     token = pack(oldToken);
   } else {
     uid = random.base64(16);
-    token = generate(uid, ip);
+    token = generateString(uid, ip);
   }
   res.setHeader("Set-Cookie", serialize("token", token, {
     path: "/",

@@ -1,6 +1,6 @@
 {
-  "version": "0.5.2",
-  "name": "evogpt",
+  "version": "0.5.3",
+  "name": "curva",
   "description": "A free GPT-4 AI chatbot that can browse the web. This is for everyone.",
   "private": true,
   "scripts": {

@@ -71,11 +71,14 @@ function hx(input, algorithm = 512, seed) {
 
 const seed = 168813145203e3;
 function generate(uid, ip) {
-  return pack({
+  return {
     uid,
     ip,
     checked: Date.now()
-  });
+  };
+}
+function generateString(uid, ip) {
+  return pack(generate(uid, ip));
 }
 function pack(tokenObj) {
   return e(tokenObj, 1, seed);
@@ -100,6 +103,12 @@ function getUidByToken(event) {
   const token = read(parse(cookieString).token);
   return token == null ? void 0 : token.uid;
 }
+function getAuthlvlByToken(event) {
+  var _a, _b, _c;
+  const cookieString = ((_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie) || "";
+  const token = read(parse(cookieString).token);
+  return (token == null ? void 0 : token.authlvl) || 0;
+}
 
-export { getUidByToken as a, generate as g, hx as h, mask as m, pack as p, read as r };
+export { getUidByToken as a, getAuthlvlByToken as b, generateString as c, generate as g, hx as h, mask as m, pack as p, read as r };
 //# sourceMappingURL=token.mjs.map

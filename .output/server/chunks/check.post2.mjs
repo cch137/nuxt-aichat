@@ -34,24 +34,25 @@ const check_post = defineEventHandler(async (event) => {
   const { req, res } = event.node;
   const ip = getIp(req);
   const rawCookie = req.headers.cookie;
-  const oldToken = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
+  const oldTokenObj = read(parse(typeof rawCookie === "string" ? rawCookie : "").token);
   let token;
   let uid;
-  if (oldToken !== null) {
-    oldToken.checked = Date.now();
-    uid = oldToken.uid;
-    token = pack(oldToken);
+  if (oldTokenObj !== null) {
+    oldTokenObj.checked = Date.now();
+    uid = oldTokenObj.uid;
+    token = oldTokenObj || {};
   } else {
     uid = random.base64(16);
     token = generate(uid, ip);
   }
-  res.setHeader("Set-Cookie", serialize("token", token, {
+  const user = await auth.getUser(uid || "-");
+  token.authlvl = (user == null ? void 0 : user.authlvl) || 0;
+  res.setHeader("Set-Cookie", serialize("token", pack(token), {
     path: "/",
     httpOnly: true,
     sameSite: true,
     secure: true
   }));
-  const user = await auth.getUser(uid || "-");
   return {
     isLoggedIn: Boolean(user),
     user

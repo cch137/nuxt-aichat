@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
     uid = random.base64(16)
     token = tokenGenerator(uid, ip)
   }
-  const user = (await auth.getUser(uid || '-')) || {}
-  token.authlvl = user.authlvl || 0
+  const user = await auth.getUser(uid || '-')
+  token.authlvl = user?.authlvl || 0
   res.setHeader('Set-Cookie', serializeCookie('token', tokenPacker(token), {
     path: '/',
     httpOnly: true,

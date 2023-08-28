@@ -1,10 +1,10 @@
 import { defineEventHandler, readBody } from 'h3';
 import { v as version } from './server.mjs';
 import './index2.mjs';
-import { h as hx, a as getUidByToken } from './token.mjs';
+import { h as hx, a as getUidByToken, b as getAuthlvlByToken } from './token.mjs';
 import { e as estimateTokens, c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
-import { b as baseConverter, s as str } from './random.mjs';
+import { b as baseConverter, r as random, s as str } from './random.mjs';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { model, Schema } from 'mongoose';
 import 'dotenv';
@@ -51,6 +51,72 @@ const logger = model("Log", new Schema({
   versionKey: false
 }), "logs");
 
+const models = [
+  {
+    name: "GPT-3.5-Turbo",
+    value: "gpt3",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: true,
+    isContextOptional: true,
+    isStreamAvailable: false,
+    permissionLevel: 0
+  },
+  {
+    name: "GPT-4",
+    value: "gpt4",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: true,
+    isContextOptional: true,
+    isStreamAvailable: false,
+    permissionLevel: 0
+  },
+  {
+    name: "GPT-Web",
+    value: "gpt-web",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: true,
+    isContextOptional: true,
+    isStreamAvailable: false,
+    permissionLevel: 0
+  },
+  {
+    name: "Claude-2",
+    value: "claude-2",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: false,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: 0
+  },
+  {
+    name: "Claude-2 (Web)",
+    value: "claude-2-web",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: false,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: 0
+  },
+  {
+    name: "GPT-3.5-Turbo (stream)",
+    value: "gpt3-fga",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: true,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: 0
+  },
+  {
+    name: "GPT-4 (stream)",
+    value: "gpt4-fga",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: true,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: 2
+  }
+];
+
 function isHeadlessUserAgent(userAgent = "") {
   const pattern = /headless/i;
   return pattern.test(userAgent);
@@ -67,7 +133,7 @@ const rateLimiterBundler = RateLimiter.bundle([
 ]);
 const bannedIpSet = /* @__PURE__ */ new Set([]);
 const answer_post = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d, _e, _f, _g;
+  var _a, _b, _c, _d, _e, _f, _g, _h;
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
     return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 1e4));
   }
@@ -80,11 +146,11 @@ const answer_post = defineEventHandler(async (event) => {
   if (isHeadlessUserAgent(userAgent)) {
     return { error: "DEVELOPER MODE" };
   }
-  const { conv, messages = [], model, temperature, t, tz = 0, id, streamId } = body;
+  const { conv, messages = [], model, temperature, t, tz = 0, id: _id, streamId } = body;
+  const id = _id ? baseConverter.convert(_id, "64", 16) : _id;
   if (t > now + 3e5 || t < now - 3e5) {
     return { error: "OUTDATED REQUEST", id };
   }
-  const _id = id ? baseConverter.convert(id, "64", 16) : id;
   if (!conv || (messages == null ? void 0 : messages.length) < 1 || !model || !t) {
     return { error: "BODY INCOMPLETE", id };
   }
@@ -98,12 +164,17 @@ const answer_post = defineEventHandler(async (event) => {
   if (typeof uid !== "string") {
     return { error: "UNAUTHENTICATED", id };
   }
+  const authlvl = getAuthlvlByToken(event);
+  const neededAuthlvl = ((_g = models.find((m) => m.value === model)) == null ? void 0 : _g.permissionLevel) || 0;
+  if (authlvl < neededAuthlvl) {
+    return { error: "NO PERMISSION", id };
+  }
   const ip = getIp(event.node.req);
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: "Your actions are considered to be abusive.", id };
   }
   try {
-    const lastQuestion = ((_g = messages.findLast((i) => i.role === "user")) == null ? void 0 : _g.content) || "";
+    const lastQuestion = ((_h = messages.findLast((i) => i.role === "user")) == null ? void 0 : _h.content) || "";
     if (lastQuestion.toUpperCase().includes("ONLY SAY HELLO")) {
       console.log("ONLY SAY HELLO", ip, event.node.req.headers);
       rateLimiterBundler.check(ip, 1e3);
@@ -117,12 +188,12 @@ const answer_post = defineEventHandler(async (event) => {
       }
       return _messages;
     })();
-    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id, streamId);
-    response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64w") : id;
-    if (response == null ? void 0 : response.error) {
-      console.error(response == null ? void 0 : response.error);
+    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, id, streamId);
+    response.id = typeof response.id === "string" ? baseConverter.convert(response.id, 16, "64") : id || random.base16(24);
+    if (response.error) {
+      console.error(typeof response.error === "string" && response.error.length ? response.error.split("\n")[0] : response.error);
     }
-    console.log(ip, uid, conv, "|", [...rateLimiterBundler].map((r) => `(${r.total}/${r.frequencyMin})`).join(" "));
+    console.log(ip, uid, conv, model, "|", [...rateLimiterBundler].map((r) => `(${r.total}/${r.frequencyMin})`).join(" "));
     return { version, ...response };
   } catch (err) {
     logger.create({ type: "error.api.response", text: str(err) });
