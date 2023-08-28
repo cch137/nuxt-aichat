@@ -427,7 +427,7 @@ const _routes = [
     meta: __nuxt_page_meta$5 || {},
     alias: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.alias) || [],
     redirect: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-30488812.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-86407149.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.name) ?? "c",
@@ -435,7 +435,7 @@ const _routes = [
     meta: __nuxt_page_meta$4 || {},
     alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
     redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
-    component: () => import('./_nuxt/index-ea46d394.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-7bafb302.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "coder",
@@ -661,7 +661,7 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  chat: () => import('./_nuxt/chat-5a9ce94c.mjs'),
+  chat: () => import('./_nuxt/chat-319d223b.mjs'),
   "no-headless": () => import('./_nuxt/noHeadless-dbd5daad.mjs'),
   "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-bd73c2f2.mjs'),
   "only-auth": () => import('./_nuxt/onlyAuth-6533ce92.mjs'),

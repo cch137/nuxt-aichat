@@ -83,7 +83,7 @@ const models = [
     name: "Claude-2",
     value: "claude-2",
     isWebBrowsingOptional: false,
-    isTemperatureOptional: false,
+    isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
     permissionLevel: 0
@@ -92,7 +92,7 @@ const models = [
     name: "Claude-2 (Web)",
     value: "claude-2-web",
     isWebBrowsingOptional: false,
-    isTemperatureOptional: false,
+    isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
     permissionLevel: 0

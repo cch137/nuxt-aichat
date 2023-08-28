@@ -521,9 +521,13 @@ class Client {
       stream
     };
     if (!stream) {
-      const data = (await axios.post(url, _data, { headers, validateStatus: (_) => true })).data;
-      const answer = data.choices[0].message.content;
-      return { answer };
+      try {
+        const data = (await axios.post(url, _data, { headers, validateStatus: (_) => true })).data;
+        const answer = data.choices[0].message.content;
+        return { answer };
+      } catch (err) {
+        return { error: `${err}`, answer: "" };
+      }
     }
     const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
     let retries = 0;
@@ -1086,10 +1090,10 @@ let Claude2WebChatbot$2 = class Claude2WebChatbot {
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
-    const { timezone = 0, streamId } = options;
+    const { timezone = 0, temperature = 0.5, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     return {
-      ...await this.core.ask(messages, { model: "claude-2-web", streamId }),
+      ...await this.core.ask(messages, { model: "claude-2-web", temperature, streamId }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
       question,
       isContinueGenerate
@@ -1110,7 +1114,7 @@ class Claude2WebChatbot {
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
-    const { timezone = 0, streamId } = options;
+    const { timezone = 0, temperature = 0.5, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     messages.at(-1).content = `${question}
 
@@ -1120,7 +1124,7 @@ The following is information from the web, please use it only when necessary.
 
 ${(await search(question)).summary(false)}`;
     return {
-      ...await this.core.ask(messages, { model: "claude-2-web", streamId }),
+      ...await this.core.ask(messages, { model: "claude-2-web", temperature, streamId }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
       question,
       isContinueGenerate
