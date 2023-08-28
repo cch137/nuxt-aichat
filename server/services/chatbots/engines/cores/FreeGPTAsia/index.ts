@@ -99,9 +99,13 @@ class Client {
       stream
     }
     if (!stream) {
-      const data = (await axios.post(url, _data, { headers, validateStatus: (_) => true })).data as ChatResponse
-      const answer = data.choices[0].message.content
-      return { answer }
+      try {
+        const data = (await axios.post(url, _data, { headers, validateStatus: (_) => true })).data as ChatResponse
+        const answer = data.choices[0].message.content
+        return { answer }
+      } catch (err) {
+        return { error: `${err}`, answer: '' }
+      }
     }
     const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
     let retries = 0

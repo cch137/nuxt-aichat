@@ -108,7 +108,7 @@ export default defineEventHandler(async (event) => {
       ? baseConverter.convert(response.id, 16, '64')
       : (id || tempId)
     if (response.error) {
-      console.error(typeof response.error === 'string' && response.error.length ? response.error.split('\n')[0] : response.error)
+      console.error((typeof response.error === 'string' && response.error.length) ? response.error.split('\n')[0] : response.error)
     }
     console.log(ip, uid, conv, model, '|', [...rateLimiterBundler].map((r) => `(${r.total}/${r.frequencyMin})`).join(' '))
     return { version, ...response } as CurvaStandardResponse
