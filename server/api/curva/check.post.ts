@@ -1,7 +1,7 @@
 import { parse as parseCookie, serialize as serializeCookie } from 'cookie'
 import getIp from '~/server/services/getIp'
 import {
-  generate as tokenGenerator,
+  generateString as tokenGenerator,
   pack as tokenPacker,
   read as tokenReader
 } from '~/server/services/token'

@@ -3,7 +3,7 @@ import formatUserCurrentTime from './utils/formatUserCurrentTime'
 import type { OpenAIMessage } from './cores/types'
 import { messagesToQuestionContext } from './utils/openAiMessagesConverter'
 
-class Gpt3FgaChatbot {
+class Gpt4FgaChatbot {
   core: FreeGptAsiaChatbotCore
   constructor (core?: FreeGptAsiaChatbotCore) {
     this.core = core || new FreeGptAsiaChatbotCore()
@@ -12,11 +12,11 @@ class Gpt3FgaChatbot {
     const { timezone = 0, streamId } = options
     const { question = '', context = '', isContinueGenerate } = messagesToQuestionContext(messages)
     return {
-      ...await this.core.ask(messages, { model: 'gpt-3.5-turbo', streamId }),
+      ...await this.core.ask(messages, { model: 'gpt-4', streamId }),
       question,
       isContinueGenerate,
     }
   }
 }
 
-export default Gpt3FgaChatbot
+export default Gpt4FgaChatbot

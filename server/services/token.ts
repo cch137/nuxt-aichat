@@ -5,11 +5,15 @@ import { d as trollDecrypt, e as trollEncrypt } from "~/utils/troll"
 const seed = 168813145203000
 
 function generate (uid: string, ip: string) {
-  return pack({
+  return {
     uid,
     ip,
     checked: Date.now()
-  })
+  }
+}
+
+function generateString (uid: string, ip: string) {
+  return pack(generate(uid, ip))
 }
 
 function pack (tokenObj: any) {
@@ -20,6 +24,7 @@ interface TokenObject {
   uid: string;
   ip: string;
   checked: number;
+  authlvl?: number;
 }
 
 function read (token: string) {
@@ -42,13 +47,21 @@ function getUidByToken (event: H3Event) {
   return token?.uid
 }
 
+function getAuthlvlByToken (event: H3Event) {
+  const cookieString = event?.node?.req?.headers?.cookie || ''
+  const token = read(parseCookie(cookieString).token)
+  return token?.authlvl || 0
+}
+
 export type {
   TokenObject
 }
 
 export {
   generate,
+  generateString,
   pack,
   read,
   getUidByToken,
+  getAuthlvlByToken,
 }

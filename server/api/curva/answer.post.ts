@@ -1,17 +1,19 @@
 import { readBody } from 'h3'
 import { version } from '~/config/server'
 import { log as logger } from '~/server/services/mongoose/index'
-import { getUidByToken } from '~/server/services/token'
+import { getUidByToken, getAuthlvlByToken } from '~/server/services/token'
 import curva from '~/server/services/chatbots/curva'
 import getIp from '~/server/services/getIp'
 import str from '~/utils/str'
 import { hx as createHash } from '~/utils/troll'
 import baseConverter from '~/utils/baseConverter'
+import random from '~/utils/random'
 import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/types'
 import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
 import { messagesToQuestionContext } from '~/server/services/chatbots/engines/utils/openAiMessagesConverter'
 import RateLimiter from '~/server/services/rate-limiter'
+import models from '~/config/models'
 
 function isHeadlessUserAgent(userAgent = '') {
   const pattern = /headless/i
@@ -44,12 +46,12 @@ export default defineEventHandler(async (event) => {
   if (isHeadlessUserAgent(userAgent)) {
     return { error: 'DEVELOPER MODE' }
   }
-  const { conv, messages = [], model, temperature, t, tz = 0, id, streamId } = body
+  const { conv, messages = [], model, temperature, t, tz = 0, id: _id, streamId } = body
+  const id = _id ? baseConverter.convert(_id, '64', 16) : _id
   if (t > now + 300000 || t < now - 300000) {
     // 拒絕請求：時差大於 5 分鐘
     return { error: 'OUTDATED REQUEST', id }
   }
-  const _id = id ? baseConverter.convert(id, '64', 16) : id
   if (!conv || messages?.length < 1 || !model || !t) {
     return { error: 'BODY INCOMPLETE', id }
   }
@@ -64,6 +66,11 @@ export default defineEventHandler(async (event) => {
   // Validate token
   if (typeof uid !== 'string') {
     return { error: 'UNAUTHENTICATED', id }
+  }
+  const authlvl = getAuthlvlByToken(event)
+  const neededAuthlvl = models.find(m => m.value === model)?.permissionLevel || 0
+  if (authlvl < neededAuthlvl) {
+    return { error: 'NO PERMISSION', id }
   }
   const ip = getIp(event.node.req)
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
@@ -93,16 +100,16 @@ export default defineEventHandler(async (event) => {
       }
       return _messages
     })()
-    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, _id, streamId)
+    const response = await curva.ask(ip, uid, conv, model, temperature, croppedMessages, tz, id, streamId)
     //@ts-ignore
     response.id = typeof response.id === 'string'
     //@ts-ignore
-      ? baseConverter.convert(response.id, 16, '64w')
-      : id
-    if ((response as any)?.error) {
-      console.error((response as any)?.error)
+      ? baseConverter.convert(response.id, 16, '64')
+      : id || random.base16(24)
+    if (response.error) {
+      console.error(typeof response.error === 'string' && response.error.length ? response.error.split('\n')[0] : response.error)
     }
-    console.log(ip, uid, conv, '|', [...rateLimiterBundler].map((r) => `(${r.total}/${r.frequencyMin})`).join(' '))
+    console.log(ip, uid, conv, model, '|', [...rateLimiterBundler].map((r) => `(${r.total}/${r.frequencyMin})`).join(' '))
     return { version, ...response } as CurvaStandardResponse
   } catch (err) {
     logger.create({ type: 'error.api.response', text: str(err) })

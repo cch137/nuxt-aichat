@@ -9,6 +9,29 @@ function isAtBottom(tolerance = 160) {
   return false
 }
 
+let isRecentScrollUpTimeout: NodeJS.Timeout
+let isRecentScrollUp = false
+;(async () => {
+  if (process.client) {
+    let prevScrollTop = getScrollTop()
+    document.addEventListener('scroll', (e) => {
+      const currScrollTop = getScrollTop()
+      if (currScrollTop === prevScrollTop) return;
+      if (currScrollTop < prevScrollTop) {
+        // Scroll UP
+        isRecentScrollUp = true
+        clearTimeout(isRecentScrollUpTimeout)
+        isRecentScrollUpTimeout = setTimeout(() => {
+          isRecentScrollUp = false
+        }, 3000)
+      } else {
+        // Scroll DOWN
+      }
+      prevScrollTop = currScrollTop
+    })
+  }
+})();
+
 async function useScrollToBottom(delayMs = 0, behavior: Behavior = 'smooth') {
   return await new Promise((resolve, reject) => {
     if (process.client) {
@@ -30,8 +53,8 @@ async function useScrollToBottom(delayMs = 0, behavior: Behavior = 'smooth') {
   })
 }
 
-async function keepAtBottom(delayMs = 0, behavior: Behavior = 'instant', tolerance = 80) {
-  if (process.client) {
+async function keepAtBottom(delayMs = 0, behavior: Behavior = 'instant', tolerance = 50) {
+  if (process.client && !isRecentScrollUp) {
     const isAtBottom = getScrollTop() >= document.body.clientHeight - tolerance
     if (isAtBottom) {
       return await useScrollToBottom(delayMs, behavior)

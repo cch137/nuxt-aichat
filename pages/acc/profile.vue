@@ -20,6 +20,10 @@
     <div class="opacity-60" @click="() => ElMessage.info('Email address cannot be changed.')">
       <el-input v-model="email" type="email" disabled class="pointer-events-none" />
     </div>
+    <h3>Permission Level</h3>
+    <div class="opacity-60" @click="() => ElMessage.info('Please contact the administrator to change the permission level.')">
+      <el-input v-model="authlvl" type="text" disabled class="pointer-events-none" />
+    </div>
     <h1>{{ $t('settings.appearance') }}</h1>
     <CommonSettings />
   </div>
@@ -32,7 +36,7 @@ const i18n = useLocale()
 // @ts-ignore
 const _t = i18n.t
 
-const { email, username, changeUsername } = useAuth()
+const { email, username, authlvl, changeUsername } = useAuth()
 
 const usernameIsNotSaved = ref(false)
 const usernameIsSaving = ref(false)

@@ -5,6 +5,7 @@ const authEventTarget = new CustomEventTarget<'login'|'logout'>()
 
 const email = ref<string>('')
 const username = ref<string>('')
+const authlvl = ref<number>(0)
 const authIsLoading = ref(false)
 const isLoggedIn = ref(false)
 
@@ -110,6 +111,7 @@ const logout = async () => {
     })
     email.value = ''
     username.value = ''
+    authlvl.value = 0
     setIsLoggedIn(false)
     authEventTarget.dispatchEvent('logout')
     ElMessage.success('Logged out.')
@@ -135,6 +137,7 @@ const checkIsLoggedIn = async (force = false) => {
     lastChecked = now
     email.value = user?.email || ''
     username.value = user?.username || ''
+    authlvl.value = user?.authlvl || 0
     authIsLoading.value = false
     // isLoggedIn 一定要最後才賦值，為了避免 user 讀取不了
     setTimeout(() => setIsLoggedIn(_isLoggedIn), 0)
@@ -210,6 +213,7 @@ export default function () {
     isLoggedIn,
     email,
     username,
+    authlvl,
     login,
     logout,
     checkIsLoggedIn,

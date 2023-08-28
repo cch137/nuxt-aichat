@@ -124,7 +124,7 @@ const getUid = async (usernameOrEmail: string, password: string) => {
   return user?.uid || false
 }
 
-const getUser = async (uid: string): Promise<{ username: string, email: string }> => {
+const getUser = async (uid: string): Promise<{ username: string, email: string, authlvl: number }> => {
   // @ts-ignore
   return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1, authlvl: 1 })
 }
