@@ -28,15 +28,15 @@ function chooseEngine (model: string) {
 }
 
 const statusAnalysis = new Map<string, number>()
-function getModelStatus(modelName: string) {
+function getModelStatus(modelName: string, defaultIsSuccess?: boolean) {
   return statusAnalysis.get(modelName) || (() => {
-    const status = 0.6
+    const status = defaultIsSuccess ? 1 : 0
     statusAnalysis.set(modelName, status)
     return status
   })()
 }
 function recordModelStatus(modelName: string, isSuccess: boolean) {
-  statusAnalysis.set(modelName, getModelStatus(modelName) * 0.8 + (isSuccess ? 0.2 : 0))
+  statusAnalysis.set(modelName, getModelStatus(modelName, isSuccess) * 0.8 + (isSuccess ? 0.2 : 0))
 }
 
 const getRandomMindsDBCore = (() => {
