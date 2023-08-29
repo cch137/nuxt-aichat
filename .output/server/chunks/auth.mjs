@@ -2,19 +2,8 @@ import sha3 from 'crypto-js/sha3.js';
 import { m as mailer } from './mailer.mjs';
 import './index2.mjs';
 import { r as random } from './random.mjs';
-import { model, Schema } from 'mongoose';
+import { u as user } from './user.mjs';
 import { m as message } from './message.mjs';
-
-const userCollection = model("User", new Schema({
-  uid: { type: String, required: true },
-  email: { type: String, required: true },
-  username: { type: String, required: true },
-  password: { type: String, required: true },
-  authlvl: { type: Number, required: true }
-}, {
-  versionKey: false,
-  strict: "throw"
-}), "users");
 
 const sha256 = (message) => {
   return sha3(message, { outputLength: 256 }).toString();
@@ -88,9 +77,9 @@ const toValidUsername = (username) => {
 const createUser = async (uid, email, username, password) => {
   const hashedPassword = sha256(password);
   username = toValidUsername(username);
-  const checkId = userCollection.findOne({ uid });
-  const checkEmail = userCollection.findOne({ email });
-  const checkUsername = userCollection.findOne({ username });
+  const checkId = user.findOne({ uid });
+  const checkEmail = user.findOne({ email });
+  const checkUsername = user.findOne({ username });
   if (Boolean(await checkId)) {
     throw "User ID already exists.";
   }
@@ -100,7 +89,7 @@ const createUser = async (uid, email, username, password) => {
   if (Boolean(await checkUsername)) {
     throw "This username is already in use.";
   }
-  await userCollection.create({
+  await user.create({
     uid,
     email,
     username,
@@ -110,22 +99,22 @@ const createUser = async (uid, email, username, password) => {
 };
 const resetPassword = async (email, newPassword) => {
   const hashedNewPassword = sha256(newPassword);
-  await userCollection.updateOne({ email }, {
+  await user.updateOne({ email }, {
     $set: { password: hashedNewPassword }
   });
 };
 const getUid = async (usernameOrEmail, password) => {
   const hashedPassword = sha256(password);
-  const user = await userCollection.findOne({
+  const user$1 = await user.findOne({
     $or: [
       { email: usernameOrEmail, password: hashedPassword },
       { username: usernameOrEmail, password: hashedPassword }
     ]
   });
-  return (user == null ? void 0 : user.uid) || false;
+  return (user$1 == null ? void 0 : user$1.uid) || false;
 };
 const getUser = async (uid) => {
-  return await userCollection.findOne({ uid }, { _id: 0, username: 1, email: 1, authlvl: 1 });
+  return await user.findOne({ uid }, { _id: 0, username: 1, email: 1, authlvl: 1 });
 };
 const mergeUser = async (uidToBeRetained, uidToBeRemoved) => {
   if (typeof uidToBeRetained !== "string") {
@@ -138,14 +127,14 @@ const mergeUser = async (uidToBeRetained, uidToBeRemoved) => {
 };
 const changeUsername = async (uid, username) => {
   username = toValidUsername(username);
-  const isExistUser = await userCollection.findOne({ username }, { uid: 1 });
+  const isExistUser = await user.findOne({ username }, { uid: 1 });
   if ((isExistUser == null ? void 0 : isExistUser.uid) === uid) {
     return { username };
   }
   if (Boolean(isExistUser)) {
     throw "This username is already in use.";
   }
-  await userCollection.updateOne({ uid }, {
+  await user.updateOne({ uid }, {
     $set: { username }
   });
   return { username };

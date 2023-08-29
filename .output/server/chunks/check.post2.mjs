@@ -28,6 +28,7 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'mongoose';
+import './user.mjs';
 import './message.mjs';
 
 const check_post = defineEventHandler(async (event) => {
