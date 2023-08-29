@@ -30,8 +30,8 @@ function chooseEngine (model: string) {
 const getRandomMindsDBCore = (() => {
   const cores = ([
     // { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
-    // { email: 'gammacheechorngherng@gmail.com', password: 'Curva&&cch137' },
-    // { email: 'deltacheechorngherng@gmail.com', password: 'Curva&&cch137' },
+    { email: 'gammacheechorngherng@gmail.com', password: 'Curva&&cch137' },
+    { email: 'deltacheechorngherng@gmail.com', password: 'Curva&&cch137' },
     { email: 'chengyuxuee@gmail.com', password: '88888888Ss' },
     { email: 'chengyuxueee@gmail.com', password: '88888888Ss' },
     { email: 'xuechengyuuu@gmail.com', password: '12345678Ss' },
