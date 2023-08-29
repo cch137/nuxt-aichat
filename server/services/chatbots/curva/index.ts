@@ -27,6 +27,18 @@ function chooseEngine (model: string) {
   }
 }
 
+const statusAnalysis = new Map<string, number>()
+function getModelStatus(modelName: string) {
+  return statusAnalysis.get(modelName) || (() => {
+    const status = 0.6
+    statusAnalysis.set(modelName, status)
+    return status
+  })()
+}
+function recordModelStatus(modelName: string, isSuccess: boolean) {
+  statusAnalysis.set(modelName, getModelStatus(modelName) * 0.8 + (isSuccess ? 0.2 : 0))
+}
+
 const getRandomMindsDBCore = (() => {
   const cores = ([
     // { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
@@ -57,6 +69,10 @@ const processingConversation = new Map<string, string>()
 
 const curva = {
   name: 'Curva',
+  get status() {
+    return [...statusAnalysis.keys()].sort()
+      .map(model => [model, statusAnalysis.get(model) as number] as [string,number])
+  },
   async coreAsk (modelName: string, question: string, context = '') {
     return await (await getRandomMindsDBCore()).ask(question, { modelName, context })
   },
@@ -103,12 +119,14 @@ const curva = {
           _id
         )
       }
+      recordModelStatus(model, true)
       return {
         ...result,
         dt,
         id: _id
       }
     } catch (err) {
+      recordModelStatus(model, false)
       const error = str(err)
       return {
         answer: '',

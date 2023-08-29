@@ -1199,6 +1199,17 @@ function chooseEngine(model) {
       return Gpt3Chatbot$1;
   }
 }
+const statusAnalysis = /* @__PURE__ */ new Map();
+function getModelStatus(modelName) {
+  return statusAnalysis.get(modelName) || (() => {
+    const status = 0.6;
+    statusAnalysis.set(modelName, status);
+    return status;
+  })();
+}
+function recordModelStatus(modelName, isSuccess) {
+  statusAnalysis.set(modelName, getModelStatus(modelName) * 0.8 + (isSuccess ? 0.2 : 0));
+}
 const getRandomMindsDBCore = (() => {
   const cores = [
     // { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
@@ -1229,6 +1240,9 @@ const freeGptAsiaCore = new FreeGPTAsiaChatbotCore();
 const processingConversation = /* @__PURE__ */ new Map();
 const curva = {
   name: "Curva",
+  get status() {
+    return [...statusAnalysis.keys()].sort().map((model) => [model, statusAnalysis.get(model)]);
+  },
   async coreAsk(modelName, question, context = "") {
     return await (await getRandomMindsDBCore()).ask(question, { modelName, context });
   },
@@ -1263,12 +1277,14 @@ const curva = {
           _id
         );
       }
+      recordModelStatus(model, true);
       return {
         ...result,
         dt,
         id: _id
       };
     } catch (err) {
+      recordModelStatus(model, false);
       const error = str(err);
       return {
         answer: "",
