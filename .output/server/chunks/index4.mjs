@@ -1200,15 +1200,15 @@ function chooseEngine(model) {
   }
 }
 const statusAnalysis = /* @__PURE__ */ new Map();
-function getModelStatus(modelName) {
+function getModelStatus(modelName, defaultIsSuccess) {
   return statusAnalysis.get(modelName) || (() => {
-    const status = 0.6;
+    const status = defaultIsSuccess ? 1 : 0;
     statusAnalysis.set(modelName, status);
     return status;
   })();
 }
 function recordModelStatus(modelName, isSuccess) {
-  statusAnalysis.set(modelName, getModelStatus(modelName) * 0.8 + (isSuccess ? 0.2 : 0));
+  statusAnalysis.set(modelName, getModelStatus(modelName, isSuccess) * 0.8 + (isSuccess ? 0.2 : 0));
 }
 const getRandomMindsDBCore = (() => {
   const cores = [
