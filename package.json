@@ -56,10 +56,10 @@
   "main": ".output/server/index.mjs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cch137/evogpt.git"
+    "url": "git+https://github.com/cch137/curva.git"
   },
   "keywords": [
-    "evogpt",
+    "curva",
     "chat",
     "ai",
     "gpt"
@@ -70,9 +70,9 @@
   "author": "cch137",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/cch137/evogpt/issues"
+    "url": "https://github.com/cch137/curva/issues"
   },
-  "homepage": "https://github.com/cch137/evogpt#readme",
+  "homepage": "https://github.com/cch137/curva#readme",
   "dependencies": {
     "@dqbd/tiktoken": "^1.0.7"
   }
