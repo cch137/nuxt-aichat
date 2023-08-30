@@ -109,7 +109,7 @@ if (+(process.env.RUN_DC_BOT as string)) {
     // .then(() => {
     //   (store.client as Client<boolean>).application?.commands.create({
     //     name: 'chat',
-    //     description: 'Chat with EvoGPT.',
+    //     description: 'Chat with Curva.',
     //     options: [
     //       {
     //         name: 'prompt',
