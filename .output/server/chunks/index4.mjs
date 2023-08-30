@@ -1277,7 +1277,7 @@ const curva = {
           _id
         );
       }
-      recordModelStatus(model, true);
+      recordModelStatus(model, result.error ? false : true);
       return {
         ...result,
         dt,

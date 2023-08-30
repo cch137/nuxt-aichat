@@ -1,7 +1,8 @@
 ├── assets
 │   └── css
 ├── components
-│   └── Chatbot
+│   ├── Chatbot
+│   └── Coder
 ├── composables
 ├── config
 ├── layouts
@@ -10,7 +11,8 @@
 ├── pages
 │   ├── acc
 │   ├── admin
-│   └── c
+│   ├── c
+│   └── coder
 ├── plugins
 ├── public
 ├── server
@@ -33,7 +35,6 @@
 │       ├── discord
 │       ├── mongoose
 │       │   └── models
-│       ├── utils
 │       └── webBrowsing
 └── utils
     ├── google-translate
