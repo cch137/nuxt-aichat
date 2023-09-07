@@ -4,8 +4,8 @@ export default {
   page: {
     aiChat: "AI 聊天",
     coder: "編程助手",
-    qrCode: "QR 碼生成",
-    fxRate: "簡易匯率",
+    qrCode: "QR 碼生成器",
+    currencyCvt: "貨幣轉換器",
   },
   header: {
     joinDc: "加入"

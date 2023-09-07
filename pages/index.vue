@@ -22,7 +22,7 @@
 
 <script setup>
 const appName = useState('appName').value
-useTitle(`Home - ${appName}`)
+useTitle(`${appName}`)
 definePageMeta({
   layout: 'default'
 })

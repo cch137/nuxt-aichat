@@ -72,8 +72,10 @@ if (process.client) {
   setTimeout(() => focusTextarea(), 1000)
 }
 
+// @ts-ignore
+const _t = useLocale().t
 const appName = useState('appName').value
-useTitle(`QR Code Generator - ${appName}`)
+useTitle(`${_t('page.qrCode')} - ${appName}`)
 definePageMeta({
   layout: 'default'
 })

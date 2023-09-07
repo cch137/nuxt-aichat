@@ -5,7 +5,7 @@ export default {
     aiChat: "AI Chat",
     coder: "Coder",
     qrCode: "QR Code Generator",
-    fxRate: "Easy FX",
+    currencyCvt: "Currency Converter",
   },
   header: {
     joinDc: "Join"

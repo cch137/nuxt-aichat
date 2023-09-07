@@ -21,12 +21,14 @@
           <el-dropdown-item v-if="currentRoute.path !== '/acc/profile'" size="large" :icon="Setting" @click="openSettings = true">
             {{ $t('settings.title') }}
           </el-dropdown-item>
-          <el-dropdown-item divided size="large" :icon="Crop" @click="navigateTo('/tools/easy-fx')">
-            {{ $t('page.qrCode') }}
-          </el-dropdown-item>
+
           <el-dropdown-item divided size="large" :icon="Crop" @click="navigateTo('/tools/qr-code')">
             {{ $t('page.qrCode') }}
           </el-dropdown-item>
+          <el-dropdown-item size="large" :icon="Money" @click="navigateTo('/tools/currency-converter')">
+            {{ $t('page.currencyCvt') }}
+          </el-dropdown-item>
+
           <el-dropdown-item divided v-if="isLoggedIn" size="large" :icon="CircleClose" @click="logout()">
             {{ $t('auth.logout') }}
           </el-dropdown-item>
@@ -37,7 +39,7 @@
 </template>
 
 <script setup>
-import { Avatar, Setting, ChatLineRound, Crop, CircleCheck, CircleClose, ArrowDown, UserFilled } from '@element-plus/icons-vue'
+import { Avatar, Setting, ChatLineRound, Crop, Money, CircleCheck, CircleClose, ArrowDown, UserFilled } from '@element-plus/icons-vue'
 const { username, isLoggedIn, authIsLoading, logout } = useAuth()
 const { openSettings } = useSettings()
 const currentRoute = useNuxtApp().$router.currentRoute

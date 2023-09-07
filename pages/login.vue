@@ -67,9 +67,8 @@ import { ElMessage } from 'element-plus'
 import { User, Key } from '@element-plus/icons-vue'
 
 const { login: _login } = useAuth()
-const i18n = useLocale()
 // @ts-ignore
-const _t = i18n.t
+const _t = useLocale().t
 
 const ruleFormRef = ref<FormInstance>()
 
