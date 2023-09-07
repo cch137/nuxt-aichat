@@ -69,7 +69,7 @@ if (process.client) {
   watch(qrCodeInput, () => generateQRCode())
   window.addEventListener('resize', () => generateQRCode())
   qrCodeInput.value = location.origin
-  setTimeout(() => focusTextarea(), 1000)
+  onMounted(() => setTimeout(() => generateQRCode(), 100))
 }
 
 // @ts-ignore
