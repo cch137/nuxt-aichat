@@ -9,13 +9,13 @@
           </div>
         </div>
       </NuxtLink>
-      <NuxtLink to="/coder/">
+      <!-- <NuxtLink to="/coder/">
         <div class="card-outer">
           <div class="card-inner flex-center">
             {{ $t('page.coder') }}
           </div>
         </div>
-      </NuxtLink>
+      </NuxtLink> -->
     </div>
   </div>
 </template>

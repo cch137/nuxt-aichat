@@ -3,7 +3,8 @@ export default {
   colon: ":",
   page: {
     aiChat: "AI Chat",
-    coder: "Coder"
+    coder: "Coder",
+    qrCode: "QR Code Generator",
   },
   header: {
     joinDc: "Join"
@@ -59,6 +60,7 @@ export default {
     copySuccess: "Copied!",
     copyFailed: "Copy failed.",
     delete: "Delete",
+    download: "Download",
     deleteConv: "Delete conversation",
     exportAs: "Export as",
     newVersion: "A new version has been released! The page needs to be refreshed.",

@@ -3,7 +3,8 @@ export default {
   colon: "：",
   page: {
     aiChat: "AI 聊天",
-    coder: "編程助手"
+    coder: "編程助手",
+    qrCode: "QR 碼生成",
   },
   header: {
     joinDc: "加入"
@@ -59,6 +60,7 @@ export default {
     copySuccess: "已複製！",
     copyFailed: "複製失敗。",
     delete: "刪除",
+    download: "下載",
     deleteConv: "刪除對話",
     exportAs: "導出為",
     newVersion: "新版本已經發布！頁面將要被刷新。",
