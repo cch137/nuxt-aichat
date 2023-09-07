@@ -12,13 +12,13 @@
           <el-dropdown-item v-if="!isLoggedIn" size="large" :icon="CircleCheck" @click="navigateTo('/login')">
             {{ $t('auth.login') }}
           </el-dropdown-item>
-          <el-dropdown-item v-if="isLoggedIn && currentRoute.path !== '/acc/profile'" size="large" :icon="Avatar" @click="navigateTo('/acc/profile')">
+          <el-dropdown-item v-if="isLoggedIn" size="large" :icon="Avatar" @click="navigateTo('/acc/profile')">
             {{ $t('auth.profile') }}
           </el-dropdown-item>
-          <el-dropdown-item v-if="isLoggedIn && !currentRoute.path.startsWith('/c/')" size="large" :icon="ChatLineRound" @click="navigateTo('/c/')">
+          <el-dropdown-item :divided="!isLoggedIn" size="large" :icon="ChatLineRound" @click="!currentRoute.path.startsWith('/c/') ? navigateTo('/c/') : null">
             {{ $t('page.aiChat') }}
           </el-dropdown-item>
-          <el-dropdown-item v-if="currentRoute.path !== '/acc/profile'" size="large" :icon="Setting" @click="openSettings = true">
+          <el-dropdown-item size="large" :icon="Setting" @click="openSettings = true">
             {{ $t('settings.title') }}
           </el-dropdown-item>
 
