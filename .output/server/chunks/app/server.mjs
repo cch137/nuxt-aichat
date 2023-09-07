@@ -1,4 +1,4 @@
-import { hasInjectionContext, getCurrentInstance, toRef, isRef, version, computed, unref, inject, ref, watchEffect, watch, useSSRContext, createApp, reactive, provide, onErrorCaptured, onServerPrefetch, createVNode, resolveDynamicComponent, shallowRef, shallowReactive, isReadonly, defineAsyncComponent, isShallow, isReactive, toRaw, withCtx, mergeProps, nextTick, defineComponent, h, Suspense, Transition } from 'vue';
+import { hasInjectionContext, getCurrentInstance, toRef, isRef, version, inject, ref, computed, unref, watchEffect, watch, useSSRContext, createApp, reactive, provide, onErrorCaptured, onServerPrefetch, createVNode, resolveDynamicComponent, shallowRef, shallowReactive, isReadonly, defineAsyncComponent, isShallow, isReactive, toRaw, withCtx, mergeProps, nextTick, defineComponent, h, Suspense, Transition } from 'vue';
 import { $fetch } from 'ofetch';
 import { createHooks } from 'hookable';
 import { getContext, executeAsync } from 'unctx';
@@ -338,131 +338,134 @@ const createError = (err) => {
   _err.__nuxt_error = true;
   return _err;
 };
-const __nuxt_page_meta$b = {
+const __nuxt_page_meta$c = {
   layout: "default",
   middleware: ["auto-redirector", "only-auth"]
 };
-const __nuxt_page_meta$a = {
+const __nuxt_page_meta$b = {
   layout: "default",
   middleware: ["auto-redirector"]
+};
+const __nuxt_page_meta$a = {
+  layout: "default",
+  middleware: ["only-admin-auth"]
 };
 const __nuxt_page_meta$9 = {
   layout: "default",
   middleware: ["only-admin-auth"]
 };
 const __nuxt_page_meta$8 = {
-  layout: "default",
-  middleware: ["only-admin-auth"]
+  layout: "default"
 };
 const __nuxt_page_meta$7 = {
-  layout: "default"
+  layout: "chat",
+  middleware: ["auto-redirector", "chat"]
 };
 const __nuxt_page_meta$6 = {
   layout: "chat",
   middleware: ["auto-redirector", "chat"]
 };
 const __nuxt_page_meta$5 = {
-  layout: "chat",
-  middleware: ["auto-redirector", "chat"]
-};
-const __nuxt_page_meta$4 = {
   layout: "default",
   middleware: ["auto-redirector"]
 };
-const __nuxt_page_meta$3 = {
+const __nuxt_page_meta$4 = {
   layout: "default"
+};
+const __nuxt_page_meta$3 = {
+  layout: "default",
+  middleware: ["auto-redirector", "only-no-auth"]
 };
 const __nuxt_page_meta$2 = {
   layout: "default",
   middleware: ["auto-redirector", "only-no-auth"]
 };
 const __nuxt_page_meta$1 = {
-  layout: "default",
-  middleware: ["auto-redirector", "only-no-auth"]
+  layout: "default"
 };
 const __nuxt_page_meta = {
   layout: "default"
 };
 const _routes = [
   {
-    name: (__nuxt_page_meta$b == null ? void 0 : __nuxt_page_meta$b.name) ?? "acc-profile",
-    path: (__nuxt_page_meta$b == null ? void 0 : __nuxt_page_meta$b.path) ?? "/acc/profile",
+    name: (__nuxt_page_meta$c == null ? void 0 : __nuxt_page_meta$c.name) ?? "acc-profile",
+    path: (__nuxt_page_meta$c == null ? void 0 : __nuxt_page_meta$c.path) ?? "/acc/profile",
+    meta: __nuxt_page_meta$c || {},
+    alias: (__nuxt_page_meta$c == null ? void 0 : __nuxt_page_meta$c.alias) || [],
+    redirect: (__nuxt_page_meta$c == null ? void 0 : __nuxt_page_meta$c.redirect) || void 0,
+    component: () => import('./_nuxt/profile-b9256e5f.mjs').then((m) => m.default || m)
+  },
+  {
+    name: (__nuxt_page_meta$b == null ? void 0 : __nuxt_page_meta$b.name) ?? "acc-reset-password",
+    path: (__nuxt_page_meta$b == null ? void 0 : __nuxt_page_meta$b.path) ?? "/acc/reset-password",
     meta: __nuxt_page_meta$b || {},
     alias: (__nuxt_page_meta$b == null ? void 0 : __nuxt_page_meta$b.alias) || [],
     redirect: (__nuxt_page_meta$b == null ? void 0 : __nuxt_page_meta$b.redirect) || void 0,
-    component: () => import('./_nuxt/profile-8aa82cde.mjs').then((m) => m.default || m)
-  },
-  {
-    name: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.name) ?? "acc-reset-password",
-    path: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.path) ?? "/acc/reset-password",
-    meta: __nuxt_page_meta$a || {},
-    alias: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.alias) || [],
-    redirect: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.redirect) || void 0,
     component: () => import('./_nuxt/reset-password-266febbb.mjs').then((m) => m.default || m)
   },
   {
-    name: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.name) ?? "admin-dashboard",
-    path: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.path) ?? "/admin/dashboard",
+    name: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.name) ?? "admin-dashboard",
+    path: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.path) ?? "/admin/dashboard",
+    meta: __nuxt_page_meta$a || {},
+    alias: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.alias) || [],
+    redirect: (__nuxt_page_meta$a == null ? void 0 : __nuxt_page_meta$a.redirect) || void 0,
+    component: () => import('./_nuxt/dashboard-68351155.mjs').then((m) => m.default || m)
+  },
+  {
+    name: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.name) ?? "admin-entrance",
+    path: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.path) ?? "/admin/entrance",
     meta: __nuxt_page_meta$9 || {},
     alias: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.alias) || [],
     redirect: (__nuxt_page_meta$9 == null ? void 0 : __nuxt_page_meta$9.redirect) || void 0,
-    component: () => import('./_nuxt/dashboard-ec75e7f4.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/entrance-c1eaef8f.mjs').then((m) => m.default || m)
   },
   {
-    name: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.name) ?? "admin-entrance",
-    path: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.path) ?? "/admin/entrance",
+    name: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.name) ?? "admin-login",
+    path: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.path) ?? "/admin/login",
     meta: __nuxt_page_meta$8 || {},
     alias: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.alias) || [],
     redirect: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.redirect) || void 0,
-    component: () => import('./_nuxt/entrance-dd899976.mjs').then((m) => m.default || m)
-  },
-  {
-    name: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.name) ?? "admin-login",
-    path: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.path) ?? "/admin/login",
-    meta: __nuxt_page_meta$7 || {},
-    alias: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.alias) || [],
-    redirect: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.redirect) || void 0,
     component: () => import('./_nuxt/login-bf0a47f0.mjs').then((m) => m.default || m)
   },
   {
-    name: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.name) ?? "c-conv",
-    path: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.path) ?? "/c/:conv()",
+    name: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.name) ?? "c-conv",
+    path: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.path) ?? "/c/:conv()",
+    meta: __nuxt_page_meta$7 || {},
+    alias: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.alias) || [],
+    redirect: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.redirect) || void 0,
+    component: () => import('./_nuxt/_conv_-cba63dd6.mjs').then((m) => m.default || m)
+  },
+  {
+    name: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.name) ?? "c",
+    path: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.path) ?? "/c",
     meta: __nuxt_page_meta$6 || {},
     alias: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.alias) || [],
     redirect: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-9b1831b4.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-f4cdb3d7.mjs').then((m) => m.default || m)
   },
   {
-    name: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.name) ?? "c",
-    path: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.path) ?? "/c",
+    name: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.name) ?? "coder",
+    path: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.path) ?? "/coder",
     meta: __nuxt_page_meta$5 || {},
     alias: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.alias) || [],
     redirect: (__nuxt_page_meta$5 == null ? void 0 : __nuxt_page_meta$5.redirect) || void 0,
-    component: () => import('./_nuxt/index-5e9c9de2.mjs').then((m) => m.default || m)
-  },
-  {
-    name: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.name) ?? "coder",
-    path: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.path) ?? "/coder",
-    meta: __nuxt_page_meta$4 || {},
-    alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
-    redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
     component: () => import('./_nuxt/index-466cd0ed.mjs').then((m) => m.default || m)
   },
   {
-    name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "index",
-    path: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.path) ?? "/",
+    name: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.name) ?? "index",
+    path: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.path) ?? "/",
+    meta: __nuxt_page_meta$4 || {},
+    alias: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.alias) || [],
+    redirect: (__nuxt_page_meta$4 == null ? void 0 : __nuxt_page_meta$4.redirect) || void 0,
+    component: () => import('./_nuxt/index-b6313604.mjs').then((m) => m.default || m)
+  },
+  {
+    name: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.name) ?? "login",
+    path: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.path) ?? "/login",
     meta: __nuxt_page_meta$3 || {},
     alias: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.alias) || [],
     redirect: (__nuxt_page_meta$3 == null ? void 0 : __nuxt_page_meta$3.redirect) || void 0,
-    component: () => import('./_nuxt/index-7ccaf43f.mjs').then((m) => m.default || m)
-  },
-  {
-    name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "login",
-    path: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.path) ?? "/login",
-    meta: __nuxt_page_meta$2 || {},
-    alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
-    redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
-    component: () => import('./_nuxt/login-e795d666.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/login-08916bc5.mjs').then((m) => m.default || m)
   },
   {
     name: "perspective",
@@ -470,15 +473,23 @@ const _routes = [
     meta: {},
     alias: [],
     redirect: void 0,
-    component: () => import('./_nuxt/perspective-64b604b2.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/perspective-33dfb196.mjs').then((m) => m.default || m)
   },
   {
-    name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "signup",
-    path: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.path) ?? "/signup",
+    name: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.name) ?? "signup",
+    path: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.path) ?? "/signup",
+    meta: __nuxt_page_meta$2 || {},
+    alias: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.alias) || [],
+    redirect: (__nuxt_page_meta$2 == null ? void 0 : __nuxt_page_meta$2.redirect) || void 0,
+    component: () => import('./_nuxt/signup-bfb06713.mjs').then((m) => m.default || m)
+  },
+  {
+    name: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.name) ?? "tools-currency-converter",
+    path: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.path) ?? "/tools/currency-converter",
     meta: __nuxt_page_meta$1 || {},
     alias: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.alias) || [],
     redirect: (__nuxt_page_meta$1 == null ? void 0 : __nuxt_page_meta$1.redirect) || void 0,
-    component: () => import('./_nuxt/signup-e4552566.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/currency-converter-08750737.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.name) ?? "tools-qr-code",
@@ -486,7 +497,7 @@ const _routes = [
     meta: __nuxt_page_meta || {},
     alias: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.alias) || [],
     redirect: (__nuxt_page_meta == null ? void 0 : __nuxt_page_meta.redirect) || void 0,
-    component: () => import('./_nuxt/qr-code-028eca5c.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/qr-code-f46f3ed3.mjs').then((m) => m.default || m)
   }
 ];
 const appHead = { "meta": [{ "charset": "UTF-8" }, { "http-equiv": "X-UA-Compatible", "content": "IE=edge" }, { "name": "viewport", "content": "width=device-width,initial-scale=1,user-scalable=no" }, { "name": "author", "content": "cch137" }, { "name": "keywords", "content": "CH4" }, { "name": "description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:card", "content": "summary_large_image" }, { "property": "twitter:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "twitter:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }, { "property": "og:type", "content": "website" }, { "property": "og:site_name", "content": "CH4" }, { "property": "og:description", "content": "A free GPT-4 AI chatbot that can browse the web. This is for everyone." }, { "property": "og:image", "content": "https://voodex.netlify.app/EVO/EVO-full.png" }], "link": [], "style": [], "script": [], "noscript": [{ "innerHTML": "<strong>We're sorry but this website doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>" }] };
@@ -672,11 +683,11 @@ const globalMiddleware = [
   client_45global
 ];
 const namedMiddleware = {
-  "auto-redirector": () => import('./_nuxt/autoRedirector-669c5eea.mjs'),
-  chat: () => import('./_nuxt/chat-91fa8bb3.mjs'),
-  "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-bd73c2f2.mjs'),
-  "only-auth": () => import('./_nuxt/onlyAuth-7626b6b5.mjs'),
-  "only-no-auth": () => import('./_nuxt/onlyNoAuth-a9562a2c.mjs')
+  "auto-redirector": () => import('./_nuxt/autoRedirector-486779eb.mjs'),
+  chat: () => import('./_nuxt/chat-e17b5160.mjs'),
+  "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-5d573836.mjs'),
+  "only-auth": () => import('./_nuxt/onlyAuth-fbfcc882.mjs'),
+  "only-no-auth": () => import('./_nuxt/onlyNoAuth-eb1d0f3a.mjs')
 };
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
@@ -3987,7 +3998,8 @@ const en = {
   page: {
     aiChat: "AI Chat",
     coder: "Coder",
-    qrCode: "QR Code Generator"
+    qrCode: "QR Code Generator",
+    currencyCvt: "Currency Converter"
   },
   header: {
     joinDc: "Join"
@@ -4113,7 +4125,8 @@ const zhTW = {
   page: {
     aiChat: "AI 聊天",
     coder: "編程助手",
-    qrCode: "QR 碼生成"
+    qrCode: "QR 碼生成器",
+    currencyCvt: "貨幣轉換器"
   },
   header: {
     joinDc: "加入"
@@ -5468,5 +5481,5 @@ let entry;
 }
 const entry$1 = (ctx) => entry(ctx);
 
-export { _export_sfc as _, useRouter as a, useLocale as b, createError as c, useState as d, entry$1 as default, debugWarn as e, useNamespace as f, useNuxtApp as g, defaultNamespace as h, namespaceContextKey as i, useId as j, toSeed as k, baseConverter as l, str as m, navigateTo as n, useUniCookie as o, useScrollToBottom as p, defineNuxtRouteMiddleware as q, random as r, safeStringify as s, throwError as t, useHead as u };
+export { _export_sfc as _, useRouter as a, useLocale as b, createError as c, useState as d, entry$1 as default, debugWarn as e, useNamespace as f, useNuxtApp as g, defaultNamespace as h, namespaceContextKey as i, useId as j, toSeed as k, baseConverter as l, str as m, navigateTo as n, useUniCookie as o, useScrollToBottom as p, useGetDerivedNamespace as q, random as r, safeStringify as s, throwError as t, useHead as u, useIdInjection as v, defineNuxtRouteMiddleware as w };
 //# sourceMappingURL=server.mjs.map
