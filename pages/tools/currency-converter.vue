@@ -122,6 +122,7 @@ if (process.client) {
   const toCurrency = urlParams.get('to') || 'MYR'
   fxFromCurrency.value = fromCurrency
   fxToCurrency.value = toCurrency
+  updateAvailableCurrencies()
   calcToValue()
   onMounted(focusFxFromValueInput)
 }
