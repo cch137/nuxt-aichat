@@ -5,6 +5,7 @@ export default {
     aiChat: "AI 聊天",
     coder: "編程助手",
     qrCode: "QR 碼生成",
+    fxRate: "簡易匯率",
   },
   header: {
     joinDc: "加入"

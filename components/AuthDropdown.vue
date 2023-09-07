@@ -21,6 +21,9 @@
           <el-dropdown-item v-if="currentRoute.path !== '/acc/profile'" size="large" :icon="Setting" @click="openSettings = true">
             {{ $t('settings.title') }}
           </el-dropdown-item>
+          <el-dropdown-item divided size="large" :icon="Crop" @click="navigateTo('/tools/easy-fx')">
+            {{ $t('page.qrCode') }}
+          </el-dropdown-item>
           <el-dropdown-item divided size="large" :icon="Crop" @click="navigateTo('/tools/qr-code')">
             {{ $t('page.qrCode') }}
           </el-dropdown-item>
