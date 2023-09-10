@@ -10,6 +10,7 @@ import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import 'dotenv';
 import 'crypto';
+import './rollup/_commonjsHelpers.mjs';
 import 'http';
 import 'url';
 import 'bson';

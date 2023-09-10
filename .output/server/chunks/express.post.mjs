@@ -3,6 +3,7 @@ import { c as curva } from './index4.mjs';
 import './index2.mjs';
 import 'dotenv';
 import 'crypto';
+import './rollup/_commonjsHelpers.mjs';
 import 'http';
 import 'url';
 import 'bson';

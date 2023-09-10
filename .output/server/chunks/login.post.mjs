@@ -10,6 +10,7 @@ import 'nodemailer';
 import 'dotenv';
 import './index2.mjs';
 import 'crypto';
+import './rollup/_commonjsHelpers.mjs';
 import 'http';
 import 'url';
 import 'bson';

@@ -22,6 +22,7 @@ import './ytCrawler.mjs';
 import 'qs';
 import 'dotenv';
 import 'crypto';
+import './rollup/_commonjsHelpers.mjs';
 import 'http';
 import 'url';
 import 'bson';

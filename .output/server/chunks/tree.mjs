@@ -4,6 +4,7 @@ import { getAllKey, getDeletedKey } from './keys.mjs';
 import { m as message } from './message.mjs';
 import 'dotenv';
 import 'crypto';
+import './rollup/_commonjsHelpers.mjs';
 import 'http';
 import 'url';
 import 'bson';
