@@ -85,8 +85,11 @@ function roundTo2Digits(amount: number, add00 = true): number {
 }
 
 function _calc(expression: string | number) {
-  // @ts-ignore
-  return new Mexp().eval(expression.toString())
+  try {
+    // @ts-ignore
+    return new Mexp().eval(expression.toString())
+  } catch {}
+  return +expression || 0
 }
 
 async function calcToValue(selfUpdate = false) {
