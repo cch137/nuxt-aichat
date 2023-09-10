@@ -7,7 +7,7 @@
           <el-option v-for="item in availableCurrencies" :key="item" :label="item" :value="item" />
         </el-select>
         <div class="flex-1 flex-center">
-          <el-input v-model="fxFromValue" type="number" size="large" class="FxFromValueInput currency-input" @keyup="calcToValue()" @change="calcToValue(true)" />
+          <el-input v-model="fxFromValue" size="large" class="FxFromValueInput currency-input" @keyup="calcToValue()" @change="calcToValue(true)" />
         </div>
       </div>
       <div class="flex gap-4">
@@ -15,7 +15,7 @@
           <el-option v-for="item in availableCurrencies" :key="item" :label="item" :value="item" />
         </el-select>
         <div class="flex-1 flex-center">
-          <el-input v-model="fxToValue" type="number" size="large" class="FxFromValueOutput currency-input" @keyup="calcFromValue()" @change="calcFromValue(true)" />
+          <el-input v-model="fxToValue" size="large" class="FxFromValueOutput currency-input" @keyup="calcFromValue()" @change="calcFromValue(true)" />
         </div>
       </div>
       <div class="flex-center">
@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { Switch } from '@element-plus/icons-vue'
+import Mexp from 'math-expression-evaluator'
 
 const availableCurrencies = ref<string[]>([])
 const fxFromCurrency = ref('TWD')
@@ -83,18 +84,23 @@ function roundTo2Digits(amount: number, add00 = true): number {
   return ans
 }
 
+function _calc(expression: string | number) {
+  // @ts-ignore
+  return new Mexp().eval(expression.toString())
+}
+
 async function calcToValue(selfUpdate = false) {
-  fxToValue.value = roundTo2Digits(fxFromValue.value * await getFxRate())
+  fxToValue.value = roundTo2Digits(_calc(fxFromValue.value) * await getFxRate())
   if (selfUpdate) {
-    fxFromValue.value = roundTo2Digits(fxFromValue.value, false)
+    fxFromValue.value = roundTo2Digits(_calc(fxFromValue.value), false)
   }
 }
 
 async function calcFromValue(selfUpdate = false) {
   if (selfUpdate) {
-    fxToValue.value = roundTo2Digits(fxToValue.value)
+    fxToValue.value = roundTo2Digits(_calc(fxToValue.value))
   }
-  fxFromValue.value = roundTo2Digits(fxToValue.value / await getFxRate(), false)
+  fxFromValue.value = roundTo2Digits(_calc(fxToValue.value) / await getFxRate(), false)
 }
 
 function focusFxFromValueInput() {

@@ -1,5 +1,5 @@
 {
-  "version": "0.5.8",
+  "version": "0.5.9",
   "name": "curva",
   "description": "A free GPT-4 AI chatbot that can browse the web. This is for everyone.",
   "private": true,
@@ -37,6 +37,7 @@
     "element-plus": "^2.3.10",
     "googlethis": "^1.7.1",
     "marked": "^7.0.4",
+    "math-expression-evaluator": "^2.0.3",
     "mindsdb-js-sdk": "^2.2.2",
     "monaco-editor": "^0.41.0",
     "mongoose": "^7.4.5",

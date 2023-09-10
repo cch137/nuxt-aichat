@@ -64,6 +64,11 @@ const checkIsLoggedIn = async (force = false) => {
     } catch (err) {
       console.error(err)
     } finally {}
+    try {
+      Object.defineProperty(window, 'authlvl', {
+        get: () => authlvl.value
+      })
+    } catch {}
   }
 })()
 
