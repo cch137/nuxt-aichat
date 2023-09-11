@@ -76,7 +76,7 @@ const handleInteractionForCurvaAsk = async (interaction, model) => {
   });
   const { content, embeds = [], files = [] } = await askCurva(user, conv, model, message, temperature === void 0 ? 0.5 : temperature);
   clearInterval(interval);
-  const answered = await interaction.channel.send({ content: `<@${dcUid}> ${content}`, embeds, files });
+  const answered = await interaction.channel.send({ content: `<@${dcUid}> ${content.replaceAll("@everyone", "\uFF20everyone").replace(/<[@&]+(\d+)>/g, (match, group1) => `<${group1}>`)}`, embeds, files });
   (await replied).edit({ content: answered == null ? void 0 : answered.url });
 };
 const handleInteractionForCurvaClearHistory = async (interaction) => {
