@@ -108,20 +108,31 @@ ${chunk}`
   return summary
 }
 
+// 你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
+// 回复的格式: { "selectedUrls"?: string[], "answer"?: string }
+// 你的用戶使用搜索引擎找到了一些網頁，請分析搜索引擎結果。
+// 如果你認為搜索引擎所提供的結果已經能夠讓你全面和準確地回答，請在 "answer" 寫入你的答案並直接回傳。
+// 如果你認為你需要訪問網頁才能作出全面的回答，請在 "selectedUrls" 提供你想要訪問的網站（盡量少於 3 個，上限為 5 個）。
+// 請注意，你只能選擇提供 "selectedUrls" 或 "answer" 其中一個值，嚴禁同時提供二者。
+// 因此，僅在參考資料充足時提供 "answer"，以避免錯誤或過時資訊。
+// 用戶可能會使用不同語言搜索，如果你需要選擇網頁，不一定要選擇與用戶語言相同的網頁，你只要確保網頁的內容對問題的解答有用即可。
+// 如果你選擇直接回答用戶問題，嚴禁摘抄搜索引擎結果中的網頁簡介，請根據你的知識以及搜索引擎結果，在經過總結後回答用戶的問題，以用戶問題中使用的語言進行回答。
+// 再次提醒，你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
+// 回复的格式: { "selectedUrls"?: string[], "answer"?: string }
+// 當前時間: ${time}
+
 async function selectPages (engine: MindsDbGPTChatbotCore, question: string, result: WebSearcherResult, options: { time?: string, modelName?: string } = {}) {
   const { time = formatUserCurrentTime(0), modelName = 'gpt4_t00_7k' } = options
-  question = `你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
-回复的格式: { "selectedUrls"?: string[], "answer"?: string }
-你的用戶使用搜索引擎找到了一些網頁，請分析搜索引擎結果。
-如果你認為搜索引擎所提供的結果已經能夠讓你全面和準確地回答，請在 "answer" 寫入你的答案並直接回傳。
-如果你認為你需要訪問網頁才能作出全面的回答，請在 "selectedUrls" 提供你想要訪問的網站（盡量少於 3 個，上限為 5 個）。
-請注意，你只能選擇提供 "selectedUrls" 或 "answer" 其中一個值，嚴禁同時提供二者。
-因此，僅在參考資料充足時提供 "answer"，以避免錯誤或過時資訊。
-用戶可能會使用不同語言搜索，如果你需要選擇網頁，不一定要選擇與用戶語言相同的網頁，你只要確保網頁的內容對問題的解答有用即可。
-如果你選擇直接回答用戶問題，嚴禁摘抄搜索引擎結果中的網頁簡介，請根據你的知識以及搜索引擎結果，在經過總結後回答用戶的問題，以用戶問題中使用的語言進行回答。
-再次提醒，你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
-回复的格式: { "selectedUrls"?: string[], "answer"?: string }
-當前時間: ${time}
+  question = `You are an API, and your response format must be JSON. It is strictly prohibited to include any other comments.
+Response format: { "selectedUrls"?: string[], "answer"?: string }
+Your user has used a search engine to find some webpages. Please analyze the search engine results. If you believe that the results provided by the search engine are sufficient for you to provide a comprehensive and accurate answer, please write your response in the "answer" field and return it directly.
+If you believe that you need to access webpages to provide a comprehensive answer, please provide the websites you want to visit in the "selectedUrls" field (try to keep it under 3, with a maximum of 5).
+Please note that you can only provide one value, either "selectedUrls" or "answer," strictly prohibiting the simultaneous provision of both. Therefore, only provide "answer" when the reference data is sufficient to avoid errors or outdated information.
+Users may use different languages in their searches. If you need to select webpages, you do not necessarily have to choose webpages in the same language as the user. Just ensure that the content of the webpages is useful for answering the question.
+If you choose to directly answer the user's question, it is strictly prohibited to copy excerpts from webpage descriptions in search engine results. Please answer the user's question based on your knowledge and the search engine results, summarizing as necessary, and answer in the language used in the user's question.
+Once again, you are an API, and the response format must be JSON. It is strictly prohibited to include any other comments.
+Response format: { "selectedUrls"?: string[], "answer"?: string }
+Current time: ${time}
 ---
 question: ${question}
 ---

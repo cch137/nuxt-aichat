@@ -999,18 +999,16 @@ ${chunk}`;
 }
 async function selectPages(engine, question, result, options = {}) {
   const { time = formatUserCurrentTime(0), modelName = "gpt4_t00_7k" } = options;
-  question = `\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
-\u56DE\u590D\u7684\u683C\u5F0F: { "selectedUrls"?: string[], "answer"?: string }
-\u4F60\u7684\u7528\u6236\u4F7F\u7528\u641C\u7D22\u5F15\u64CE\u627E\u5230\u4E86\u4E00\u4E9B\u7DB2\u9801\uFF0C\u8ACB\u5206\u6790\u641C\u7D22\u5F15\u64CE\u7D50\u679C\u3002
-\u5982\u679C\u4F60\u8A8D\u70BA\u641C\u7D22\u5F15\u64CE\u6240\u63D0\u4F9B\u7684\u7D50\u679C\u5DF2\u7D93\u80FD\u5920\u8B93\u4F60\u5168\u9762\u548C\u6E96\u78BA\u5730\u56DE\u7B54\uFF0C\u8ACB\u5728 "answer" \u5BEB\u5165\u4F60\u7684\u7B54\u6848\u4E26\u76F4\u63A5\u56DE\u50B3\u3002
-\u5982\u679C\u4F60\u8A8D\u70BA\u4F60\u9700\u8981\u8A2A\u554F\u7DB2\u9801\u624D\u80FD\u4F5C\u51FA\u5168\u9762\u7684\u56DE\u7B54\uFF0C\u8ACB\u5728 "selectedUrls" \u63D0\u4F9B\u4F60\u60F3\u8981\u8A2A\u554F\u7684\u7DB2\u7AD9\uFF08\u76E1\u91CF\u5C11\u65BC 3 \u500B\uFF0C\u4E0A\u9650\u70BA 5 \u500B\uFF09\u3002
-\u8ACB\u6CE8\u610F\uFF0C\u4F60\u53EA\u80FD\u9078\u64C7\u63D0\u4F9B "selectedUrls" \u6216 "answer" \u5176\u4E2D\u4E00\u500B\u503C\uFF0C\u56B4\u7981\u540C\u6642\u63D0\u4F9B\u4E8C\u8005\u3002
-\u56E0\u6B64\uFF0C\u50C5\u5728\u53C3\u8003\u8CC7\u6599\u5145\u8DB3\u6642\u63D0\u4F9B "answer"\uFF0C\u4EE5\u907F\u514D\u932F\u8AA4\u6216\u904E\u6642\u8CC7\u8A0A\u3002
-\u7528\u6236\u53EF\u80FD\u6703\u4F7F\u7528\u4E0D\u540C\u8A9E\u8A00\u641C\u7D22\uFF0C\u5982\u679C\u4F60\u9700\u8981\u9078\u64C7\u7DB2\u9801\uFF0C\u4E0D\u4E00\u5B9A\u8981\u9078\u64C7\u8207\u7528\u6236\u8A9E\u8A00\u76F8\u540C\u7684\u7DB2\u9801\uFF0C\u4F60\u53EA\u8981\u78BA\u4FDD\u7DB2\u9801\u7684\u5167\u5BB9\u5C0D\u554F\u984C\u7684\u89E3\u7B54\u6709\u7528\u5373\u53EF\u3002
-\u5982\u679C\u4F60\u9078\u64C7\u76F4\u63A5\u56DE\u7B54\u7528\u6236\u554F\u984C\uFF0C\u56B4\u7981\u6458\u6284\u641C\u7D22\u5F15\u64CE\u7D50\u679C\u4E2D\u7684\u7DB2\u9801\u7C21\u4ECB\uFF0C\u8ACB\u6839\u64DA\u4F60\u7684\u77E5\u8B58\u4EE5\u53CA\u641C\u7D22\u5F15\u64CE\u7D50\u679C\uFF0C\u5728\u7D93\u904E\u7E3D\u7D50\u5F8C\u56DE\u7B54\u7528\u6236\u7684\u554F\u984C\uFF0C\u4EE5\u7528\u6236\u554F\u984C\u4E2D\u4F7F\u7528\u7684\u8A9E\u8A00\u9032\u884C\u56DE\u7B54\u3002
-\u518D\u6B21\u63D0\u9192\uFF0C\u4F60\u662F\u4E00\u500B API\uFF0C\u56DE\u590D\u683C\u5F0F\u53EA\u80FD\u662F JSON\uFF0C\u56B4\u7981\u4F5C\u51FA\u5176\u5B83\u8A3B\u89E3\u3002
-\u56DE\u590D\u7684\u683C\u5F0F: { "selectedUrls"?: string[], "answer"?: string }
-\u7576\u524D\u6642\u9593: ${time}
+  question = `You are an API, and your response format must be JSON. It is strictly prohibited to include any other comments.
+Response format: { "selectedUrls"?: string[], "answer"?: string }
+Your user has used a search engine to find some webpages. Please analyze the search engine results. If you believe that the results provided by the search engine are sufficient for you to provide a comprehensive and accurate answer, please write your response in the "answer" field and return it directly.
+If you believe that you need to access webpages to provide a comprehensive answer, please provide the websites you want to visit in the "selectedUrls" field (try to keep it under 3, with a maximum of 5).
+Please note that you can only provide one value, either "selectedUrls" or "answer," strictly prohibiting the simultaneous provision of both. Therefore, only provide "answer" when the reference data is sufficient to avoid errors or outdated information.
+Users may use different languages in their searches. If you need to select webpages, you do not necessarily have to choose webpages in the same language as the user. Just ensure that the content of the webpages is useful for answering the question.
+If you choose to directly answer the user's question, it is strictly prohibited to copy excerpts from webpage descriptions in search engine results. Please answer the user's question based on your knowledge and the search engine results, summarizing as necessary, and answer in the language used in the user's question.
+Once again, you are an API, and the response format must be JSON. It is strictly prohibited to include any other comments.
+Response format: { "selectedUrls"?: string[], "answer"?: string }
+Current time: ${time}
 ---
 question: ${question}
 ---
