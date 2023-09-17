@@ -4,11 +4,11 @@ import { serialize } from 'cookie';
 
 const transfer = defineEventHandler(async function(event) {
   const { req, res } = event.node;
+  res.statusCode = 302;
+  res.setHeader("Location", "/");
   try {
     const passport = (((req.url || "").split("?")[1] || "").split("&").map((i) => i.split("=").map((j) => j.trim())).find((i) => i[0] === "passport") || ["", ""])[1];
-    const tokenString = (await axios.post("https://cch137-api.onrender.com/lockers", { id: passport })).data;
-    res.statusCode = 302;
-    res.setHeader("Location", "/");
+    const tokenString = (await axios.post("https://api.cch137.link/lockers", { id: passport })).data;
     res.setHeader("Set-Cookie", serialize("token", tokenString, {
       path: "/",
       httpOnly: true,

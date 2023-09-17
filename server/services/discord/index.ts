@@ -40,8 +40,8 @@ async function connect () {
 
   try {
     client.user?.setActivity({
-      name: 'https://cch137.link',
-      url: 'https://cch137.link',
+      name: 'https://ch4.cch137.link',
+      url: 'https://ch4.cch137.link',
       type: 0
     })
   } catch (err) {
