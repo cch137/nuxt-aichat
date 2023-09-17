@@ -6,8 +6,8 @@ import { createTextFile } from './utils'
 
 async function handleInteractionForYTCaptions (interaction: ChatInputCommandInteraction<CacheType>) {
   const videoLink = (interaction.options.get('id')?.value || '') as string
-  const lang = (interaction.options.get('lang')?.value || '') as string
-  const videoId: string = isYouTubeLink(videoLink) 
+  const lang = (interaction.options.get('language')?.value || '') as string
+  const videoId: string = isYouTubeLink(videoLink)
     ? getYouTubeVideoId(videoLink) || ''
     : videoLink;
     if (!videoId) {
