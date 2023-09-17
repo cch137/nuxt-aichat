@@ -90,7 +90,7 @@ const handleInteractionForCurvaClearHistory = async (interaction) => {
 async function handleInteractionForYTCaptions(interaction) {
   var _a, _b;
   const videoLink = ((_a = interaction.options.get("id")) == null ? void 0 : _a.value) || "";
-  const lang = ((_b = interaction.options.get("lang")) == null ? void 0 : _b.value) || "";
+  const lang = ((_b = interaction.options.get("language")) == null ? void 0 : _b.value) || "";
   const videoId = isYouTubeLink(videoLink) ? getYouTubeVideoId(videoLink) || "" : videoLink;
   if (!videoId) {
     interaction.reply("Error: Illegal Video ID");
