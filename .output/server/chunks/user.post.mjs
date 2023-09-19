@@ -1,8 +1,9 @@
 import { defineEventHandler } from 'h3';
 import { a as getUidByToken, m as mask } from './token.mjs';
 import 'cookie';
-import './random.mjs';
 import 'crypto-js/sha3.js';
+import 'crypto-js/md5.js';
+import './random.mjs';
 
 const user_post = defineEventHandler(async (event) => {
   const uid = getUidByToken(event);

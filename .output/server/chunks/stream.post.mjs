@@ -4,6 +4,7 @@ import { a as getUidByToken } from './token.mjs';
 import './random.mjs';
 import 'crypto-js/sha3.js';
 import 'cookie';
+import 'crypto-js/md5.js';
 
 const stream_post = defineEventHandler(async (event) => {
   if (!getUidByToken(event)) {

@@ -31,6 +31,7 @@ import 'mongoose';
 import './random.mjs';
 import './user.mjs';
 import './message.mjs';
+import 'crypto-js/md5.js';
 
 const rateLimiter = new RateLimiter(5, 5 * 60 * 1e3);
 const login_post = defineEventHandler(async function(event) {

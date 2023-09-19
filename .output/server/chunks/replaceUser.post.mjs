@@ -1,8 +1,9 @@
 import { defineEventHandler, readBody } from 'h3';
 import { parse, serialize } from 'cookie';
 import { r as read, p as pack } from './token.mjs';
-import './random.mjs';
 import 'crypto-js/sha3.js';
+import 'crypto-js/md5.js';
+import './random.mjs';
 
 const replaceUser_post = defineEventHandler(async function(event) {
   var _a;

@@ -1,4 +1,6 @@
 import { parse } from 'cookie';
+import sha3 from 'crypto-js/sha3.js';
+import md5 from 'crypto-js/md5.js';
 import { t as toSeed, r as random, b as baseConverter, a as safeStringify, s as str } from './random.mjs';
 
 const { MT, shuffle, randInt } = random;
@@ -59,6 +61,13 @@ function d(input, maskLevel = 1, seed, tryParseJSON = true) {
     return input;
   }
 }
+function hx(input, algorithm = 512, seed) {
+  const encrypted = e(input, 1, seed).substring(1);
+  if (algorithm === "MD5") {
+    return md5(encrypted).toString();
+  }
+  return sha3(encrypted, { outputLength: algorithm }).toString();
+}
 
 const seed = 168813145203e3;
 function generate(uid, ip) {
@@ -94,6 +103,12 @@ function getUidByToken(event) {
   const token = read(parse(cookieString).token);
   return token == null ? void 0 : token.uid;
 }
+function getAuthlvlByToken(event) {
+  var _a, _b, _c;
+  const cookieString = ((_c = (_b = (_a = event == null ? void 0 : event.node) == null ? void 0 : _a.req) == null ? void 0 : _b.headers) == null ? void 0 : _c.cookie) || "";
+  const token = read(parse(cookieString).token);
+  return (token == null ? void 0 : token.authlvl) || 0;
+}
 
-export { getUidByToken as a, generateString as b, generate as g, mask as m, pack as p, read as r };
+export { getUidByToken as a, getAuthlvlByToken as b, generateString as c, generate as g, hx as h, mask as m, pack as p, read as r };
 //# sourceMappingURL=token.mjs.map

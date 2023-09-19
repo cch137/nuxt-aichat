@@ -1,12 +1,13 @@
 import { defineEventHandler } from 'h3';
 import { parse, serialize } from 'cookie';
 import { g as getIp } from './getIp.mjs';
-import { r as read, p as pack, b as generateString } from './token.mjs';
+import { r as read, p as pack, c as generateString } from './token.mjs';
 import { r as random } from './random.mjs';
 import './index2.mjs';
 import { m as message } from './message.mjs';
 import { c as conversation } from './conversation.mjs';
 import 'crypto-js/sha3.js';
+import 'crypto-js/md5.js';
 import 'dotenv';
 import 'crypto';
 import './rollup/_commonjsHelpers.mjs';

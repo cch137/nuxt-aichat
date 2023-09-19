@@ -4,8 +4,9 @@ import { a as getUidByToken } from './token.mjs';
 import 'nodemailer';
 import 'dotenv';
 import 'cookie';
-import './random.mjs';
 import 'crypto-js/sha3.js';
+import 'crypto-js/md5.js';
+import './random.mjs';
 
 const appName = "CH4";
 

@@ -25,6 +25,7 @@ import 'tls';
 import 'mongoose';
 import 'cookie';
 import 'crypto-js/sha3.js';
+import 'crypto-js/md5.js';
 
 const message_put = defineEventHandler(async (event) => {
   const body = await readBody(event);

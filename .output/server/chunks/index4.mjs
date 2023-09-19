@@ -1212,23 +1212,15 @@ function recordModelStatus(modelName, isSuccess) {
 }
 const getRandomMindsDBCore = (() => {
   const cores = [
-    // { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
-    { email: "gammacheechorngherng@gmail.com", password: "Curva&&cch137" },
-    { email: "deltacheechorngherng@gmail.com", password: "Curva&&cch137" },
-    { email: "chengyuxuee@gmail.com", password: "88888888Ss" },
-    { email: "chengyuxueee@gmail.com", password: "88888888Ss" },
-    { email: "xuechengyuuu@gmail.com", password: "12345678Ss" },
-    { email: "xuechengyuuuu@gmail.com", password: "12345678Ss" }
-    // { email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com', password: 'M5Ij992bVsPWdZajh7fZqw' },
-    // { email: 'O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com', password: 'O1qNDwsOGUcQ1V5nfQmyMg' },
-    // { email: 'TCBLoYSrSv8BGCSOKqbWUw@hotmail.com', password: 'TCBLoYSrSv8BGCSOKqbWUw' },
-    // { email: 'HqhF714XxlOT_hlCQ0nCDA@hotmail.com', password: 'HqhF714XxlOT_hlCQ0nCDA' },
+    { email: "cheechorngherng@gmail.com", password: "HHH2O&h2o" },
+    { email: "chorngherngchee@gmail.com", password: "Curva&&cch137" },
+    { email: "oaktesla@gmail.com", password: "Oaktesla&&cch137&&mdb" }
   ].map((acc) => {
     const { email, password } = acc;
     return new MindsDbGPTChatbotCore$1({ email, password });
   });
   let lastIndex = 0;
-  return async function() {
+  return async function(isCoreAsk = false) {
     if (lastIndex >= cores.length - 1)
       lastIndex = 0;
     else
@@ -1244,7 +1236,7 @@ const curva = {
     return [...statusAnalysis.keys()].sort().map((model) => [model, statusAnalysis.get(model)]);
   },
   async coreAsk(modelName, question, context = "") {
-    return await (await getRandomMindsDBCore()).ask(question, { modelName, context });
+    return await (await getRandomMindsDBCore(true)).ask(question, { modelName, context });
   },
   async ask(ip, uid, conv, model = "gpt4", temperature = 0.5, messages = [], tz = 0, _id, streamId) {
     if (processingConversation.has(uid)) {
@@ -1299,5 +1291,5 @@ const curva = {
 };
 const curva$1 = curva;
 
-export { Conversation$1 as C, curva$1 as c, getYouTubeVideoId as g, isYouTubeLink as i };
+export { Conversation$1 as C, curva$1 as c, estimateTokens as e, getYouTubeVideoId as g, isYouTubeLink as i };
 //# sourceMappingURL=index4.mjs.map
