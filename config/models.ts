@@ -16,7 +16,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 0,
+    permissionLevel: 1,
   },
   {
     name: 'GPT-4',
@@ -25,7 +25,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 0,
+    permissionLevel: 1,
   },
   {
     name: 'GPT-Web',
@@ -34,7 +34,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 0,
+    permissionLevel: 1,
   },
   {
     name: 'Claude-2',
@@ -43,7 +43,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 0,
+    permissionLevel: 1,
   },
   {
     name: 'Claude-2 (Web)',
@@ -52,7 +52,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 0,
+    permissionLevel: 1,
   },
   {
     name: 'GPT-3.5-Turbo (stream)',
@@ -61,7 +61,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 0,
+    permissionLevel: 1,
   },
   {
     name: 'GPT-4 (stream)',

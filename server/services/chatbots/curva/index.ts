@@ -41,23 +41,16 @@ function recordModelStatus(modelName: string, isSuccess: boolean) {
 
 const getRandomMindsDBCore = (() => {
   const cores = ([
-    // { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
-    { email: 'gammacheechorngherng@gmail.com', password: 'Curva&&cch137' },
-    { email: 'deltacheechorngherng@gmail.com', password: 'Curva&&cch137' },
-    { email: 'chengyuxuee@gmail.com', password: '88888888Ss' },
-    { email: 'chengyuxueee@gmail.com', password: '88888888Ss' },
-    { email: 'xuechengyuuu@gmail.com', password: '12345678Ss' },
-    { email: 'xuechengyuuuu@gmail.com', password: '12345678Ss' },
-    // { email: 'M5Ij992bVsPWdZajh7fZqw@hotmail.com', password: 'M5Ij992bVsPWdZajh7fZqw' },
-    // { email: 'O1qNDwsOGUcQ1V5nfQmyMg@hotmail.com', password: 'O1qNDwsOGUcQ1V5nfQmyMg' },
-    // { email: 'TCBLoYSrSv8BGCSOKqbWUw@hotmail.com', password: 'TCBLoYSrSv8BGCSOKqbWUw' },
-    // { email: 'HqhF714XxlOT_hlCQ0nCDA@hotmail.com', password: 'HqhF714XxlOT_hlCQ0nCDA' },
+    { email: 'cheechorngherng@gmail.com', password: 'HHH2O&h2o' },
+    { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
+    { email: 'oaktesla@gmail.com', password: 'Oaktesla&&cch137&&mdb' },
   ]).map((acc) => {
     const { email, password } = acc
     return new MindsDbGPTChatbotCore({ email, password })
   })
   let lastIndex = 0
-  return async function () {
+  return async function (isCoreAsk = false) {
+    // if (!isCoreAsk) throw 'STAY TUNED'
     if (lastIndex >= cores.length - 1) lastIndex = 0;
     else lastIndex++;
     return await (async () => cores[lastIndex])()
@@ -74,7 +67,7 @@ const curva = {
       .map(model => [model, statusAnalysis.get(model) as number] as [string,number])
   },
   async coreAsk (modelName: string, question: string, context = '') {
-    return await (await getRandomMindsDBCore()).ask(question, { modelName, context })
+    return await (await getRandomMindsDBCore(true)).ask(question, { modelName, context })
   },
   async ask (ip: string, uid: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string, streamId?: string): Promise<CurvaStandardResponse> {
     if (processingConversation.has(uid)) {
@@ -141,6 +134,10 @@ const curva = {
 }
 
 export default curva
+
+// ;(async () => {
+//   console.log(await curva.coreAsk('gpt3_t00_2k', 'Hi'));
+// })();
 
 export {
   Conversation

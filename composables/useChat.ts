@@ -230,8 +230,8 @@ const createRequest = (() => {
       const headers = createHeaders(formattedMessages, t)
       // @ts-ignore
       return await $fetch('/api/curva/answer', { method: 'POST', headers, body })
-    } catch {
-      return { answer: '', error: 'Error while sending request.' }
+    } catch (err) {
+      return { answer: '', error: (err as Error)?.message || 'Error while sending request.' }
     }
   }
 })()
@@ -531,6 +531,12 @@ export default function () {
   const _t = useLocale().t
   const version = useState('version')
   const sendMessage = async (forceMessage?: string, regenerateId?: string): Promise<boolean> => {
+    // 如果 model 為空，拒絕提交請求
+    if (!model.value) {
+      ElMessage.info('Please select a model.')
+      focusInput()
+      return false
+    }
     // 如果頁面中有其它問題正在回答，拒絕提交請求
     const loadingMessagesAmount = document.querySelectorAll('.Message.T').length
     if (loadingMessagesAmount > 0) {

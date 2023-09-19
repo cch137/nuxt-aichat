@@ -11,7 +11,7 @@
         :label="model.name"
         :value="model.value"
         :disabled="model.permissionLevel > authlvl"
-        @click="() => model.permissionLevel > authlvl ? ElMessage.info('No permission') : null"
+        @click="() => model.permissionLevel > authlvl ? authlvlAlert(model.permissionLevel) : null"
       />
     </el-select>
   </div>
@@ -22,7 +22,7 @@ import { ElMessage } from 'element-plus'
 const { model, models } = useChat()
 const { authlvl } = useAuth()
 
-function checkModelIsAllow () {
+function checkModelIsAllow() {
   const authlvlNeeded = models.find(m => m.value === model.value)?.permissionLevel || 0
   if (authlvlNeeded > authlvl.value) {
     model.value = ''
@@ -32,6 +32,17 @@ function checkModelIsAllow () {
         break
       }
     }
+  }
+}
+
+function authlvlAlert(neededAuthlvl: number) {
+  switch (neededAuthlvl) {
+    case 1:
+      ElMessage.info('You are not logged in.')
+      break
+    default:
+      ElMessage.info('This action requires higher permission levels.')
+      break
   }
 }
 
