@@ -25,7 +25,6 @@ import 'tls';
 import 'mongoose';
 import 'cookie';
 import 'crypto-js/sha3.js';
-import 'crypto-js/md5.js';
 
 const answer_delete = defineEventHandler(async (event) => {
   const body = await readBody(event);

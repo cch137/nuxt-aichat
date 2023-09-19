@@ -34,6 +34,7 @@ const rateLimiterBundler = RateLimiter.bundle([
 const bannedIpSet = new Set<string>([]);
 
 export default defineEventHandler(async (event) => {
+  return { error: 'STAY TUNED' }
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
     return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 10000))
   }
