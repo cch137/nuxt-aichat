@@ -60,7 +60,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 1
+    permissionLevel: 2
   },
   {
     name: "GPT-4",
@@ -69,7 +69,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 1
+    permissionLevel: 2
   },
   {
     name: "GPT-Web",
@@ -78,7 +78,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 1
+    permissionLevel: 2
   },
   {
     name: "Claude-2",
@@ -87,7 +87,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 1
+    permissionLevel: 2
   },
   {
     name: "Claude-2 (Web)",
@@ -96,7 +96,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 1
+    permissionLevel: 2
   },
   {
     name: "GPT-3.5-Turbo (stream)",
@@ -105,7 +105,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 1
+    permissionLevel: 2
   },
   {
     name: "GPT-4 (stream)",

@@ -44,6 +44,8 @@ const getRandomMindsDBCore = (() => {
     { email: 'cheechorngherng@gmail.com', password: 'HHH2O&h2o' },
     { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
     { email: 'oaktesla@gmail.com', password: 'Oaktesla&&cch137&&mdb' },
+    // { email: 'epsiloncheechorngherng@gmail.com', password: 'Curva&&cch137' },
+    // { email: 'zetacheechorngherng@gmail.com', password: 'Curva&&cch137' },
   ]).map((acc) => {
     const { email, password } = acc
     return new MindsDbGPTChatbotCore({ email, password })
