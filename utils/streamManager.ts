@@ -121,8 +121,7 @@ class Stream extends EventTarget {
   }
 
   error (e?: any) {
-    console.log('Stream Error:', e)
-    this.dispatchEvent(new Event('error'))
+    this.dispatchEvent(new Event('error', e))
   }
 }
 

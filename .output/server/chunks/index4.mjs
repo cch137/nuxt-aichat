@@ -468,11 +468,9 @@ async function createStreamRequest(streaming, url, data, headers) {
         validateStatus: (_) => true,
         responseType: "stream"
       });
-      console.log(res.status, res.data);
       res.data.on("data", (buf) => {
         var _a, _b;
         const chunksString = buf.toString("utf8").split("data:").map((c) => c.trim()).filter((c) => c);
-        console.log(chunksString);
         for (const chunkString of chunksString) {
           try {
             const chunk = JSON.parse(chunkString);
@@ -486,7 +484,6 @@ async function createStreamRequest(streaming, url, data, headers) {
       });
       res.data.on("error", (e) => {
         error = e;
-        console.log('Stream Error:', e);
         streaming.error(e);
       });
       res.data.on("end", () => {
@@ -499,7 +496,7 @@ async function createStreamRequest(streaming, url, data, headers) {
         }
       });
     } catch (err) {
-      reject(`${error || err || "Oops! Something went wrong."}`);
+      reject(`${error || "Oops! Something went wrong."}`);
     }
   });
 }
@@ -1239,6 +1236,9 @@ const curva = {
   name: "Curva",
   get status() {
     return [...statusAnalysis.keys()].sort().map((model) => [model, statusAnalysis.get(model)]);
+  },
+  async fgpt(question) {
+    return await new Gpt4FgaChatbot$1(freeGptAsiaCore).ask([{ role: "user", content: question }]);
   },
   async coreAsk(modelName, question, context = "") {
     return await (await getRandomMindsDBCore(true)).ask(question, { modelName, context });

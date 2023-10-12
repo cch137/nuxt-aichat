@@ -69,7 +69,7 @@ const curva = {
       .map(model => [model, statusAnalysis.get(model) as number] as [string,number])
   },
   async fgpt(question: string) {
-    return (await new Gpt4FgaChatbot(freeGptAsiaCore).ask([{ role: 'user', content: question }])).answer
+    return await new Gpt4FgaChatbot(freeGptAsiaCore).ask([{ role: 'user', content: question }])
   },
   async coreAsk (modelName: string, question: string, context = '') {
     return await (await getRandomMindsDBCore(true)).ask(question, { modelName, context })

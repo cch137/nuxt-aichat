@@ -119,7 +119,7 @@ class Stream extends EventTarget {
     streamManager.delete(this.id);
   }
   error(e) {
-    this.dispatchEvent(new Event("error"));
+    this.dispatchEvent(new Event("error", e));
   }
 }
 _isEnd = new WeakMap();
