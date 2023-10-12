@@ -484,6 +484,7 @@ async function createStreamRequest(streaming, url, data, headers) {
       });
       res.data.on("error", (e) => {
         error = e;
+        console.log('Stream Error:', e);
         streaming.error(e);
       });
       res.data.on("end", () => {
@@ -496,7 +497,7 @@ async function createStreamRequest(streaming, url, data, headers) {
         }
       });
     } catch (err) {
-      reject(`${error || "Oops! Something went wrong."}`);
+      reject(`${error || err || "Oops! Something went wrong."}`);
     }
   });
 }
