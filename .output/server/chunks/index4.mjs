@@ -501,7 +501,7 @@ async function createStreamRequest(streaming, url, data, headers) {
   });
 }
 const defaultApiHost = "https://api.freegpt.asia";
-const defaultApiKey = "sk-va0ydNzw6Mc5iJ5uB6EdBd3cA14849198f74C9F086EdA4B6";
+const defaultApiKey = "sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1";
 class Client {
   constructor(host = defaultApiHost, apiKey = defaultApiKey) {
     __publicField$8(this, "host");
