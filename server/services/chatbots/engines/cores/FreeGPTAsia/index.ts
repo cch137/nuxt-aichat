@@ -76,7 +76,7 @@ async function createStreamRequest (streaming: Stream, url: string, data: any, h
 // const defaultApiHost = 'https://apx.spaxe.top'
 // const defaultApiKey = 'sk-nWpqLgtXfIJRPav42146Bf4374A64c359aB77e810847CcBa'
 const defaultApiHost = 'https://api.freegpt.asia'
-const defaultApiKey = 'sk-va0ydNzw6Mc5iJ5uB6EdBd3cA14849198f74C9F086EdA4B6'
+const defaultApiKey = 'sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1'
 
 class Client {
   host: string
