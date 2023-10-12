@@ -468,6 +468,7 @@ async function createStreamRequest(streaming, url, data, headers) {
         validateStatus: (_) => true,
         responseType: "stream"
       });
+      console.log(res.status, res.data);
       res.data.on("data", (buf) => {
         var _a, _b;
         const chunksString = buf.toString("utf8").split("data:").map((c) => c.trim()).filter((c) => c);
