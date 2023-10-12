@@ -472,6 +472,7 @@ async function createStreamRequest(streaming, url, data, headers) {
       res.data.on("data", (buf) => {
         var _a, _b;
         const chunksString = buf.toString("utf8").split("data:").map((c) => c.trim()).filter((c) => c);
+        console.log(chunksString);
         for (const chunkString of chunksString) {
           try {
             const chunk = JSON.parse(chunkString);
