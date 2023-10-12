@@ -114,7 +114,7 @@ class Client {
         return await createStreamRequest(streaming, url, _data, headers)
       } catch (err) {
         if (retries++ < maxTries) {
-          console.log('FreeGPTAsia stream retry.')
+          console.log('FreeGPTAsia stream retry.', err)
           continue
         } else {
           return { error: `${err}`, answer: '' }
