@@ -6,23 +6,23 @@ import { c as createAxiosSession } from './createAxiosSession.mjs';
 import axios from 'axios';
 import { s as str } from './random.mjs';
 import { s as streamManager } from './streamManager.mjs';
-import { encoding_for_model } from '@dqbd/tiktoken';
 import { s as search } from './search.mjs';
 import TurndownService from 'turndown';
 import { gfm } from '@joplin/turndown-plugin-gfm';
 import { load } from 'cheerio';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
+import { encoding_for_model } from '@dqbd/tiktoken';
 
-var __defProp$b = Object.defineProperty;
-var __defNormalProp$b = (obj, key, value) => key in obj ? __defProp$b(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$b = (obj, key, value) => {
-  __defNormalProp$b(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$9 = Object.defineProperty;
+var __defNormalProp$9 = (obj, key, value) => key in obj ? __defProp$9(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$9 = (obj, key, value) => {
+  __defNormalProp$9(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Conversation {
   constructor(uid, conv) {
-    __publicField$b(this, "conv");
-    __publicField$b(this, "uid");
+    __publicField$9(this, "conv");
+    __publicField$9(this, "uid");
     this.uid = uid;
     this.conv = conv;
   }
@@ -138,10 +138,10 @@ class Conversation {
 }
 const Conversation$1 = Conversation;
 
-var __defProp$a = Object.defineProperty;
-var __defNormalProp$a = (obj, key, value) => key in obj ? __defProp$a(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$a = (obj, key, value) => {
-  __defNormalProp$a(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$8 = Object.defineProperty;
+var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$8 = (obj, key, value) => {
+  __defNormalProp$8(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 function wrapPromptTextParam(text) {
@@ -166,11 +166,11 @@ function containsDoubleDash(str) {
 }
 class MindsDBClient {
   constructor(email, password, connectMethod) {
-    __publicField$a(this, "email");
-    __publicField$a(this, "password");
-    __publicField$a(this, "sqlClient");
-    __publicField$a(this, "webClient");
-    __publicField$a(this, "connectMethod");
+    __publicField$8(this, "email");
+    __publicField$8(this, "password");
+    __publicField$8(this, "sqlClient");
+    __publicField$8(this, "webClient");
+    __publicField$8(this, "connectMethod");
     console.log("CREATE MindsDB Client:", email);
     this.email = email;
     this.password = password;
@@ -208,7 +208,7 @@ class MindsDBClient {
 }
 class _Client {
   constructor(parent) {
-    __publicField$a(this, "parent");
+    __publicField$8(this, "parent");
     this.parent = parent;
   }
   get email() {
@@ -221,7 +221,7 @@ class _Client {
 class MindsDBSqlClient extends _Client {
   constructor(parent) {
     super(parent);
-    __publicField$a(this, "sequelize");
+    __publicField$8(this, "sequelize");
     this.sequelize = this.login();
   }
   login() {
@@ -269,8 +269,8 @@ class MindsDBSqlClient extends _Client {
 class MindsDBWebClient extends _Client {
   constructor(parent) {
     super(parent);
-    __publicField$a(this, "lastLoggedIn", Date.now());
-    __publicField$a(this, "session");
+    __publicField$8(this, "lastLoggedIn", Date.now());
+    __publicField$8(this, "session");
     this.session = this.login();
   }
   login() {
@@ -409,15 +409,15 @@ ${data}`;
   return messages;
 }
 
-var __defProp$9 = Object.defineProperty;
-var __defNormalProp$9 = (obj, key, value) => key in obj ? __defProp$9(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$9 = (obj, key, value) => {
-  __defNormalProp$9(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$7 = Object.defineProperty;
+var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$7 = (obj, key, value) => {
+  __defNormalProp$7(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class MindsDbGPTChatbotCore {
   constructor(options) {
-    __publicField$9(this, "client");
+    __publicField$7(this, "client");
     const { email, password } = options;
     this.client = new MindsDBClient$1(email, password);
   }
@@ -453,10 +453,10 @@ class MindsDbGPTChatbotCore {
 }
 const MindsDbGPTChatbotCore$1 = MindsDbGPTChatbotCore;
 
-var __defProp$8 = Object.defineProperty;
-var __defNormalProp$8 = (obj, key, value) => key in obj ? __defProp$8(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$8 = (obj, key, value) => {
-  __defNormalProp$8(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$6 = Object.defineProperty;
+var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$6 = (obj, key, value) => {
+  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 async function createStreamRequest(streaming, url, data, headers) {
@@ -504,8 +504,8 @@ const defaultApiHost = "https://api.freegpt.asia";
 const defaultApiKey = "sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1";
 class Client {
   constructor(host = defaultApiHost, apiKey = defaultApiKey) {
-    __publicField$8(this, "host");
-    __publicField$8(this, "apiKey");
+    __publicField$6(this, "host");
+    __publicField$6(this, "apiKey");
     this.host = host || defaultApiHost;
     this.apiKey = apiKey || defaultApiKey;
   }
@@ -547,7 +547,7 @@ class Client {
 }
 class FreeGptAsiaChatbotCore {
   constructor(options = {}) {
-    __publicField$8(this, "client");
+    __publicField$6(this, "client");
     const { host, apiKey } = options;
     this.client = new Client(host, apiKey);
   }
@@ -654,96 +654,6 @@ function estimateTokens(_model = "gpt-4", ...texts) {
   const model = _model.includes("gpt3") || _model.includes("gpt-3") ? "gpt-3.5-turbo" : "gpt-4";
   return (tiktokens.get(model) || tiktokens.get("gpt-4")).encode(texts.join("\n")).length;
 }
-
-var __defProp$7 = Object.defineProperty;
-var __defNormalProp$7 = (obj, key, value) => key in obj ? __defProp$7(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$7 = (obj, key, value) => {
-  __defNormalProp$7(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-class Gpt3Chatbot {
-  constructor(core) {
-    __publicField$7(this, "core");
-    this.core = core;
-  }
-  async ask(messages, options = {}) {
-    const { timezone = 0, temperature = 0.5 } = options;
-    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    const prompt = isContinueGenerate ? `${question}` : `User current time: ${formatUserCurrentTime(timezone)}
-Question: ${question}`;
-    const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens("gpt-3.5-turbo", question, context) + 500;
-    const tokensSuffix = (() => {
-      switch (Math.ceil(quetionTokens / 1024)) {
-        case 1:
-          return "_1k";
-        case 2:
-          return "_2k";
-        case 3:
-        case 4:
-          return "_3k";
-        default:
-          throw "Question too long";
-      }
-    })();
-    const modelName = `gpt3${temperatureSuffix}${tokensSuffix}`;
-    return {
-      ...await this.core.ask(prompt, { ...options, modelName, context }),
-      question,
-      isContinueGenerate
-    };
-  }
-}
-const Gpt3Chatbot$1 = Gpt3Chatbot;
-
-var __defProp$6 = Object.defineProperty;
-var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$6 = (obj, key, value) => {
-  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-class Gpt4Chatbot {
-  constructor(core) {
-    __publicField$6(this, "core");
-    this.core = core;
-  }
-  async ask(messages, options = {}) {
-    const { timezone = 0, temperature = 0.5 } = options;
-    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    const prompt = isContinueGenerate ? `${question}` : `User current time: ${formatUserCurrentTime(timezone)}
-Question: ${question}`;
-    const temperatureSuffix = `_t${Math.round(Math.min(Math.max(temperature, 0), 1) * 10).toString().padStart(2, "0")}`;
-    const quetionTokens = estimateTokens("gpt-4", question, context) + 500;
-    const tokensSuffix = (() => {
-      switch (Math.ceil(quetionTokens / 1024)) {
-        case 1:
-          return "_1k";
-        case 2:
-          return "_2k";
-        case 3:
-          return "_3k";
-        case 4:
-          return "_4k";
-        case 5:
-          return "_5k";
-        case 6:
-          return "_6k";
-        case 7:
-        case 8:
-          return "_7k";
-        default:
-          throw "Question too long";
-      }
-    })();
-    const modelName = `gpt4${temperatureSuffix}${tokensSuffix}`;
-    return {
-      ...await this.core.ask(prompt, { ...options, modelName, context }),
-      question,
-      isContinueGenerate
-    };
-  }
-}
-const Gpt4Chatbot$1 = Gpt4Chatbot;
 
 const ytLinkRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S+&)?v=|embed\/|v\/)|youtu\.be\/)([\w-]+)/g;
 function extractYouTubeLinks(text) {
@@ -1145,10 +1055,10 @@ class Gpt3FgaChatbot {
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
-    const { timezone = 0, streamId } = options;
+    const { timezone = 0, streamId, temperature } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     return {
-      ...await this.core.ask(messages, { model: "gpt-3.5-turbo", streamId }),
+      ...await this.core.ask(messages, { model: "gpt-3.5-turbo", streamId, temperature }),
       question,
       isContinueGenerate
     };
@@ -1168,10 +1078,10 @@ class Gpt4FgaChatbot {
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
-    const { timezone = 0, streamId } = options;
+    const { timezone = 0, streamId, temperature } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     return {
-      ...await this.core.ask(messages, { model: "gpt-4", streamId }),
+      ...await this.core.ask(messages, { model: "gpt-4", streamId, temperature }),
       question,
       isContinueGenerate
     };
@@ -1182,9 +1092,9 @@ const Gpt4FgaChatbot$1 = Gpt4FgaChatbot;
 function chooseEngine(model) {
   switch (model) {
     case "gpt3":
-      return Gpt3Chatbot$1;
+      return Gpt3FgaChatbot$1;
     case "gpt4":
-      return Gpt4Chatbot$1;
+      return Gpt4FgaChatbot$1;
     case "gpt-web":
       return GptWebChatbot$1;
     case "claude-2":
@@ -1196,7 +1106,7 @@ function chooseEngine(model) {
     case "gpt4-fga":
       return Gpt4FgaChatbot$1;
     default:
-      return Gpt3Chatbot$1;
+      return Gpt3FgaChatbot$1;
   }
 }
 const statusAnalysis = /* @__PURE__ */ new Map();
@@ -1257,7 +1167,7 @@ const curva = {
     try {
       const engine = await (async () => {
         const Engine = chooseEngine(model);
-        return ["gpt3", "gpt4", "gpt-web"].includes(model) ? new Engine(await getRandomMindsDBCore()) : new Engine(freeGptAsiaCore);
+        return new Engine(freeGptAsiaCore);
       })();
       const t0 = Date.now();
       const result = await engine.ask(messages, { timezone: tz, temperature, streamId });

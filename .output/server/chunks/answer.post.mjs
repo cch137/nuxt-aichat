@@ -35,7 +35,6 @@ import 'sequelize';
 import './createAxiosSession.mjs';
 import 'axios';
 import './streamManager.mjs';
-import '@dqbd/tiktoken';
 import './search.mjs';
 import 'googlethis';
 import 'turndown';
@@ -43,6 +42,7 @@ import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
 import './ytCrawler.mjs';
 import 'qs';
+import '@dqbd/tiktoken';
 
 const logger = model("Log", new Schema({
   type: { type: String, required: true },
@@ -59,7 +59,7 @@ const models = [
     isWebBrowsingOptional: false,
     isTemperatureOptional: true,
     isContextOptional: true,
-    isStreamAvailable: false,
+    isStreamAvailable: true,
     permissionLevel: 2
   },
   {
@@ -68,7 +68,7 @@ const models = [
     isWebBrowsingOptional: false,
     isTemperatureOptional: true,
     isContextOptional: true,
-    isStreamAvailable: false,
+    isStreamAvailable: true,
     permissionLevel: 2
   },
   {
@@ -78,7 +78,8 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 2
+    permissionLevel: 2,
+    redirectTo: "gpt3"
   },
   {
     name: "Claude-2",
@@ -105,7 +106,8 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2
+    permissionLevel: 2,
+    redirectTo: "gpt3"
   },
   {
     name: "GPT-4 (stream)",
@@ -114,7 +116,8 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2
+    permissionLevel: 2,
+    redirectTo: "gpt4"
   }
 ];
 

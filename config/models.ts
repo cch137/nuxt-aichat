@@ -6,6 +6,7 @@ interface ModelType {
   isContextOptional: boolean;
   isStreamAvailable: boolean;
   permissionLevel: number;
+  redirectTo: string;
 }
 
 export default [
@@ -15,7 +16,7 @@ export default [
     isWebBrowsingOptional: false,
     isTemperatureOptional: true,
     isContextOptional: true,
-    isStreamAvailable: false,
+    isStreamAvailable: true,
     permissionLevel: 2,
   },
   {
@@ -24,7 +25,7 @@ export default [
     isWebBrowsingOptional: false,
     isTemperatureOptional: true,
     isContextOptional: true,
-    isStreamAvailable: false,
+    isStreamAvailable: true,
     permissionLevel: 2,
   },
   {
@@ -35,6 +36,7 @@ export default [
     isContextOptional: true,
     isStreamAvailable: false,
     permissionLevel: 2,
+    redirectTo: 'gpt3',
   },
   {
     name: 'Claude-2',
@@ -62,6 +64,7 @@ export default [
     isContextOptional: true,
     isStreamAvailable: true,
     permissionLevel: 2,
+    redirectTo: 'gpt3',
   },
   {
     name: 'GPT-4 (stream)',
@@ -71,5 +74,6 @@ export default [
     isContextOptional: true,
     isStreamAvailable: true,
     permissionLevel: 2,
+    redirectTo: 'gpt4',
   },
 ] as ModelType[]

@@ -30,7 +30,6 @@ import 'cookie';
 import './random.mjs';
 import 'crypto-js/sha3.js';
 import './streamManager.mjs';
-import '@dqbd/tiktoken';
 import './search.mjs';
 import 'googlethis';
 import 'turndown';
@@ -38,6 +37,7 @@ import '@joplin/turndown-plugin-gfm';
 import 'cheerio';
 import './ytCrawler.mjs';
 import 'qs';
+import '@dqbd/tiktoken';
 
 const trueKey = "bwAmMGcccc9BraUShKlJwDxfwW59zUjiQUstz7dGoX91JQr9bdsrZ7F73uDSTOic";
 const express_post = defineEventHandler(async (event) => {

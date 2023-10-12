@@ -7,6 +7,7 @@
     >
       <el-option
         v-for="model in models"
+        :hidden="model.redirectTo"
         :key="model.name"
         :label="model.name"
         :value="model.value"

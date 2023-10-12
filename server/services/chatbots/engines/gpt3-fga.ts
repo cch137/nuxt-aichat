@@ -8,11 +8,11 @@ class Gpt3FgaChatbot {
   constructor (core?: FreeGptAsiaChatbotCore) {
     this.core = core || new FreeGptAsiaChatbotCore()
   }
-  async ask (messages: OpenAIMessage[], options: { timezone?: number, context?: string, streamId?: string } = {}) {
-    const { timezone = 0, streamId } = options
+  async ask (messages: OpenAIMessage[], options: { timezone?: number, context?: string, streamId?: string, temperature?: number } = {}) {
+    const { timezone = 0, streamId, temperature } = options
     const { question = '', context = '', isContinueGenerate } = messagesToQuestionContext(messages)
     return {
-      ...await this.core.ask(messages, { model: 'gpt-3.5-turbo', streamId }),
+      ...await this.core.ask(messages, { model: 'gpt-3.5-turbo', streamId, temperature }),
       question,
       isContinueGenerate,
     }

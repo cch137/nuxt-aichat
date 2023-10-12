@@ -9,9 +9,11 @@ function chooseEngine (model: string) {
   // 記得也要更新 ./convConfig.ts
   switch (model) {
     case 'gpt3':
-      return Gpt3Chatbot
+      // return Gpt3Chatbot
+      return Gpt3FgaChatbot
     case 'gpt4':
-      return Gpt4Chatbot
+      // return Gpt4Chatbot
+      return Gpt4FgaChatbot
     case 'gpt-web':
       return GptWebChatbot
     case 'claude-2':
@@ -23,7 +25,8 @@ function chooseEngine (model: string) {
     case 'gpt4-fga':
       return Gpt4FgaChatbot
     default:
-      return Gpt3Chatbot
+      // return Gpt3Chatbot
+      return Gpt3FgaChatbot
   }
 }
 
@@ -88,12 +91,13 @@ const curva = {
     try {
       // @ts-ignore
       const engine = await (async () => {
-        const Engine = chooseEngine(model)
-        return ['gpt3', 'gpt4', 'gpt-web'].includes(model)
-          // @ts-ignore
-          ? new Engine(await getRandomMindsDBCore())
-          // @ts-ignore
-          : new Engine(freeGptAsiaCore)
+        const Engine = chooseEngine(model) as typeof Gpt4FgaChatbot
+        return new Engine(freeGptAsiaCore)
+        // return ['gpt3', 'gpt4', 'gpt-web'].includes(model)
+        //   // @ts-ignore
+        //   ? new Engine(await getRandomMindsDBCore())
+        //   // @ts-ignore
+        //   : new Engine(freeGptAsiaCore)
       })()
       const t0 = Date.now()
       const result = await engine.ask(messages, { timezone: tz, temperature, streamId }) as {

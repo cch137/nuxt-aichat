@@ -334,7 +334,8 @@ const loadConvConfig = (convId?: string | null) => {
         const value = config[key]
         switch (key) {
           case 'model':
-            model.value = value
+            const _redirectModel = models.find(m => m.value === value)?.redirectTo
+            model.value = _redirectModel || value
             break
           case 'temperature':
             temperature.value = value
