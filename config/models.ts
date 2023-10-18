@@ -9,6 +9,8 @@ interface ModelType {
   redirectTo: string;
 }
 
+const MIN_LEVEL = 2;
+
 export default [
   {
     name: 'GPT-3.5-Turbo',
@@ -17,7 +19,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
   },
   {
     name: 'GPT-4',
@@ -26,7 +28,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
   },
   {
     name: 'GPT-Web',
@@ -35,7 +37,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
     redirectTo: 'gpt3',
   },
   {
@@ -45,7 +47,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
   },
   {
     name: 'Claude-2 (Web)',
@@ -54,7 +56,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
   },
   {
     name: 'GPT-3.5-Turbo (stream)',
@@ -63,7 +65,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
     redirectTo: 'gpt3',
   },
   {
@@ -73,7 +75,7 @@ export default [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
     redirectTo: 'gpt4',
   },
 ] as ModelType[]

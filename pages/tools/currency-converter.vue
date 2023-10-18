@@ -22,9 +22,6 @@
         <el-button class="SwitchCurrenciesButton" @click="switchCurrencies()" :icon="Switch" size="large" />
       </div>
     </div>
-    <div class="qrcode-canvas-outter flex-center flex-wrap p-4 w-full">
-      <canvas ref="qrcodeCanvas" id="qrcode-canvas"></canvas>
-    </div>
   </div>
 </template>
 
