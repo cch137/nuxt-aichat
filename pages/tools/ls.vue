@@ -10,7 +10,7 @@
           :value="item"
         />
       </el-select>
-      <div class="pb-20">
+      <div class="pb-16">
         <details v-for="chap in lsTree">
           <summary class="chapter-title">{{ chap.chapter }}</summary>
           <div class="flex flex-wrap gap-2 pl-4 pt-2 pb-4">
@@ -19,6 +19,9 @@
             </el-link>
           </div>
         </details>
+      </div>
+      <div class="flex-center pb-16">
+        <el-link @click="back()">BACK</el-link>
       </div>
     </div>
   </div>
@@ -29,6 +32,10 @@ const selectedFilename = ref('')
 const lsList = ref<string[]>([])
 const lsTree = ref<{chapter:string,problems:{p:string,link:string}[]}[]>([])
 
+function back() {
+  history.back();
+}
+
 async function fetchList() {
   const res = await fetch('https://api.cch137.link/ls/list')
   lsList.value = (await res.json()) as string[]
@@ -36,7 +43,9 @@ async function fetchList() {
 
 async function fetchTree() {
   const tree: {chapter: string, problems: {p:string,link:string}[]}[] = [];
-  const res = await (await fetch(`https://api.cch137.link/ls/${selectedFilename.value}`)).json() as {isbn_c_p:string,link:string}[]
+  lsTree.value = [];
+  const loading = useElLoading();
+  const res = await(await fetch(`https://api.cch137.link/ls/${selectedFilename.value}`)).json() as {isbn_c_p:string,link:string}[]
   function getChapterProblems(chapter: string) {
     for (const chap of tree) {
       if (chap.chapter === chapter) {
@@ -52,16 +61,31 @@ async function fetchTree() {
     getChapterProblems(chapter).push({ p: problem, link: item.link })
   }
   lsTree.value = tree;
+  loading.close();
 }
 
 if (process.client) {
+  const loading = useElLoading();
   fetchList()
+    .then(() => {
+      loading.close();
+      const q = useURLParams().get('q') || '';
+      if (!q) return;
+      for (const book of lsList.value) {
+        console.log(book.toLowerCase(), q.toLowerCase());
+        if (book.toLowerCase().includes(q.toLowerCase())) {
+          selectedFilename.value = book;
+          fetchTree();
+          break;
+        }
+      }
+    })
 }
 
 const appName = useState('appName')
 useTitle(`LS - ${appName.value}`)
 definePageMeta({
-  layout: 'default'
+  layout: 'blank'
 })
 </script>
 

@@ -28,6 +28,9 @@
           <el-dropdown-item size="large" :icon="Money" @click="navigateTo('/tools/currency-converter')">
             {{ $t('page.currencyCvt') }}
           </el-dropdown-item>
+          <el-dropdown-item size="large" :icon="Memo" @click="navigateTo('/tools/ls')">
+            LS
+          </el-dropdown-item>
 
           <el-dropdown-item divided v-if="isLoggedIn" size="large" :icon="CircleClose" @click="logout()">
             {{ $t('auth.logout') }}
@@ -39,7 +42,7 @@
 </template>
 
 <script setup>
-import { Avatar, Setting, ChatLineRound, Crop, Money, CircleCheck, CircleClose, ArrowDown, UserFilled } from '@element-plus/icons-vue'
+import { Avatar, Setting, ChatLineRound, Crop, Money, Memo, CircleCheck, CircleClose, ArrowDown, UserFilled } from '@element-plus/icons-vue'
 const { username, isLoggedIn, authIsLoading, logout } = useAuth()
 const { openSettings } = useSettings()
 const currentRoute = useNuxtApp().$router.currentRoute
