@@ -58,10 +58,8 @@ if (process.client) {
   fetchList()
 }
 
-// @ts-ignore
-const _t = useLocale().t
-const appName = useState('appName').value
-useTitle(`${_t('page.currencyCvt')} - ${appName}`)
+const appName = useState('appName')
+useTitle(`LS - ${appName.value}`)
 definePageMeta({
   layout: 'default'
 })
