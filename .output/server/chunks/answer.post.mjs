@@ -52,6 +52,7 @@ const logger = model("Log", new Schema({
   versionKey: false
 }), "logs");
 
+const MIN_LEVEL = 2;
 const models = [
   {
     name: "GPT-3.5-Turbo",
@@ -60,7 +61,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2
+    permissionLevel: MIN_LEVEL
   },
   {
     name: "GPT-4",
@@ -69,7 +70,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2
+    permissionLevel: MIN_LEVEL
   },
   {
     name: "GPT-Web",
@@ -78,7 +79,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: false,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
     redirectTo: "gpt3"
   },
   {
@@ -88,7 +89,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2
+    permissionLevel: MIN_LEVEL
   },
   {
     name: "Claude-2 (Web)",
@@ -97,7 +98,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2
+    permissionLevel: MIN_LEVEL
   },
   {
     name: "GPT-3.5-Turbo (stream)",
@@ -106,7 +107,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
     redirectTo: "gpt3"
   },
   {
@@ -116,7 +117,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: 2,
+    permissionLevel: MIN_LEVEL,
     redirectTo: "gpt4"
   }
 ];
