@@ -2,9 +2,10 @@ import { defineEventHandler, readBody } from 'h3';
 import { v as version } from './server.mjs';
 import './index2.mjs';
 import { h as hx, a as getUidByToken, b as getAuthlvlByToken } from './token.mjs';
-import { e as estimateTokens, c as curva } from './index4.mjs';
+import { c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
 import { b as baseConverter, r as random, s as str } from './random.mjs';
+import { encoding_for_model } from '@dqbd/tiktoken';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { model, Schema } from 'mongoose';
 import 'dotenv';
@@ -31,18 +32,10 @@ import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './conversation.mjs';
 import './message.mjs';
-import 'sequelize';
-import './createAxiosSession.mjs';
 import 'axios';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
-import 'turndown';
-import '@joplin/turndown-plugin-gfm';
-import 'cheerio';
-import './ytCrawler.mjs';
-import 'qs';
-import '@dqbd/tiktoken';
 
 const logger = model("Log", new Schema({
   type: { type: String, required: true },
@@ -51,6 +44,16 @@ const logger = model("Log", new Schema({
 }, {
   versionKey: false
 }), "logs");
+
+const tiktokens = /* @__PURE__ */ new Map([
+  ["gpt-4", encoding_for_model("gpt-4")],
+  ["gpt-3.5-turbo", encoding_for_model("gpt-3.5-turbo")]
+]);
+function estimateTokens(_model = "gpt-4", ...texts) {
+  _model = (_model || "").toLowerCase() || "gpt-4";
+  const model = _model.includes("gpt3") || _model.includes("gpt-3") ? "gpt-3.5-turbo" : "gpt-4";
+  return (tiktokens.get(model) || tiktokens.get("gpt-4")).encode(texts.join("\n")).length;
+}
 
 const MIN_LEVEL = 0;
 const models = [

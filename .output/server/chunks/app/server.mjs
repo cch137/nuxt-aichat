@@ -436,7 +436,7 @@ const _routes = [
     meta: __nuxt_page_meta$8 || {},
     alias: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.alias) || [],
     redirect: (__nuxt_page_meta$8 == null ? void 0 : __nuxt_page_meta$8.redirect) || void 0,
-    component: () => import('./_nuxt/_conv_-093f9d71.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/_conv_-0955c41e.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.name) ?? "c",
@@ -444,7 +444,7 @@ const _routes = [
     meta: __nuxt_page_meta$7 || {},
     alias: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.alias) || [],
     redirect: (__nuxt_page_meta$7 == null ? void 0 : __nuxt_page_meta$7.redirect) || void 0,
-    component: () => import('./_nuxt/index-fa0437fa.mjs').then((m) => m.default || m)
+    component: () => import('./_nuxt/index-dd548aa2.mjs').then((m) => m.default || m)
   },
   {
     name: (__nuxt_page_meta$6 == null ? void 0 : __nuxt_page_meta$6.name) ?? "coder",
@@ -695,7 +695,7 @@ const globalMiddleware = [
 ];
 const namedMiddleware = {
   "auto-redirector": () => import('./_nuxt/autoRedirector-486779eb.mjs'),
-  chat: () => import('./_nuxt/chat-2492de46.mjs'),
+  chat: () => import('./_nuxt/chat-53bc8c8b.mjs'),
   "only-admin-auth": () => import('./_nuxt/onlyAdminAuth-5d573836.mjs'),
   "only-auth": () => import('./_nuxt/onlyAuth-6fc6cd51.mjs'),
   "only-no-auth": () => import('./_nuxt/onlyNoAuth-3fbbbd99.mjs')

@@ -28,18 +28,10 @@ import 'tls';
 import 'mongoose';
 import './conversation.mjs';
 import './message.mjs';
-import 'sequelize';
-import './createAxiosSession.mjs';
 import 'axios';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
-import 'turndown';
-import '@joplin/turndown-plugin-gfm';
-import 'cheerio';
-import './ytCrawler.mjs';
-import 'qs';
-import '@dqbd/tiktoken';
 
 const history_post = defineEventHandler(async (event) => {
   var _a;
