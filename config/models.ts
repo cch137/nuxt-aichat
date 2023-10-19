@@ -48,6 +48,7 @@ export default [
     isContextOptional: true,
     isStreamAvailable: true,
     permissionLevel: MIN_LEVEL,
+    redirectTo: 'gpt3',
   },
   {
     name: 'Claude-2 (Web)',
@@ -57,6 +58,7 @@ export default [
     isContextOptional: true,
     isStreamAvailable: true,
     permissionLevel: MIN_LEVEL,
+    redirectTo: 'gpt3',
   },
   {
     name: 'GPT-3.5-Turbo (stream)',
