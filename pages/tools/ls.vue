@@ -28,12 +28,25 @@
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
+import random from '~/utils/random'
+
 const selectedFilename = ref('')
 const lsList = ref<string[]>([])
 const lsTree = ref<{chapter:string,problems:{p:string,link:string}[]}[]>([])
 
 function back() {
-  history.back();
+  if (history.length > 1) {
+    history.back()
+  } else {
+    ElMessage.info(random.choice([
+      'Oh~dear, you shouldn\'t click this.',
+      'Back? Where do you want to go?',
+      'I don\'t want you to go anywhere else.',
+      'Stay here!',
+      'You are lost.',
+    ]))
+  }
 }
 
 async function fetchList() {

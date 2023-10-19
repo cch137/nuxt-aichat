@@ -35,7 +35,11 @@ function range(n: number) {
 }
 
 function back() {
-  history.back();
+  if (history.length > 1) {
+    history.back()
+  } else {
+    useNuxtApp().$router.push('/')
+  }
 }
 
 function initDeterminant() {
