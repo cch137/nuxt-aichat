@@ -28,7 +28,10 @@ export default defineNuxtConfig({
       ]
     },
     layoutTransition: true,
-    pageTransition: true
+    pageTransition: true,
+    buildAssetsDir: '/_build/',
+    rootId: 'ch4',
+    rootTag: 'ch4',
   },
   modules: [
     '@element-plus/nuxt',

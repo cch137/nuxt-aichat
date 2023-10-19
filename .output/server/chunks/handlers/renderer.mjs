@@ -55,9 +55,9 @@ function defineRenderHandler(handler) {
   });
 }
 
-const appRootId = "__nuxt";
+const appRootId = "ch4";
 
-const appRootTag = "div";
+const appRootTag = "ch4";
 
 function buildAssetsDir() {
   return useRuntimeConfig().app.buildAssetsDir;
