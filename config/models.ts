@@ -9,7 +9,7 @@ interface ModelType {
   redirectTo: string;
 }
 
-const MIN_LEVEL = 2;
+const MIN_LEVEL = 0;
 
 export default [
   {

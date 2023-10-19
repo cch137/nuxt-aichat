@@ -52,7 +52,7 @@ const logger = model("Log", new Schema({
   versionKey: false
 }), "logs");
 
-const MIN_LEVEL = 2;
+const MIN_LEVEL = 0;
 const models = [
   {
     name: "GPT-3.5-Turbo",
