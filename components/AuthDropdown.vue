@@ -31,6 +31,9 @@
           <el-dropdown-item size="large" :icon="Memo" @click="navigateTo('/tools/ls')">
             LS
           </el-dropdown-item>
+          <el-dropdown-item size="large" :icon="Memo" @click="navigateTo('/tools/matrix-calculator')">
+            Matrix Calculator
+          </el-dropdown-item>
 
           <el-dropdown-item divided v-if="isLoggedIn" size="large" :icon="CircleClose" @click="logout()">
             {{ $t('auth.logout') }}
