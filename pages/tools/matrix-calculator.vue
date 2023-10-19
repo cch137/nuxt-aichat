@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-const matrixSize = ref<number>(3);
+const matrixSize = ref<number>(0);
 const matrix = reactive<number[][]>([])
 
 function range(n: number) {
@@ -77,6 +77,7 @@ function determinantOnchange() {
 }
 
 if (process.client) {
+  matrixSize.value = 3
   determinantOnchange()
 }
 
