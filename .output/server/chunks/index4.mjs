@@ -225,8 +225,8 @@ async function createStreamRequest(streaming, url, data, headers) {
     }
   });
 }
-const defaultApiHost = "https://api.freegpt.asia";
-const defaultApiKey = "sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1";
+const defaultApiHost = "https://chat.mikumikumi.tk";
+const defaultApiKey = "sk-GUyvmlW1WqsBLT0u5bEb6d4cEfBd4b059f41870278E3Ab9a";
 class Client {
   constructor(host = defaultApiHost, apiKey = defaultApiKey) {
     __publicField$4(this, "host");
@@ -261,7 +261,7 @@ class Client {
         return await createStreamRequest(streaming, url, _data, headers);
       } catch (err) {
         if (retries++ < maxTries) {
-          console.log("FreeGPTAsia stream retry.", err);
+          console.log("GPT stream retry.", err);
           continue;
         } else {
           return { error: `${err}`, answer: "" };

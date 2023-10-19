@@ -92,7 +92,8 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: MIN_LEVEL
+    permissionLevel: MIN_LEVEL,
+    redirectTo: "gpt3"
   },
   {
     name: "Claude-2 (Web)",
@@ -101,7 +102,8 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: MIN_LEVEL
+    permissionLevel: MIN_LEVEL,
+    redirectTo: "gpt3"
   },
   {
     name: "GPT-3.5-Turbo (stream)",
