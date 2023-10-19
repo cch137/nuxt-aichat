@@ -13,6 +13,6 @@ export default defineEventHandler(async (event) => {
     return { answer: '', error: 'API KEY ERROR' }
   }
   console.log('curva express', Date.now())
-  const { answer, error = '' } = await curva.coreAsk(modelName, question, context)
-  return { answer, error }
+  // const { answer, error = '' } = await curva.coreAsk(modelName, question, context)
+  return { answer: '', error: 'This method is deprecated.' }
 })

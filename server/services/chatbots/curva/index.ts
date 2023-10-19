@@ -1,5 +1,5 @@
 import Conversation from './conversation'
-import { Gpt3Chatbot, Gpt4Chatbot, GptWebChatbot, Claude2Chatbot, Claude2WebChatbot, Gpt3FgaChatbot, Gpt4FgaChatbot } from '../engines'
+import { Claude2Chatbot, Claude2WebChatbot, Gpt3FgaChatbot, Gpt4FgaChatbot } from '../engines'
 import { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
 import str from '~/utils/str'
 import type { OpenAIMessage } from '../engines/cores/types'
@@ -15,7 +15,7 @@ function chooseEngine (model: string) {
       // return Gpt4Chatbot
       return Gpt4FgaChatbot
     case 'gpt-web':
-      return GptWebChatbot
+      return Gpt4FgaChatbot
     case 'claude-2':
       return Claude2Chatbot
     case 'claude-2-web':
@@ -42,25 +42,25 @@ function recordModelStatus(modelName: string, isSuccess: boolean) {
   statusAnalysis.set(modelName, getModelStatus(modelName, isSuccess) * 0.8 + (isSuccess ? 0.2 : 0))
 }
 
-const getRandomMindsDBCore = (() => {
-  const cores = ([
-    { email: 'cheechorngherng@gmail.com', password: 'HHH2O&h2o' },
-    { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
-    { email: 'oaktesla@gmail.com', password: 'Oaktesla&&cch137&&mdb' },
-    // { email: 'epsiloncheechorngherng@gmail.com', password: 'Curva&&cch137' },
-    // { email: 'zetacheechorngherng@gmail.com', password: 'Curva&&cch137' },
-  ]).map((acc) => {
-    const { email, password } = acc
-    return new MindsDbGPTChatbotCore({ email, password })
-  })
-  let lastIndex = 0
-  return async function (isCoreAsk = false) {
-    // if (!isCoreAsk) throw 'STAY TUNED'
-    if (lastIndex >= cores.length - 1) lastIndex = 0;
-    else lastIndex++;
-    return await (async () => cores[lastIndex])()
-  }
-})()
+// const getRandomMindsDBCore = (() => {
+//   const cores = ([
+//     { email: 'cheechorngherng@gmail.com', password: 'HHH2O&h2o' },
+//     { email: 'chorngherngchee@gmail.com', password: 'Curva&&cch137' },
+//     { email: 'oaktesla@gmail.com', password: 'Oaktesla&&cch137&&mdb' },
+//     // { email: 'epsiloncheechorngherng@gmail.com', password: 'Curva&&cch137' },
+//     // { email: 'zetacheechorngherng@gmail.com', password: 'Curva&&cch137' },
+//   ]).map((acc) => {
+//     const { email, password } = acc
+//     return new MindsDbGPTChatbotCore({ email, password })
+//   })
+//   let lastIndex = 0
+//   return async function (isCoreAsk = false) {
+//     // if (!isCoreAsk) throw 'STAY TUNED'
+//     if (lastIndex >= cores.length - 1) lastIndex = 0;
+//     else lastIndex++;
+//     return await (async () => cores[lastIndex])()
+//   }
+// })()
 const freeGptAsiaCore = new FreeGPTAsiaChatbotCore()
 
 const processingConversation = new Map<string, string>()
@@ -74,9 +74,9 @@ const curva = {
   async fgpt(question: string) {
     return await new Gpt4FgaChatbot(freeGptAsiaCore).ask([{ role: 'user', content: question }])
   },
-  async coreAsk (modelName: string, question: string, context = '') {
-    return await (await getRandomMindsDBCore(true)).ask(question, { modelName, context })
-  },
+  // async coreAsk (modelName: string, question: string, context = '') {
+  //   return await (await getRandomMindsDBCore(true)).ask(question, { modelName, context })
+  // },
   async ask (ip: string, uid: string, conv: string, model = 'gpt4', temperature = 0.5, messages: OpenAIMessage[] = [], tz = 0, _id?: string, streamId?: string): Promise<CurvaStandardResponse> {
     if (processingConversation.has(uid)) {
       return {
