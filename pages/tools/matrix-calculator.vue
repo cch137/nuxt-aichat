@@ -10,6 +10,8 @@
             v-model="matrix[r][c]"
             style="max-width:45px;"
             @keyup="determinantOnchange()"
+            :formatter="(v: string) => trimValue(v)"
+            :parser="(v: string) => trimValue(v)"
           />
         </div>
       </div>
@@ -25,6 +27,10 @@
 </template>
 
 <script setup lang="ts">
+function trimValue(value: string) {
+  return value.replace(/\s/g, '')
+}
+
 const matrixSize = ref<number>(0);
 const matrix = reactive<number[][]>([])
 
