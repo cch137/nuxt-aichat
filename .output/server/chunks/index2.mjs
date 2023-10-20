@@ -12,7 +12,7 @@ import * as dns$1 from 'dns';
 import * as fs$1 from 'fs';
 import * as mongodbConnectionStringUrl from 'mongodb-connection-string-url';
 import * as os$1 from 'os';
-import * as process$2 from 'process';
+import * as process$3 from 'process';
 import * as zlib from 'zlib';
 import * as net from 'net';
 import * as socks from 'socks';
@@ -2952,7 +2952,7 @@ const require$$0$6 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(util);
 } (operation));
 
 Object.defineProperty(command, "__esModule", { value: true });
-command.CommandOperation = void 0;
+command.CommandCallbackOperation = command.CommandOperation = void 0;
 const error_1$H = error;
 const explain_1 = explain;
 const read_concern_1$2 = read_concern;
@@ -2992,7 +2992,7 @@ class CommandOperation extends operation_1$n.AbstractCallbackOperation {
         }
         return true;
     }
-    executeCommand(server, session, cmd, callback) {
+    async executeCommand(server, session, cmd) {
         // TODO: consider making this a non-enumerable property
         this.server = server;
         const options = {
@@ -3023,10 +3023,20 @@ class CommandOperation extends operation_1$n.AbstractCallbackOperation {
         if (this.hasAspect(operation_1$n.Aspect.EXPLAINABLE) && this.explain) {
             cmd = (0, utils_1$t.decorateWithExplain)(cmd, this.explain);
         }
-        server.command(this.ns, cmd, options, callback);
+        return server.commandAsync(this.ns, cmd, options);
     }
 }
 command.CommandOperation = CommandOperation;
+/** @internal */
+class CommandCallbackOperation extends CommandOperation {
+    constructor(parent, options) {
+        super(parent, options);
+    }
+    executeCommandCallback(server, session, cmd, callback) {
+        super.executeCommand(server, session, cmd).then(res => callback(undefined, res), err => callback(err, undefined));
+    }
+}
+command.CommandCallbackOperation = CommandCallbackOperation;
 
 Object.defineProperty(add_user, "__esModule", { value: true });
 add_user.AddUserOperation = void 0;
@@ -3036,7 +3046,7 @@ const utils_1$s = utils;
 const command_1$g = command;
 const operation_1$m = operation;
 /** @internal */
-class AddUserOperation extends command_1$g.CommandOperation {
+class AddUserOperation extends command_1$g.CommandCallbackOperation {
     constructor(db, username, password, options) {
         super(db, options);
         this.db = db;
@@ -3095,7 +3105,7 @@ class AddUserOperation extends command_1$g.CommandOperation {
         if (typeof password === 'string') {
             command.pwd = userPassword;
         }
-        super.executeCommand(server, session, command, callback);
+        super.executeCommandCallback(server, session, command, callback);
     }
 }
 add_user.AddUserOperation = AddUserOperation;
@@ -3272,7 +3282,7 @@ const utils_1$q = utils;
 const command_1$f = command;
 const operation_1$k = operation;
 /** @internal */
-class ListDatabasesOperation extends command_1$f.CommandOperation {
+class ListDatabasesOperation extends command_1$f.CommandCallbackOperation {
     constructor(db, options) {
         super(db, options);
         this.options = options ?? {};
@@ -3294,7 +3304,7 @@ class ListDatabasesOperation extends command_1$f.CommandOperation {
         if ((0, utils_1$q.maxWireVersion)(server) >= 9 && this.options.comment !== undefined) {
             cmd.comment = this.options.comment;
         }
-        super.executeCommand(server, session, cmd, callback);
+        super.executeCommandCallback(server, session, cmd, callback);
     }
 }
 list_databases.ListDatabasesOperation = ListDatabasesOperation;
@@ -3307,14 +3317,14 @@ remove_user.RemoveUserOperation = void 0;
 const command_1$e = command;
 const operation_1$j = operation;
 /** @internal */
-class RemoveUserOperation extends command_1$e.CommandOperation {
+class RemoveUserOperation extends command_1$e.CommandCallbackOperation {
     constructor(db, username, options) {
         super(db, options);
         this.options = options;
         this.username = username;
     }
     executeCallback(server, session, callback) {
-        super.executeCommand(server, session, { dropUser: this.username }, err => {
+        super.executeCommandCallback(server, session, { dropUser: this.username }, err => {
             callback(err, err ? false : true);
         });
     }
@@ -3329,7 +3339,7 @@ run_command.RunAdminCommandOperation = run_command.RunCommandOperation = void 0;
 const utils_1$p = utils;
 const command_1$d = command;
 /** @internal */
-class RunCommandOperation extends command_1$d.CommandOperation {
+class RunCommandOperation extends command_1$d.CommandCallbackOperation {
     constructor(parent, command, options) {
         super(parent, options);
         this.options = options ?? {};
@@ -3337,7 +3347,7 @@ class RunCommandOperation extends command_1$d.CommandOperation {
     }
     executeCallback(server, session, callback) {
         const command = this.command;
-        this.executeCommand(server, session, command, callback);
+        this.executeCommandCallback(server, session, command, callback);
     }
 }
 run_command.RunCommandOperation = RunCommandOperation;
@@ -3356,7 +3366,7 @@ validate_collection.ValidateCollectionOperation = void 0;
 const error_1$E = error;
 const command_1$c = command;
 /** @internal */
-class ValidateCollectionOperation extends command_1$c.CommandOperation {
+class ValidateCollectionOperation extends command_1$c.CommandCallbackOperation {
     constructor(admin, collectionName, options) {
         // Decorate command with extra options
         const command = { validate: collectionName };
@@ -3373,7 +3383,7 @@ class ValidateCollectionOperation extends command_1$c.CommandOperation {
     }
     executeCallback(server, session, callback) {
         const collectionName = this.collectionName;
-        super.executeCommand(server, session, this.command, (err, doc) => {
+        super.executeCommandCallback(server, session, this.command, (err, doc) => {
             if (err != null)
                 return callback(err);
             // TODO(NODE-3483): Replace these with MongoUnexpectedServerResponseError
@@ -3551,7 +3561,7 @@ const error_1$D = error;
 const command_1$b = command;
 const operation_1$i = operation;
 /** @internal */
-class DeleteOperation extends command_1$b.CommandOperation {
+class DeleteOperation extends command_1$b.CommandCallbackOperation {
     constructor(ns, statements, options) {
         super(undefined, options);
         this.options = options;
@@ -3588,7 +3598,7 @@ class DeleteOperation extends command_1$b.CommandOperation {
                 return;
             }
         }
-        super.executeCommand(server, session, command, callback);
+        super.executeCommandCallback(server, session, command, callback);
     }
 }
 _delete.DeleteOperation = DeleteOperation;
@@ -3781,7 +3791,7 @@ const command_1$a = command;
 const common_functions_1$1 = common_functions;
 const operation_1$g = operation;
 /** @internal */
-class InsertOperation extends command_1$a.CommandOperation {
+class InsertOperation extends command_1$a.CommandCallbackOperation {
     constructor(ns, documents, options) {
         super(undefined, options);
         this.options = { ...options, checkKeys: options.checkKeys ?? false };
@@ -3804,7 +3814,7 @@ class InsertOperation extends command_1$a.CommandOperation {
         if (options.comment !== undefined) {
             command.comment = options.comment;
         }
-        super.executeCommand(server, session, command, callback);
+        super.executeCommandCallback(server, session, command, callback);
     }
 }
 insert.InsertOperation = InsertOperation;
@@ -3875,7 +3885,7 @@ const utils_1$n = utils;
 const command_1$9 = command;
 const operation_1$f = operation;
 /** @internal */
-class UpdateOperation extends command_1$9.CommandOperation {
+class UpdateOperation extends command_1$9.CommandCallbackOperation {
     constructor(ns, statements, options) {
         super(undefined, options);
         this.options = options;
@@ -3915,7 +3925,7 @@ class UpdateOperation extends command_1$9.CommandOperation {
                 return;
             }
         }
-        super.executeCommand(server, session, command, callback);
+        super.executeCommandCallback(server, session, command, callback);
     }
 }
 update$1.UpdateOperation = UpdateOperation;
@@ -5126,7 +5136,7 @@ var aggregate = {};
 	exports.DB_AGGREGATE_COLLECTION = 1;
 	const MIN_WIRE_VERSION_$OUT_READ_CONCERN_SUPPORT = 8;
 	/** @internal */
-	class AggregateOperation extends command_1.CommandOperation {
+	class AggregateOperation extends command_1.CommandCallbackOperation {
 	    constructor(ns, pipeline, options) {
 	        super(undefined, { ...options, dbName: ns.db });
 	        this.options = { ...options };
@@ -5195,7 +5205,7 @@ var aggregate = {};
 	        if (options.batchSize && !this.hasWriteStage) {
 	            command.cursor.batchSize = options.batchSize;
 	        }
-	        super.executeCommand(server, session, command, callback);
+	        super.executeCommandCallback(server, session, command, callback);
 	    }
 	}
 	exports.AggregateOperation = AggregateOperation;
@@ -5402,7 +5412,7 @@ var server_description = {};
 
 Object.defineProperty(server_description, "__esModule", { value: true });
 server_description.compareTopologyVersion = server_description.parseServerType = server_description.ServerDescription = void 0;
-const bson_1$7 = bson;
+const bson_1$8 = bson;
 const error_1$v = error;
 const utils_1$l = utils;
 const common_1$4 = common$1;
@@ -5580,10 +5590,10 @@ function compareTopologyVersion(currentTv, newTv) {
         return -1;
     }
     // TODO(NODE-2674): Preserve int64 sent from MongoDB
-    const currentCounter = bson_1$7.Long.isLong(currentTv.counter)
+    const currentCounter = bson_1$8.Long.isLong(currentTv.counter)
         ? currentTv.counter
-        : bson_1$7.Long.fromNumber(currentTv.counter);
-    const newCounter = bson_1$7.Long.isLong(newTv.counter) ? newTv.counter : bson_1$7.Long.fromNumber(newTv.counter);
+        : bson_1$8.Long.fromNumber(currentTv.counter);
+    const newCounter = bson_1$8.Long.isLong(newTv.counter) ? newTv.counter : bson_1$8.Long.fromNumber(newTv.counter);
     return currentCounter.compare(newCounter);
 }
 server_description.compareTopologyVersion = compareTopologyVersion;
@@ -6132,7 +6142,7 @@ var _a$1;
 Object.defineProperty(sessions, "__esModule", { value: true });
 sessions.updateSessionFromResponse = sessions.applySession = sessions.ServerSessionPool = sessions.ServerSession = sessions.maybeClearPinnedConnection = sessions.ClientSession = void 0;
 const util_1$3 = require$$0$6;
-const bson_1$6 = bson;
+const bson_1$7 = bson;
 const metrics_1 = metrics;
 const shared_1$1 = shared;
 const constants_1$4 = constants;
@@ -6673,7 +6683,7 @@ function endTransaction(session, commandName, callback) {
 class ServerSession {
     /** @internal */
     constructor() {
-        this.id = { id: new bson_1$6.Binary((0, utils_1$j.uuidV4)(), bson_1$6.Binary.SUBTYPE_UUID) };
+        this.id = { id: new bson_1$7.Binary((0, utils_1$j.uuidV4)(), bson_1$7.Binary.SUBTYPE_UUID) };
         this.lastUse = (0, utils_1$j.now)();
         this.txnNumber = 0;
         this.isDirty = false;
@@ -6698,7 +6708,7 @@ class ServerSession {
         const arrayBuffer = new ArrayBuffer(16);
         const idBytes = Buffer.from(arrayBuffer);
         idBytes.set(serverSession.id.id.buffer);
-        const id = new bson_1$6.Binary(idBytes, serverSession.id.id.sub_type);
+        const id = new bson_1$7.Binary(idBytes, serverSession.id.id.sub_type);
         // Manual prototype construction to avoid modifying the constructor of this class
         return Object.setPrototypeOf({
             id: { id },
@@ -6807,7 +6817,7 @@ function applySession(session, command, options) {
         serverSession.txnNumber += session[kTxnNumberIncrement];
         session[kTxnNumberIncrement] = 0;
         // TODO(NODE-2674): Preserve int64 sent from MongoDB
-        command.txnNumber = bson_1$6.Long.fromNumber(serverSession.txnNumber);
+        command.txnNumber = bson_1$7.Long.fromNumber(serverSession.txnNumber);
     }
     if (!inTxnOrTxnCommand) {
         if (session.transaction.state !== transactions_1.TxnState.NO_TRANSACTION) {
@@ -6962,6 +6972,10 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	    }
 	    get id() {
 	        return this[kId] ?? undefined;
+	    }
+	    /** @internal */
+	    get isDead() {
+	        return (this[kId]?.isZero() ?? false) || this[kClosed] || this[kKilled];
 	    }
 	    /** @internal */
 	    get client() {
@@ -7342,7 +7356,7 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	            if (error) {
 	                return cleanupCursor(this, { error }, () => callback(error, undefined));
 	            }
-	            if (cursorIsDead(this)) {
+	            if (this.isDead) {
 	                return cleanupCursor(this, undefined, () => callback());
 	            }
 	            callback();
@@ -7364,82 +7378,71 @@ sessions.updateSessionFromResponse = updateSessionFromResponse;
 	 * the cursor has been exhausted.  Otherwise, it means that there is no document available in the cursor's buffer.
 	 */
 	async function next(cursor, { blocking, transform }) {
-	    const cursorId = cursor[kId];
 	    if (cursor.closed) {
 	        return null;
 	    }
-	    if (cursor[kDocuments].length !== 0) {
-	        const doc = cursor[kDocuments].shift();
-	        if (doc != null && transform && cursor[kTransform]) {
-	            try {
-	                return cursor[kTransform](doc);
-	            }
-	            catch (error) {
-	                await cleanupCursorAsync(cursor, { error, needsToEmitClosed: true }).catch(() => {
+	    do {
+	        if (cursor[kId] == null) {
+	            // All cursors must operate within a session, one must be made implicitly if not explicitly provided
+	            await (0, util_1.promisify)(cursor[kInit].bind(cursor))();
+	        }
+	        if (cursor[kDocuments].length !== 0) {
+	            const doc = cursor[kDocuments].shift();
+	            if (doc != null && transform && cursor[kTransform]) {
+	                try {
+	                    return cursor[kTransform](doc);
+	                }
+	                catch (error) {
 	                    // `cleanupCursorAsync` should never throw, but if it does we want to throw the original
 	                    // error instead.
-	                });
-	                throw error;
+	                    await cleanupCursorAsync(cursor, { error, needsToEmitClosed: true }).catch(() => null);
+	                    throw error;
+	                }
+	            }
+	            return doc;
+	        }
+	        if (cursor.isDead) {
+	            // if the cursor is dead, we clean it up
+	            // cleanupCursorAsync should never throw, but if it does it indicates a bug in the driver
+	            // and we should surface the error
+	            await cleanupCursorAsync(cursor, {});
+	            return null;
+	        }
+	        // otherwise need to call getMore
+	        const batchSize = cursor[kOptions].batchSize || 1000;
+	        try {
+	            const response = await (0, util_1.promisify)(cursor._getMore.bind(cursor))(batchSize);
+	            if (response) {
+	                const cursorId = typeof response.cursor.id === 'number'
+	                    ? bson_1.Long.fromNumber(response.cursor.id)
+	                    : typeof response.cursor.id === 'bigint'
+	                        ? bson_1.Long.fromBigInt(response.cursor.id)
+	                        : response.cursor.id;
+	                cursor[kDocuments].pushMany(response.cursor.nextBatch);
+	                cursor[kId] = cursorId;
 	            }
 	        }
-	        return doc;
-	    }
-	    if (cursorId == null) {
-	        // All cursors must operate within a session, one must be made implicitly if not explicitly provided
-	        const init = (0, util_1.promisify)(cb => cursor[kInit](cb));
-	        await init();
-	        return next(cursor, { blocking, transform });
-	    }
-	    if (cursorIsDead(cursor)) {
-	        // if the cursor is dead, we clean it up
-	        // cleanupCursorAsync should never throw, but if it does it indicates a bug in the driver
-	        // and we should surface the error
-	        await cleanupCursorAsync(cursor, {});
-	        return null;
-	    }
-	    // otherwise need to call getMore
-	    const batchSize = cursor[kOptions].batchSize || 1000;
-	    const getMore = (0, util_1.promisify)((batchSize, cb) => cursor._getMore(batchSize, cb));
-	    let response;
-	    try {
-	        response = await getMore(batchSize);
-	    }
-	    catch (error) {
-	        if (error) {
-	            await cleanupCursorAsync(cursor, { error }).catch(() => {
-	                // `cleanupCursorAsync` should never throw, but if it does we want to throw the original
-	                // error instead.
-	            });
+	        catch (error) {
+	            // `cleanupCursorAsync` should never throw, but if it does we want to throw the original
+	            // error instead.
+	            await cleanupCursorAsync(cursor, { error }).catch(() => null);
 	            throw error;
 	        }
-	    }
-	    if (response) {
-	        const cursorId = typeof response.cursor.id === 'number'
-	            ? bson_1.Long.fromNumber(response.cursor.id)
-	            : typeof response.cursor.id === 'bigint'
-	                ? bson_1.Long.fromBigInt(response.cursor.id)
-	                : response.cursor.id;
-	        cursor[kDocuments].pushMany(response.cursor.nextBatch);
-	        cursor[kId] = cursorId;
-	    }
-	    if (cursorIsDead(cursor)) {
-	        // If we successfully received a response from a cursor BUT the cursor indicates that it is exhausted,
-	        // we intentionally clean up the cursor to release its session back into the pool before the cursor
-	        // is iterated.  This prevents a cursor that is exhausted on the server from holding
-	        // onto a session indefinitely until the AbstractCursor is iterated.
-	        //
-	        // cleanupCursorAsync should never throw, but if it does it indicates a bug in the driver
-	        // and we should surface the error
-	        await cleanupCursorAsync(cursor, {});
-	    }
-	    if (cursor[kDocuments].length === 0 && blocking === false) {
-	        return null;
-	    }
-	    return next(cursor, { blocking, transform });
-	}
-	function cursorIsDead(cursor) {
-	    const cursorId = cursor[kId];
-	    return !!cursorId && cursorId.isZero();
+	        if (cursor.isDead) {
+	            // If we successfully received a response from a cursor BUT the cursor indicates that it is exhausted,
+	            // we intentionally clean up the cursor to release its session back into the pool before the cursor
+	            // is iterated.  This prevents a cursor that is exhausted on the server from holding
+	            // onto a session indefinitely until the AbstractCursor is iterated.
+	            //
+	            // cleanupCursorAsync should never throw, but if it does it indicates a bug in the driver
+	            // and we should surface the error
+	            await cleanupCursorAsync(cursor, {});
+	        }
+	        if (cursor[kDocuments].length === 0 && blocking === false) {
+	            return null;
+	        }
+	    } while (!cursor.isDead || cursor[kDocuments].length !== 0);
+	    return null;
 	}
 	const cleanupCursorAsync = (0, util_1.promisify)(cleanupCursor);
 	function cleanupCursor(cursor, options, callback) {
@@ -7749,7 +7752,7 @@ count.CountOperation = void 0;
 const command_1$8 = command;
 const operation_1$c = operation;
 /** @internal */
-class CountOperation extends command_1$8.CommandOperation {
+class CountOperation extends command_1$8.CommandCallbackOperation {
     constructor(namespace, filter, options) {
         super({ s: { namespace: namespace } }, options);
         this.options = options;
@@ -7774,7 +7777,7 @@ class CountOperation extends command_1$8.CommandOperation {
         if (typeof options.maxTimeMS === 'number') {
             cmd.maxTimeMS = options.maxTimeMS;
         }
-        super.executeCommand(server, session, cmd, (err, result) => {
+        super.executeCommandCallback(server, session, cmd, (err, result) => {
             callback(err, result ? result.n : 0);
         });
     }
@@ -7891,7 +7894,7 @@ const utils_1$h = utils;
 const command_1$7 = command;
 const operation_1$b = operation;
 /** @internal */
-class FindOperation extends command_1$7.CommandOperation {
+class FindOperation extends command_1$7.CommandCallbackOperation {
     constructor(collection, ns, filter = {}, options = {}) {
         super(collection, options);
         this.options = { ...options };
@@ -8032,6 +8035,7 @@ function makeFindCommand(ns, filter, options) {
 
 Object.defineProperty(find_cursor, "__esModule", { value: true });
 find_cursor.FindCursor = find_cursor.FLAGS = void 0;
+const bson_1$6 = bson;
 const error_1$p = error;
 const count_1 = count;
 const execute_operation_1$3 = execute_operation;
@@ -8106,7 +8110,7 @@ class FindCursor extends abstract_cursor_1$3.AbstractCursor {
             batchSize =
                 limit && limit > 0 && numReturned + batchSize > limit ? limit - numReturned : batchSize;
             if (batchSize <= 0) {
-                this.close().finally(() => callback());
+                this.close().finally(() => callback(undefined, { cursor: { id: bson_1$6.Long.ZERO, nextBatch: [] } }));
                 return;
             }
         }
@@ -8494,7 +8498,7 @@ class IndexesOperation extends operation_1$a.AbstractCallbackOperation {
 }
 indexes.IndexesOperation = IndexesOperation;
 /** @internal */
-class CreateIndexesOperation extends command_1$6.CommandOperation {
+class CreateIndexesOperation extends command_1$6.CommandCallbackOperation {
     constructor(parent, collectionName, indexes, options) {
         super(parent, options);
         this.options = options ?? {};
@@ -8525,7 +8529,7 @@ class CreateIndexesOperation extends command_1$6.CommandOperation {
         }
         // collation is set on each index, it should not be defined at the root
         this.options.collation = undefined;
-        super.executeCommand(server, session, cmd, err => {
+        super.executeCommandCallback(server, session, cmd, err => {
             if (err) {
                 callback(err);
                 return;
@@ -8579,7 +8583,7 @@ class EnsureIndexOperation extends CreateIndexOperation {
 }
 indexes.EnsureIndexOperation = EnsureIndexOperation;
 /** @internal */
-class DropIndexOperation extends command_1$6.CommandOperation {
+class DropIndexOperation extends command_1$6.CommandCallbackOperation {
     constructor(collection, indexName, options) {
         super(collection, options);
         this.options = options ?? {};
@@ -8588,7 +8592,7 @@ class DropIndexOperation extends command_1$6.CommandOperation {
     }
     executeCallback(server, session, callback) {
         const cmd = { dropIndexes: this.collection.collectionName, index: this.indexName };
-        super.executeCommand(server, session, cmd, callback);
+        super.executeCommandCallback(server, session, cmd, callback);
     }
 }
 indexes.DropIndexOperation = DropIndexOperation;
@@ -8607,7 +8611,7 @@ class DropIndexesOperation extends DropIndexOperation {
 }
 indexes.DropIndexesOperation = DropIndexesOperation;
 /** @internal */
-class ListIndexesOperation extends command_1$6.CommandOperation {
+class ListIndexesOperation extends command_1$6.CommandCallbackOperation {
     constructor(collection, options) {
         super(collection, options);
         this.options = { ...options };
@@ -8623,7 +8627,7 @@ class ListIndexesOperation extends command_1$6.CommandOperation {
         if (serverWireVersion >= 9 && this.options.comment !== undefined) {
             command.comment = this.options.comment;
         }
-        super.executeCommand(server, session, command, callback);
+        super.executeCommandCallback(server, session, command, callback);
     }
 }
 indexes.ListIndexesOperation = ListIndexesOperation;
@@ -8782,7 +8786,7 @@ const operation_1$9 = operation;
  * Return a list of distinct values for the given key across a collection.
  * @internal
  */
-class DistinctOperation extends command_1$5.CommandOperation {
+class DistinctOperation extends command_1$5.CommandCallbackOperation {
     /**
      * Construct a Distinct operation.
      *
@@ -8827,7 +8831,7 @@ class DistinctOperation extends command_1$5.CommandOperation {
         catch (err) {
             return callback(err);
         }
-        super.executeCommand(server, session, cmd, (err, result) => {
+        super.executeCommandCallback(server, session, cmd, (err, result) => {
             if (err) {
                 callback(err);
                 return;
@@ -8847,7 +8851,7 @@ const error_1$n = error;
 const command_1$4 = command;
 const operation_1$8 = operation;
 /** @internal */
-class DropCollectionOperation extends command_1$4.CommandOperation {
+class DropCollectionOperation extends command_1$4.CommandCallbackOperation {
     constructor(db, name, options = {}) {
         super(db, options);
         this.db = db;
@@ -8893,7 +8897,7 @@ class DropCollectionOperation extends command_1$4.CommandOperation {
     }
     executeWithoutEncryptedFieldsCheck(server, session) {
         return new Promise((resolve, reject) => {
-            super.executeCommand(server, session, { drop: this.name }, (err, result) => {
+            super.executeCommandCallback(server, session, { drop: this.name }, (err, result) => {
                 if (err)
                     return reject(err);
                 resolve(!!result.ok);
@@ -8903,13 +8907,13 @@ class DropCollectionOperation extends command_1$4.CommandOperation {
 }
 drop$1.DropCollectionOperation = DropCollectionOperation;
 /** @internal */
-class DropDatabaseOperation extends command_1$4.CommandOperation {
+class DropDatabaseOperation extends command_1$4.CommandCallbackOperation {
     constructor(db, options) {
         super(db, options);
         this.options = options;
     }
     executeCallback(server, session, callback) {
-        super.executeCommand(server, session, { dropDatabase: 1 }, (err, result) => {
+        super.executeCommandCallback(server, session, { dropDatabase: 1 }, (err, result) => {
             if (err)
                 return callback(err);
             if (result.ok)
@@ -8929,7 +8933,7 @@ estimated_document_count.EstimatedDocumentCountOperation = void 0;
 const command_1$3 = command;
 const operation_1$7 = operation;
 /** @internal */
-class EstimatedDocumentCountOperation extends command_1$3.CommandOperation {
+class EstimatedDocumentCountOperation extends command_1$3.CommandCallbackOperation {
     constructor(collection, options = {}) {
         super(collection, options);
         this.options = options;
@@ -8945,7 +8949,7 @@ class EstimatedDocumentCountOperation extends command_1$3.CommandOperation {
         if (this.options.comment !== undefined) {
             cmd.comment = this.options.comment;
         }
-        super.executeCommand(server, session, cmd, (err, response) => {
+        super.executeCommandCallback(server, session, cmd, (err, response) => {
             if (err) {
                 callback(err);
                 return;
@@ -8986,7 +8990,7 @@ var find_and_modify = {};
 	    return cmdBase;
 	}
 	/** @internal */
-	class FindAndModifyOperation extends command_1.CommandOperation {
+	class FindAndModifyOperation extends command_1.CommandCallbackOperation {
 	    constructor(collection, query, options) {
 	        super(collection, options);
 	        this.options = options ?? {};
@@ -9051,7 +9055,7 @@ var find_and_modify = {};
 	            cmd.hint = options.hint;
 	        }
 	        // Execute the command
-	        super.executeCommand(server, session, cmd, (err, result) => {
+	        super.executeCommandCallback(server, session, cmd, (err, result) => {
 	            if (err)
 	                return callback(err);
 	            return callback(undefined, options.includeResultMetadata ? result : result.value ?? null);
@@ -9332,7 +9336,7 @@ const operation_1$1 = operation;
  * Get all the collection statistics.
  * @internal
  */
-class CollStatsOperation extends command_1$2.CommandOperation {
+class CollStatsOperation extends command_1$2.CommandCallbackOperation {
     /**
      * Construct a Stats operation.
      *
@@ -9349,12 +9353,12 @@ class CollStatsOperation extends command_1$2.CommandOperation {
         if (this.options.scale != null) {
             command.scale = this.options.scale;
         }
-        super.executeCommand(server, session, command, callback);
+        super.executeCommandCallback(server, session, command, callback);
     }
 }
 stats.CollStatsOperation = CollStatsOperation;
 /** @internal */
-class DbStatsOperation extends command_1$2.CommandOperation {
+class DbStatsOperation extends command_1$2.CommandCallbackOperation {
     constructor(db, options) {
         super(db, options);
         this.options = options;
@@ -9364,7 +9368,7 @@ class DbStatsOperation extends command_1$2.CommandOperation {
         if (this.options.scale != null) {
             command.scale = this.options.scale;
         }
-        super.executeCommand(server, session, command, callback);
+        super.executeCommandCallback(server, session, command, callback);
     }
 }
 stats.DbStatsOperation = DbStatsOperation;
@@ -10140,7 +10144,7 @@ const utils_1$d = utils;
 const command_1$1 = command;
 const operation_1 = operation;
 /** @internal */
-class ListCollectionsOperation extends command_1$1.CommandOperation {
+class ListCollectionsOperation extends command_1$1.CommandCallbackOperation {
     constructor(db, filter, options) {
         super(db, options);
         this.options = { ...options };
@@ -10154,7 +10158,7 @@ class ListCollectionsOperation extends command_1$1.CommandOperation {
         }
     }
     executeCallback(server, session, callback) {
-        return super.executeCommand(server, session, this.generateCommand((0, utils_1$d.maxWireVersion)(server)), callback);
+        return super.executeCommandCallback(server, session, this.generateCommand((0, utils_1$d.maxWireVersion)(server)), callback);
     }
     /* This is here for the purpose of unit testing the final command that gets sent. */
     generateCommand(wireVersion) {
@@ -10393,7 +10397,7 @@ function requireCreate_collection () {
 	/* @internal */
 	const INVALID_QE_VERSION = 'Driver support of Queryable Encryption is incompatible with server. Upgrade server to use Queryable Encryption.';
 	/** @internal */
-	class CreateCollectionOperation extends command_1.CommandOperation {
+	class CreateCollectionOperation extends command_1.CommandCallbackOperation {
 	    constructor(db, name, options = {}) {
 	        super(db, options);
 	        this.options = options;
@@ -10459,7 +10463,7 @@ function requireCreate_collection () {
 	                }
 	            }
 	            // otherwise just execute the command
-	            super.executeCommand(server, session, cmd, done);
+	            super.executeCommandCallback(server, session, cmd, done);
 	        });
 	    }
 	}
@@ -10476,13 +10480,13 @@ profiling_level.ProfilingLevelOperation = void 0;
 const error_1$j = error;
 const command_1 = command;
 /** @internal */
-class ProfilingLevelOperation extends command_1.CommandOperation {
+class ProfilingLevelOperation extends command_1.CommandCallbackOperation {
     constructor(db, options) {
         super(db, options);
         this.options = options;
     }
     executeCallback(server, session, callback) {
-        super.executeCommand(server, session, { profile: -1 }, (err, doc) => {
+        super.executeCommandCallback(server, session, { profile: -1 }, (err, doc) => {
             if (err == null && doc.ok === 1) {
                 const was = doc.was;
                 if (was === 0)
@@ -10519,7 +10523,7 @@ var set_profiling_level = {};
 	    all: 'all'
 	});
 	/** @internal */
-	class SetProfilingLevelOperation extends command_1.CommandOperation {
+	class SetProfilingLevelOperation extends command_1.CommandCallbackOperation {
 	    constructor(db, level, options) {
 	        super(db, options);
 	        this.options = options;
@@ -10545,7 +10549,7 @@ var set_profiling_level = {};
 	            return callback(new error_1.MongoInvalidArgumentError(`Profiling level must be one of "${(0, utils_1.enumToString)(exports.ProfilingLevel)}"`));
 	        }
 	        // TODO(NODE-3483): Determine error to put here
-	        super.executeCommand(server, session, { profile: this.profile }, (err, doc) => {
+	        super.executeCommandCallback(server, session, { profile: this.profile }, (err, doc) => {
 	            if (err == null && doc.ok === 1)
 	                return callback(undefined, level);
 	            return err != null
@@ -11023,7 +11027,7 @@ var deps = {};
 	    ' Please install it to enable Stringprep Profile for User Names and Passwords'));
 	try {
 	    // Ensure you always wrap an optional require in the try block NODE-3199
-	    exports.saslprep = require('saslprep');
+	    exports.saslprep = require('@mongodb-js/saslprep');
 	}
 	catch { } // eslint-disable-line
 	exports.aws4 = makeErrorModule(new error_1.MongoMissingDependencyError('Optional module `aws4` not found. Please install it to enable AWS authentication'));
@@ -11463,10 +11467,10 @@ var client_metadata = {};
 
 const require$$0$1 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(os$1);
 
-const require$$1$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(process$2);
+const require$$1$2 = /*@__PURE__*/getDefaultExportFromNamespaceIfNotNamed(process$3);
 
 var name = "mongodb";
-var version = "5.7.0";
+var version = "5.9.0";
 var description = "The official MongoDB driver for Node.js";
 var main = "lib/index.js";
 var files = [
@@ -11491,17 +11495,17 @@ var author = {
 	email: "dbx-node@mongodb.com"
 };
 var dependencies = {
-	bson: "^5.4.0",
+	bson: "^5.5.0",
 	"mongodb-connection-string-url": "^2.6.0",
 	socks: "^2.7.1"
 };
 var optionalDependencies = {
-	saslprep: "^1.0.3"
+	"@mongodb-js/saslprep": "^1.1.0"
 };
 var peerDependencies = {
-	"@aws-sdk/credential-providers": "^3.201.0",
-	"@mongodb-js/zstd": "^1.1.0",
-	kerberos: "^2.0.1",
+	"@aws-sdk/credential-providers": "^3.188.0",
+	"@mongodb-js/zstd": "^1.0.0",
+	kerberos: "^1.0.0 || ^2.0.0",
 	"mongodb-client-encryption": ">=2.3.0 <3",
 	snappy: "^7.2.2"
 };
@@ -11528,14 +11532,13 @@ var devDependencies = {
 	"@microsoft/api-extractor": "^7.35.1",
 	"@microsoft/tsdoc-config": "^0.16.2",
 	"@mongodb-js/zstd": "^1.1.0",
-	"@octokit/core": "^4.2.1",
+	"@octokit/core": "^4.2.4",
 	"@types/chai": "^4.3.5",
 	"@types/chai-subset": "^1.3.3",
 	"@types/express": "^4.17.17",
 	"@types/kerberos": "^1.1.2",
 	"@types/mocha": "^10.0.1",
 	"@types/node": "^20.1.0",
-	"@types/saslprep": "^1.0.1",
 	"@types/semver": "^7.5.0",
 	"@types/sinon": "^10.0.14",
 	"@types/sinon-chai": "^3.2.9",
@@ -11653,7 +11656,7 @@ const require$$4 = {
 Object.defineProperty(client_metadata, "__esModule", { value: true });
 client_metadata.getFAASEnv = client_metadata.makeClientMetadata = client_metadata.LimitedSizeDocument = void 0;
 const os = require$$0$1;
-const process$1 = require$$1$2;
+const process$2 = require$$1$2;
 const bson_1$5 = bson;
 const error_1$h = error;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -11723,8 +11726,8 @@ function makeClientMetadata(options) {
     }
     // Note: order matters, os.type is last so it will be removed last if we're at maxSize
     const osInfo = new Map()
-        .set('name', process$1.platform)
-        .set('architecture', process$1.arch)
+        .set('name', process$2.platform)
+        .set('architecture', process$2.arch)
         .set('version', os.release())
         .set('type', os.type());
     if (!metadataDocument.ifItFitsItSits('os', osInfo)) {
@@ -11756,7 +11759,7 @@ client_metadata.makeClientMetadata = makeClientMetadata;
  * - `name` MUST be the last key in the Map returned.
  */
 function getFAASEnv() {
-    const { AWS_EXECUTION_ENV = '', AWS_LAMBDA_RUNTIME_API = '', FUNCTIONS_WORKER_RUNTIME = '', K_SERVICE = '', FUNCTION_NAME = '', VERCEL = '', AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '', AWS_REGION = '', FUNCTION_MEMORY_MB = '', FUNCTION_REGION = '', FUNCTION_TIMEOUT_SEC = '', VERCEL_REGION = '' } = process$1.env;
+    const { AWS_EXECUTION_ENV = '', AWS_LAMBDA_RUNTIME_API = '', FUNCTIONS_WORKER_RUNTIME = '', K_SERVICE = '', FUNCTION_NAME = '', VERCEL = '', AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '', AWS_REGION = '', FUNCTION_MEMORY_MB = '', FUNCTION_REGION = '', FUNCTION_TIMEOUT_SEC = '', VERCEL_REGION = '' } = process$2.env;
     const isAWSFaaS = AWS_EXECUTION_ENV.startsWith('AWS_Lambda_') || AWS_LAMBDA_RUNTIME_API.length > 0;
     const isAzureFaaS = FUNCTIONS_WORKER_RUNTIME.length > 0;
     const isGCPFaaS = K_SERVICE.length > 0 || FUNCTION_NAME.length > 0;
@@ -11819,7 +11822,7 @@ function getRuntimeInfo() {
         const version = typeof Bun?.version === 'string' ? Bun?.version : '0.0.0-unknown';
         return `Bun v${version}, ${os.endianness()}`;
     }
-    return `Node.js ${process$1.version}, ${os.endianness()}`;
+    return `Node.js ${process$2.version}, ${os.endianness()}`;
 }
 
 var compression = {};
@@ -12670,8 +12673,9 @@ function requireConnection_string () {
 		        values.push(...urlValues);
 		        allProvidedOptions.set(key, values);
 		    }
-		    if (allProvidedOptions.has('tlsCertificateKeyFile') &&
-		        !allProvidedOptions.has('tlsCertificateFile')) {
+		    const didMapTLSCertificateFile = allProvidedOptions.has('tlsCertificateKeyFile') &&
+		        !allProvidedOptions.has('tlsCertificateFile');
+		    if (didMapTLSCertificateFile) {
 		        allProvidedOptions.set('tlsCertificateFile', allProvidedOptions.get('tlsCertificateKeyFile'));
 		    }
 		    if (allProvidedOptions.has('tls') || allProvidedOptions.has('ssl')) {
@@ -12699,7 +12703,8 @@ function requireConnection_string () {
 		        }
 		        else {
 		            const { deprecated } = descriptor;
-		            if (deprecated) {
+		            const shouldEmitTLSCertificateFileDeprecation = didMapTLSCertificateFile && key === 'tlsCertificateFile';
+		            if (deprecated && !shouldEmitTLSCertificateFileDeprecation) {
 		                const deprecatedMsg = typeof deprecated === 'string' ? `: ${deprecated}` : '';
 		                (0, utils_1.emitWarning)(`${key} is a deprecated option${deprecatedMsg}`);
 		            }
@@ -13317,7 +13322,7 @@ function requireConnection_string () {
 		        }
 		    },
 		    sslCRL: {
-		        deprecated: 'sslCRL is deprecated and will be removed in the next major version. Please use tlsCertificateKeyFile instead.',
+		        deprecated: 'sslCRL is deprecated and will be removed in the next major version and be replaced by tlsCRLFile in that release.',
 		        target: 'crl',
 		        transform({ values: [value] }) {
 		            return fs.readFileSync(String(value), { encoding: 'ascii' });
@@ -14150,7 +14155,7 @@ commands.BinMsg = BinMsg;
 	const utils_1 = utils;
 	const commands_1 = commands;
 	/**
-	 * An event indicating the start of a given
+	 * An event indicating the start of a given command
 	 * @public
 	 * @category Event
 	 */
@@ -15147,6 +15152,7 @@ var mongodb_aws = {};
 Object.defineProperty(mongodb_aws, "__esModule", { value: true });
 mongodb_aws.MongoDBAWS = void 0;
 const crypto$1 = require$$0$9;
+const process$1 = require$$1$2;
 const util_1$1 = require$$0$6;
 const BSON = bson;
 const deps_1$1 = deps;
@@ -15155,6 +15161,28 @@ const utils_1$7 = utils;
 const auth_provider_1$3 = auth_provider;
 const mongo_credentials_1 = mongo_credentials;
 const providers_1$3 = providers;
+/**
+ * The following regions use the global AWS STS endpoint, sts.amazonaws.com, by default
+ * https://docs.aws.amazon.com/sdkref/latest/guide/feature-sts-regionalized-endpoints.html
+ */
+const LEGACY_REGIONS = new Set([
+    'ap-northeast-1',
+    'ap-south-1',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'aws-global',
+    'ca-central-1',
+    'eu-central-1',
+    'eu-north-1',
+    'eu-west-1',
+    'eu-west-2',
+    'eu-west-3',
+    'sa-east-1',
+    'us-east-1',
+    'us-east-2',
+    'us-west-1',
+    'us-west-2'
+]);
 const ASCII_N = 110;
 const AWS_RELATIVE_URI = 'http://169.254.170.2';
 const AWS_EC2_URI = 'http://169.254.169.254';
@@ -15251,6 +15279,7 @@ class MongoDBAWS extends auth_provider_1$3.AuthProvider {
         await connection.commandAsync((0, utils_1$7.ns)(`${db}.$cmd`), saslContinue, undefined);
     }
 }
+MongoDBAWS.credentialProvider = null;
 mongodb_aws.MongoDBAWS = MongoDBAWS;
 async function makeTempCredentials(credentials) {
     function makeMongoCredentialsFromAWSTemp(creds) {
@@ -15267,14 +15296,14 @@ async function makeTempCredentials(credentials) {
             }
         });
     }
-    const credentialProvider = (0, deps_1$1.getAwsCredentialProvider)();
+    MongoDBAWS.credentialProvider ?? (MongoDBAWS.credentialProvider = (0, deps_1$1.getAwsCredentialProvider)());
     // Check if the AWS credential provider from the SDK is present. If not,
     // use the old method.
-    if ('kModuleError' in credentialProvider) {
+    if ('kModuleError' in MongoDBAWS.credentialProvider) {
         // If the environment variable AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
         // is set then drivers MUST assume that it was set by an AWS ECS agent
-        if (process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI) {
-            return makeMongoCredentialsFromAWSTemp(await (0, utils_1$7.request)(`${AWS_RELATIVE_URI}${process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}`));
+        if (process$1.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI) {
+            return makeMongoCredentialsFromAWSTemp(await (0, utils_1$7.request)(`${AWS_RELATIVE_URI}${process$1.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}`));
         }
         // Otherwise assume we are on an EC2 instance
         // get a token
@@ -15295,6 +15324,25 @@ async function makeTempCredentials(credentials) {
         return makeMongoCredentialsFromAWSTemp(creds);
     }
     else {
+        let { AWS_STS_REGIONAL_ENDPOINTS = '', AWS_REGION = '' } = process$1.env;
+        AWS_STS_REGIONAL_ENDPOINTS = AWS_STS_REGIONAL_ENDPOINTS.toLowerCase();
+        AWS_REGION = AWS_REGION.toLowerCase();
+        /** The option setting should work only for users who have explicit settings in their environment, the driver should not encode "defaults" */
+        const awsRegionSettingsExist = AWS_REGION.length !== 0 && AWS_STS_REGIONAL_ENDPOINTS.length !== 0;
+        /**
+         * If AWS_STS_REGIONAL_ENDPOINTS is set to regional, users are opting into the new behavior of respecting the region settings
+         *
+         * If AWS_STS_REGIONAL_ENDPOINTS is set to legacy, then "old" regions need to keep using the global setting.
+         * Technically the SDK gets this wrong, it reaches out to 'sts.us-east-1.amazonaws.com' when it should be 'sts.amazonaws.com'.
+         * That is not our bug to fix here. We leave that up to the SDK.
+         */
+        const useRegionalSts = AWS_STS_REGIONAL_ENDPOINTS === 'regional' ||
+            (AWS_STS_REGIONAL_ENDPOINTS === 'legacy' && !LEGACY_REGIONS.has(AWS_REGION));
+        const provider = awsRegionSettingsExist && useRegionalSts
+            ? MongoDBAWS.credentialProvider.fromNodeProviderChain({
+                clientConfig: { region: AWS_REGION }
+            })
+            : MongoDBAWS.credentialProvider.fromNodeProviderChain();
         /*
          * Creates a credential provider that will attempt to find credentials from the
          * following sources (listed in order of precedence):
@@ -15305,8 +15353,6 @@ async function makeTempCredentials(credentials) {
          * - Shared credentials and config ini files
          * - The EC2/ECS Instance Metadata Service
          */
-        const { fromNodeProviderChain } = credentialProvider;
-        const provider = fromNodeProviderChain();
         try {
             const creds = await provider();
             return makeMongoCredentialsFromAWSTemp({
@@ -16750,7 +16796,13 @@ class ConnectionPoolCreatedEvent extends ConnectionPoolMonitoringEvent {
         super(pool);
         /** @internal */
         this.name = constants_1.CONNECTION_POOL_CREATED;
-        this.options = pool.options;
+        if (pool.options.credentials != null) {
+            // Intentionally remove credentials: NODE-5460
+            this.options = { ...pool.options, credentials: {} };
+        }
+        else {
+            this.options = pool.options;
+        }
     }
 }
 connection_pool_events.ConnectionPoolCreatedEvent = ConnectionPoolCreatedEvent;
@@ -18071,7 +18123,9 @@ function requireServer () {
 	     */
 	    constructor(topology, description, options) {
 	        super();
-	        this.commandAsync = (0, util_1.promisify)((ns, cmd, options, callback) => this.command(ns, cmd, options, callback));
+	        this.commandAsync = (0, util_1.promisify)((ns, cmd, options, 
+	        // callback type defines Document result because result is never nullish when it succeeds, otherwise promise rejects
+	        callback) => this.command(ns, cmd, options, callback));
 	        this.serverApi = options.serverApi;
 	        const poolOptions = { hostAddress: description.hostAddress, ...options };
 	        this.topology = topology;
@@ -19256,6 +19310,9 @@ function requireMongo_client () {
 	    set monitorCommands(value) {
 	        this[kOptions].monitorCommands = value;
 	    }
+	    /**
+	     * @deprecated This method will be removed in the next major version.
+	     */
 	    get autoEncrypter() {
 	        return this[kOptions].autoEncrypter;
 	    }

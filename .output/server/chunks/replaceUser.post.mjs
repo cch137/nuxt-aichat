@@ -1,6 +1,12 @@
-import { defineEventHandler, readBody } from 'h3';
+import { d as defineEventHandler, r as readBody } from './nitro/node-server.mjs';
 import { parse, serialize } from 'cookie';
 import { r as read, p as pack } from './token.mjs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 import 'crypto-js/sha3.js';
 import 'crypto-js/md5.js';
 import './random.mjs';

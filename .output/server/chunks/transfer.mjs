@@ -1,6 +1,12 @@
-import { defineEventHandler } from 'h3';
+import { d as defineEventHandler } from './nitro/node-server.mjs';
 import axios from 'axios';
 import { serialize } from 'cookie';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 
 const transfer = defineEventHandler(async function(event) {
   const { req, res } = event.node;

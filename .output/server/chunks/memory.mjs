@@ -1,5 +1,11 @@
-import { defineEventHandler } from 'h3';
+import { d as defineEventHandler } from './nitro/node-server.mjs';
 import qs from 'qs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 
 function formatBytes(fileSizeByte = 0, toFix = 2, spaceBfrUnit = true) {
   const d = parseInt(`${Math.log(fileSizeByte) / Math.log(1024)}`) || 0;

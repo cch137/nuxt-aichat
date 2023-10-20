@@ -1,7 +1,13 @@
-import { defineEventHandler } from 'h3';
+import { d as defineEventHandler } from './nitro/node-server.mjs';
 import md5$1 from 'crypto-js/md5.js';
 import { c as createAxiosSession } from './createAxiosSession.mjs';
 import qs from 'qs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 import 'axios';
 import 'cookie';
 

@@ -1,6 +1,12 @@
-import { defineEventHandler } from 'h3';
+import { d as defineEventHandler } from './nitro/node-server.mjs';
 import { s as streamManager } from './streamManager.mjs';
 import { a as getUidByToken } from './token.mjs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 import './random.mjs';
 import 'crypto-js/sha3.js';
 import 'cookie';

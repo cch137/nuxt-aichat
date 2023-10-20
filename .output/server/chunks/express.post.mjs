@@ -1,4 +1,10 @@
-import { defineEventHandler, readBody } from 'h3';
+import { d as defineEventHandler, r as readBody } from './nitro/node-server.mjs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 
 const trueKey = "bwAmMGcccc9BraUShKlJwDxfwW59zUjiQUstz7dGoX91JQr9bdsrZ7F73uDSTOic";
 const express_post = defineEventHandler(async (event) => {

@@ -1,8 +1,14 @@
-import { defineEventHandler, readBody } from 'h3';
+import { d as defineEventHandler, r as readBody } from './nitro/node-server.mjs';
 import { c as checkPassword } from './checkPassword.mjs';
 import { serialize } from 'cookie';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { g as getIp } from './getIp.mjs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 
 const rateLimiter = new RateLimiter(10, 1 * 60 * 1e3);
 const check_post = defineEventHandler(async function(event) {

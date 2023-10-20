@@ -1,5 +1,11 @@
-import { defineEventHandler } from 'h3';
+import { d as defineEventHandler } from './nitro/node-server.mjs';
 import { serialize } from 'cookie';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 
 const check_delete = defineEventHandler(async function(event) {
   event.node.res.setHeader("Set-Cookie", serialize("admin", "", {

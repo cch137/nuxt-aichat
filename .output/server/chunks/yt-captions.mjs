@@ -1,6 +1,12 @@
-import { defineEventHandler } from 'h3';
+import { d as defineEventHandler } from './nitro/node-server.mjs';
 import qs from 'qs';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 import 'axios';
 
 const ytCaptions = defineEventHandler(async (event) => {

@@ -1,6 +1,12 @@
-import { defineEventHandler, readBody } from 'h3';
+import { d as defineEventHandler, r as readBody } from './nitro/node-server.mjs';
 import { m as mailer } from './mailer.mjs';
 import { a as getUidByToken } from './token.mjs';
+import 'node:http';
+import 'node:https';
+import 'fs';
+import 'path';
+import 'node:fs';
+import 'node:url';
 import 'nodemailer';
 import 'dotenv';
 import 'cookie';

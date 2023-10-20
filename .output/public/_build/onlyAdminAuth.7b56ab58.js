@@ -1,1 +1,0 @@
-import{aU as o,aV as a,A as n}from"./entry.0bbf14a2.js";import{u as i}from"./useAdmin.32e13f1f.js";const u=o(async(s,r)=>{let e,t;if(!([e,t]=a(()=>i().checkIsLoggedIn()),e=await e,t(),e))return[e,t]=a(()=>n("/admin/login")),e=await e,t(),e});export{u as default};
