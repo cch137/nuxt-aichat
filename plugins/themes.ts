@@ -21,15 +21,9 @@ export default defineNuxtPlugin(() => {
   })
 
   const init = () => {
-    if (colorMode.preference === 'system') {
-      // 這裡設置默認為 dark
-      // 假如以後想要改成跟系統主題，就是 colorMode.value
-      colorMode.preference = 'dark'
-    }
-    const _isDark = colorMode.preference === 'dark'
-    if (isDark.value !== _isDark) {
-      isDark.value = _isDark
-    }
+    // 默認主題為 dark，即便系統默認主題為 light，網頁的默認主題仍未 dark
+    // 若要取得系統主題可以使用 colorMode.value
+    isDark.value = colorMode.preference !== 'light'
   }
 
   init()
