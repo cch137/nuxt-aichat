@@ -91,7 +91,7 @@ class Client {
   }
 
   async askGPT (messages: OpenAIMessage[], options: { model?: string, temperature?: number, top_p?: number, stream?: boolean, streamId?: string, maxTries?: number  } = {}) {
-    const { model = '', temperature = 0.3, top_p = 0.7, stream = true, streamId, maxTries = 5 } = options
+    const { model = '', temperature = 0.3, top_p = 0.7, stream = true, streamId, maxTries = 1 } = options
     const url = `${this.host}/v1/chat/completions`
     const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` }
     const _data = {
