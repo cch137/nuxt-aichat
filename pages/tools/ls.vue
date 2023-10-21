@@ -20,6 +20,11 @@
           </div>
         </details>
       </div>
+      <div class="flex-col flex-center pb-16">
+        <div>
+          <el-text type="info">提示：點擊下載 (Скачать) 可以取得更清晰的圖片。免責聲明：本站非以上文件之所有者，訪客若因訪問非本站頁面或資源導致任何損失，本站概不負責。</el-text>
+        </div>
+      </div>
       <div class="flex-center pb-16">
         <el-link @click="back()">BACK</el-link>
       </div>
