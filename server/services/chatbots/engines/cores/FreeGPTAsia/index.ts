@@ -2,7 +2,8 @@ import axios from 'axios'
 import type { ChatbotEngine, OpenAIMessage } from '../types'
 import str from '~/utils/str'
 import { questionContextToMessages } from '../../utils/openAiMessagesConverter'
-import streamManager, { Stream } from '~/utils/streamManager'
+import type { Stream } from '~/utils/streamManager'
+import streamManager from '~/utils/streamManager'
 
 interface ChatResponseChoice {
   index: number,
