@@ -701,6 +701,9 @@ export default function () {
             restoreInput()
             return { type: 'warning', content: error }
           }
+          if (typeof error === 'string' && error.startsWith('BSONError:')) {
+            location.reload()
+          }
           switch (error) {
             case 'THINKING':
               // 正在回答其它問題
