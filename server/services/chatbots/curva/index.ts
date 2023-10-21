@@ -9,23 +9,16 @@ function chooseEngine (model: string) {
   // 記得也要更新 ./convConfig.ts
   switch (model) {
     case 'gpt3':
-      // return Gpt3Chatbot
+    case 'gpt3-fga':
       return Gpt3FgaChatbot
     case 'gpt4':
-      // return Gpt4Chatbot
-      return Gpt4FgaChatbot
+    case 'gpt4-fga':
     case 'gpt-web':
       return Gpt4FgaChatbot
     case 'claude-2':
-      return Claude2Chatbot
     case 'claude-2-web':
-      return Claude2WebChatbot
-    case 'gpt3-fga':
-      return Gpt3FgaChatbot
-    case 'gpt4-fga':
-      return Gpt4FgaChatbot
+      return Claude2Chatbot
     default:
-      // return Gpt3Chatbot
       return Gpt3FgaChatbot
   }
 }
