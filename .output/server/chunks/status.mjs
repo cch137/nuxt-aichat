@@ -15,8 +15,6 @@ import 'axios';
 import './random.mjs';
 import 'crypto-js/sha3.js';
 import './streamManager.mjs';
-import './search.mjs';
-import 'googlethis';
 import 'dotenv';
 import 'crypto';
 import './rollup/_commonjsHelpers.mjs';

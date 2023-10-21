@@ -35,8 +35,6 @@ import './conversation.mjs';
 import './message.mjs';
 import 'axios';
 import './streamManager.mjs';
-import './search.mjs';
-import 'googlethis';
 import './ytCrawler.mjs';
 import 'qs';
 import 'cookie';

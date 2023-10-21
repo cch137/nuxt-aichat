@@ -39,8 +39,6 @@ import './conversation.mjs';
 import './message.mjs';
 import 'axios';
 import './streamManager.mjs';
-import './search.mjs';
-import 'googlethis';
 
 const logger = model("Log", new Schema({
   type: { type: String, required: true },
@@ -97,8 +95,7 @@ const models = [
     isTemperatureOptional: true,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: MIN_LEVEL,
-    redirectTo: "gpt3"
+    permissionLevel: MIN_LEVEL
   },
   {
     name: "Claude-2 (Web)",
@@ -108,7 +105,7 @@ const models = [
     isContextOptional: true,
     isStreamAvailable: true,
     permissionLevel: MIN_LEVEL,
-    redirectTo: "gpt3"
+    redirectTo: "claude-2"
   },
   {
     name: "GPT-3.5-Turbo (stream)",

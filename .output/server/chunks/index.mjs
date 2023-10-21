@@ -1,5 +1,4 @@
 import './index2.mjs';
-import { s as search } from './search.mjs';
 import mongoose from 'mongoose';
 
 var __defProp = Object.defineProperty;
@@ -66,7 +65,6 @@ class AdminConfig {
 _value = new WeakMap();
 _callOnchange = new WeakMap();
 const searchEngineConfig = new AdminConfig("search-engine", "google", (v) => {
-  search.engine = v;
 });
 searchEngineConfig.init();
 const admin = {

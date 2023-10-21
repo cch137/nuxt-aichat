@@ -4,18 +4,17 @@ import { m as message } from './message.mjs';
 import axios from 'axios';
 import { s as str } from './random.mjs';
 import { s as streamManager } from './streamManager.mjs';
-import { s as search } from './search.mjs';
 
-var __defProp$5 = Object.defineProperty;
-var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$5 = (obj, key, value) => {
-  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$4 = Object.defineProperty;
+var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$4 = (obj, key, value) => {
+  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Conversation {
   constructor(uid, conv) {
-    __publicField$5(this, "conv");
-    __publicField$5(this, "uid");
+    __publicField$4(this, "conv");
+    __publicField$4(this, "uid");
     this.uid = uid;
     this.conv = conv;
   }
@@ -178,10 +177,10 @@ ${data}`;
   return messages;
 }
 
-var __defProp$4 = Object.defineProperty;
-var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$4 = (obj, key, value) => {
-  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$3 = Object.defineProperty;
+var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$3 = (obj, key, value) => {
+  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 async function createStreamRequest(streaming, url, data, headers) {
@@ -229,8 +228,8 @@ const defaultApiHost = "https://chat.mikumikumi.tk";
 const defaultApiKey = "sk-GUyvmlW1WqsBLT0u5bEb6d4cEfBd4b059f41870278E3Ab9a";
 class Client {
   constructor(host = defaultApiHost, apiKey = defaultApiKey) {
-    __publicField$4(this, "host");
-    __publicField$4(this, "apiKey");
+    __publicField$3(this, "host");
+    __publicField$3(this, "apiKey");
     this.host = host || defaultApiHost;
     this.apiKey = apiKey || defaultApiKey;
   }
@@ -272,7 +271,7 @@ class Client {
 }
 class FreeGptAsiaChatbotCore {
   constructor(options = {}) {
-    __publicField$4(this, "client");
+    __publicField$3(this, "client");
     const { host, apiKey } = options;
     this.client = new Client(host, apiKey);
   }
@@ -299,30 +298,6 @@ class FreeGptAsiaChatbotCore {
 }
 const FreeGPTAsiaChatbotCore = FreeGptAsiaChatbotCore;
 
-var __defProp$3 = Object.defineProperty;
-var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$3 = (obj, key, value) => {
-  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-let Claude2WebChatbot$2 = class Claude2WebChatbot {
-  constructor(core) {
-    __publicField$3(this, "core");
-    this.core = core || new FreeGPTAsiaChatbotCore();
-  }
-  async ask(messages, options = {}) {
-    const { timezone = 0, temperature = 0.5, streamId } = options;
-    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    return {
-      ...await this.core.ask(messages, { model: "claude-2-web", temperature, streamId }),
-      // ...await this.core.ask(question, { model: 'PaLM-2' }),
-      question,
-      isContinueGenerate
-    };
-  }
-};
-const Claude2Chatbot = Claude2WebChatbot$2;
-
 var __defProp$2 = Object.defineProperty;
 var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField$2 = (obj, key, value) => {
@@ -337,13 +312,6 @@ class Claude2WebChatbot {
   async ask(messages, options = {}) {
     const { timezone = 0, temperature = 0.5, streamId } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
-    messages.at(-1).content = `${question}
-
----
-
-The following is information from the web, please use it only when necessary.
-
-${(await search(question)).summary(false)}`;
     return {
       ...await this.core.ask(messages, { model: "claude-2-web", temperature, streamId }),
       // ...await this.core.ask(question, { model: 'PaLM-2' }),
@@ -352,7 +320,7 @@ ${(await search(question)).summary(false)}`;
     };
   }
 }
-const Claude2WebChatbot$1 = Claude2WebChatbot;
+const Claude2Chatbot = Claude2WebChatbot;
 
 var __defProp$1 = Object.defineProperty;
 var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -403,19 +371,15 @@ const Gpt4FgaChatbot$1 = Gpt4FgaChatbot;
 function chooseEngine(model) {
   switch (model) {
     case "gpt3":
+    case "gpt3-fga":
       return Gpt3FgaChatbot$1;
     case "gpt4":
-      return Gpt4FgaChatbot$1;
+    case "gpt4-fga":
     case "gpt-web":
       return Gpt4FgaChatbot$1;
     case "claude-2":
-      return Claude2Chatbot;
     case "claude-2-web":
-      return Claude2WebChatbot$1;
-    case "gpt3-fga":
-      return Gpt3FgaChatbot$1;
-    case "gpt4-fga":
-      return Gpt4FgaChatbot$1;
+      return Claude2Chatbot;
     default:
       return Gpt3FgaChatbot$1;
   }

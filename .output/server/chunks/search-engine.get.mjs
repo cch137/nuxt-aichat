@@ -28,9 +28,6 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'mongoose';
-import './search.mjs';
-import 'googlethis';
-import 'axios';
 
 const searchEngine_get = defineEventHandler(async function(event) {
   let isLoggedIn = await checkPassword(event);
