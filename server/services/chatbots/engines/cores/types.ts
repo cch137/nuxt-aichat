@@ -12,7 +12,7 @@ interface ChatbotEngine {
 }
 
 interface OpenAIMessage {
-  role: 'user' | 'assistant',
+  role: 'system' | 'user' | 'assistant',
   content: string
 }
 

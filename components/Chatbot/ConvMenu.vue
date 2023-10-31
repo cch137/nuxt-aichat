@@ -127,6 +127,11 @@
     </div>
     <div class="flex flex-col mt-4 gap-1">
       <div>
+        <el-link href="https://chat.mikumikumi.tk/" target="_blank" :icon="Trophy">
+          <div class="pl-1"><el-text size="large" style="color: goldenrod">This site is sponsored by mikumikumi</el-text></div>
+        </el-link>
+      </div>
+      <div>
         <el-link href="https://www.buymeacoffee.com/cch137" target="_blank" :icon="Coffee">
           <div class="pl-1"><el-text size="large" style="color: inherit">Buy me a coffee</el-text></div>
         </el-link>
@@ -148,7 +153,7 @@
 <script setup>
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { InfoFilled, Plus, ChatSquare, More, EditPen, Delete,
-  Coffee, Message, ChatDotRound } from '@element-plus/icons-vue'
+  Trophy, Coffee, Message, ChatDotRound } from '@element-plus/icons-vue'
 import baseConverter from '~/utils/baseConverter'
 
 const version = useState('version', () => '')
