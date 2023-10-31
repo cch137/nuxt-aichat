@@ -1,0 +1,1 @@
+import{z as t}from"./entry.d4d7846e.js";function a(){async function i(n){return n||(n=void 0),(await $fetch("/api/admin/check",{method:"POST",body:{passwd:n}})).isLoggedIn}async function o(){await $fetch("/api/admin/check",{method:"DELETE"}),t("/")}return{checkIsLoggedIn:i,adminLogout:o}}export{a as u};
