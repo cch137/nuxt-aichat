@@ -1,7 +1,7 @@
 <template>
   <div class="mt-8 flex-col gap-4 flex-center">
     <ClientOnly>
-      <h1 class="m-0">LS</h1>
+      <h1 class="m-0 cursor-pointer" @click="clearTree()">LS</h1>
       <div class="px-4 w-full max-w-prose flex flex-col gap-4 justify-center">
         <el-select
           v-model="selectedFilename"
@@ -20,16 +20,11 @@
           <details v-for="chap in lsTree">
             <summary class="chapter-title">{{ chap.chapter }}</summary>
             <div class="flex flex-wrap gap-2 pl-4 pt-2 pb-4">
-              <el-link v-for="prob in chap.problems" :href="prob.link" target="_blank">
+              <el-link v-for="prob in chap.problems" :href="`https://api.cch137.link/ls/i/${prob.link.split('/').at(-1)}`" target="_blank">
                 {{ prob.p }}
               </el-link>
             </div>
           </details>
-        </div>
-        <div v-if="lsTree.length" class="flex-col flex-center pb-16">
-          <div>
-            <el-text type="info">提示：點擊下載 (Скачать) 可以取得更清晰的圖片。免責聲明：本站非以上文件之所有者，訪客若因訪問非本站頁面或資源導致任何損失，本站概不負責。</el-text>
-          </div>
         </div>
         <div class="flex-center pb-16">
           <el-link @click="back()">BACK</el-link>
@@ -63,12 +58,27 @@ function back() {
 
 const isFetchingTree = ref(false)
 
+function setQParam(value: string = '') {
+  const urlP = useURLParams();
+  if (value) urlP.set('q', value);
+  else urlP.delete('q');
+  urlP.save();
+}
+
+function clearTree() {
+  selectedFilename.value = '';
+  lsTree.value = [];
+  setQParam();
+}
+
 async function fetchTree() {
-  isFetchingTree.value = true
+  isFetchingTree.value = true;
   const tree: {chapter: string, problems: {p:string,link:string}[]}[] = [];
   lsTree.value = [];
   const loading = useElLoading();
-  const res = await(await fetch(`https://api.cch137.link/ls/${selectedFilename.value}`)).json() as {isbn_c_p:string,link:string}[]
+  const bookFilename = selectedFilename.value;
+  setQParam(bookFilename.split('.json')[0]);
+  const res = await(await fetch(`https://api.cch137.link/ls/${bookFilename}`)).json() as {isbn_c_p:string,link:string}[]
   function getChapterProblems(chapter: string) {
     for (const chap of tree) {
       if (chap.chapter === chapter) {
