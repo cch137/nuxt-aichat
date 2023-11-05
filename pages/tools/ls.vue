@@ -20,7 +20,11 @@
           <details v-for="chap in lsTree">
             <summary class="chapter-title">{{ chap.chapter }}</summary>
             <div class="flex flex-wrap gap-2 pl-4 pt-2 pb-4">
-              <el-link v-for="prob in chap.problems" :href="`https://api.cch137.link/ls/i/${prob.link.split('/').at(-1)}`" target="_blank">
+              <el-link
+                v-for="prob in chap.problems"
+                :href="`https://api.cch137.link/ls/i/${prob.p}_${chap.chapter}_${isbn}?id=${prob.link.split('/').at(-1)}`"
+                target="_blank"
+              >
                 {{ prob.p }}
               </el-link>
             </div>
@@ -39,6 +43,7 @@ import { ElMessage } from 'element-plus'
 import random from '~/utils/random'
 
 const selectedFilename = ref('')
+const isbn = computed(() => (selectedFilename.value.split(' ').at(-1) || '').split('.json')[0])
 const lsList = ref<string[]>([])
 const lsTree = ref<{chapter:string,problems:{p:string,link:string}[]}[]>([])
 
@@ -77,7 +82,7 @@ async function fetchTree() {
   lsTree.value = [];
   const loading = useElLoading();
   const bookFilename = selectedFilename.value;
-  setQParam(bookFilename.split('.json')[0]);
+  setQParam(isbn.value);
   const res = await(await fetch(`https://api.cch137.link/ls/${bookFilename}`)).json() as {isbn_c_p:string,link:string}[]
   function getChapterProblems(chapter: string) {
     for (const chap of tree) {
