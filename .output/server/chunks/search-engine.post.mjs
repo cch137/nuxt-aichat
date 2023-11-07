@@ -28,6 +28,9 @@ import 'net';
 import 'socks';
 import 'tls';
 import 'mongoose';
+import './search.mjs';
+import 'googlethis';
+import 'axios';
 
 const searchEngine_post = defineEventHandler(async function(event) {
   var _a;

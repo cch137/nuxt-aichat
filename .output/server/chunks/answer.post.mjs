@@ -39,6 +39,8 @@ import './conversation.mjs';
 import './message.mjs';
 import 'axios';
 import './streamManager.mjs';
+import './search.mjs';
+import 'googlethis';
 
 const logger = model("Log", new Schema({
   type: { type: String, required: true },

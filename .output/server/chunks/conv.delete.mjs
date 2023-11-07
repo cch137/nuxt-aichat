@@ -35,6 +35,8 @@ import './conversation.mjs';
 import './message.mjs';
 import 'axios';
 import './streamManager.mjs';
+import './search.mjs';
+import 'googlethis';
 
 const conv_delete = defineEventHandler(async (event) => {
   var _a;
