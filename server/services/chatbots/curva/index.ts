@@ -85,7 +85,9 @@ const curva = {
       // @ts-ignore
       const engine = await (async () => {
         const Engine = chooseEngine(model) as typeof Gpt4FgaChatbot
-        return new Engine(freeGptAsiaCore)
+        return [Claude2Chatbot, Claude2WebChatbot].includes(Engine)
+          ? new Engine()
+          : new Engine(freeGptAsiaCore)
         // return ['gpt3', 'gpt4', 'gpt-web'].includes(model)
         //   // @ts-ignore
         //   ? new Engine(await getRandomMindsDBCore())

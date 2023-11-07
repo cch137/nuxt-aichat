@@ -72,14 +72,14 @@ async function createStreamRequest (streaming: Stream, url: string, data: any, h
   })
 }
 
-// const defaultApiHost = 'https://api.spaxe.top'
-// const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
-// const defaultApiHost = 'https://apx.spaxe.top'
-// const defaultApiKey = 'sk-nWpqLgtXfIJRPav42146Bf4374A64c359aB77e810847CcBa'
-// const defaultApiHost = 'https://api.freegpt.asia'
-// const defaultApiKey = 'sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1'
-const defaultApiHost = 'https://chat.mikumikumi.tk'
-const defaultApiKey = 'sk-GUyvmlW1WqsBLT0u5bEb6d4cEfBd4b059f41870278E3Ab9a'
+const fgaApiHost = 'https://api.freegpt.asia'
+const fgaApiKey = 'sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1'
+const mikuApiHost = 'https://chat.mikumikumi.tk'
+const mikuApiKey = 'sk-GUyvmlW1WqsBLT0u5bEb6d4cEfBd4b059f41870278E3Ab9a'
+// const defaultApiHost = fgaApiHost
+// const defaultApiKey = fgaApiKey
+const defaultApiHost = mikuApiHost
+const defaultApiKey = mikuApiHost
 
 class Client {
   host: string
@@ -155,9 +155,17 @@ class FreeGptAsiaChatbotCore implements ChatbotEngine {
   kill () {}
 }
 
-// MODELS:
-// gpt-3.5-turbo
-// claude-2-web
-
 export default FreeGptAsiaChatbotCore
+export {
+  mikuApiHost,
+  mikuApiKey,
+  fgaApiHost,
+  fgaApiKey,
+}
 export type { FreeGptAsiaChatbotCore }
+
+// 已棄用：
+// const defaultApiHost = 'https://api.spaxe.top'
+// const defaultApiKey = 'sk-rPU7CXVoZYYhvnh3r3JnbxKJAEh9ZXVerv52icrPvUFoQCOe'
+// const defaultApiHost = 'https://apx.spaxe.top'
+// const defaultApiKey = 'sk-nWpqLgtXfIJRPav42146Bf4374A64c359aB77e810847CcBa'
