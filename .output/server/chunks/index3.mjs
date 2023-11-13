@@ -1,4 +1,4 @@
-import { AttachmentBuilder, EmbedBuilder, ApplicationCommandOptionType, Client, IntentsBitField } from 'discord.js';
+import { AttachmentBuilder, codeBlock, EmbedBuilder, ApplicationCommandOptionType, Client, IntentsBitField } from 'discord.js';
 import { s as str } from './random.mjs';
 import { C as Conversation, c as curva } from './index4.mjs';
 import axios from 'axios';
@@ -22,6 +22,13 @@ function getYouTubeVideoId(url) {
 
 function createTextFile(filename, content) {
   return new AttachmentBuilder(Buffer.from(content, "utf8"), { name: filename });
+}
+function toCodeBlocks(input, maxLength = 1994) {
+  const blocks = [];
+  for (let i = 0; i < input.length; i += maxLength) {
+    blocks.push(codeBlock(input.substring(i, i + maxLength)));
+  }
+  return blocks;
 }
 
 let clientId = "";
@@ -105,10 +112,13 @@ const handleInteractionForCurvaClearHistory = async (interaction) => {
 };
 
 async function handleInteractionForWikipediaArticle(interaction) {
-  var _a, _b;
+  var _a, _b, _c;
   const query = ((_a = interaction.options.get("query")) == null ? void 0 : _a.value) || "";
   const lang = ((_b = interaction.options.get("language-subdomain")) == null ? void 0 : _b.value) || "";
-  interaction.reply((await axios.get(`https://api.cch137.link/wikipedia?a=${query}${lang ? `&l=${lang}` : ""}`)).data);
+  const blocks = toCodeBlocks((await axios.get(`https://api.cch137.link/wikipedia?a=${query}${lang ? `&l=${lang}` : ""}`)).data);
+  await interaction.reply(blocks[0]);
+  while (blocks.length)
+    await ((_c = interaction.channel) == null ? void 0 : _c.send(blocks.shift()));
 }
 
 async function handleInteractionForYTCaptions(interaction) {
