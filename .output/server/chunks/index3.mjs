@@ -116,7 +116,7 @@ async function handleInteractionForWikipediaArticle(interaction) {
   const query = ((_a = interaction.options.get("query")) == null ? void 0 : _a.value) || "";
   const lang = ((_b = interaction.options.get("language-subdomain")) == null ? void 0 : _b.value) || "";
   const blocks = toCodeBlocks((await axios.get(`https://api.cch137.link/wikipedia?a=${query}${lang ? `&l=${lang}` : ""}`)).data);
-  await interaction.reply(blocks[0]);
+  await interaction.reply(blocks.shift() as string);
   while (blocks.length)
     await ((_c = interaction.channel) == null ? void 0 : _c.send(blocks.shift()));
 }
