@@ -1,6 +1,7 @@
-import { AttachmentBuilder, EmbedBuilder, Client, IntentsBitField } from 'discord.js';
+import { AttachmentBuilder, EmbedBuilder, ApplicationCommandOptionType, Client, IntentsBitField } from 'discord.js';
 import { s as str } from './random.mjs';
 import { C as Conversation, c as curva } from './index4.mjs';
+import axios from 'axios';
 import { c as crawlYouTubeVideo } from './ytCrawler.mjs';
 
 const ytLinkRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S+&)?v=|embed\/|v\/)|youtu\.be\/)([\w-]+)/g;
@@ -103,6 +104,13 @@ const handleInteractionForCurvaClearHistory = async (interaction) => {
   interaction.reply({ embeds: [new EmbedBuilder().setDescription("Your conversation with the chatbot in this channel has been cleared.").setColor("Green")] });
 };
 
+async function handleInteractionForWikipediaArticle(interaction) {
+  var _a, _b;
+  const query = ((_a = interaction.options.get("query")) == null ? void 0 : _a.value) || "";
+  const lang = ((_b = interaction.options.get("language-subdomain")) == null ? void 0 : _b.value) || "";
+  interaction.reply((await axios.get(`https://api.cch137.link/wikipedia?a=${query}${lang ? `&l=${lang}` : ""}`)).data);
+}
+
 async function handleInteractionForYTCaptions(interaction) {
   var _a, _b;
   const videoLink = ((_a = interaction.options.get("id")) == null ? void 0 : _a.value) || "";
@@ -177,6 +185,9 @@ async function connect() {
       case "gpt-web":
         handleInteractionForCurvaAsk(interaction, "gpt-web");
         break;
+      case "wikipedia":
+        handleInteractionForWikipediaArticle(interaction);
+        break;
       case "clear-chatbot-memory":
         handleInteractionForCurvaClearHistory(interaction);
         break;
@@ -196,6 +207,26 @@ async function connect() {
 }
 if (+process.env.RUN_DC_BOT) {
   connect().then(() => {
+  }).then(async () => {
+    var _a;
+    (_a = client.application) == null ? void 0 : _a.commands.create({
+      name: "wikipedia",
+      description: "Fetch excerpts of wikipedia articles.",
+      options: [
+        {
+          name: "query",
+          description: "Article title",
+          type: ApplicationCommandOptionType.String,
+          required: true
+        },
+        {
+          name: "language-subdomain",
+          description: "If not specified, the language subdomain will be automatically detected.",
+          type: ApplicationCommandOptionType.String,
+          required: false
+        }
+      ]
+    });
   });
 }
 const bot = {
