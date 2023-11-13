@@ -1,6 +1,7 @@
 import type { TextBasedChannel } from 'discord.js'
-import { Client, IntentsBitField } from 'discord.js'
+import { Client, IntentsBitField, ApplicationCommandOptionType } from 'discord.js'
 import { handleInteractionForCurvaAsk, handleInteractionForCurvaClearHistory } from './curva'
+import { handleInteractionForWikipediaArticle } from './wikipedia'
 import { handleInteractionForYTCaptions } from './yt'
 import { setClientId } from './clientId'
 
@@ -63,6 +64,9 @@ async function connect () {
       case 'gpt-web':
         handleInteractionForCurvaAsk(interaction, 'gpt-web')
         break
+      case 'wikipedia':
+        handleInteractionForWikipediaArticle(interaction)
+        break
       case 'clear-chatbot-memory':
         handleInteractionForCurvaClearHistory(interaction)
         break
@@ -86,6 +90,26 @@ async function connect () {
 if (+(process.env.RUN_DC_BOT as string)) {
   connect()
     .then(() => {})
+    .then(async () => {
+      (client as Client<boolean>).application?.commands.create({
+        name: 'wikipedia',
+        description: 'Fetch excerpts of wikipedia articles.',
+        options: [
+          {
+            name: 'query',
+            description: 'Article title',
+            type: ApplicationCommandOptionType.String,
+            required: true
+          },
+          {
+            name: 'language-subdomain',
+            description: 'If not specified, the language subdomain will be automatically detected.',
+            type: ApplicationCommandOptionType.String,
+            required: false
+          },
+        ]
+      })
+    })
     // .then(async () => {
     //   await (store.client as Client<boolean>).application?.commands.create({
     //     name: 'yt-captions',
