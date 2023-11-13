@@ -23,7 +23,7 @@ function getYouTubeVideoId(url) {
 function createTextFile(filename, content) {
   return new AttachmentBuilder(Buffer.from(content, "utf8"), { name: filename });
 }
-function toCodeBlocks(input, maxLength = 1994) {
+function toCodeBlocks(input, maxLength = 1992) {
   const blocks = [];
   for (let i = 0; i < input.length; i += maxLength) {
     blocks.push(codeBlock(input.substring(i, i + maxLength)));
