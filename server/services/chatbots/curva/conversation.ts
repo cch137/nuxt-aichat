@@ -3,8 +3,8 @@ import {
   conversation as conversationCollection,
   ObjectId
 } from '~/server/services/mongoose'
-import { ArchivedChatMessage } from './types'
-import { OpenAIMessage } from '../engines/cores/types'
+import type { ArchivedChatMessage } from './types'
+import type { OpenAIMessage } from '../engines/cores/types'
 
 class Conversation {
   conv: string
@@ -114,17 +114,18 @@ class Conversation {
       record.dt = dt
     }
     if (regenerateId) {
-      await messageCollection.updateOne({
-        _id: new ObjectId(regenerateId),
-        uid,
-        conv
-      }, {
-        $set: record
-      })
-      return regenerateId
-    } else {
-      return (await messageCollection.create(record))._id.toString()
+      try {
+        await messageCollection.updateOne({
+          _id: new ObjectId(regenerateId),
+          uid,
+          conv
+        }, {
+          $set: record
+        })
+        return regenerateId
+      } catch {}
     }
+    return (await messageCollection.create(record))._id.toString()
   }
 }
 
