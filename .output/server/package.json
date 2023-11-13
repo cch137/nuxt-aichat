@@ -1,6 +1,6 @@
 {
   "name": "curva-prod",
-  "version": "0.5.13b",
+  "version": "0.5.13c",
   "type": "module",
   "private": true,
   "dependencies": {

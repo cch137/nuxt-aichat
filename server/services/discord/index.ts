@@ -90,26 +90,26 @@ async function connect () {
 if (+(process.env.RUN_DC_BOT as string)) {
   connect()
     .then(() => {})
-    .then(async () => {
-      (client as Client<boolean>).application?.commands.create({
-        name: 'wikipedia',
-        description: 'Fetch excerpts of wikipedia articles.',
-        options: [
-          {
-            name: 'query',
-            description: 'Article title',
-            type: ApplicationCommandOptionType.String,
-            required: true
-          },
-          {
-            name: 'language-subdomain',
-            description: 'If not specified, the language subdomain will be automatically detected.',
-            type: ApplicationCommandOptionType.String,
-            required: false
-          },
-        ]
-      })
-    })
+    // .then(async () => {
+    //   (client as Client<boolean>).application?.commands.create({
+    //     name: 'wikipedia',
+    //     description: 'Fetch excerpts of wikipedia articles.',
+    //     options: [
+    //       {
+    //         name: 'query',
+    //         description: 'Article title',
+    //         type: ApplicationCommandOptionType.String,
+    //         required: true
+    //       },
+    //       {
+    //         name: 'language-subdomain',
+    //         description: 'If not specified, the language subdomain will be automatically detected.',
+    //         type: ApplicationCommandOptionType.String,
+    //         required: false
+    //       },
+    //     ]
+    //   })
+    // })
     // .then(async () => {
     //   await (store.client as Client<boolean>).application?.commands.create({
     //     name: 'yt-captions',

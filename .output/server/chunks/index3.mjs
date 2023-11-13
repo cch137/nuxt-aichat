@@ -1,4 +1,4 @@
-import { AttachmentBuilder, codeBlock, EmbedBuilder, ApplicationCommandOptionType, Client, IntentsBitField } from 'discord.js';
+import { AttachmentBuilder, codeBlock, EmbedBuilder, Client, IntentsBitField } from 'discord.js';
 import { s as str } from './random.mjs';
 import { C as Conversation, c as curva } from './index4.mjs';
 import axios from 'axios';
@@ -116,7 +116,7 @@ async function handleInteractionForWikipediaArticle(interaction) {
   const query = ((_a = interaction.options.get("query")) == null ? void 0 : _a.value) || "";
   const lang = ((_b = interaction.options.get("language-subdomain")) == null ? void 0 : _b.value) || "";
   const blocks = toCodeBlocks((await axios.get(`https://api.cch137.link/wikipedia?a=${query}${lang ? `&l=${lang}` : ""}`)).data);
-  await interaction.reply(blocks.shift() as string);
+  await interaction.reply(blocks.shift());
   while (blocks.length)
     await ((_c = interaction.channel) == null ? void 0 : _c.send(blocks.shift()));
 }
@@ -217,26 +217,6 @@ async function connect() {
 }
 if (+process.env.RUN_DC_BOT) {
   connect().then(() => {
-  }).then(async () => {
-    var _a;
-    (_a = client.application) == null ? void 0 : _a.commands.create({
-      name: "wikipedia",
-      description: "Fetch excerpts of wikipedia articles.",
-      options: [
-        {
-          name: "query",
-          description: "Article title",
-          type: ApplicationCommandOptionType.String,
-          required: true
-        },
-        {
-          name: "language-subdomain",
-          description: "If not specified, the language subdomain will be automatically detected.",
-          type: ApplicationCommandOptionType.String,
-          required: false
-        }
-      ]
-    });
   });
 }
 const bot = {
