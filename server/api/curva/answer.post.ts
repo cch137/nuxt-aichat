@@ -11,7 +11,7 @@ import random from '~/utils/random'
 import estimateTokens from '~/server/services/chatbots/engines/utils/estimateTokens'
 import type { OpenAIMessage } from '~/server/services/chatbots/engines/cores/types'
 import type { CurvaStandardResponse } from '~/server/services/chatbots/curva/types'
-import { messagesToQuestionContext } from '~/server/services/chatbots/engines/utils/openAiMessagesConverter'
+import { analyzeLanguages } from '~/utils/analyzeLanguages'
 import RateLimiter from '~/server/services/rate-limiter'
 import models from '~/config/models'
 
@@ -76,6 +76,10 @@ export default defineEventHandler(async (event) => {
   const ip = getIp(event.node.req)
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: 'Your actions are considered to be abusive.', id: tempId }
+  }
+  // no russian
+  if ((analyzeLanguages((messages as OpenAIMessage[]).map(m => m.content).join(''))?.ru || 0) > 0.25) {
+    return { error: 'Oops! Something went wrong.', id: tempId }
   }
   try {
     const lastQuestion = (messages as OpenAIMessage[]).findLast(i => i.role === 'user')?.content || ''

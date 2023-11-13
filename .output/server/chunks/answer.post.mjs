@@ -6,6 +6,7 @@ import { c as curva } from './index4.mjs';
 import { g as getIp } from './getIp.mjs';
 import { b as baseConverter, r as random, s as str } from './random.mjs';
 import { encoding_for_model } from '@dqbd/tiktoken';
+import { a as analyzeLanguages } from './analyzeLanguages.mjs';
 import { R as RateLimiter } from './rate-limiter.mjs';
 import { model, Schema } from 'mongoose';
 import 'node:http';
@@ -147,7 +148,7 @@ const rateLimiterBundler = RateLimiter.bundle([
 ]);
 const bannedIpSet = /* @__PURE__ */ new Set([]);
 const answer_post = defineEventHandler(async (event) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i;
   if (!rateLimiterBundler.check(getIp(event.node.req))) {
     return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 1e4));
   }
@@ -188,8 +189,11 @@ const answer_post = defineEventHandler(async (event) => {
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: "Your actions are considered to be abusive.", id: tempId };
   }
+  if ((((_h = analyzeLanguages(messages.map((m) => m.content).join(""))) == null ? void 0 : _h.ru) || 0) > 0.25) {
+    return { error: "Oops! Something went wrong.", id: tempId };
+  }
   try {
-    const lastQuestion = ((_h = messages.findLast((i) => i.role === "user")) == null ? void 0 : _h.content) || "";
+    const lastQuestion = ((_i = messages.findLast((i) => i.role === "user")) == null ? void 0 : _i.content) || "";
     if (lastQuestion.toUpperCase().includes("ONLY SAY HELLO")) {
       console.log("ONLY SAY HELLO", ip, event.node.req.headers);
       rateLimiterBundler.check(ip, 1e3);
