@@ -34,8 +34,9 @@ const rateLimiterBundler = RateLimiter.bundle([
 const bannedIpSet = new Set<string>([]);
 
 export default defineEventHandler(async (event) => {
-  if (!rateLimiterBundler.check(getIp(event.node.req))) {
-    return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 10000))
+  const ip = getIp(event.node.req)
+  if (!rateLimiterBundler.check(ip)) {
+    return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(ip) }), 10000))
   }
   const now = Date.now()
   const body = await readBody(event)
@@ -73,13 +74,13 @@ export default defineEventHandler(async (event) => {
   if (authlvl < neededAuthlvl) {
     return { error: 'NO PERMISSION', id: tempId }
   }
-  const ip = getIp(event.node.req)
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: 'Your actions are considered to be abusive.', id: tempId }
   }
   // no russian
   if ((analyzeLanguages((messages as OpenAIMessage[]).map(m => m.content).join(''))?.ru || 0) > 0.25) {
-    return { error: 'Oops! Something went wrong.', id: tempId }
+    rateLimiterBundler.check(ip, 4)
+    // return { error: 'Oops! Something went wrong.', id: tempId }
   }
   try {
     const lastQuestion = (messages as OpenAIMessage[]).findLast(i => i.role === 'user')?.content || ''

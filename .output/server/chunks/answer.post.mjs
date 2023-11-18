@@ -149,8 +149,9 @@ const rateLimiterBundler = RateLimiter.bundle([
 const bannedIpSet = /* @__PURE__ */ new Set([]);
 const answer_post = defineEventHandler(async (event) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i;
-  if (!rateLimiterBundler.check(getIp(event.node.req))) {
-    return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(getIp(event.node.req)) }), 1e4));
+  const ip = getIp(event.node.req);
+  if (!rateLimiterBundler.check(ip)) {
+    return await new Promise((r) => setTimeout(() => r({ error: rateLimiterBundler.getHint(ip) }), 1e4));
   }
   const now = Date.now();
   const body = await readBody(event);
@@ -185,12 +186,11 @@ const answer_post = defineEventHandler(async (event) => {
   if (authlvl < neededAuthlvl) {
     return { error: "NO PERMISSION", id: tempId };
   }
-  const ip = getIp(event.node.req);
   if ([...bannedIpSet].find((_ip) => ip.includes(_ip))) {
     return { error: "Your actions are considered to be abusive.", id: tempId };
   }
   if ((((_h = analyzeLanguages(messages.map((m) => m.content).join(""))) == null ? void 0 : _h.ru) || 0) > 0.25) {
-    return { error: "Oops! Something went wrong.", id: tempId };
+    rateLimiterBundler.check(ip, 4);
   }
   try {
     const lastQuestion = ((_i = messages.findLast((i) => i.role === "user")) == null ? void 0 : _i.content) || "";

@@ -116,17 +116,19 @@ class Conversation {
       record.dt = dt;
     }
     if (regenerateId) {
-      await message.updateOne({
-        _id: new libExports.ObjectId(regenerateId),
-        uid,
-        conv
-      }, {
-        $set: record
-      });
-      return regenerateId;
-    } else {
-      return (await message.create(record))._id.toString();
+      try {
+        await message.updateOne({
+          _id: new libExports.ObjectId(regenerateId),
+          uid,
+          conv
+        }, {
+          $set: record
+        });
+        return regenerateId;
+      } catch {
+      }
     }
+    return (await message.create(record))._id.toString();
   }
 }
 const Conversation$1 = Conversation;
