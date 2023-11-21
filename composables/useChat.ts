@@ -186,7 +186,12 @@ if (process.client) {
 }
 
 const inputValue = ref('')
-const inputMaxLength = computed(() => model.value.startsWith('gpt3') ? 16000 : 32000)
+const inputMaxLength = computed(() => (
+  model.value.startsWith('claude')
+    ? 640000
+    : 128000
+  )
+)
 
 const createRequest = (() => {
   const getHashType = () => [77, 68, 53].map(c => String.fromCharCode(c)).join('') as 'MD5'
