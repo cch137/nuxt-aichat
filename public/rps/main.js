@@ -61,6 +61,10 @@ function getScreenSize() {
   }
 }
 
+/** @type {HTMLElement[]} */
+const players = [];
+const speed = 2;
+
 /**
  * @param {HTMLElement} el
  * @param {{x:number,y:number}} coor
@@ -68,18 +72,43 @@ function getScreenSize() {
 function setCoordinate(el, coor) {
   let { x, y } = coor;
   const { w: screenW, h: screenH } = getScreenSize();
-  if (x < 0) x = 0;
-  else if (x > screenW) x = screenW;
-  if (y < 0) y = 0;
-  else if (y > screenH) y = screenH;
+  if (x < 0) x = 0 + speed * Math.random();
+  else if (x > screenW) x = screenW - speed * Math.random();
+  if (y < 0) y = 0 + speed * Math.random();
+  else if (y > screenH) y = screenH - speed * Math.random();
   el.style.setProperty('--centerx', `${x}px`);
   el.style.setProperty('--centery', `${y}px`);
 }
 
-/** @type {HTMLElement[]} */
-const players = [];
+/**
+ * @param {HTMLElement} el
+ * @param {number} x1
+ * @param {number} y1
+ * @param {number} x2
+ * @param {number} y2
+ */
+function elGoTo(el, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const rx = dx / (Math.abs(dx) + Math.abs(dy));
+  const ry = dy / (Math.abs(dx) + Math.abs(dy));
+  setCoordinate(el, { x: x1 + speed * rx, y: y1 + speed * ry });
+}
 
-const speed = 2;
+/**
+ * @param {HTMLElement} el
+ * @param {number} x1
+ * @param {number} y1
+ * @param {number} x2
+ * @param {number} y2
+ */
+function elRunaway(el, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const rx = dx / (Math.abs(dx) + Math.abs(dy));
+  const ry = dy / (Math.abs(dx) + Math.abs(dy));
+  setCoordinate(el, { x: x1 - speed * rx, y: y1 - speed * ry });
+}
 
 /**
  * @param {HTMLElement} gameMap
@@ -94,30 +123,55 @@ function createPlayer(gameMap, _playerName) {
   const screenSize = getScreenSize();
   setCoordinate(player, {x: Math.random() * screenSize.w, y: Math.random() * screenSize.h});
   /** @type {HTMLElement|null} */
-  let enemy = null;
+  let target = null;
+  /** @type {HTMLElement|null} */
+  let ghost = null;
   setInterval(() => {
     const playerName = player.innerText;
-    const enemyName = playerName === '石'
+    const targetName = playerName === '石'
       ? '刀'
       : playerName === '刀'
         ? '布'
         : '石';
-    if (enemy === null || enemy.innerText !== enemyName) {
-      enemy = getClosestPlayer(player, enemyName);
+    const ghostName = playerName === '石'
+      ? '布'
+      : playerName === '刀'
+        ? '石'
+        : '刀';
+    if (target === null || target.innerText !== targetName) {
+      target = getClosestPlayer(player, targetName);
+      const _target = target;
+      setTimeout(() => {
+        if (_target === target) target = null;
+      }, 100);
     }
-    if (enemy === null) return;
-    const { centerx: x1, centery: y1 } = getBoundingRect(player);
-    const { centerx: x2, centery: y2 } = getBoundingRect(enemy);
+    if (ghost === null || ghost.innerText !== ghostName) {
+      ghost = getClosestPlayer(player, ghostName);
+      const _ghost = ghost;
+      setTimeout(() => {
+        if (_ghost === ghost) ghost = null;
+      }, 100);
+    }
+    if (target === null && ghost === null) return;
     for (const p of players) {
-      if (p.innerText === enemyName && isColide(player, p)) {
-        enemy.innerText = player.innerText;
+      if (p.innerText === targetName && isColide(player, p)) {
+        target.innerText = player.innerText;
       }
     }
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const rx = dx / (Math.abs(dx) + Math.abs(dy));
-    const ry = dy / (Math.abs(dx) + Math.abs(dy));
-    setCoordinate(player, { x: x1 + speed * rx, y: y1 + speed * ry });
+    const { centerx: x1, centery: y1, w } = getBoundingRect(player);
+    if (target !== null) {
+      const { centerx: x2, centery: y2 } = getBoundingRect(target);
+      // const dtarget = calculateDistance(x1, y1, x2, y2);
+      if (ghost !== null) {
+        const { centerx: x3, centery: y3 } = getBoundingRect(ghost);
+        const dghost = calculateDistance(x1, y1, x3, y3);
+        if (dghost < (4 * w)) return elRunaway(player, x1, y1, x3, y3);
+      }
+      return elGoTo(player, x1, y1, x2, y2);
+    } else if (ghost !== null) {
+      const { centerx: x3, centery: y3 } = getBoundingRect(ghost);
+      return elRunaway(player, x1, y1, x3, y3);
+    }
   }, 1);
 }
 
@@ -144,9 +198,9 @@ function getClosestPlayer(el, name) {
 
 window.addEventListener('load', () => {
   const gameMap = document.getElementById('rps-map');
-  for (let i = 0; i < 50; i++) {
-    createPlayer(gameMap, '石', '刀');
-    createPlayer(gameMap, '刀', '布');
-    createPlayer(gameMap, '布', '石');
+  for (let i = 0; i < 10; i++) {
+    createPlayer(gameMap, '石');
+    createPlayer(gameMap, '刀');
+    createPlayer(gameMap, '布');
   }
 })
