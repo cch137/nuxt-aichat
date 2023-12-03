@@ -230,7 +230,7 @@ async function createStreamRequest(streaming, url, data, headers) {
 const fgaApiHost = "https://api.freegpt.asia";
 const fgaApiKey = "sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1";
 const mikuApiHost = "https://chat.mikumikumi.tk";
-const mikuApiKey = "sk-oATXvnPpMsmp3mz54d1cE56c5aEe4773Ad999869B1E09574";
+const mikuApiKey = "sk-iqYB0vYbeIDfRZcQFb595cDd6b9a479a8735120a7b87D987";
 const defaultApiHost = mikuApiHost;
 const defaultApiKey = mikuApiKey;
 class Client {
