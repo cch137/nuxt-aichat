@@ -42,8 +42,8 @@
 import { ElMessage } from 'element-plus'
 import random from '~/utils/random'
 
-const apiHost = 'https://api.cch137.link'
-// const apiHost = 'http://localhost:5000'
+// const apiHost = 'https://api.cch137.link'
+const apiHost = 'http://localhost:5000'
 const selectedFilename = ref('')
 const isbn = computed(() => (selectedFilename.value.split(' ').at(-1) || '').split('.json')[0])
 const lsList = ref<string[]>([])
@@ -83,42 +83,46 @@ async function fetchTree() {
   const tree: {chapter: string, problems: {p:string,link:string}[]}[] = [];
   lsTree.value = [];
   const loading = useElLoading();
-  const bookFilename = selectedFilename.value;
-  setQParam(isbn.value);
-  const res = await(await fetch(`https://api.cch137.link/ls/${bookFilename}`)).json() as {isbn_c_p:string,link:string}[]
-  function getChapterProblems(chapter: string) {
-    for (const chap of tree) {
-      if (chap.chapter === chapter) {
-        return chap.problems;
-      }
+  try {
+    const bookFilename = selectedFilename.value;
+    setQParam(isbn.value);
+    const res = await(await fetch(`${apiHost}/ls/${bookFilename}`)).json() as {isbn_c_p:string,link:string}[]
+    const hashedTree = new Map<string, {p:string,link:string}[]>();
+    function getChapterProblems(chapter: string) {
+      if (hashedTree.has(chapter)) return hashedTree.get(chapter) as {p:string,link:string}[];
+      const problems: {p:string,link:string}[] = [];
+      hashedTree.set(chapter, problems);
+      tree.push({ chapter, problems });
+      return problems;
     }
-    const problems: {p:string,link:string}[] = [];
-    tree.push({ chapter, problems });
-    return problems;
+    for (const item of res) {
+      const [_, chapter, problem] = item.isbn_c_p.split('_');
+      getChapterProblems(chapter).push({ p: problem, link: item.link })
+    }
+    lsTree.value = tree;
+  } catch {
+    ElMessage.error('Error: Book not found.');
   }
-  for (const item of res) {
-    const [_, chapter, problem] = item.isbn_c_p.split('_');
-    getChapterProblems(chapter).push({ p: problem, link: item.link })
-  }
-  lsTree.value = tree;
   loading.close();
-  isFetchingTree.value = false
+  isFetchingTree.value = false;
 }
 
 if (process.client) {
   (async () => {
     const q = useURLParams().get('q') || '';
-    const req = fetch('https://api.cch137.link/ls/list');
-    lsList.value = await (await req).json() as string[]
     if (q && !selectedFilename.value) {
-      for (const book of lsList.value) {
-        if (book.toLowerCase().includes(q.toLowerCase())) {
-          selectedFilename.value = book;
-          await fetchTree();
-          break;
-        }
+      selectedFilename.value = q;
+      fetchTree();
+    }
+    const req = fetch(`${apiHost}/ls/list`);
+    lsList.value = await (await req).json() as string[]
+    for (const book of lsList.value) {
+      if (book.toLowerCase().includes(q.toLowerCase())) {
+        selectedFilename.value = book;
+        return;
       }
     }
+    clearTree();
   })();
 }
 
