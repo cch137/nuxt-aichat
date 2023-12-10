@@ -22,7 +22,7 @@
             <div class="flex flex-wrap gap-2 pl-4 pt-2 pb-4">
               <el-link
                 v-for="prob in chap.problems"
-                :href="`https://api.cch137.link/ls/i/${prob.p}_${chap.chapter}_${isbn}?id=${prob.link.split('/').at(-1)}`"
+                :href="`${apiHost}/ls/i/${chap.chapter}_${prob.p}?id=${prob.link.split('/').at(-1)}&b=${isbn}`"
                 target="_blank"
               >
                 {{ prob.p }}
@@ -42,6 +42,8 @@
 import { ElMessage } from 'element-plus'
 import random from '~/utils/random'
 
+const apiHost = 'https://api.cch137.link'
+// const apiHost = 'http://localhost:5000'
 const selectedFilename = ref('')
 const isbn = computed(() => (selectedFilename.value.split(' ').at(-1) || '').split('.json')[0])
 const lsList = ref<string[]>([])
