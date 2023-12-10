@@ -1,0 +1,1 @@
+import{_ as e,c as s,ah as t,a as c,o as l}from"./entry.7ff9c0b1.js";const o={},n={class:"w-full"},r=c("div",{class:"cf-turnstile","data-sitekey":"0x4AAAAAAAJN-U47BDF4fe0B","data-callback":"javascriptCallback"},null,-1);function d(a,_){return l(),s("div",n,[t(a.$slots,"default"),r])}const i=e(o,[["render",d]]);export{i as default};
