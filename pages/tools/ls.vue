@@ -42,8 +42,8 @@
 import { ElMessage } from 'element-plus'
 import random from '~/utils/random'
 
-// const apiHost = 'https://api.cch137.link'
-const apiHost = 'http://localhost:5000'
+const apiHost = 'https://api.cch137.link'
+// const apiHost = 'http://localhost:5000'
 const selectedFilename = ref('')
 const isbn = computed(() => (selectedFilename.value.split(' ').at(-1) || '').split('.json')[0])
 const lsList = ref<string[]>([])
