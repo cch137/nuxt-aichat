@@ -116,6 +116,7 @@ if (process.client) {
     }
     const req = fetch(`${apiHost}/ls/list`);
     lsList.value = await (await req).json() as string[]
+    if (!q) return;
     for (const book of lsList.value) {
       if (book.toLowerCase().includes(q.toLowerCase())) {
         selectedFilename.value = book;
