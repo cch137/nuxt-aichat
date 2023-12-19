@@ -10,6 +10,7 @@ interface ModelType {
 }
 
 const MIN_LEVEL = 0;
+const LOGGED_IN_LEVEL = 1;
 
 export default [
   {
@@ -86,6 +87,6 @@ export default [
     isTemperatureOptional: false,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: MIN_LEVEL,
+    permissionLevel: LOGGED_IN_LEVEL,
   },
 ] as ModelType[]

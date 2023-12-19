@@ -62,6 +62,7 @@ function estimateTokens(_model = "gpt-4", ...texts) {
 }
 
 const MIN_LEVEL = 0;
+const LOGGED_IN_LEVEL = 1;
 const models = [
   {
     name: "GPT-3.5-Turbo",
@@ -137,7 +138,7 @@ const models = [
     isTemperatureOptional: false,
     isContextOptional: true,
     isStreamAvailable: true,
-    permissionLevel: MIN_LEVEL
+    permissionLevel: LOGGED_IN_LEVEL
   }
 ];
 
