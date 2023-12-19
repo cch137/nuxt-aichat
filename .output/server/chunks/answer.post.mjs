@@ -129,6 +129,15 @@ const models = [
     isStreamAvailable: true,
     permissionLevel: MIN_LEVEL,
     redirectTo: "gpt4"
+  },
+  {
+    name: "Gemini-Pro",
+    value: "gemini-pro",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: false,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: MIN_LEVEL
   }
 ];
 

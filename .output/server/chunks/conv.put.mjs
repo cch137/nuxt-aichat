@@ -37,7 +37,7 @@ import 'mongoose';
 function validKeyValuePair(key, value) {
   switch (key) {
     case "model":
-      if (["gpt3", "gpt4", "gpt-web", "claude-2"].includes(value)) {
+      if (["gpt3", "gpt4", "gpt-web", "claude-2", "gemini-pro"].includes(value)) {
         return true;
       }
       break;

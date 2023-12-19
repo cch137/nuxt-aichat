@@ -6,16 +6,16 @@ import { s as str } from './random.mjs';
 import { s as streamManager } from './streamManager.mjs';
 import { s as search } from './search.mjs';
 
-var __defProp$5 = Object.defineProperty;
-var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$5 = (obj, key, value) => {
-  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$6 = Object.defineProperty;
+var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$6 = (obj, key, value) => {
+  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Conversation {
   constructor(uid, conv) {
-    __publicField$5(this, "conv");
-    __publicField$5(this, "uid");
+    __publicField$6(this, "conv");
+    __publicField$6(this, "uid");
     this.uid = uid;
     this.conv = conv;
   }
@@ -180,10 +180,10 @@ ${data}`;
   return messages;
 }
 
-var __defProp$4 = Object.defineProperty;
-var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$4 = (obj, key, value) => {
-  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$5 = Object.defineProperty;
+var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$5 = (obj, key, value) => {
+  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 async function createStreamRequest(streaming, url, data, headers) {
@@ -235,8 +235,8 @@ const defaultApiHost = mikuApiHost;
 const defaultApiKey = mikuApiKey;
 class Client {
   constructor(host = defaultApiHost, apiKey = defaultApiKey) {
-    __publicField$4(this, "host");
-    __publicField$4(this, "apiKey");
+    __publicField$5(this, "host");
+    __publicField$5(this, "apiKey");
     this.host = host || defaultApiHost;
     this.apiKey = apiKey || defaultApiKey;
   }
@@ -278,7 +278,7 @@ class Client {
 }
 class FreeGptAsiaChatbotCore {
   constructor(options = {}) {
-    __publicField$4(this, "client");
+    __publicField$5(this, "client");
     const { host, apiKey } = options;
     this.client = new Client(host, apiKey);
   }
@@ -305,15 +305,15 @@ class FreeGptAsiaChatbotCore {
 }
 const FreeGPTAsiaChatbotCore = FreeGptAsiaChatbotCore;
 
-var __defProp$3 = Object.defineProperty;
-var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$3 = (obj, key, value) => {
-  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$4 = Object.defineProperty;
+var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$4 = (obj, key, value) => {
+  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 let Claude2WebChatbot$2 = class Claude2WebChatbot {
   constructor(core) {
-    __publicField$3(this, "core");
+    __publicField$4(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore({ host: fgaApiHost, apiKey: fgaApiKey });
   }
   async ask(messages, options = {}) {
@@ -329,15 +329,15 @@ let Claude2WebChatbot$2 = class Claude2WebChatbot {
 };
 const Claude2Chatbot = Claude2WebChatbot$2;
 
-var __defProp$2 = Object.defineProperty;
-var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$2 = (obj, key, value) => {
-  __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$3 = Object.defineProperty;
+var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$3 = (obj, key, value) => {
+  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Claude2WebChatbot {
   constructor(core) {
-    __publicField$2(this, "core");
+    __publicField$3(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore({ host: fgaApiHost, apiKey: fgaApiKey });
   }
   async ask(messages, options = {}) {
@@ -360,15 +360,15 @@ ${(await search(question)).summary(false)}`;
 }
 const Claude2WebChatbot$1 = Claude2WebChatbot;
 
-var __defProp$1 = Object.defineProperty;
-var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$1 = (obj, key, value) => {
-  __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$2 = Object.defineProperty;
+var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$2 = (obj, key, value) => {
+  __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Gpt3FgaChatbot {
   constructor(core) {
-    __publicField$1(this, "core");
+    __publicField$2(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
@@ -383,15 +383,15 @@ class Gpt3FgaChatbot {
 }
 const Gpt3FgaChatbot$1 = Gpt3FgaChatbot;
 
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$1 = Object.defineProperty;
+var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$1 = (obj, key, value) => {
+  __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Gpt4FgaChatbot {
   constructor(core) {
-    __publicField(this, "core");
+    __publicField$1(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
@@ -406,6 +406,29 @@ class Gpt4FgaChatbot {
 }
 const Gpt4FgaChatbot$1 = Gpt4FgaChatbot;
 
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+class HunYuanFgaChatbot {
+  constructor(core) {
+    __publicField(this, "core");
+    this.core = core || new FreeGPTAsiaChatbotCore();
+  }
+  async ask(messages, options = {}) {
+    const { timezone = 0, streamId, temperature } = options;
+    const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
+    return {
+      ...await this.core.ask(messages, { model: "hunyuan", streamId, temperature }),
+      question,
+      isContinueGenerate
+    };
+  }
+}
+const HunYuanChatbot = HunYuanFgaChatbot;
+
 function chooseEngine(model) {
   switch (model) {
     case "gpt3":
@@ -418,6 +441,9 @@ function chooseEngine(model) {
     case "claude-2":
     case "claude-2-web":
       return Claude2Chatbot;
+    case "hunyuan":
+    case "gemini-pro":
+      return HunYuanChatbot;
     default:
       return Gpt3FgaChatbot$1;
   }
