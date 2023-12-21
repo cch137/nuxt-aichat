@@ -41,8 +41,8 @@ async function connect () {
 
   try {
     client.user?.setActivity({
-      name: 'https://ch4.cch137.link',
-      url: 'https://ch4.cch137.link',
+      name: 'https://ch4.us.to/',
+      url: 'https://ch4.us.to/',
       type: 0
     })
   } catch (err) {

@@ -172,8 +172,8 @@ async function connect() {
   await client.login(process.env.DC_BOT_TOKEN);
   try {
     (_b = client.user) == null ? void 0 : _b.setActivity({
-      name: "https://ch4.cch137.link",
-      url: "https://ch4.cch137.link",
+      name: "https://ch4.us.to/",
+      url: "https://ch4.us.to/",
       type: 0
     });
   } catch (err) {
