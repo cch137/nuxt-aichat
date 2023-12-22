@@ -1,5 +1,5 @@
 import Conversation from './conversation'
-import { Claude2Chatbot, Claude2WebChatbot, Gpt3FgaChatbot, Gpt4FgaChatbot, HunYuanChatbot } from '../engines'
+import { Claude2Chatbot, Claude2WebChatbot, Gpt3FgaChatbot, Gpt4FgaChatbot, HackedGeminiProChatbot } from '../engines'
 import { MindsDbGPTChatbotCore, FreeGPTAsiaChatbotCore } from '../engines'
 import str from '~/utils/str'
 import type { OpenAIMessage } from '../engines/cores/types'
@@ -20,7 +20,7 @@ function chooseEngine (model: string) {
       return Claude2Chatbot
     case 'hunyuan':
     case 'gemini-pro':
-      return HunYuanChatbot
+      return HackedGeminiProChatbot
     default:
       return Gpt3FgaChatbot
   }

@@ -7,6 +7,7 @@
 <script setup>
 const i18n = useLocale()
 const _t = i18n.t
+useChat().resetConvConfig()
 useTitle(`${_t('chat.newChat')} - ${useState('appName').value}`)
 definePageMeta({
   layout: 'chat',

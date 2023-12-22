@@ -14,6 +14,15 @@ const LOGGED_IN_LEVEL = 1;
 
 export default [
   {
+    name: 'Gemini-Pro',
+    value: 'gemini-pro',
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: false,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: MIN_LEVEL,
+  },
+  {
     name: 'GPT-3.5-Turbo',
     value: 'gpt3',
     isWebBrowsingOptional: false,
@@ -79,14 +88,5 @@ export default [
     isStreamAvailable: true,
     permissionLevel: MIN_LEVEL,
     redirectTo: 'gpt4',
-  },
-  {
-    name: 'Gemini-Pro',
-    value: 'gemini-pro',
-    isWebBrowsingOptional: false,
-    isTemperatureOptional: false,
-    isContextOptional: true,
-    isStreamAvailable: true,
-    permissionLevel: LOGGED_IN_LEVEL,
   },
 ] as ModelType[]

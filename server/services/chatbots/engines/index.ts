@@ -8,6 +8,7 @@ import Claude2WebChatbot from './claude-2-web'
 import Gpt3FgaChatbot from './gpt3-fga'
 import Gpt4FgaChatbot from './gpt4-fga'
 import HunYuanChatbot from './hunyuan'
+import HackedGeminiProChatbot from './geminipro'
 
 export {
   MindsDbGPTChatbotCore,
@@ -20,4 +21,5 @@ export {
   Gpt3FgaChatbot,
   Gpt4FgaChatbot,
   HunYuanChatbot,
+  HackedGeminiProChatbot,
 }

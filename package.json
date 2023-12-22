@@ -1,5 +1,5 @@
 {
-  "version": "0.5.15a",
+  "version": "0.5.16",
   "name": "curva",
   "description": "A free GPT-4 AI chatbot that can browse the web. This is for everyone.",
   "private": true,
@@ -77,6 +77,7 @@
   },
   "homepage": "https://github.com/cch137/curva#readme",
   "dependencies": {
-    "@dqbd/tiktoken": "^1.0.7"
+    "@dqbd/tiktoken": "^1.0.7",
+    "@google/generative-ai": "^0.1.3"
   }
 }

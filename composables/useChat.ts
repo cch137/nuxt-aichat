@@ -148,7 +148,7 @@ const _loadSuggestions = async () => {
 }
 
 const resetConvConfig = (showElMessage = false) => {
-  model.value = 'gpt4'
+  model.value = 'gemini-pro'
   contextMode.value = true
   temperature.value = 0.5
   if (showElMessage) {
