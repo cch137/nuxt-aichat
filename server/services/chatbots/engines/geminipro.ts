@@ -21,7 +21,7 @@ const geminiPro = (() => {
   const apiKey = 'AIzaSyDfGoWenCyM53XsN-AB6dci5dpNxFR-WXg'
   const genAI = new GoogleGenerativeAI(apiKey)
   const ask = async (newMessage = 'Hi', history: InputContent[] = [], streamId?: string) => {
-    const stream =  streamId === undefined ? streamManager.create() : streamManager.get(streamId) || streamManager.create()
+    const stream = (streamId === undefined ? null : streamManager.get(streamId)) || streamManager.create()
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
     const chat = model.startChat({
       history: history.map(msg => ({
@@ -58,9 +58,7 @@ const geminiPro = (() => {
 })();
 
 class HackedGeminiProChatbot {
-  core: FreeGptAsiaChatbotCore
-  constructor (core?: FreeGptAsiaChatbotCore) {
-    this.core = core || new FreeGptAsiaChatbotCore()
+  constructor () {
   }
   async ask (messages: OpenAIMessage[], options: { timezone?: number, context?: string, streamId?: string, temperature?: number } = {}) {
     const { timezone = 0, streamId, temperature } = options
@@ -70,6 +68,7 @@ class HackedGeminiProChatbot {
     const answer = await new Promise<string>((resolve, reject) => {
       stream.addEventListener('end', () => resolve(stream.read()))
       stream.addEventListener('error', (e) => reject(e))
+      if (stream.isEnd) resolve(stream.read())
     })
     return {
       answer,

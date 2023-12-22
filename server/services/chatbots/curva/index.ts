@@ -142,10 +142,6 @@ const curva = {
 
 export default curva
 
-// ;(async () => {
-//   console.log(await curva.coreAsk('gpt3_t00_2k', 'Hi'));
-// })();
-
 export {
   Conversation
 }
