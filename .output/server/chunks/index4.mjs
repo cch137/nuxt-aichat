@@ -469,7 +469,7 @@ class HackedGeminiProChatbot {
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     if (((_a = messages.at(-1)) == null ? void 0 : _a.content) === question)
       messages.pop();
-    const stream = await geminiPro.ask(question, messages.map((m) => ({ parts: m.content, role: m.role })), streamId);
+    const stream = await geminiPro.ask(question, messages.map((m) => ({ parts: m.content, role: m.role === 'user' ? 'user' : 'model' })), streamId);
     const answer = await new Promise((resolve, reject) => {
       stream.addEventListener("end", () => resolve(stream.read()));
       stream.addEventListener("error", (e) => reject(e));

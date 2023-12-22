@@ -64,7 +64,7 @@ class HackedGeminiProChatbot {
     const { timezone = 0, streamId, temperature } = options
     const { question = '', context = '', isContinueGenerate } = messagesToQuestionContext(messages)
     if (messages.at(-1)?.content === question) messages.pop()
-    const stream = await geminiPro.ask(question, messages.map(m => ({ parts: m.content, role: m.role })), streamId)
+    const stream = await geminiPro.ask(question, messages.map(m => ({ parts: m.content, role: m.role === 'user' ? 'user' : 'model' })), streamId)
     const answer = await new Promise<string>((resolve, reject) => {
       stream.addEventListener('end', () => resolve(stream.read()))
       stream.addEventListener('error', (e) => reject(e))
