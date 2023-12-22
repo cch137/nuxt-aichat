@@ -37,6 +37,7 @@ import 'axios';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
+import '@google/generative-ai';
 
 const history_post = defineEventHandler(async (event) => {
   var _a;

@@ -17,6 +17,7 @@ import 'crypto-js/sha3.js';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
+import '@google/generative-ai';
 import 'dotenv';
 import 'crypto';
 import './rollup/_commonjsHelpers.mjs';

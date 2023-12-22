@@ -34,6 +34,7 @@ import 'crypto-js/sha3.js';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
+import '@google/generative-ai';
 
 const trueKey = "bwAmMGcccc9BraUShKlJwDxfwW59zUjiQUstz7dGoX91JQr9bdsrZ7F73uDSTOic";
 const expressFgpt_post = defineEventHandler(async (event) => {

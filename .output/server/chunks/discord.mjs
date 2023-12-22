@@ -36,6 +36,7 @@ import 'axios';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
+import '@google/generative-ai';
 import './ytCrawler.mjs';
 import 'qs';
 

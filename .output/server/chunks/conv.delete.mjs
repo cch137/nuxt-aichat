@@ -37,6 +37,7 @@ import 'axios';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
+import '@google/generative-ai';
 
 const conv_delete = defineEventHandler(async (event) => {
   var _a;

@@ -5,6 +5,7 @@ import axios from 'axios';
 import { s as str } from './random.mjs';
 import { s as streamManager } from './streamManager.mjs';
 import { s as search } from './search.mjs';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 var __defProp$6 = Object.defineProperty;
 var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -412,22 +413,83 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-class HunYuanFgaChatbot {
+const convertPartsToText = (parts) => {
+  if (typeof parts === "string")
+    return parts;
+  const texts = [];
+  for (const part of parts) {
+    if (typeof part === "string")
+      texts.push(part);
+    else
+      texts.push((part == null ? void 0 : part.text) || "");
+  }
+  return texts.join("");
+};
+const geminiPro = (() => {
+  const apiKey = "AIzaSyDfGoWenCyM53XsN-AB6dci5dpNxFR-WXg";
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const ask = async (newMessage = "Hi", history = [], streamId) => {
+    const stream = streamId === void 0 ? streamManager.create() : streamManager.get(streamId) || streamManager.create();
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const chat = model.startChat({
+      history: history.map((msg) => ({
+        role: msg.role,
+        parts: convertPartsToText(msg.parts)
+      })),
+      generationConfig: {
+        maxOutputTokens: 8e3
+      }
+    });
+    const result = await chat.sendMessageStream(newMessage);
+    try {
+      while (true) {
+        const chunk = await result.stream.next();
+        if (chunk.done)
+          break;
+        const { candidates } = chunk.value;
+        if (candidates === void 0)
+          continue;
+        for (const candidate of candidates) {
+          for (const part of candidate.content.parts) {
+            stream.write((part == null ? void 0 : part.text) || "");
+          }
+        }
+      }
+    } catch (e) {
+      stream.error(e);
+    } finally {
+      stream.end();
+    }
+    return stream;
+  };
+  return {
+    ask
+  };
+})();
+class HackedGeminiProChatbot {
   constructor(core) {
     __publicField(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
+    var _a;
     const { timezone = 0, streamId, temperature } = options;
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
+    if (((_a = messages.at(-1)) == null ? void 0 : _a.content) === question)
+      messages.pop();
+    const stream = await geminiPro.ask(question, messages.map((m) => ({ parts: m.content, role: m.role })), streamId);
+    const answer = await new Promise((resolve, reject) => {
+      stream.addEventListener("end", () => resolve(stream.read()));
+      stream.addEventListener("error", (e) => reject(e));
+    });
     return {
-      ...await this.core.ask(messages, { model: "hunyuan", streamId, temperature }),
+      answer,
       question,
       isContinueGenerate
     };
   }
 }
-const HunYuanChatbot = HunYuanFgaChatbot;
+const HackedGeminiProChatbot$1 = HackedGeminiProChatbot;
 
 function chooseEngine(model) {
   switch (model) {
@@ -443,7 +505,7 @@ function chooseEngine(model) {
       return Claude2Chatbot;
     case "hunyuan":
     case "gemini-pro":
-      return HunYuanChatbot;
+      return HackedGeminiProChatbot$1;
     default:
       return Gpt3FgaChatbot$1;
   }

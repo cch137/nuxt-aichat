@@ -42,6 +42,7 @@ import 'axios';
 import './streamManager.mjs';
 import './search.mjs';
 import 'googlethis';
+import '@google/generative-ai';
 
 const logger = model("Log", new Schema({
   type: { type: String, required: true },
@@ -62,8 +63,16 @@ function estimateTokens(_model = "gpt-4", ...texts) {
 }
 
 const MIN_LEVEL = 0;
-const LOGGED_IN_LEVEL = 1;
 const models = [
+  {
+    name: "Gemini-Pro",
+    value: "gemini-pro",
+    isWebBrowsingOptional: false,
+    isTemperatureOptional: false,
+    isContextOptional: true,
+    isStreamAvailable: true,
+    permissionLevel: MIN_LEVEL
+  },
   {
     name: "GPT-3.5-Turbo",
     value: "gpt3",
@@ -130,15 +139,6 @@ const models = [
     isStreamAvailable: true,
     permissionLevel: MIN_LEVEL,
     redirectTo: "gpt4"
-  },
-  {
-    name: "Gemini-Pro",
-    value: "gemini-pro",
-    isWebBrowsingOptional: false,
-    isTemperatureOptional: false,
-    isContextOptional: true,
-    isStreamAvailable: true,
-    permissionLevel: LOGGED_IN_LEVEL
   }
 ];
 
