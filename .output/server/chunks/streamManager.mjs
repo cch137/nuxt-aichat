@@ -82,6 +82,7 @@ class Stream extends EventTarget {
     __privateAdd(this, _extendTimeout);
     __publicField(this, "id");
     __publicField(this, "data", []);
+    __publicField(this, "isError", false);
     __privateAdd(this, _isEnd, false);
     __privateAdd(this, _timeoutId, void 0);
     __publicField(this, "timeoutMs");
@@ -119,6 +120,7 @@ class Stream extends EventTarget {
     streamManager.delete(this.id);
   }
   error(e) {
+    this.isError = true;
     this.dispatchEvent(new Event("error", e));
   }
 }

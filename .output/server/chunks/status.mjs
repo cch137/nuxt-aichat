@@ -38,7 +38,7 @@ import 'socks';
 import 'tls';
 
 const status = defineEventHandler(async () => {
-  const [totalMessages, totalUsers, dbStats] = await Promise.all([
+  const [totalMessages, totalRegisteredUsers, dbStats] = await Promise.all([
     message.countDocuments(),
     user.countDocuments(),
     mongoose.connection.db.stats()
@@ -46,8 +46,8 @@ const status = defineEventHandler(async () => {
   return {
     models: curva.status,
     totalMessages,
-    totalUsers,
-    dataSize: (dbStats == null ? void 0 : dbStats.storageSize) || 0
+    totalRegisteredUsers,
+    dataSize: dbStats.dataSize
   };
 });
 

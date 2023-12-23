@@ -7,16 +7,16 @@ import { s as streamManager } from './streamManager.mjs';
 import { s as search } from './search.mjs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-var __defProp$5 = Object.defineProperty;
-var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$5 = (obj, key, value) => {
-  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$6 = Object.defineProperty;
+var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$6 = (obj, key, value) => {
+  __defNormalProp$6(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Conversation {
   constructor(uid, conv) {
-    __publicField$5(this, "conv");
-    __publicField$5(this, "uid");
+    __publicField$6(this, "conv");
+    __publicField$6(this, "uid");
     this.uid = uid;
     this.conv = conv;
   }
@@ -181,10 +181,10 @@ ${data}`;
   return messages;
 }
 
-var __defProp$4 = Object.defineProperty;
-var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$4 = (obj, key, value) => {
-  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$5 = Object.defineProperty;
+var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$5 = (obj, key, value) => {
+  __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 async function createStreamRequest(streaming, url, data, headers) {
@@ -236,8 +236,8 @@ const defaultApiHost = mikuApiHost;
 const defaultApiKey = mikuApiKey;
 class Client {
   constructor(host = defaultApiHost, apiKey = defaultApiKey) {
-    __publicField$4(this, "host");
-    __publicField$4(this, "apiKey");
+    __publicField$5(this, "host");
+    __publicField$5(this, "apiKey");
     this.host = host || defaultApiHost;
     this.apiKey = apiKey || defaultApiKey;
   }
@@ -279,7 +279,7 @@ class Client {
 }
 class FreeGptAsiaChatbotCore {
   constructor(options = {}) {
-    __publicField$4(this, "client");
+    __publicField$5(this, "client");
     const { host, apiKey } = options;
     this.client = new Client(host, apiKey);
   }
@@ -306,15 +306,15 @@ class FreeGptAsiaChatbotCore {
 }
 const FreeGPTAsiaChatbotCore = FreeGptAsiaChatbotCore;
 
-var __defProp$3 = Object.defineProperty;
-var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$3 = (obj, key, value) => {
-  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$4 = Object.defineProperty;
+var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$4 = (obj, key, value) => {
+  __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 let Claude2WebChatbot$2 = class Claude2WebChatbot {
   constructor(core) {
-    __publicField$3(this, "core");
+    __publicField$4(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore({ host: fgaApiHost, apiKey: fgaApiKey });
   }
   async ask(messages, options = {}) {
@@ -330,15 +330,15 @@ let Claude2WebChatbot$2 = class Claude2WebChatbot {
 };
 const Claude2Chatbot = Claude2WebChatbot$2;
 
-var __defProp$2 = Object.defineProperty;
-var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$2 = (obj, key, value) => {
-  __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$3 = Object.defineProperty;
+var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$3 = (obj, key, value) => {
+  __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Claude2WebChatbot {
   constructor(core) {
-    __publicField$2(this, "core");
+    __publicField$3(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore({ host: fgaApiHost, apiKey: fgaApiKey });
   }
   async ask(messages, options = {}) {
@@ -361,15 +361,15 @@ ${(await search(question)).summary(false)}`;
 }
 const Claude2WebChatbot$1 = Claude2WebChatbot;
 
-var __defProp$1 = Object.defineProperty;
-var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField$1 = (obj, key, value) => {
-  __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$2 = Object.defineProperty;
+var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$2 = (obj, key, value) => {
+  __defNormalProp$2(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Gpt3FgaChatbot {
   constructor(core) {
-    __publicField$1(this, "core");
+    __publicField$2(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
@@ -384,15 +384,15 @@ class Gpt3FgaChatbot {
 }
 const Gpt3FgaChatbot$1 = Gpt3FgaChatbot;
 
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __defProp$1 = Object.defineProperty;
+var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField$1 = (obj, key, value) => {
+  __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
 class Gpt4FgaChatbot {
   constructor(core) {
-    __publicField(this, "core");
+    __publicField$1(this, "core");
     this.core = core || new FreeGPTAsiaChatbotCore();
   }
   async ask(messages, options = {}) {
@@ -434,13 +434,18 @@ const geminiPro = (() => {
         maxOutputTokens: 8e3
       }
     });
-    const result = await chat.sendMessageStream(newMessage);
+    let globalError = void 0;
+    const req = await chat.sendMessageStream(newMessage);
     try {
       while (true) {
-        const chunk = await result.stream.next();
+        const chunk = await req.stream.next();
         if (chunk.done)
           break;
-        const { candidates } = chunk.value;
+        const { candidates, promptFeedback } = chunk.value;
+        if (promptFeedback == null ? void 0 : promptFeedback.blockReason) {
+          globalError = new Error(`Model refused to respond. (Ratings: ${promptFeedback.safetyRatings.map((r) => `${r.probability} ${r.category}`).join(", ")})`);
+          throw globalError;
+        }
         if (candidates === void 0)
           continue;
         for (const candidate of candidates) {
@@ -450,10 +455,12 @@ const geminiPro = (() => {
         }
       }
     } catch (e) {
-      stream.error(e);
+      stream.error();
     } finally {
       stream.end();
     }
+    if (globalError)
+      throw globalError;
     return stream;
   };
   return {
@@ -469,22 +476,39 @@ class HackedGeminiProChatbot {
     const { question = "", context = "", isContinueGenerate } = messagesToQuestionContext(messages);
     if (((_a = messages.at(-1)) == null ? void 0 : _a.content) === question)
       messages.pop();
-    const stream = await geminiPro.ask(question, messages.map((m) => ({ parts: m.content, role: m.role === 'user' ? 'user' : 'model' })), streamId);
-    const answer = await new Promise((resolve, reject) => {
-      stream.addEventListener("end", () => resolve(stream.read()));
-      stream.addEventListener("error", (e) => reject(e));
-      if (stream.isEnd)
-        resolve(stream.read());
-    });
-    return {
-      answer,
-      question,
-      isContinueGenerate
-    };
+    try {
+      const stream = await geminiPro.ask(question, messages.map((m) => ({ parts: m.content, role: m.role === "user" ? "user" : "model" })), streamId);
+      const answer = await new Promise((resolve, reject) => {
+        stream.addEventListener("end", () => resolve(stream.read()));
+        stream.addEventListener("error", () => reject());
+        if (stream.isError)
+          reject();
+        else if (stream.isEnd)
+          resolve(stream.read());
+      });
+      return {
+        answer,
+        question,
+        isContinueGenerate
+      };
+    } catch (error) {
+      return {
+        answer: "",
+        error: error instanceof Error ? error.message : error,
+        question,
+        isContinueGenerate
+      };
+    }
   }
 }
 const HackedGeminiProChatbot$1 = HackedGeminiProChatbot;
 
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 function chooseEngine(model) {
   switch (model) {
     case "gpt3":
@@ -504,23 +528,78 @@ function chooseEngine(model) {
       return Gpt3FgaChatbot$1;
   }
 }
-const statusAnalysis = /* @__PURE__ */ new Map();
-function getModelStatus(modelName, defaultIsSuccess) {
-  return statusAnalysis.get(modelName) || (() => {
-    const status = defaultIsSuccess ? 1 : 0;
-    statusAnalysis.set(modelName, status);
-    return status;
-  })();
+class StatusRecord {
+  constructor(isSuccess) {
+    __publicField(this, "isSuccess");
+    __publicField(this, "created");
+    this.isSuccess = isSuccess;
+    this.created = Date.now();
+  }
 }
-function recordModelStatus(modelName, isSuccess) {
-  statusAnalysis.set(modelName, getModelStatus(modelName, isSuccess) * 0.8 + (isSuccess ? 0.2 : 0));
+const statusAnalysis = {
+  items: [],
+  get(recordName) {
+    return statusAnalysis.items.find((r) => r.name === recordName) || new StatusRecords(recordName);
+  },
+  add(records) {
+    statusAnalysis.items = [...statusAnalysis.items, records];
+  },
+  delete(records) {
+    const i = statusAnalysis.items.indexOf(records);
+    if (i !== -1)
+      statusAnalysis.items.splice(i, 1);
+  },
+  get table() {
+    return statusAnalysis.items.map((r) => [r.name, r.status]);
+  },
+  record(recordName, isSuccess) {
+    return statusAnalysis.get(recordName).record(isSuccess);
+  }
+};
+class StatusRecords {
+  constructor(name) {
+    __publicField(this, "name");
+    __publicField(this, "items");
+    __publicField(this, "lastUpdated");
+    this.name = name;
+    this.items = [];
+    this.lastUpdated = Date.now();
+    statusAnalysis.add(this);
+  }
+  get size() {
+    return this.items.length;
+  }
+  get updateNeeded() {
+    return this.lastUpdated + 6e4 < Date.now();
+  }
+  get status() {
+    return this.items.filter((s) => s.isSuccess).length / this.size;
+  }
+  record(isSuccess) {
+    const items = this.items;
+    items.push(new StatusRecord(isSuccess));
+    if (!this.updateNeeded)
+      return;
+    const now = Date.now();
+    let removeIndex = this.size - 1;
+    for (; removeIndex < this.size; removeIndex++) {
+      if (now - items[removeIndex].created > 9e5) {
+        break;
+      }
+    }
+    if (removeIndex !== 0)
+      this.items = items.slice(removeIndex);
+    this.lastUpdated = now;
+    if (this.size === 0)
+      statusAnalysis.delete(this);
+  }
 }
 const freeGptAsiaCore = new FreeGPTAsiaChatbotCore();
 const processingConversation = /* @__PURE__ */ new Map();
 const curva = {
   name: "Curva",
   get status() {
-    return [...statusAnalysis.keys()].sort().map((model) => [model, statusAnalysis.get(model)]);
+    return statusAnalysis.table;
   },
   async fgpt(question) {
     return await new Gpt4FgaChatbot$1(freeGptAsiaCore).ask([{ role: "user", content: question }]);
@@ -559,14 +638,14 @@ const curva = {
           _id
         );
       }
-      recordModelStatus(model, result.error ? false : true);
+      statusAnalysis.record(model, result.error ? false : true);
       return {
         ...result,
         dt,
         id: _id
       };
     } catch (err) {
-      recordModelStatus(model, false);
+      statusAnalysis.record(model, false);
       const error = str(err);
       return {
         answer: "",
