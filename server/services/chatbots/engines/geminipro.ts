@@ -32,12 +32,17 @@ const geminiPro = (() => {
         maxOutputTokens: 8000,
       },
     })
-    const result = await chat.sendMessageStream(newMessage)
+    let globalError: Error | undefined = undefined
+    const req = await chat.sendMessageStream(newMessage)
     try {
       while (true) {
-        const chunk = await result.stream.next()
+        const chunk = await req.stream.next()
         if (chunk.done) break;
-        const { candidates } = chunk.value
+        const { candidates, promptFeedback } = chunk.value
+        if (promptFeedback?.blockReason) {
+          globalError = new Error(`Model refused to respond. (Ratings: ${promptFeedback.safetyRatings.map(r => `${r.probability} ${r.category}`).join(', ')})`)
+          throw globalError
+        }
         if (candidates === undefined) continue
         for (const candidate of candidates) {
           for (const part of candidate.content.parts) {
@@ -46,10 +51,11 @@ const geminiPro = (() => {
         }
       }
     } catch (e) {
-      stream.error(e)
+      stream.error()
     } finally {
       stream.end()
     }
+    if (globalError) throw globalError
     return stream
   }
   return {
@@ -64,16 +70,26 @@ class HackedGeminiProChatbot {
     const { timezone = 0, streamId, temperature } = options
     const { question = '', context = '', isContinueGenerate } = messagesToQuestionContext(messages)
     if (messages.at(-1)?.content === question) messages.pop()
-    const stream = await geminiPro.ask(question, messages.map(m => ({ parts: m.content, role: m.role === 'user' ? 'user' : 'model' })), streamId)
-    const answer = await new Promise<string>((resolve, reject) => {
-      stream.addEventListener('end', () => resolve(stream.read()))
-      stream.addEventListener('error', (e) => reject(e))
-      if (stream.isEnd) resolve(stream.read())
-    })
-    return {
-      answer,
-      question,
-      isContinueGenerate,
+    try {
+      const stream = await geminiPro.ask(question, messages.map(m => ({ parts: m.content, role: m.role === 'user' ? 'user' : 'model' })), streamId)
+      const answer = await new Promise<string>((resolve, reject) => {
+        stream.addEventListener('end', () => resolve(stream.read()))
+        stream.addEventListener('error', () => reject())
+        if (stream.isError) reject()
+        else if (stream.isEnd) resolve(stream.read())
+      })
+      return {
+        answer,
+        question,
+        isContinueGenerate,
+      }
+    } catch (error) {
+      return {
+        answer: '',
+        error: error instanceof Error ? error.message : error,
+        question,
+        isContinueGenerate
+      }
     }
   }
 }

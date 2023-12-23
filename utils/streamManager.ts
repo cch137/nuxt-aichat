@@ -59,6 +59,7 @@ class Stream extends EventTarget {
   readonly id: string
   data: string[] = []
 
+  isError = false
   #isEnd = false
   #timeoutId?: NodeJS.Timeout
 
@@ -121,6 +122,7 @@ class Stream extends EventTarget {
   }
 
   error (e?: any) {
+    this.isError = true
     this.dispatchEvent(new Event('error', e))
   }
 }

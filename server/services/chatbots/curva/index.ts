@@ -26,16 +26,69 @@ function chooseEngine (model: string) {
   }
 }
 
-const statusAnalysis = new Map<string, number>()
-function getModelStatus(modelName: string, defaultIsSuccess?: boolean) {
-  return statusAnalysis.get(modelName) || (() => {
-    const status = defaultIsSuccess ? 1 : 0
-    statusAnalysis.set(modelName, status)
-    return status
-  })()
+class StatusRecord {
+  isSuccess: boolean
+  created: number
+  constructor(isSuccess: boolean) {
+    this.isSuccess = isSuccess
+    this.created = Date.now()
+  }
 }
-function recordModelStatus(modelName: string, isSuccess: boolean) {
-  statusAnalysis.set(modelName, getModelStatus(modelName, isSuccess) * 0.8 + (isSuccess ? 0.2 : 0))
+
+const statusAnalysis = {
+  items: [] as StatusRecords[],
+  get(recordName: string) {
+    return statusAnalysis.items.find(r => r.name === recordName) || new StatusRecords(recordName)
+  },
+  add(records: StatusRecords) {
+    statusAnalysis.items = [...statusAnalysis.items, records]
+  },
+  delete(records: StatusRecords) {
+    const i = statusAnalysis.items.indexOf(records)
+    if (i !== -1) statusAnalysis.items.splice(i, 1)
+  },
+  get table() {
+    return statusAnalysis.items.map((r) => [r.name, r.status] as [string, number])
+  },
+  record(recordName: string, isSuccess: boolean) {
+    return statusAnalysis.get(recordName).record(isSuccess)
+  }
+}
+
+class StatusRecords {
+  name: string
+  items: StatusRecord[]
+  lastUpdated: number
+  constructor(name: string) {
+    this.name = name
+    this.items = []
+    this.lastUpdated = Date.now()
+    statusAnalysis.add(this)
+  }
+  get size() {
+    return this.items.length
+  }
+  get updateNeeded(): boolean {
+    return this.lastUpdated + 60000 < Date.now()
+  }
+  get status(): number {
+    return this.items.filter(s => s.isSuccess).length / this.size
+  }
+  record(isSuccess: boolean) {
+    const items = this.items
+    items.push(new StatusRecord(isSuccess))
+    if (!this.updateNeeded) return
+    const now = Date.now()
+    let removeIndex: number = this.size - 1
+    for (; removeIndex < this.size; removeIndex++) {
+      if (now - items[removeIndex].created > 900000) {
+        break
+      }
+    }
+    if (removeIndex !== 0) this.items = items.slice(removeIndex)
+    this.lastUpdated = now
+    if (this.size === 0) statusAnalysis.delete(this)
+  }
 }
 
 // const getRandomMindsDBCore = (() => {
@@ -64,8 +117,7 @@ const processingConversation = new Map<string, string>()
 const curva = {
   name: 'Curva',
   get status() {
-    return [...statusAnalysis.keys()].sort()
-      .map(model => [model, statusAnalysis.get(model) as number] as [string,number])
+    return statusAnalysis.table
   },
   async fgpt(question: string) {
     return await new Gpt4FgaChatbot(freeGptAsiaCore).ask([{ role: 'user', content: question }])
@@ -119,14 +171,14 @@ const curva = {
           _id
         )
       }
-      recordModelStatus(model, result.error ? false : true)
+      statusAnalysis.record(model, result.error ? false : true)
       return {
         ...result,
         dt,
         id: _id
       }
     } catch (err) {
-      recordModelStatus(model, false)
+      statusAnalysis.record(model, false)
       const error = str(err)
       return {
         answer: '',
