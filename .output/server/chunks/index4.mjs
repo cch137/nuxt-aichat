@@ -422,14 +422,22 @@ const convertPartsToText = (parts) => {
 const geminiPro = (() => {
   const apiKey = "AIzaSyDfGoWenCyM53XsN-AB6dci5dpNxFR-WXg";
   const genAI = new GoogleGenerativeAI(apiKey);
-  const ask = async (newMessage = "Hi", history = [], streamId) => {
+  const ask = async (newMessage = "Hi", _history = [], streamId) => {
     const stream = (streamId === void 0 ? null : streamManager.get(streamId)) || streamManager.create();
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const history = [];
+    _history = _history.map((msg) => ({ role: msg.role, parts: convertPartsToText(msg.parts) }));
+    let lastIsUser = false;
+    for (let i = 0; i < _history.length; i++) {
+      if (lastIsUser && _history[i].role === "user")
+        history.push({ role: "model", parts: "" });
+      if (!lastIsUser && _history[i].role === "model")
+        history.push({ role: "user", parts: "" });
+      history.push(_history[i]);
+      lastIsUser = _history[i].role === "user";
+    }
     const chat = model.startChat({
-      history: history.map((msg) => ({
-        role: msg.role,
-        parts: convertPartsToText(msg.parts)
-      })),
+      history,
       generationConfig: {
         maxOutputTokens: 8e3
       }
