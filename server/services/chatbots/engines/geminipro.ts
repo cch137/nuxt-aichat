@@ -20,14 +20,20 @@ const geminiPro = (() => {
   // BaseUrl: https://generativelanguage.googleapis.com
   const apiKey = 'AIzaSyDfGoWenCyM53XsN-AB6dci5dpNxFR-WXg'
   const genAI = new GoogleGenerativeAI(apiKey)
-  const ask = async (newMessage = 'Hi', history: InputContent[] = [], streamId?: string) => {
+  const ask = async (newMessage = 'Hi', _history: InputContent[] = [], streamId?: string) => {
     const stream = (streamId === undefined ? null : streamManager.get(streamId)) || streamManager.create()
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+    const history: InputContent[] = []
+    _history = _history.map(msg => ({ role: msg.role, parts: convertPartsToText(msg.parts) }))
+    let lastIsUser = false
+    for (let i = 0; i < _history.length; i++) {
+      if (lastIsUser && _history[i].role === 'user') history.push({ role: 'model', parts: ''})
+      if (!lastIsUser && _history[i].role === 'model') history.push({ role: 'user', parts: ''})
+      history.push(_history[i])
+      lastIsUser = _history[i].role === 'user'
+    }
     const chat = model.startChat({
-      history: history.map(msg => ({
-        role: msg.role,
-        parts: convertPartsToText(msg.parts),
-      })),
+      history,
       generationConfig: {
         maxOutputTokens: 8000,
       },
