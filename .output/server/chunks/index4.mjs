@@ -589,16 +589,11 @@ class StatusRecords {
     if (!this.updateNeeded)
       return;
     const now = Date.now();
-    let removeIndex = this.size - 1;
-    for (; removeIndex < this.size; removeIndex++) {
-      if (now - items[removeIndex].created > 9e5) {
-        break;
-      }
-    }
-    if (removeIndex !== 0)
-      this.items = items.slice(removeIndex);
-    this.lastUpdated = now;
-    if (this.size === 0)
+    if (items.length) {
+      while (now - items[0].created > 9e5)
+        items.shift();
+      this.lastUpdated = now;
+    } else
       statusAnalysis.delete(this);
   }
 }
