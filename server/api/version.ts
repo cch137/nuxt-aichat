@@ -1,5 +1,5 @@
-import { version } from '~/config/server'
+import { version } from "~/config/server";
 
 export default defineEventHandler(async () => {
-  return { version }
-})
+  return { version };
+});

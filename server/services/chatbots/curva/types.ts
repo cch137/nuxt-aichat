@@ -20,7 +20,4 @@ interface CurvaStandardResponse {
   version?: string;
 }
 
-export type {
-  ArchivedChatMessage,
-  CurvaStandardResponse
-}
+export type { ArchivedChatMessage, CurvaStandardResponse };

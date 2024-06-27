@@ -1,14 +1,11 @@
-let clientId = ''
+let clientId = "";
 
 function getClientId() {
-  return clientId
+  return clientId;
 }
 
 function setClientId(value: string) {
-  clientId = value
+  clientId = value;
 }
 
-export {
-  getClientId,
-  setClientId,
-}
+export { getClientId, setClientId };

@@ -3,13 +3,13 @@
  * @author wniko
  */
 
-import table1 from './data/table1'
-import table2 from './data/table2'
+import table1 from "./data/table1";
+import table2 from "./data/table2";
 
 export enum ConvertType {
   dont = 0,
   s2t = 1,
-  t2s = 2
+  t2s = 2,
 }
 
 const zhConverter = {
@@ -18,40 +18,46 @@ const zhConverter = {
    * @param text
    * @return
    */
-  s2t (text: string): string {
+  s2t(text: string): string {
     if (text.length === 0) {
-      return ''
+      return "";
     }
 
-    const tmptext: string = text
-    const result: string[] = Array(text.length)
+    const tmptext: string = text;
+    const result: string[] = Array(text.length);
 
     if (text.length > 1) {
       table2.forEach((couple: [string, string]) => {
         for (let i = 0; i < tmptext.length - 1; i++) {
-          if (tmptext.substring(i, i + 2) === couple[1] && result[i] === undefined) {
-            result[i] = couple[0].charAt(0)
-            result[i + 1] = couple[0].charAt(1)
+          if (
+            tmptext.substring(i, i + 2) === couple[1] &&
+            result[i] === undefined
+          ) {
+            result[i] = couple[0].charAt(0);
+            result[i + 1] = couple[0].charAt(1);
           }
         }
-      })
+      });
     }
 
     table1.forEach((couple: [string, string]) => {
       for (let i = 0; i < tmptext.length; i++) {
-        if (tmptext.substring(i, i + 1) === couple[1] && result[i] === undefined) {
-          result[i] = couple[0].charAt(0)
+        if (
+          tmptext.substring(i, i + 1) === couple[1] &&
+          result[i] === undefined
+        ) {
+          result[i] = couple[0].charAt(0);
         }
       }
-    })
+    });
 
     for (let i = 0; i < result.length; i++) {
       if (result[i] === undefined) {
-        result[i] = tmptext.charAt(i)
+        result[i] = tmptext.charAt(i);
       }
     }
 
-    return result.join('')
+    return result.join("");
   },
 
   /**
@@ -59,16 +65,16 @@ const zhConverter = {
    * @param text
    * @returns
    */
-  t2s (text: string): string {
+  t2s(text: string): string {
     if (text.length === 0) {
-      return ''
+      return "";
     }
 
-    let resText = text
+    let resText = text;
     table1.forEach((charSet) => {
-      resText = resText.replace(new RegExp(charSet[0], 'g'), charSet[1])
-    })
-    return resText
+      resText = resText.replace(new RegExp(charSet[0], "g"), charSet[1]);
+    });
+    return resText;
   },
 
   /**
@@ -77,18 +83,18 @@ const zhConverter = {
    * @param convertType 0: don't convert, 1: S->T, 2: T->S
    * @returns
    */
-  convert (text: string, convertType: ConvertType): string {
+  convert(text: string, convertType: ConvertType): string {
     switch (convertType) {
       case ConvertType.dont:
-        return text
+        return text;
       case ConvertType.s2t:
-        return zhConverter.s2t(text)
+        return zhConverter.s2t(text);
       case ConvertType.t2s:
-        return zhConverter.t2s(text)
+        return zhConverter.t2s(text);
       default:
-        return text
+        return text;
     }
-  }
-}
+  },
+};
 
-export default zhConverter
+export default zhConverter;

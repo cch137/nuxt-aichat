@@ -1,24 +1,22 @@
 const str = (obj: any): string => {
   try {
     if (obj?.toString === undefined) {
-      return `${obj}`
+      return `${obj}`;
     } else {
-      const _str = obj.toString() as string
-      return (_str.startsWith('[object ') && _str.endsWith(']'))
+      const _str = obj.toString() as string;
+      return _str.startsWith("[object ") && _str.endsWith("]")
         ? JSON.stringify(obj)
-        : _str
+        : _str;
     }
   } catch {
-    return ''
+    return "";
   }
-}
+};
 
 const lower = (o: any): string => {
-  return str(o).toLowerCase()
-}
+  return str(o).toLowerCase();
+};
 
-export {
-  lower
-}
+export { lower };
 
-export default str
+export default str;

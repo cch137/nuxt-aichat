@@ -1,126 +1,165 @@
-import axios from 'axios'
-import type { ChatbotEngine, OpenAIMessage } from '../types'
-import str from '~/utils/str'
-import { questionContextToMessages } from '../../utils/openAiMessagesConverter'
-import type { Stream } from '~/utils/streamManager'
-import streamManager from '~/utils/streamManager'
+import axios from "axios";
+import type { ChatbotEngine, OpenAIMessage } from "../types";
+import str from "~/utils/str";
+import { questionContextToMessages } from "../../utils/openAiMessagesConverter";
+import type { Stream } from "~/utils/streamManager";
+import streamManager from "~/utils/streamManager";
 
 interface ChatResponseChoice {
-  index: number,
-  message: { role: "user" | "assistant", content: string },
-  finish_reason: string | "stop"
+  index: number;
+  message: { role: "user" | "assistant"; content: string };
+  finish_reason: string | "stop";
 }
 
 interface ChatResponseChoiceDelta {
-  index: number,
-  delta: { role?: "user" | "assistant", content?: string },
-  finish_reason: string | "stop"
+  index: number;
+  delta: { role?: "user" | "assistant"; content?: string };
+  finish_reason: string | "stop";
 }
 
 interface ChatResponse {
-  id: string,
-  object: string,
-  created: number, // unit: seconds
-  model: string,
-  choices: ChatResponseChoice[],
-  usage: { prompt_tokens: number, completion_tokens: number, total_tokens: number}
+  id: string;
+  object: string;
+  created: number; // unit: seconds
+  model: string;
+  choices: ChatResponseChoice[];
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
 }
 
 interface ChatResponseChunk {
-  id: string,
-  object: string,
-  created: number,
-  model: string,
-  choices: ChatResponseChoiceDelta[]
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: ChatResponseChoiceDelta[];
 }
 
-async function createStreamRequest (streaming: Stream, url: string, data: any, headers: Record<string,string>) {
-  return await new Promise<{ answer: string, error?: string }>(async (resolve, reject) => {
-    let error: any = undefined
-    try {
-      const res = await axios.post(url, data, {
-        headers, validateStatus: (_) => true,
-        responseType: 'stream'
-      })
-      res.data.on('data', (buf: Buffer) => {
-        const chunksString = buf.toString('utf8').split('data:').map(c => c.trim()).filter(c => c)
-        for (const chunkString of chunksString) {
-          try {
-            const chunk = JSON.parse(chunkString) as ChatResponseChunk
-            const content = chunk.choices[0]?.delta?.content
-            if (content === undefined) continue
-            streaming.write(content)
-          } catch {}
-        }
-      })
-      res.data.on('error', (e: any) => {
-        error = e
-        streaming.error(e)
-      })
-      res.data.on('end', () => {
-        const answer = streaming.read()
-        if (answer) {
-          streaming.end()
-          resolve({ answer })
-        } else {
-          reject(`${error || 'Oops! Something went wrong.'}`)
-        }
-      })
-    } catch (err) {
-      reject(`${error || 'Oops! Something went wrong.'}`)
+async function createStreamRequest(
+  streaming: Stream,
+  url: string,
+  data: any,
+  headers: Record<string, string>
+) {
+  return await new Promise<{ answer: string; error?: string }>(
+    async (resolve, reject) => {
+      let error: any = undefined;
+      try {
+        const res = await axios.post(url, data, {
+          headers,
+          validateStatus: (_) => true,
+          responseType: "stream",
+        });
+        res.data.on("data", (buf: Buffer) => {
+          const chunksString = buf
+            .toString("utf8")
+            .split("data:")
+            .map((c) => c.trim())
+            .filter((c) => c);
+          for (const chunkString of chunksString) {
+            try {
+              const chunk = JSON.parse(chunkString) as ChatResponseChunk;
+              const content = chunk.choices[0]?.delta?.content;
+              if (content === undefined) continue;
+              streaming.write(content);
+            } catch {}
+          }
+        });
+        res.data.on("error", (e: any) => {
+          error = e;
+          streaming.error(e);
+        });
+        res.data.on("end", () => {
+          const answer = streaming.read();
+          if (answer) {
+            streaming.end();
+            resolve({ answer });
+          } else {
+            reject(`${error || "Oops! Something went wrong."}`);
+          }
+        });
+      } catch (err) {
+        reject(`${error || "Oops! Something went wrong."}`);
+      }
     }
-  })
+  );
 }
 
-const fgaApiHost = 'https://api.freegpt.asia'
-const fgaApiKey = 'sk-g7kBtcXIBI6ihoin7223Df33910b4aF38631204e03FdF1B1'
-const mikuApiHost = 'https://chat.mikumikumi.tk'
-const mikuApiKey = 'sk-iqYB0vYbeIDfRZcQFb595cDd6b9a479a8735120a7b87D987'
+const fgaApiHost = "https://api.freegpt.asia";
+const fgaApiKey = "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+const mikuApiHost = "https://chat.mikumikumi.tk";
+const mikuApiKey = "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 // const defaultApiHost = fgaApiHost
 // const defaultApiKey = fgaApiKey
-const defaultApiHost = mikuApiHost
-const defaultApiKey = mikuApiKey
+const defaultApiHost = mikuApiHost;
+const defaultApiKey = mikuApiKey;
 
 class Client {
-  host: string
-  apiKey: string
+  host: string;
+  apiKey: string;
 
-  constructor (host = defaultApiHost, apiKey = defaultApiKey) {
-    this.host = host || defaultApiHost
-    this.apiKey = apiKey || defaultApiKey
+  constructor(host = defaultApiHost, apiKey = defaultApiKey) {
+    this.host = host || defaultApiHost;
+    this.apiKey = apiKey || defaultApiKey;
   }
 
-  async askGPT (messages: OpenAIMessage[], options: { model?: string, temperature?: number, top_p?: number, stream?: boolean, streamId?: string, maxTries?: number  } = {}) {
-    const { model = '', temperature = 0.3, top_p = 0.7, stream = true, streamId, maxTries = 1 } = options
-    const url = `${this.host}/v1/chat/completions`
-    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` }
+  async askGPT(
+    messages: OpenAIMessage[],
+    options: {
+      model?: string;
+      temperature?: number;
+      top_p?: number;
+      stream?: boolean;
+      streamId?: string;
+      maxTries?: number;
+    } = {}
+  ) {
+    const {
+      model = "",
+      temperature = 0.3,
+      top_p = 0.7,
+      stream = true,
+      streamId,
+      maxTries = 1,
+    } = options;
+    const url = `${this.host}/v1/chat/completions`;
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.apiKey}`,
+    };
     const _data = {
       messages,
       model,
       temperature,
       top_p,
-      stream
-    }
+      stream,
+    };
     if (!stream) {
       try {
-        const data = (await axios.post(url, _data, { headers, validateStatus: (_) => true })).data as ChatResponse
-        const answer = data.choices[0].message.content
-        return { answer }
+        const data = (
+          await axios.post(url, _data, { headers, validateStatus: (_) => true })
+        ).data as ChatResponse;
+        const answer = data.choices[0].message.content;
+        return { answer };
       } catch (err) {
-        return { error: `${err}`, answer: '' }
+        return { error: `${err}`, answer: "" };
       }
     }
-    const streaming = (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
-    let retries = 0
+    const streaming =
+      (streamId ? streamManager.get(streamId) : 0) || streamManager.create();
+    let retries = 0;
     while (true) {
       try {
-        return await createStreamRequest(streaming, url, _data, headers)
+        return await createStreamRequest(streaming, url, _data, headers);
       } catch (err) {
         if (retries++ < maxTries) {
-          console.log('GPT stream retry.', err)
-          continue
+          console.log("GPT stream retry.", err);
+          continue;
         } else {
-          return { error: `${err}`, answer: '' }
+          return { error: `${err}`, answer: "" };
         }
       }
     }
@@ -128,41 +167,50 @@ class Client {
 }
 
 class FreeGptAsiaChatbotCore implements ChatbotEngine {
-  client: Client
-  constructor (options: {host?: string, apiKey?: string} = {}) {
-    const { host, apiKey } = options
-    this.client = new Client(host, apiKey)
+  client: Client;
+  constructor(options: { host?: string; apiKey?: string } = {}) {
+    const { host, apiKey } = options;
+    this.client = new Client(host, apiKey);
   }
   init() {
-    return new Promise<true>((r) =>r(true))
+    return new Promise<true>((r) => r(true));
   }
-  async ask (questionOrMessages: string | OpenAIMessage[], options: { context?: string, model?: string, temperature?: number, top_p?: number, stream?: boolean, streamId?: string } = {}) {
+  async ask(
+    questionOrMessages: string | OpenAIMessage[],
+    options: {
+      context?: string;
+      model?: string;
+      temperature?: number;
+      top_p?: number;
+      stream?: boolean;
+      streamId?: string;
+    } = {}
+  ) {
     try {
-      const messages = typeof questionOrMessages === 'string'
-        ? questionContextToMessages(questionOrMessages, options?.context || '')
-        : questionOrMessages
-      const res = await this.client.askGPT(messages, options)
+      const messages =
+        typeof questionOrMessages === "string"
+          ? questionContextToMessages(
+              questionOrMessages,
+              options?.context || ""
+            )
+          : questionOrMessages;
+      const res = await this.client.askGPT(messages, options);
       try {
-        return res
+        return res;
       } catch {
-        throw str(res)
+        throw str(res);
       }
     } catch (err) {
-      return { answer: '', error: str(err) }
+      return { answer: "", error: str(err) };
     }
   }
-  setup () {}
-  kill () {}
+  setup() {}
+  kill() {}
 }
 
-export default FreeGptAsiaChatbotCore
-export {
-  mikuApiHost,
-  mikuApiKey,
-  fgaApiHost,
-  fgaApiKey,
-}
-export type { FreeGptAsiaChatbotCore }
+export default FreeGptAsiaChatbotCore;
+export { mikuApiHost, mikuApiKey, fgaApiHost, fgaApiKey };
+export type { FreeGptAsiaChatbotCore };
 
 // 已棄用：
 // const defaultApiHost = 'https://api.spaxe.top'

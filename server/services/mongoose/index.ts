@@ -1,18 +1,18 @@
-import { config } from 'dotenv'
-import { ObjectId } from 'mongodb'
-import mongoose from 'mongoose'
-import log from './models/log'
-import message from './models/message'
-import conversation from './models/conversation'
-import user from './models/user'
-import { writeFileSync } from 'fs'
+import { config } from "dotenv";
+import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
+import log from "./models/log";
+import message from "./models/message";
+import conversation from "./models/conversation";
+import user from "./models/user";
+import { writeFileSync } from "fs";
 
-config()
+config();
 
-console.log('MONGO:', process.env.MONGODB_KEY?.slice(0, 11))
-void mongoose.connect(process.env.MONGODB_KEY as string)
+console.log("MONGO:", process.env.MONGODB_KEY?.slice(0, 11));
+void mongoose.connect(process.env.MONGODB_KEY as string);
 
-export default mongoose
+export default mongoose;
 
 // ;(async () => {
 //   console.log('START DOWNLOAD')
@@ -22,10 +22,4 @@ export default mongoose
 //   console.log('END DOWNLOAD')
 // })();
 
-export {
-  ObjectId,
-  log,
-  message,
-  conversation,
-  user
-}
+export { ObjectId, log, message, conversation, user };

@@ -1,11 +1,9 @@
-import discordBot from '~/server/services/discord/index'
+import discordBot from "~/server/services/discord/index";
 
-function getSettings () {
+function getSettings() {
   return {
-    dcBotConnected: discordBot.connected
-  }
+    dcBotConnected: discordBot.connected,
+  };
 }
 
-export {
-  getSettings
-}
+export { getSettings };

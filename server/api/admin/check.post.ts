@@ -1,29 +1,35 @@
-import checkPassword from '~/server/services/admin/checkPassword'
-import { readBody } from 'h3'
-import { serialize } from 'cookie'
-import RateLimiter from '~/server/services/rate-limiter'
-import getIp from '~/server/services/getIp'
+import checkPassword from "~/server/services/admin/checkPassword";
+import { readBody } from "h3";
+import { serialize } from "cookie";
+import RateLimiter from "~/server/services/rate-limiter";
+import getIp from "~/server/services/getIp";
 
 // Every 1 minutes 10 times
-const rateLimiter = new RateLimiter(10, 1 * 60 * 1000)
+const rateLimiter = new RateLimiter(10, 1 * 60 * 1000);
 
 export default defineEventHandler(async function (event) {
   if (!rateLimiter.check(getIp(event.node.req))) {
-    return { error: rateLimiter.hint, isLoggedIn: false }
+    return { error: rateLimiter.hint, isLoggedIn: false };
   }
-  let isLoggedIn = await checkPassword(event)
+  let isLoggedIn = await checkPassword(event);
   if (isLoggedIn) {
-    return { isLoggedIn }
+    return { isLoggedIn };
   }
-  const passwd = (await readBody(event))?.passwd as string | undefined
+  const passwd = (await readBody(event))?.passwd as string | undefined;
   if (!passwd) {
-    return { isLoggedIn: false }
+    return { isLoggedIn: false };
   }
-  event.node.res.setHeader('Set-Cookie', serialize('admin', passwd, {
-    path: '/',
-    httpOnly: true,
-    sameSite: true,
-    secure: true
-  }))
-  return { isLoggedIn: process.env.ADMIN_PASSWORD && passwd === process.env.ADMIN_PASSWORD }
-})
+  event.node.res.setHeader(
+    "Set-Cookie",
+    serialize("admin", passwd, {
+      path: "/",
+      httpOnly: true,
+      sameSite: true,
+      secure: true,
+    })
+  );
+  return {
+    isLoggedIn:
+      process.env.ADMIN_PASSWORD && passwd === process.env.ADMIN_PASSWORD,
+  };
+});

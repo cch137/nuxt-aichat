@@ -1,24 +1,32 @@
-import type { MindsDbGPTChatbotCore } from './cores/MindsdbGPT'
-import formatUserCurrentTime from './utils/formatUserCurrentTime'
-import search from '../../webBrowsing/search'
-import crawl from '../../webBrowsing/crawl'
-import type { WebSearcherResult } from '../../webBrowsing/search'
-import estimateTokens from './utils/estimateTokens'
-import sleep from '~/utils/sleep'
-import type { OpenAIMessage } from './cores/types'
-import { messagesToQuestionContext } from './utils/openAiMessagesConverter'
+import type { MindsDbGPTChatbotCore } from "./cores/MindsdbGPT";
+import formatUserCurrentTime from "./utils/formatUserCurrentTime";
+import search from "../../webBrowsing/search";
+import crawl from "../../webBrowsing/crawl";
+import type { WebSearcherResult } from "../../webBrowsing/search";
+import estimateTokens from "./utils/estimateTokens";
+import sleep from "~/utils/sleep";
+import type { OpenAIMessage } from "./cores/types";
+import { messagesToQuestionContext } from "./utils/openAiMessagesConverter";
 
-function parseObjectFromText (text: string, startChar = '{', endChar = '}') {
-  text = `${text.includes(startChar) ? '' : startChar}${text}${text.includes('}') ? '' : '}'}`
+function parseObjectFromText(text: string, startChar = "{", endChar = "}") {
+  text = `${text.includes(startChar) ? "" : startChar}${text}${
+    text.includes("}") ? "" : "}"
+  }`;
   try {
-    return JSON.parse(text.substring(text.indexOf(startChar), text.lastIndexOf(endChar) + 1))
+    return JSON.parse(
+      text.substring(text.indexOf(startChar), text.lastIndexOf(endChar) + 1)
+    );
   } catch {
-    return JSON.parse(`${startChar}${endChar}`)
+    return JSON.parse(`${startChar}${endChar}`);
   }
 }
 
-async function estimateQueriesAndUrls (engine: MindsDbGPTChatbotCore, question: string, options: { time?: string, context?: string } = {}) {
-  const { time = formatUserCurrentTime(0) } = options
+async function estimateQueriesAndUrls(
+  engine: MindsDbGPTChatbotCore,
+  question: string,
+  options: { time?: string; context?: string } = {}
+) {
+  const { time = formatUserCurrentTime(0) } = options;
   question = `你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
 回复的格式: { "queries": string[], "urls": string[], "answer"?: string }
 你的用戶被分配了一個任務。
@@ -42,56 +50,94 @@ async function estimateQueriesAndUrls (engine: MindsDbGPTChatbotCore, question: 
 當前時間: ${time}
 ---
 question: ${question}
-`
-  let _answer = (await engine.ask(question, { modelName: 'gpt4_t00_7k', context: options.context })).answer || '{}'
+`;
+  let _answer =
+    (
+      await engine.ask(question, {
+        modelName: "gpt4_t00_7k",
+        context: options.context,
+      })
+    ).answer || "{}";
   try {
-    const { queries = [], urls = [], answer = '' } = parseObjectFromText(_answer, '{', '}') as { queries?: string[], urls?: string[], answer?: null | string }
-    return { queries, urls, answer: answer ? `${answer}` : '' }
+    const {
+      queries = [],
+      urls = [],
+      answer = "",
+    } = parseObjectFromText(_answer, "{", "}") as {
+      queries?: string[];
+      urls?: string[];
+      answer?: null | string;
+    };
+    return { queries, urls, answer: answer ? `${answer}` : "" };
   } catch {
-    return { queries: [], urls: [], answer: '' }
+    return { queries: [], urls: [], answer: "" };
   }
 }
 
-function chunkParagraphs (article: string, modelName = '', chunkMaxTokens = 2000) {
-  const lines = article.split('\n')
-  let cursorChunkLength = 0, cursorIndex = 0
-  const chunks: string [] = []
+function chunkParagraphs(
+  article: string,
+  modelName = "",
+  chunkMaxTokens = 2000
+) {
+  const lines = article.split("\n");
+  let cursorChunkLength = 0,
+    cursorIndex = 0;
+  const chunks: string[] = [];
   lines.forEach((line, index, array) => {
-    const lineTokens = estimateTokens(modelName, line)
-    cursorChunkLength += lineTokens
+    const lineTokens = estimateTokens(modelName, line);
+    cursorChunkLength += lineTokens;
     if (cursorChunkLength > chunkMaxTokens) {
-      chunks.push(array.slice(cursorIndex, cursorIndex = index).join('\n'))
-      cursorChunkLength = lineTokens
+      chunks.push(array.slice(cursorIndex, (cursorIndex = index)).join("\n"));
+      cursorChunkLength = lineTokens;
     }
-  })
+  });
   if (cursorChunkLength > 0) {
-    chunks.push(lines.slice(cursorIndex, lines.length).join('\n'))
+    chunks.push(lines.slice(cursorIndex, lines.length).join("\n"));
   }
-  return chunks
+  return chunks;
 }
 
-let lastSummaryArticle = 0
+let lastSummaryArticle = 0;
 
-async function summaryArticle (engine: MindsDbGPTChatbotCore, question: string, article: string, options: { time?: string, maxTries?: number, chunkMaxTokens?: number, summaryMaxTokens?: number, modelName?: string } = {}): Promise<string> {
+async function summaryArticle(
+  engine: MindsDbGPTChatbotCore,
+  question: string,
+  article: string,
+  options: {
+    time?: string;
+    maxTries?: number;
+    chunkMaxTokens?: number;
+    summaryMaxTokens?: number;
+    modelName?: string;
+  } = {}
+): Promise<string> {
   if (!article) {
-    return ''
+    return "";
   }
-  const now = Date.now()
+  const now = Date.now();
   if (now - lastSummaryArticle < 500) {
     return await new Promise(async (resolve, reject) => {
       try {
-        await sleep(Math.random() * 1000)
-        resolve(await summaryArticle(engine, question, article, options))
+        await sleep(Math.random() * 1000);
+        resolve(await summaryArticle(engine, question, article, options));
       } catch (err) {
-        reject(err)
+        reject(err);
       }
-    })
+    });
   }
-  lastSummaryArticle = now
-  const { time = formatUserCurrentTime(0), maxTries = 3, chunkMaxTokens = 5000, summaryMaxTokens = 5000, modelName = 'gpt4_t00_6k' } = options
-  const chunks = chunkParagraphs(article, options.modelName, chunkMaxTokens)
-  const summary = (await Promise.all(chunks.map(async (chunk) => {
-  const prompt = `
+  lastSummaryArticle = now;
+  const {
+    time = formatUserCurrentTime(0),
+    maxTries = 3,
+    chunkMaxTokens = 5000,
+    summaryMaxTokens = 5000,
+    modelName = "gpt4_t00_6k",
+  } = options;
+  const chunks = chunkParagraphs(article, options.modelName, chunkMaxTokens);
+  const summary = (
+    await Promise.all(
+      chunks.map(async (chunk) => {
+        const prompt = `
 Summarizes information relevant to the question from the following content.
 Organize your responses appropriately into an article or notes.
 Content is sourced from webpages, completely ignore content not related to the question.
@@ -99,17 +145,28 @@ Summarization in a language other than the web page is prohibited.
 User curent time: ${time}
 Question: ${question}
 Webpage:
-${chunk}`
-    return (await engine.ask(prompt, { modelName })).answer
-  }))).join('\n')
+${chunk}`;
+        return (await engine.ask(prompt, { modelName })).answer;
+      })
+    )
+  ).join("\n");
   if (estimateTokens(modelName, summary) > summaryMaxTokens && maxTries > 1) {
-    return await summaryArticle(engine, question, summary, { ...options, maxTries: maxTries - 1 })
+    return await summaryArticle(engine, question, summary, {
+      ...options,
+      maxTries: maxTries - 1,
+    });
   }
-  return summary
+  return summary;
 }
 
-async function selectPages (engine: MindsDbGPTChatbotCore, question: string, result: WebSearcherResult, options: { time?: string, modelName?: string } = {}) {
-  const { time = formatUserCurrentTime(0), modelName = 'gpt4_t00_7k' } = options
+async function selectPages(
+  engine: MindsDbGPTChatbotCore,
+  question: string,
+  result: WebSearcherResult,
+  options: { time?: string; modelName?: string } = {}
+) {
+  const { time = formatUserCurrentTime(0), modelName = "gpt4_t00_7k" } =
+    options;
   question = `你是一個 API，回复格式只能是 JSON，嚴禁作出其它註解。
 回复的格式: { "selectedUrls"?: string[], "answer"?: string }
 你的用戶使用搜索引擎找到了一些網頁，請分析搜索引擎結果。
@@ -127,47 +184,102 @@ question: ${question}
 ---
 search results:
 
-${result.summary(true)}`
-  return parseObjectFromText((await engine.ask(question, { modelName })).answer, '{', '}') as { selectedUrls: string[], answer?: string }
+${result.summary(true)}`;
+  return parseObjectFromText(
+    (await engine.ask(question, { modelName })).answer,
+    "{",
+    "}"
+  ) as { selectedUrls: string[]; answer?: string };
 }
 
 class GptWebChatbot {
-  core: MindsDbGPTChatbotCore
-  constructor (core: MindsDbGPTChatbotCore) {
-    this.core = core
+  core: MindsDbGPTChatbotCore;
+  constructor(core: MindsDbGPTChatbotCore) {
+    this.core = core;
   }
-  async ask (messages: OpenAIMessage[], options: { timezone?: number, time?: string } = {}): Promise<{ question: string, answer: string, queries?: string[], urls?: string[], isContinueGenerate: boolean, error?: string }> {
-    const { question, context, isContinueGenerate } = messagesToQuestionContext(messages)
-    options = { ...options, time: formatUserCurrentTime(options.timezone || 0) }
-    let { queries = [], urls = [], answer: answer1 = '' } = await estimateQueriesAndUrls(this.core, question, { ...options, context })
-    if (queries.length === 0 && urls.length === 0 && answer1 !== '') {
-      return { question, queries, urls, answer: answer1, isContinueGenerate }
+  async ask(
+    messages: OpenAIMessage[],
+    options: { timezone?: number; time?: string } = {}
+  ): Promise<{
+    question: string;
+    answer: string;
+    queries?: string[];
+    urls?: string[];
+    isContinueGenerate: boolean;
+    error?: string;
+  }> {
+    const { question, context, isContinueGenerate } =
+      messagesToQuestionContext(messages);
+    options = {
+      ...options,
+      time: formatUserCurrentTime(options.timezone || 0),
+    };
+    let {
+      queries = [],
+      urls = [],
+      answer: answer1 = "",
+    } = await estimateQueriesAndUrls(this.core, question, {
+      ...options,
+      context,
+    });
+    if (queries.length === 0 && urls.length === 0 && answer1 !== "") {
+      return { question, queries, urls, answer: answer1, isContinueGenerate };
     }
-    const crawledPages1 = Promise.all(urls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown)))
-    let isDirectAnswerInWhenSelectPages = false
-    const crawledPages2 = queries.length ? (async () => {
-      const searcherResult = await search(...queries)
-      const { selectedUrls = [], answer = '' } = await selectPages(this.core, question, searcherResult)
-      if (answer) {
-        isDirectAnswerInWhenSelectPages = true
-        return [answer]
-      }
-      urls.push(...selectedUrls)
-      const tasks = selectedUrls.map(async (url) => await summaryArticle(this.core, question, (await crawl(url)).markdown))
-      const queriesSummary = `${answer1 ? answer1 + '\n\n' : ''}${searcherResult.summary()}`
-      tasks.unshift(summaryArticle(this.core, question, queriesSummary))
-      return await Promise.all(tasks)
-    })() : Promise.all([new Promise<string>((r) => r(''))])
-    if (isDirectAnswerInWhenSelectPages && queries.length && urls.length === 0) {
-      return { question, queries, answer: (await crawledPages2)[0], isContinueGenerate }
+    const crawledPages1 = Promise.all(
+      urls.map(
+        async (url) =>
+          await summaryArticle(this.core, question, (await crawl(url)).markdown)
+      )
+    );
+    let isDirectAnswerInWhenSelectPages = false;
+    const crawledPages2 = queries.length
+      ? (async () => {
+          const searcherResult = await search(...queries);
+          const { selectedUrls = [], answer = "" } = await selectPages(
+            this.core,
+            question,
+            searcherResult
+          );
+          if (answer) {
+            isDirectAnswerInWhenSelectPages = true;
+            return [answer];
+          }
+          urls.push(...selectedUrls);
+          const tasks = selectedUrls.map(
+            async (url) =>
+              await summaryArticle(
+                this.core,
+                question,
+                (
+                  await crawl(url)
+                ).markdown
+              )
+          );
+          const queriesSummary = `${
+            answer1 ? answer1 + "\n\n" : ""
+          }${searcherResult.summary()}`;
+          tasks.unshift(summaryArticle(this.core, question, queriesSummary));
+          return await Promise.all(tasks);
+        })()
+      : Promise.all([new Promise<string>((r) => r(""))]);
+    if (
+      isDirectAnswerInWhenSelectPages &&
+      queries.length &&
+      urls.length === 0
+    ) {
+      return {
+        question,
+        queries,
+        answer: (await crawledPages2)[0],
+        isContinueGenerate,
+      };
     }
-    let summary = (await Promise.all([
-      ...await crawledPages1,
-      ...await crawledPages2
-    ])).join('\n---\n')
-    let tries = 2
-    while (estimateTokens('gpt-4', summary) > 5000 && tries-- > 0) {
-      summary = await summaryArticle(this.core, question, summary)
+    let summary = (
+      await Promise.all([...(await crawledPages1), ...(await crawledPages2)])
+    ).join("\n---\n");
+    let tries = 2;
+    while (estimateTokens("gpt-4", summary) > 5000 && tries-- > 0) {
+      summary = await summaryArticle(this.core, question, summary);
     }
     const prompt = `Use references where possible and answer in detail.
 Organize your responses appropriately into an article or notes.
@@ -176,8 +288,11 @@ User current time: ${options.time}
 Question: ${question}
 
 References:
-${summary}`
-    const result = await this.core.ask(prompt, { modelName: 'gpt4_t00_6k', context })
+${summary}`;
+    const result = await this.core.ask(prompt, {
+      modelName: "gpt4_t00_6k",
+      context,
+    });
     return {
       question,
       queries,
@@ -185,9 +300,9 @@ ${summary}`
       answer: result.answer,
       error: result.error,
       isContinueGenerate,
-    }
+    };
   }
 }
 
-export default GptWebChatbot
-export { summaryArticle }
+export default GptWebChatbot;
+export { summaryArticle };

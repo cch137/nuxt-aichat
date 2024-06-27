@@ -1,73 +1,71 @@
-import qs from 'qs'
+import qs from "qs";
 
-function validKeyValuePair (key: string, value: string) {
+function validKeyValuePair(key: string, value: string) {
   switch (key) {
-    case 'model':
-      if (['gpt3', 'gpt4', 'gpt-web', 'claude-2', 'gemini-pro'].includes(value)) {
-        return true
+    case "model":
+      if (
+        ["gpt3", "gpt4", "gpt-web", "claude-2", "gemini-pro"].includes(value)
+      ) {
+        return true;
       }
-      break
-    case 'temperature':
-      if (typeof value === 'number') {
-        if (value >=0 && value <= 1) {
-          return true
+      break;
+    case "temperature":
+      if (typeof value === "number") {
+        if (value >= 0 && value <= 1) {
+          return true;
         }
       }
-      break
-    case 'context':
-      if (typeof value === 'boolean') {
-        return true
+      break;
+    case "context":
+      if (typeof value === "boolean") {
+        return true;
       }
-      break
+      break;
   }
-  return false
+  return false;
 }
 
-function tryParseJson (obj: any) {
+function tryParseJson(obj: any) {
   try {
-    return JSON.parse(obj)
+    return JSON.parse(obj);
   } catch {
-    return obj
+    return obj;
   }
 }
 
-function toStdConvConfig (obj: any): Record<string, any> {
+function toStdConvConfig(obj: any): Record<string, any> {
   try {
-    const resultObj: any = {}
+    const resultObj: any = {};
     for (const key in obj) {
-      const value = tryParseJson(obj[key])
+      const value = tryParseJson(obj[key]);
       if (validKeyValuePair(key, value)) {
-        resultObj[key] = value
+        resultObj[key] = value;
       }
     }
-    return resultObj
+    return resultObj;
   } catch {
-    return {}
+    return {};
   }
 }
 
-function parseConvConfig (objString: string) {
+function parseConvConfig(objString: string) {
   try {
-    return toStdConvConfig(qs.parse(objString))
+    return toStdConvConfig(qs.parse(objString));
   } catch {
-    return {}
+    return {};
   }
 }
 
-function stringifyConvConfig (obj: any) {
+function stringifyConvConfig(obj: any) {
   try {
-    return qs.stringify(toStdConvConfig(obj))
+    return qs.stringify(toStdConvConfig(obj));
   } catch {
-    return ''
+    return "";
   }
 }
 
-function toStdConvConfigString (configString: string) {
-  return stringifyConvConfig(parseConvConfig(configString))
+function toStdConvConfigString(configString: string) {
+  return stringifyConvConfig(parseConvConfig(configString));
 }
 
-export {
-  parseConvConfig,
-  stringifyConvConfig,
-  toStdConvConfigString
-}
+export { parseConvConfig, stringifyConvConfig, toStdConvConfigString };

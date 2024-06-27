@@ -1,7 +1,4 @@
-const getAllKey = 'cch'
-const getDeletedKey = '~cch'
+const getAllKey = "cch";
+const getDeletedKey = "~cch";
 
-export {
-  getAllKey,
-  getDeletedKey
-}
+export { getAllKey, getDeletedKey };

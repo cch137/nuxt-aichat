@@ -1,8 +1,13 @@
-import str from '~/utils/str'
-import { round } from '~/utils/round'
+import str from "~/utils/str";
+import { round } from "~/utils/round";
 
-export default function (date: Date, format = 'yyyy-MM-dd HH:mm:ss', isUTC = false) {
-  const addLeadingZeros = (val: number, len = 2) => val.toString().padStart(len, '0')
+export default function (
+  date: Date,
+  format = "yyyy-MM-dd HH:mm:ss",
+  isUTC = false
+) {
+  const addLeadingZeros = (val: number, len = 2) =>
+    val.toString().padStart(len, "0");
   const dateProperties = isUTC
     ? {
         y: date.getUTCFullYear(),
@@ -12,7 +17,7 @@ export default function (date: Date, format = 'yyyy-MM-dd HH:mm:ss', isUTC = fal
         H: date.getUTCHours(),
         m: date.getUTCMinutes(),
         s: date.getUTCSeconds(),
-        f: date.getUTCMilliseconds()
+        f: date.getUTCMilliseconds(),
       }
     : {
         y: date.getFullYear(),
@@ -22,11 +27,11 @@ export default function (date: Date, format = 'yyyy-MM-dd HH:mm:ss', isUTC = fal
         H: date.getHours(),
         m: date.getMinutes(),
         s: date.getSeconds(),
-        f: date.getMilliseconds()
-      }
-  const T = dateProperties.H < 12 ? 'AM' : 'PM'
-  const _h = dateProperties.H % 12
-  const h = _h === 0 ? 12 : _h
+        f: date.getMilliseconds(),
+      };
+  const T = dateProperties.H < 12 ? "AM" : "PM";
+  const _h = dateProperties.H % 12;
+  const h = _h === 0 ? 12 : _h;
   format = format
     .replace(/yyyy/g, str(dateProperties.y))
     .replace(/yy/g, `${dateProperties.y}`.substring(2, 4))
@@ -44,19 +49,64 @@ export default function (date: Date, format = 'yyyy-MM-dd HH:mm:ss', isUTC = fal
     .replace(/f/g, str(round(dateProperties.f / 100)))
     .replace(/TT/gi, T)
     .replace(/T/gi, T.charAt(0))
-    .replace(/dddd/g, ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dateProperties.w])
-    .replace(/ddd/g, ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateProperties.w])
+    .replace(
+      /dddd/g,
+      [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ][dateProperties.w]
+    )
+    .replace(
+      /ddd/g,
+      ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dateProperties.w]
+    )
     .replace(/dd/g, addLeadingZeros(dateProperties.d))
-    .replace(/d/g, str(dateProperties.d))
-  const formatBefore = format
+    .replace(/d/g, str(dateProperties.d));
+  const formatBefore = format;
   format = format
-    .replace(/MMMM/g, ['January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'][dateProperties.M - 1])
-    .replace(/MMM/g, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][dateProperties.M - 1])
+    .replace(
+      /MMMM/g,
+      [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ][dateProperties.M - 1]
+    )
+    .replace(
+      /MMM/g,
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ][dateProperties.M - 1]
+    );
   if (format !== formatBefore) {
-    return format
+    return format;
   }
-  return format.replace(/MM/g, addLeadingZeros(dateProperties.M))
-    .replace(/M/g, str(dateProperties.M))
+  return format
+    .replace(/MM/g, addLeadingZeros(dateProperties.M))
+    .replace(/M/g, str(dateProperties.M));
 }

@@ -1,18 +1,18 @@
-import isIterable from './isIterable'
+import isIterable from "./isIterable";
 
-export default function safeStringify (obj: any): string {
-  const seenObjects = new Set()
+export default function safeStringify(obj: any): string {
+  const seenObjects = new Set();
   const reviver = (_: string, value: any) => {
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === "object" && value !== null) {
       if (seenObjects.has(value)) {
-        return undefined
+        return undefined;
       }
-      seenObjects.add(value)
+      seenObjects.add(value);
       if (isIterable(value)) {
-        value = [...value]
+        value = [...value];
       }
     }
-    return value
-  }
-  return JSON.stringify(obj, reviver)
+    return value;
+  };
+  return JSON.stringify(obj, reviver);
 }

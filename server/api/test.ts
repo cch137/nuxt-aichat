@@ -1,5 +1,5 @@
-import { analyzeLanguage } from '~/utils/analyzeLanguages'
+import { analyzeLanguage } from "~/utils/analyzeLanguages";
 
 export default defineEventHandler(async (event) => {
-  return analyzeLanguage('笑死我')
-})
+  return analyzeLanguage("笑死我");
+});
